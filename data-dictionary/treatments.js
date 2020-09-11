@@ -240,7 +240,7 @@ const cols = [
         validation    : '',
     },
     {
-        name          : 'order',
+        name          : '"order"',
         type          : 'str',
         zenodo        : 'subjects',
         zenodeotype   : definitions.text,
