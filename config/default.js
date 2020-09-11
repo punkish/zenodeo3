@@ -47,6 +47,6 @@ module.exports = {
 
     data: {
         //treatments: path.join(cwd, 'data', 'treatments.sqlite')
-        treatments: '/Users/punkish/Projects/zenodeo/data/treatments.sqlite'
+        treatments: '../data/treatments.sqlite'
     }
 };
