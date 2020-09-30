@@ -6,20 +6,14 @@
  * 
  **************************************************************/
 
-const path = require('path');
-const cwd = process.cwd();
+// const path = require('path');
+// const cwd = process.cwd();
 
 module.exports = {
     port: 3010,
-    url: 'http://lucknow.local/v3',
+    url: 'http://127.0.0.1:3010/v3',
     loglevel: 'INFO',
-    env: 'test',
-    
-    
-    // all queries that take longer than the 
-    // following (in ms) are displayed in red
-    // in the console log
-    logSlowSQLthreshold: 300,
+    debug: true,
 
     v3: {
         swagger: {
@@ -36,12 +30,18 @@ module.exports = {
                         url: 'https://swagger.io',
                         description: 'Find more info here'
                     },
-                    host: 'lucknow.local',
+                    host: '127.0.0.1:3010',
                     schemes: ['http'],
                     consumes: ['application/json'],
                     produces: ['application/json']
                 }
             }
+        },
+
+        cache: {
+
+            // default cache duration 1 day (24 hours)
+            duration: 1 * 60 * 60 * 1000
         }
     },
 

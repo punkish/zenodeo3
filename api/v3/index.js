@@ -1,40 +1,22 @@
 'use strict'
 
-//const cache = require('abstract-cache')({useAwait: true})
+const { resources, getSchemaStrict } = require('../../data-dictionary/dd-utils')
+const { handlerFactory } = require('./utils')
 
-const resources = require('./resources')
-
-// This is where we build the routes for each resource
+/*
+ * This is the route factory that uses the routes configuration
+ * defined in data-dictionary and generates a route. The route  
+ * definition uses a handlerFactory to create the handler for 
+ * each route, and a schema generator that uses the data-dictionary
+ * to create a JSON schema for validation
+ */
 const routes = async function(fastify, options) {
-    resources.forEach(resource => {
+    resources.forEach(r => {
         fastify.route({
             method: 'GET',
-            url: `/${resource.name}`,
-            schema: { querystring: resource.schema },
-            handler: resource.handler,
-    
-            // this function is executed for every request before validation
-            //preValidation: async (request, reply, done) => {
-                
-
-                // let check = false
-                // const q = request.query
-    
-                // if (Object.keys(q).length) {
-                //     for (let p in q) {
-                //         if (p in resource.schema) {
-                //             check = true
-                //             break
-                //         }
-                //     }
-    
-                //     if (!check) {
-                //         reply.code(400).send(new Error('you submitted an invalid query'))
-                //     }
-                // }
-    
-                //done()
-            //}
+            url: `/${r.name === 'root' ? '' : r.name.toLowerCase()}`,
+            schema: { querystring: getSchemaStrict(r.name) },
+            handler: handlerFactory(r.name)
         })
     })
 }

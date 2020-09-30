@@ -7,5 +7,8 @@
  **************************************************************/
 
 module.exports = {
-    url: 'http://z3.punkish.org/v3'
-}
+    port: 3010,
+    url: 'https://zenodeo.info/v3',
+    loglevel: 'ERROR',
+    debug: false
+};
