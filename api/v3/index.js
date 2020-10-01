@@ -1,8 +1,34 @@
 'use strict'
 
+const config = require('config')
+const url = config.get('url')
 const { resources, getSchemaStrict } = require('../../data-dictionary/dd-utils')
 const { handlerFactory } = require('./utils')
 
+const rootHandler = async function(request, reply) {
+    const records = [{
+        name: 'root',
+        url: url,
+        description: 'This is where it starts'
+    }]
+
+    resources.forEach(r => {
+        records.push({
+            name: r.name,
+            url: `${url}/${r.name.toLowerCase()}`,
+            description: r.description
+        })
+    })
+
+    return {
+        value: {
+            'search-criteria': {},
+            'num-of-records': records.length,
+            _links: { self: { href: `${url}/` }},
+            records: records
+        }
+    }
+}
 /*
  * This is the route factory that uses the routes configuration
  * defined in data-dictionary and generates a route. The route  
@@ -11,6 +37,13 @@ const { handlerFactory } = require('./utils')
  * to create a JSON schema for validation
  */
 const routes = async function(fastify, options) {
+
+    fastify.route({
+        method: 'GET',
+        url: '/',
+        handler: rootHandler
+    })
+
     resources.forEach(r => {
         fastify.route({
             method: 'GET',
