@@ -7,5 +7,10 @@
  **************************************************************/
 
 module.exports = {
-    url: 'http://z3.punkish.org/v3'
+    url: 'http://z3.punkish.org/v3',
+    v3: {
+        swagger: {
+            host: 'http://z3.punkish.org'
+        }
+    }
 }

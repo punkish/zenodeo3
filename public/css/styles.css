@@ -1,0 +1,146 @@
+
+header {
+	margin-bottom: 3em;
+	text-align: left;
+	padding: 4rem;
+}
+header h1 {
+	margin-bottom: 0;
+}
+header a.title {
+    text-decoration: none;
+    color: black;
+    
+}
+header h2.small {
+    text-transform: uppercase;
+    font-weight: 400;
+    font-size: xx-small;
+	letter-spacing: 0;
+}
+nav a, nav b {margin-right: 0.75em;}
+
+section {
+	text-align: left;
+	/* padding: 4rem; */
+}
+
+details summary {
+	font-size: 3rem;
+	font-weight: bold;
+	border-bottom: 1px solid grey;
+	padding: 1rem;
+	margin-bottom: 2rem;
+}
+
+/* the following are used only in /docs.html */
+#resources_container {width: 100% !important;}
+#v1_endpoint_list {margin-left: 0 !important; font-size: 100% !important;}
+.endpoint {margin-left: -2em !important; font-size: 140% !important;}
+.footer h4 {font-size: 1em !important;}
+input.submit {background-color: #f5f5f5;  line-height: 0;}
+
+/******************* new doc **********************/
+/* hide the ugly swagger topbar */
+#swagger-ui div.topbar {
+	display: none;
+}
+/* section.swagger-ui {
+	padding: 0;
+} */
+
+/* accommodate monodraw diagrams */
+pre.diagram {
+	line-height: 1em;
+	overflow: hidden;
+}
+
+/* install.html and examples.html */
+pre code {border: 1px black;}
+
+/* examples.html */
+/* https://www.sitepoint.com/using-modern-css-to-build-a-responsive-image-grid/ */
+#images {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+figure {
+	/* width: 150px; */
+	margin-bottom: 8px;
+	margin-right: 8px;
+	font-size: 12px; 
+	display: inline-block;
+}
+
+figure img {
+  width: 100%; 
+  border: 1px solid;
+}
+
+figure:nth-of-type(2n) {
+	margin-right: 0;
+}
+
+
+@media screen and (min-width: 50em) {
+figure {
+	/* width: calc(25% - 6px); */
+	margin-bottom: 8px;
+	margin-right: 8px;
+	font-size: 12px; 
+	display: inline-block;
+}
+figure:nth-of-type(2n) {
+		margin-right: 8px;
+	}
+
+figure:nth-of-type(4n) {
+		margin-right: 0;
+	}
+}
+
+.qryLabel {float: left; font-weight: bold; margin-right: 10px;}
+.qryStr {float: left; margin-right: 10px; padding: 0 10px 0 10px; border: 1px dotted;}
+#loader {
+z-index: 1;
+width: 150px;
+height: 150px;
+margin: 0 auto;
+border: 16px solid #f3f3f3;
+border-radius: 50%;
+border-top: 16px solid #3498db;
+width: 120px;
+height: 120px;
+-webkit-animation: spin 2s linear infinite;
+animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+0% { -webkit-transform: rotate(0deg); }
+100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+
+/* Add animation to "page content" */
+.animate-bottom {
+position: relative;
+-webkit-animation-name: animatebottom;
+-webkit-animation-duration: 1s;
+animation-name: animatebottom;
+animation-duration: 1s
+}
+
+@-webkit-keyframes animatebottom {
+from { bottom:-100px; opacity:0 } 
+to { bottom:0px; opacity:1 }
+}
+
+@keyframes animatebottom { 
+from{ bottom:-100px; opacity:0 } 
+to{ bottom:0; opacity:1 }
+}

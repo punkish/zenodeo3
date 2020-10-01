@@ -25,6 +25,7 @@
     "json5": "^2.1.3",
     "pino-pretty": "^4.1.0",
     "point-of-view": "^4.6.0",
+    "showdown": "^1.9.1",
     "sqlformatter": "^0.1.0"
   },
   "devDependencies": {

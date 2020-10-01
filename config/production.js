@@ -10,5 +10,10 @@ module.exports = {
     port: 3010,
     url: 'https://zenodeo.info/v3',
     loglevel: 'ERROR',
-    debug: false
+    debug: false,
+    v3: {
+        swagger: {
+            host: 'https://zenodeo.info'
+        }
+    }
 };
