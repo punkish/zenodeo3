@@ -1,0 +1,140 @@
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Swagger UI</title>
+    <link rel="stylesheet" type="text/css" href="./documentation/static/swagger-ui.css" >
+    <link rel="icon" type="image/png" href="./documentation/static/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="./documentation/static/favicon-16x16.png" sizes="16x16" />
+    <style>
+      /* html
+      {
+        box-sizing: border-box;
+        overflow: -moz-scrollbars-vertical;
+        overflow-y: scroll;
+      }
+
+      *,
+      *:before,
+      *:after
+      {
+        box-sizing: inherit;
+      }
+
+      body
+      {
+        margin:0;
+        background: #fafafa;
+      } */
+
+      /* uglyduck.ca */
+*{box-sizing:border-box;}body{font:16px/1.5 "Georgia",serif;margin:0 auto;max-width:66ch;padding:1rem;}h1,h2,h3,h4,h5,h6{font-family:"Helvetica Neue","Helvetica","Arial",sans-serif;margin:2.5rem 0 1rem;}ul li, ol li{margin-top:0.5rem;}a,a:visited{color:black;}a:hover{color:dodgerblue;}img{height:auto;max-width:100%;}pre{border: 0px solid lightgrey;overflow:auto;}code{color:orangered;display:inline-block;}pre code{padding:1rem;}blockquote{border-left:5px solid lightgrey;font-size:120%;font-style:italic;margin:2rem 0;padding:1rem;}table{border-collapse:collapse;margin:2rem 0;text-align:left;width:100%;}tr{border-bottom:1px solid lightgrey;}th,td{padding:0.5rem;}hr{background:lightgrey;border:0;height:1px;margin:2rem 0;}
+
+
+header {
+	margin-bottom: 3em;
+	text-align: left;
+	padding: 4rem;
+}
+header h1 {
+	margin-bottom: 0;
+    font-weight: 200;
+}
+header a.title {
+    text-decoration: none;
+    color: black;
+    font-weight: 200
+}
+header h2.small {
+    text-transform: uppercase;
+    font-weight: 400;
+    font-size: xx-small;
+	letter-spacing: 0;
+    margin: 0;
+}
+nav a, nav b {margin-right: 0.75em;}
+table {
+    width: unset;
+}
+section {
+	text-align: left;
+	/* padding: 4rem; */
+}
+
+details summary {
+	font-size: 3rem;
+	font-weight: bold;
+	border-bottom: 1px solid grey;
+	padding: 1rem;
+	margin-bottom: 2rem;
+}
+
+/* the following are used only in /docs.html */
+#resources_container {width: 100% !important;}
+/* #v1_endpoint_list {margin-left: 0 !important; font-size: 100% !important;} */
+.endpoint {margin-left: -2em !important; font-size: 140% !important;}
+.footer h4 {font-size: 1em !important;}
+input.submit {background-color: #f5f5f5;  line-height: 0;}
+
+/******************* new doc **********************/
+/* hide the ugly swagger topbar */
+#swagger-ui div.topbar {
+	display: none;
+}
+section.swagger-ui {
+	padding: 0;
+}
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+        <header class="row">
+            <h1 class="title">zenodeo<sup>3</sup></h1>
+            <h2 class="small">a plazi project</h2>
+            <nav>
+                <a href="/docs">docs</a>
+                <a href="/tos">terms of service</a>
+                <a href="/install">install</a>
+                <a href="/examples">examples</a>
+                <a href="/about">about</a>
+            </nav>
+        </header>        <!-- API version: <select id="version"></select> -->
+        
+        <div id="swagger-ui"></div>
+    </div>
+
+    <script src="./documentation/static/swagger-ui-bundle.js"> </script>
+    <script src="./documentation/static/swagger-ui-standalone-preset.js"> </script>
+    <script>
+    function resolveUrl (url) {
+        const anchor = document.createElement('a')
+        anchor.href = url
+        return anchor.href
+    }
+
+    // Begin Swagger UI call region
+    const ui = SwaggerUIBundle({
+        url: resolveUrl('./documentation/json').replace('static/json', 'json'),
+        //url: '/documentation/json',
+        oauth2RedirectUrl: resolveUrl('./oauth2-redirect.html'),
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIStandalonePreset
+        ],
+        plugins: [
+            SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout"
+    })
+    // End Swagger UI call region
+
+    window.onload = function() {
+        window.ui = ui
+    }
+  </script>
+  </body>
+</html>

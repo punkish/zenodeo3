@@ -1,0 +1,54 @@
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Zenodeo API^3</title>
+    <link rel="stylesheet" type="text/css" href="./documentation/static/swagger-ui.css" >
+    <link rel="icon" type="image/png" href="./documentation/static/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="./documentation/static/favicon-16x16.png" sizes="16x16" />
+    {{> meta}}
+  </head>
+
+  <body>
+    <div class="container">
+        {{> header}}
+        
+        <div id="swagger-ui"></div>
+
+        {{> footer}}
+    </div>
+
+    <script src="./documentation/static/swagger-ui-bundle.js"> </script>
+    <script src="./documentation/static/swagger-ui-standalone-preset.js"> </script>
+    <script>
+    function resolveUrl (url) {
+        const anchor = document.createElement('a')
+        anchor.href = url
+        return anchor.href
+    }
+
+    // Begin Swagger UI call region
+    const ui = SwaggerUIBundle({
+        url: resolveUrl('./documentation/json').replace('static/json', 'json'),
+        //url: '/documentation/json',
+        oauth2RedirectUrl: resolveUrl('./oauth2-redirect.html'),
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIStandalonePreset
+        ],
+        plugins: [
+            SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout"
+    })
+    // End Swagger UI call region
+
+    window.onload = function() {
+        window.ui = ui
+    }
+  </script>
+  </body>
+</html>

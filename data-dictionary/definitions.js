@@ -22,8 +22,7 @@ module.exports = {
 
     doi: {
         schema: { type: 'string' },
-        help: '',
-        //errorMessage:
+        help: 'Has to be a complete, valid DOI'
     },
 
     year: {

@@ -1,5 +1,6 @@
 'use strict'
 
+const path = require('path')
 const config = require('config')
 const port = config.get('port')
 
@@ -49,6 +50,32 @@ const fastify = require('fastify')({
 fastify.register(require('fastify-blipp'))
 fastify.register(require('fastify-favicon'))
 fastify.register(require('fastify-swagger'), swagger.options)
+
+const hbs = {
+    engine: {
+        handlebars: require('handlebars')
+    },
+    //root: path.join(__dirname, 'views'),
+    //layout: '/layouts/main.hbs',
+    viewExt: 'hbs', // it will add the extension to all the views
+    options: {
+        partials: {
+              meta: './views/partials/meta.hbs',
+            header: './views/partials/head.hbs',
+            footer: './views/partials/foot.hbs'
+        }
+    }
+}
+
+// const hbs = {
+//     engine: { 
+//         handlebars: require('handlebars')
+//     },
+//     layout: './views/layouts/main.html' 
+// }
+
+fastify.register(require('point-of-view'), hbs)
+fastify.register(require('./static/'))
 fastify.register(require('./api/v3/index'), { prefix: '/v3' })
 
 // Run the server!
@@ -60,5 +87,18 @@ fastify.listen(port, function (error, address) {
 
     fastify.blipp()
     //fastify.swagger()
-    fastify.log.info(`server listening on ${address}`)
+
+    if (process.env.NODE_ENV) {
+        fastify.log.info(
+            'Server running in %s mode on %s', 
+            process.env.NODE_ENV.toUpperCase(), 
+            address
+        )
+    }
+    else {
+        fastify.log.info(
+            'Server running in DEVELOPMENT mode on %s', 
+            address
+        )
+    }
 })

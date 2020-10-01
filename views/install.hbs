@@ -1,0 +1,70 @@
+<h1>Installation, Use and Version Upgrades</h1>
+
+<section id="install" class="row">
+    <h2>Installation</h2>
+
+    <p>You need <a href="https://git-scm.com/" target="_blank">git</a>, a relatively new version of <a href="https://nodejs.org/en/" target="_blank">nodejs</a> (I am using 8.x) and <a href="https://yarnpkg.com/lang/en/" target="_blank">yarn</a>.</p>
+
+<pre><code class="bash">$ git clone https://github.com/punkish/zenodeo.git
+$ cd zenodeo
+$ yarn
+</code></pre>
+
+    <p>While an instance of this application is running on this website as a demo, it is really designed to be installed and run on one’s own (or a team’s) computer. For one, the demo version is really just a demo and is not guaranteed to be either stable or even running all the time. More importantly, this application will soon provide caching of results. This means your own personal queries will be cached on your computer saving you a tremendous amount of time when doing repeated identical queries.</p>
+</section>
+
+<section id="use" class="row">
+    <h2>Use</h2>
+
+    <p>Once everthing is installed, start the application with <code class="bash">$ node index.js</code>. You should see something like the following</p>
+
+<pre><code class="bash">$ node index.js
+http://localhost:3030
+    GET    /                              default route
+    GET    /{param*}                      static files
+    GET    /about                         about
+    GET    /docs                          docs
+    GET    /examples                      Examples
+    GET    /install                       installation instructions
+    GET    /swagger.json
+    GET    /swaggerui/{path*}
+    GET    /swaggerui/extend.js
+    GET    /tos                           terms of service
+    GET    /v1                            biosyslit
+    GET    /v1/files/{file_id}            files
+    GET    /v1/record/{id}                records
+    GET    /v1/records                    records
+
+Server running at: http://localhost:3030
+</code></pre>
+
+    <p>Now you can begin querying the API. Below is an example using <code>curl</code> but feel free to use whatever programming language or application you prefer.</p>
+
+<pre><code class="bash">$ curl -X GET --header 'Accept: application/json' 'http://localhost:3030/v1'
+{
+    &#x22;updated&#x22;: &#x22;2017-05-23T13:27:06.991331+00:00&#x22;,
+    &#x22;id_user&#x22;: 1161,
+    &#x22;description&#x22;: &#x22;&#x3C;p&#x3E;A community to share publications related to bio-systematics. The goal is to provide&#x3C;/p&#x3E;\r\n\r\n&#x3C;ol&#x3E;\r\n\t&#x3C;li&#x3E;open access to publications cited in publications or in combination with scientific names&#x3C;/li&#x3E;\r\n\t&#x3C;li&#x3E;a digital object identifier (DOI) to enable citation of the publications including direct access to its digital representation.&#x3C;/li&#x3E;\r\n&#x3C;/ol&#x3E;\r\n\r\n&#x3C;p&#x3E;For additional search functionality&#x26;nbsp; can be used. This includes also searches in CrossRef, DataCite, PubMed, RefBank, GNUB and Mendeley.&#x3C;/p&#x3E;\r\n&#x22;,
+    &#x22;links&#x22;: {
+        &#x22;self&#x22;: &#x22;https://www.zenodo.org/api/communities/biosyslit&#x22;,
+        &#x22;html&#x22;: &#x22;https://www.zenodo.org/communities/biosyslit/&#x22;
+    },
+    &#x22;created&#x22;: &#x22;2013-11-11T14:14:18+00:00&#x22;,
+    &#x22;title&#x22;: &#x22;Biodiversity Literature Repository&#x22;,
+    &#x22;id&#x22;: &#x22;biosyslit&#x22;,
+    &#x22;last_record_accepted&#x22;: &#x22;2017-05-23T13:27:06.990269+00:00&#x22;,
+    &#x22;page&#x22;: &#x22;&#x3C;p&#x3E;&#x3C;strong&#x3E;Upload guideline&#x3C;/strong&#x3E;&#x3C;/p&#x3E;\r\n\r\n&#x3C;p&#x3E;A provisional guideline how to upload is &#x3C;a href=\&#x22;https://drive.google.com/file/d/0B_yrQwn4yBySX3JkTV9RZzZfNUU/view?usp=sharing\&#x22;&#x3E;here&#x3C;/a&#x3E;.&#x3C;/p&#x3E;\r\n\r\n&#x3C;p&#x3E;&#x26;nbsp;&#x3C;/p&#x3E;\r\n\r\n&#x3C;p&#x3E;&#x26;nbsp;&#x3C;/p&#x3E;\r\n\r\n&#x3C;p&#x3E;&#x26;nbsp;&#x3C;/p&#x3E;\r\n\r\n&#x3C;p&#x3E;&#x26;nbsp;&#x3C;/p&#x3E;\r\n\r\n&#x3C;p&#x3E;&#x26;nbsp;&#x3C;/p&#x3E;\r\n&#x22;,
+    &#x22;curation_policy&#x22;: &#x22;&#x3C;ol&#x3E;\r\n\t&#x3C;li&#x3E;If an uploaded document has an existing DOI, it will be kept. If there is no DOI, a Zenodo DOI will be minted for the item.&#x3C;/li&#x3E;\r\n\t&#x3C;li&#x3E;Items with Open Access remain Open Access.&#x3C;/li&#x3E;\r\n\t&#x3C;li&#x3E;Items with closed access remain closed. If they are published on 31.12.1999 or earlier, they are made accessible for reading. Please consult your national copyright law for conditions of reuse.&#x3C;/li&#x3E;\r\n\t&#x3C;li&#x3E;To upload publications, please contact &#x3C;a href=\&#x22;mailto:info@plazi.org\&#x22;&#x3E;info@plazi.org&#x3C;/a&#x3E;.&#x3C;/li&#x3E;\r\n&#x3C;/ol&#x3E;\r\n&#x22;
+}</code></pre>
+
+    <p>You can get more examples of queries <a href="/docs">from the docs</a>. So, what can you do with an API? Pretty much whatever you want. See <a href="/examples">examples</a> for the kind of things you can do with the API.</p>
+</section>
+        
+<script>
+var codes = document.getElementsByTagName("pre");
+if (typeof(codes) !== 'undefined' && codes != null) {
+    for (var i=0, j=codes.length; i<j; i++) {
+        hljs.highlightBlock(codes[i]);
+    }
+}
+</script>
