@@ -49,7 +49,6 @@ const fastify = require('fastify')({
 
 fastify.register(require('fastify-blipp'))
 fastify.register(require('fastify-favicon'))
-fastify.register(require('fastify-swagger'), swagger.options)
 
 const hbs = {
     engine: {
@@ -76,6 +75,7 @@ const hbs = {
 
 fastify.register(require('point-of-view'), hbs)
 fastify.register(require('./static/'))
+fastify.register(require('fastify-swagger'), swagger.options)
 fastify.register(require('./api/v3/index'), { prefix: '/v3' })
 
 // Run the server!
