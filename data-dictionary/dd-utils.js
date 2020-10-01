@@ -53,21 +53,28 @@ const getSchema = (resource) => {
 const getSchemaStrict = (resource) => {
     
     const queryable = getQueryableParams(resource)
+    const resourceId = getResourceId(resource)
 
     // see https://stackoverflow.com/questions/64094775/requiring-a-param-with-json-schema-when-another-param-is-not-present/64110512?noredirect=1#comment113391938_64110512
+    // const schema = {
+    //     type: 'object',
+    //     properties: {},
+    //     additionalProperties: false,
+    //     if: { $ref: '#/definitions/has-property-other-than-resourceId' },
+    //     then: { required: [] }, // [ '$page', '$size' ] },
+    //     definitions: {
+    //         'has-property-other-than-resourceId': {
+    //             if: { required: [] }, // resourceId
+    //             then: { minProperties: 3 },
+    //             else: { minProperties: 1 }
+    //         }
+    //     }
+    // }
+
     const schema = {
         type: 'object',
         properties: {},
-        additionalProperties: false,
-        if: { $ref: '#/definitions/has-property-other-than-resourceId' },
-        then: { required: [] }, // [ '$page', '$size' ] },
-        definitions: {
-            'has-property-other-than-resourceId': {
-                if: { required: [] }, // resourceId
-                then: { minProperties: 3 },
-                else: { minProperties: 2 }
-            }
-        }
+        additionalProperties: false
     }
     
     queryable.forEach(p => {
@@ -86,25 +93,30 @@ const getSchemaStrict = (resource) => {
         if (help) scheme.description += '. ' + help.replace(/cname/g, p.name)
 
         // add default values, if needed…
-        const defaultval = p.default
-        if (defaultval) scheme.description += ` (defaults to ${defaultval})`
+        let defaultval = p.default || ''
+        if (typeof(defaultval) === 'string') {
+            defaultval = defaultval.replace(/resourceId/, resourceId)
+        }
+
+        if (defaultval) {
+            scheme.default = defaultval
+            scheme.description += ` (defaults to ${defaultval})`
+        }
 
         // and a custom error message
         if (d.errorMessage) scheme.errorMessage = d.errorMessage
 
         if (p.type === 'resourceId') {
             scheme.isResourceId = true
-            schema.definitions['has-property-other-than-resourceId'].if.required.push(p.name)
+            //schema.definitions['has-property-other-than-resourceId'].if.required.push(p.name)
         }
         else {
             scheme.isResourceId = false
         }
         
-
-        if (p.required) {
-            schema.then.required.push(p.name)
-            // schema[of][1].errorMessage.required[p.name] = `${p.name} is required`
-        }
+        // if (p.required) {
+        //     schema.then.required.push(p.name)
+        // }
 
         schema.properties[p.name] = scheme
         
