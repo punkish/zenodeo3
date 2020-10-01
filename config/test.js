@@ -7,10 +7,20 @@
  **************************************************************/
 
 module.exports = {
-    url: 'http://z3.punkish.org/v3',
+    url: 'http://test.zenodeo.org/v3',
     v3: {
         swagger: {
-            host: 'http://z3.punkish.org'
+            options: {
+                swagger: {
+                    host: 'http://test.zenodeo.org/'
+                }
+            }
+        },
+
+        cache: {
+
+            // default cache duration 1 day (24 hours)
+            duration: 1 * 60 * 60 * 1000
         }
-    }
+    },
 }
