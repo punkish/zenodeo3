@@ -9,7 +9,11 @@
 module.exports = {
     port: 3010,
     url: 'https://zenodeo.info/v3',
-    loglevel: 'ERROR',
+    pino: {
+        opts: {
+            level: 'error'
+        }
+    },
     debug: false,
     v3: {
         swagger: {

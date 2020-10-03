@@ -1,30 +1,43 @@
 'use strict'
 
+const re = {
+    date: '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}',
+    year: '^[0-9]{4}$'
+}
+
 module.exports = [
     {
         name: 'bibRefCitationId',
-        type: 'resourceId',
-        description: 'The unique ID of the bibRefCitation',
+        schema: { 
+            type: 'string', 
+            maxLength: 32, 
+            minLength: 32,
+            description: `The unique ID of the bibRefCitation. Has to be a 32 character string like: 'EC384B11E320FF95FB78F995FEA0F964'`,
+            isResourceId: true
+        },
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("bibRefCitation").attr("id")',
-        defaultCols: true,
-        defaultOp: 'eq',
+        defaultCols: true
     },
 
     {
         name: 'treatmentId',
-        type: 'fk',
-        description: 'The unique ID of the parent treatment (FK)',
+        schema: { 
+            type: 'string', 
+            maxLength: 32, 
+            minLength: 32,
+            description: `The unique ID of the parent treatment (FK). Has to be a 32 character string like: '000087F6E320FF99FDC9FA73FA90FABE'`
+        },
         sqltype: 'TEXT NOT NULL',
-        cheerio: '$("document").attr("????")',
-        defaultCols: true,
-        defaultOp: 'eq',
+        defaultCols: true
     },
 
     {
         name: 'refString',
-        type: 'fts',
-        description: 'The reference cited by the treatment',
+        schema: {
+            type: 'string',
+            description: `The full text of the reference cited by the treatment. Can use the following syntax: \`q=spiders\``
+        },
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("refString")',
         defaultCols: true,
@@ -35,8 +48,10 @@ module.exports = [
 
     {
         name: 'type',
-        type: 'string',
-        description: 'The type of reference cited by the treatment',
+        schema: {
+            type: 'string',
+            description: 'The type of reference cited by the treatment'
+        },
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("type")',
         defaultCols: true
@@ -44,8 +59,11 @@ module.exports = [
 
     {
         name: 'year',
-        type: 'year',
-        description: 'TThe year of the reference cited by this treatment',
+        schema: {
+            type: 'string',
+            pattern: re.year,
+            description: 'The year of the reference cited by this treatment'
+        },
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("year")',
         defaultCols: true

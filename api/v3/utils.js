@@ -6,23 +6,29 @@ const Database = require('better-sqlite3')
 const db = new Database(config.get('data.treatments'))
 const debug = config.get('debug')
 const cacheDuration = config.get('v3.cache.duration')
-const { resources, getResourceId } = require('../../data-dictionary/dd-utils')
+const { resources, getResourceId, getQueryableParamsWithDefaults } = require('../../data-dictionary/dd-utils')
 const { zql } = require('../../lib/zql/')
 const crypto = require('crypto')
 const JSON5 = require('json5')
+const querystring = require('querystring')
+
+const pino = require('pino')
+const pinoOpts = JSON5.parse(JSON5.stringify(config.get('pino.opts')))
+pinoOpts.name = 'API:V3:UTILS'
+const log = pino(pinoOpts)
 
 // *********** cache stuff ************************** //
 // const ac = require('abstract-cache')
 const acf = require('../../lib/abstract-cache-file')
 
-const queryAndCacheData = async (request, resource, cache) => {
+const queryAndCacheData = async (request, resource, cache, origParams, cacheKey) => {
 
     // Query for new data
-    const data = _get(request, resource)
+    const data = _get(request, resource, origParams)
                 
     // Now we need to store this data in the cache
     // flag for mkdir success/failure
-    const cacheKey = getCacheKey(request.url)
+    log.info(`storing data in cache under key: ${cacheKey}`)
     cache.set(cacheKey, data, cacheDuration)
     
     return data
@@ -33,6 +39,24 @@ const handlerFactory = (resource) => {
     // The following handler function is returned to 
     // make the route to this resource
     return async function(request, reply) {
+
+        log.info(`request received for ${resource}`)
+
+        // The parameters submitted in request.query get validated
+        // and modified by the JSON schema validator. So, we 
+        // preserve the orignal submitted parameters by extracting
+        // them from request.url and use them to make the links and 
+        // the 'search-params' in the reply
+        const origParams = querystring.parse(request.url.split('?').pop())
+        log.info('query params:' + Object.entries(origParams).join('; '))
+
+        // remove $refreshCache because this is the only submitted 
+        // parameter that is not preserved in the query string
+        if ('$refreshCache' in origParams) {
+            delete origParams.$refreshCache
+        }
+
+        const cacheKey = getCacheKey(origParams)
         
         const cache = acf({
             base: '',
@@ -40,13 +64,11 @@ const handlerFactory = (resource) => {
             duration: cacheDuration
         })
 
-        const cacheKey = getCacheKey(request.url)
-
         let data
 
         if (request.query.$refreshCache) {
-            request.log.info('refreshing cache on request')
-            data = await queryAndCacheData(request, resource, cache)
+            log.info('refreshing cache as requested')
+            data = await queryAndCacheData(request, resource, cache, origParams, cacheKey)
         }
         else {
 
@@ -54,18 +76,19 @@ const handlerFactory = (resource) => {
 
             // check the cache for existing data
             try {
+                log.info(`checking cache under key: ${cacheKey}`)
                 cacheContent = await cache.get(cacheKey)
             }
 
             // there is no data in the cache so log the error
             // and continue on
             catch (error) {
-                request.log.error(error.code === 'ENOENT' ? 'no data in cache' : error)
-                request.log.info('querying the db for new data')
+                log.error(error.code === 'ENOENT' ? 'no data in cache' : error)
+                log.info('querying the db for new data')
             }
 
             if (cacheContent) {
-                request.log.info('found data in cache')
+                log.info('found data in cache')
                 data = JSON5.parse(cacheContent)
             }
             else {
@@ -73,71 +96,98 @@ const handlerFactory = (resource) => {
                 // if we reached here, that means no data was 
                 // found in the cache. So we get new data
                 //data = await foo(request, resource, folder, file)
-                data = await queryAndCacheData(request, resource, cache)
+                data = await queryAndCacheData(request, resource, cache, origParams, cacheKey)
             }
         }
 
+        log.info('sending back data, request complete')
         return data
     }
 }
 
-const getCacheKey = (url) => {
-    return crypto.createHash('md5').update(url).digest('hex')
+const getCacheKey = (params) => {
+    
+    const qs = Object
+        .keys(params)
+        .sort()
+        .map(k => { return `${k}=${params[k]}` })
+        .join('&')
+
+    return crypto
+        .createHash('md5')
+        .update(qs)
+        .digest('hex')
 }
 
-const packageResult = ({ resource, params, res }) => {
+const packageResult = ({ resource, origParams, result }) => {
+    log.info(`packaging ${resource} result for delivery`)
     
     // make a copy of the params
-    const p = JSON5.parse(JSON5.stringify(params))
+    //const p = JSON5.parse(JSON5.stringify(origParams))
 
     // now, remove refreshCache, if present
-    if ('$refreshCache' in p) {
-        delete p.$refreshCache
-    }
+    // if ('$refreshCache' in p) {
+    //     delete p.$refreshCache
+    // }
 
-    if ('poly' in p) {
-        delete p.poly
-    }
+    // if ('poly' in p) {
+    //     delete p.poly
+    // }
     
+    const resourceId = getResourceId(resource)
     const data = {
         value: {
-            'search-criteria': params,
-            'num-of-records': res.d1[0].num_of_records,
+            'search-criteria': origParams,
+            'num-of-records': result.d1[0].num_of_records || 0,
             _links: {},
             prevpage: '',
-            nextpage: '',
-            records: halify(res.d2, resource, getResourceId(resource))
+            nextpage: ''
         }
     }
 
-    // first, add link to self
-    const thisq = JSON5.parse(JSON5.stringify(p))
-    const thisqs = q2qs(thisq)
-    data.value._links.self = { href: `${url}/${resource}?${thisqs}` }
+    if (data.value['num-of-records']) {
+        data.value.records = halify(result.d2, resource, resourceId.name)
+    }
+    else {
+        data.value.records = []
+    }
+    
+    const thisq = JSON5.parse(JSON5.stringify(origParams))
 
-    if (!(getResourceId(resource) in p)) {
+    if (resourceId.name in origParams) {
 
-        // update '$page'
-        thisq.$page = p.$page
-        const thisqs = q2qs(thisq)
-        data.value._links.self = { href: `${url}/${resource}?${thisqs}` }
+        // add link to self
+        data.value._links.self = { href: `${url}/${resource}?${q2qs(thisq)}` }
+    }
+    else {
 
         // add links to prev and next, with appropriately
-        // updated $page in each
-        const prevq = JSON5.parse(JSON5.stringify(p))
-        const nextq = JSON5.parse(JSON5.stringify(p))
+        const prevq = JSON5.parse(JSON5.stringify(origParams))
+        const nextq = JSON5.parse(JSON5.stringify(origParams))
 
-        const prevpage = p.$page === 1 ? 1 : p.$page - 1
+        let prevpage = ''
+        let nextpage = ''
+
+        // update '$page'
+        if ('$page' in origParams) {
+            thisq.$page = origParams.$page
+        }
+        else {
+            const queryableParamsWithDefaults = getQueryableParamsWithDefaults(resource)
+            thisq.$page = queryableParamsWithDefaults
+                .filter(p => p.name === '$page')[0].schema.default
+        }
+
+        prevpage = thisq.$page === 1 ? 1 : thisq.$page - 1
         prevq.$page = prevpage
 
-        const nextpage = p.$page + 1
+        nextpage = thisq.$page + 1
         nextq.$page = nextpage
 
-        const prevqs = q2qs(prevq)
-        const nextqs = q2qs(nextq)
-
-        data.value._links.prev = { href: `${url}/${resource}?${prevqs}` }
-        data.value._links.next = { href: `${url}/${resource}?${nextqs}` }
+        data.value._links.self = { href: `${url}/${resource}?${q2qs(thisq)}` }
+        data.value._links.prev = { href: `${url}/${resource}?${q2qs(prevq)}` }
+        data.value._links.next = { href: `${url}/${resource}?${q2qs(nextq)}` }
+        
         data.value.prevpage = prevpage
         data.value.nextpage = nextpage
     }
@@ -146,14 +196,14 @@ const packageResult = ({ resource, params, res }) => {
         data.debug = {
             count: {
                 sql: {
-                    query: res.queries.count.debug.join(' '),
-                    t: res.t1
+                    query: result.queries.count.debug.join(' '),
+                    t: result.t1
                 }
             },
             records: {
                 sql: {
-                    query: res.queries.records.debug.join(' '),
-                    t: res.t2
+                    query: result.queries.records.debug.join(' '),
+                    t: result.t2
                 }
             }
         }
@@ -173,6 +223,8 @@ const q2qs = function(q) {
 
 // make HAL links for the record(s)
 const halify = (data, resource, resourceId) => {
+    log.info('halifying the records')
+
     for (let i = 0; i < data.length; i++) {
         const record = data[i]
         record._links = {
@@ -184,6 +236,7 @@ const halify = (data, resource, resourceId) => {
 }
 
 const sqlRunner = (sql, params) => {
+    
     try {
         let t = process.hrtime()
         const data = db.prepare(sql).all(params)
@@ -194,24 +247,12 @@ const sqlRunner = (sql, params) => {
         return [ data, Math.round((t[0] * 1000) + (t[1] / 1000000)) ]
     }
     catch(error) {
+        log.error(sql)
         throw error
     }
 }
 
-// const send = (request, reply, data, code) => {
-//     request.log.info('sending data')
-//     if (!reply.sent) {
-//         reply.headers({
-//                 'Cache-Control': 'public, max-age=300',
-//                 'Content-Type': 'application/json; charset=utf-8',
-//                 'Content-Security-Policy': "default-src 'none'; img-src 'self';"
-//             })
-//             .code(code)
-//             .send(data)
-//     }
-// }
-
-const __get = (queries, runparams) => {
+const __get = (resource, queries, runparams) => {
     const res = {}
 
     let sql = queries.count.binds.join(' ')
@@ -220,12 +261,14 @@ const __get = (queries, runparams) => {
     res.t1 = t1
 
     if (d1[0].num_of_records) {
+        log.info(`${resource} num_of_records is ${d1[0].num_of_records}, so getting actual records`)
         sql = queries.records.binds.join(' ')
         const [ d2, t2 ] = sqlRunner(sql, runparams)
         res.d2 = d2
         res.t2 = t2
     }
     else {
+        log.info(`"${resource}" num_of_records is 0, so returning []`)
         res.d2 = []
         res.t2 = null
     }
@@ -234,89 +277,95 @@ const __get = (queries, runparams) => {
     return res
 }
 
-const _get = (request, resource) => {
+const _getRelated = (primaryResourceIdName, primaryResourceIdValue, relatedResource, data) => {
+
+    const params = {}
+    params[primaryResourceIdName] = primaryResourceIdValue
+
+    const queryableParamsWithDefaults = getQueryableParamsWithDefaults(relatedResource)
+    queryableParamsWithDefaults.forEach(p => params[p.name] = p.schema.default)
+    
+    const { queries, runparams } = zql({ resource: relatedResource, params: params })
+    const res = __get(relatedResource, queries, runparams)
+
+    if (res.d1[0].num_of_records) {
+        data['related-records'][relatedResource] = packageResult({
+            resource: relatedResource, 
+            params: params, 
+            res: res
+        })
+    }
+}
+
+const _get = (request, resource, origParams) => {
 
     // first, we query for the primary dataset and package it for delivery
     const { queries, runparams } = zql({resource: resource, params: request.query})
-    const result = __get(queries, runparams)
-    
+    const result = __get(resource, queries, runparams)
+
     const data = packageResult({
         resource: resource, 
-        params: request.query, 
-        res: result
+        origParams: origParams, 
+        result: result
     })
 
     // then we check if related records are also needed,  
-    // and query for them and package them, adding them 
-    // to a key called 'related-records'
-    const resourceId = getResourceId(resource)
-    if (resourceId in request.query) {
+    // and query for and package them, adding them 
+    // to a key called 'related-records'. Related records
+    // are *only* required if there is a resourceId in the 
+    // the query.
 
-        data['related-records'] = {}
-        
-        if (resource === 'treatments') {
+    // related records will exist only if anything was found in the 
+    // first query
+    if (result.d2.length) {
 
-            const resourceId = getResourceId(resource)
-            const resourceIdValue = result.d2[0][resourceId]
+        const primaryResourceId = getResourceId(resource)
+        const primaryResourceIdName = primaryResourceId.name
+        const primaryResourceIdValue = result.d2[0][primaryResourceId.name]
 
-            for (let i = 0, j = resources.length; i < j; i++) {
-                
-                const r = resources[i]
-                const relatedResource = r.name
+        if (primaryResourceIdName in request.query) {
 
-                if ((relatedResource !== 'root') && (relatedResource !== resource)) {
+            data['related-records'] = {}
+            
+            if (resource === 'treatments') {
 
-                    const q = { resource: r.name, params: {} }
-                    q.params[resourceId] = resourceIdValue
+                // Go through every resource…
+                for (let i = 0, j = resources.length; i < j; i++) {
                     
-                    const { queries, runparams } = zql(q)
-                    const res = __get(queries, runparams)
+                    const r = resources[i]
+                    const relatedResource = r.name
 
-                    data['related-records'][relatedResource] = packageResult({
-                        resource: relatedResource, 
-                        params: q.params, 
-                        res: res
-                    })
+                    // except 'root' and 'treatments'
+                    if ((relatedResource !== 'root') && (relatedResource !== resource)) {
+
+                        log.info(`getting related "${relatedResource}" for this ${resource}`)
+                        _getRelated(primaryResourceIdName, primaryResourceIdValue, relatedResource, data)
+                        
+                    }
                 }
+
+            }
+            else {
+                const r = 'treatments'
+                const q = { resource: r, params: {} }
+                const relatedResourceId = getResourceId(r)
+                q.params[relatedResourceId.name] = result.d2[0][relatedResourceId.name]
+                
+                const { queries, runparams } = zql(q)
+                const res = __get(queries, runparams)
+
+                data['related-records'][r] = packageResult({
+                    resource: r, 
+                    params: q.params, 
+                    res: res
+                })
             }
 
         }
-        else {
-            const r = 'treatments'
-            const q = { resource: r, params: {} }
-            const relatedResourceId = getResourceId(r)
-            q.params[relatedResourceId] = result.d2[0][relatedResourceId]
-            
-            const { queries, runparams } = zql(q)
-            const res = __get(queries, runparams)
-
-            data['related-records'][r] = packageResult({
-                resource: r, 
-                params: q.params, 
-                res: res
-            })
-        }
-
     }
 
     return data
 }
-
-// const queryCacheAndSend = (request, reply, resource, cache, cacheKey, code) => {
-
-//     // first, we retrieve the data from the database
-//     const data = _get(request, resource)
-//     const payload = {
-//         item: data,
-//         stored: Date.now(),
-//         ttl: cacheDuration
-//     }
-
-//     // the retrieved data is cached and then sent to the client
-//     cache.set(cacheKey, data, '')
-//         .then(() => { send(requet, reply, payload, code) })
-//         .catch((error) => { request.log.error(error) })
-// }
 
 const isFresh = (value) => {   
     if (typeof(value) === 'string') {

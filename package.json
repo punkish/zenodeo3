@@ -11,6 +11,7 @@
   "dependencies": {
     "@turf/turf": "^5.1.6",
     "abstract-cache": "^1.0.1",
+    "ajv": "^6.12.5",
     "ajv-errors": "^1.0.1",
     "better-sqlite3": "^7.1.0",
     "chance": "^1.1.6",

@@ -3,28 +3,36 @@
 module.exports = [
     {
         name: 'figureCitationId',
-        type: 'resourceId',
-        description: 'The unique ID of the figureCitation',
+        schema: { 
+            type: 'string', 
+            maxLength: 32, 
+            minLength: 32,
+            description: `The unique ID of the figureCitation. Has to be a 32 character string like: '10922A65E320FF95FC0FFC83FB80FCAA'`,
+            isResourceId: true
+        },
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("figureCitation").attr("id")',
-        defaultCols: true,
-        defaultOp: 'eq',
+        defaultCols: true
     },
 
     {
         name: 'treatmentId',
-        type: 'fk',
-        description: 'The unique ID of the parent treatment (FK)',
+        schema: { 
+            type: 'string', 
+            maxLength: 32, 
+            minLength: 32,
+            description: `The unique ID of the parent treatment (FK). Has to be a 32 character string like:  '000087F6E320FF95FF7EFDC1FAE4FA7B'`
+        },
         sqltype: 'TEXT NOT NULL',
-        cheerio: '$("document").attr("????")',
-        defaultCols: true,
-        defaultOp: 'eq',
+        defaultCols: true
     },
 
     {
         name: 'captionText',
-        type: 'fts',
-        description: 'The full text of the figure cited by this treatment',
+        schema: {
+            type: 'string',
+            description: `The full text of the figure cited by this treatment. Can use the following syntax: \`q=spiders\``
+        },
         sqltype: 'TEXT',
         cheerio: '$("figureCitation").attr("captionText")',
         defaultCols: true,
@@ -35,19 +43,27 @@ module.exports = [
 
     {
         name: 'httpUri',
-        type: 'uri',
-        description: 'The URI of the figure cited by this treatment',
+        schema: {
+            type: 'string',
+            format: 'uri',
+            description: 'The URI of the figure cited by this treatment'
+        },
         sqltype: 'TEXT',
         cheerio: '$("figureCitation").attr("httpUri")',
-        defaultCols: true
+        defaultCols: true,
+        queryable: false
     },
 
     {
         name: 'thumbnailUri',
-        type: 'uri',
-        description: 'The URI of the thumbnail figure cited by this treatment',
+        schema: {
+            type: 'string',
+            format: 'uri',
+            description: 'The URI of the thumbnail figure cited by this treatment'
+        },
         sqltype: 'TEXT',
         cheerio: '$("figureCitation").attr("httpUri")',
-        defaultCols: true
+        defaultCols: true,
+        queryable: false
     }
 ]

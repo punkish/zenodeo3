@@ -3,47 +3,62 @@
 module.exports = [
     {
         name: 'materialsCitationId',
-        type: 'resourceId',
-        description: 'The unique ID of the materialsCitation',
+        schema: { 
+            type: 'string', 
+            maxLength: 32, 
+            minLength: 32,
+            description: `The unique ID of the materialsCitation. Has to be a 32 character string like: '38C63CC3D744DE1FE88B8A56FB7EDD14'`,
+            isResourceId: true
+        },
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("materialsCitation").attr("id")',
         defaultCols: true,
-        defaultOp: 'eq',
     },
 
-    // ???? //
     {
         name: 'treatmentId',
-        type: 'fk',
-        description: 'The unique ID of the parent treatment (FK)',
+        schema: { 
+            type: 'string', 
+            maxLength: 32, 
+            minLength: 32,
+            description: `The unique ID of the parent treatment (FK). Has to be a 32 character string like: '00078788D744DE18E88B8B8BFE7FDBF9'`
+        },
         sqltype: 'TEXT NOT NULL',
-        cheerio: '$("document").attr("????")',
-        defaultCols: true,
-        defaultOp: 'eq',
+        defaultCols: true
     },
 
     {
         name: 'collectingDate',
-        type: 'date',
-        description: 'The date when the specimen was collected',
+        schema: {
+            type: 'string',
+            format: 'date',
+            description: 'The date when the specimen was collected',
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectingDate")',
-        defaultCols: true,
-        defaultOp: 'eq'
+        defaultCols: true
     },
     {
         name: 'collectionCode',
-        type: 'string',
-        description: 'The collection code for a natural history collection',
+        schema: {
+            type: 'string',
+            description: 'The collection code for a natural history collection',
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectionCode")',
-        defaultCols: true,
-        defaultOp: 'eq'
+        defaultCols: true
     },
     {
         name: 'collectorName',
-        type: 'string',
-        description: 'The person who collected the specimen',
+        schema: {
+            type: 'string',
+            description: `The person who collected the specimen. Can use the following syntax:
+- collectorName=Udzungwa Scarp FR & N. Scharff
+- collectorName=starts_with(Udzungwa)
+- collectorName=ends_with(Scharff)
+- collectorName=contains(Scarp FR)
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectorName")',
         defaultCols: true,
@@ -51,8 +66,15 @@ module.exports = [
     },
     {
         name: 'country',
-        type: 'string',
-        description: 'The country where the specimen was collected',
+        schema: {
+            type: 'string',
+            description: `The country where the specimen was collected. Can use the following syntax:
+- country=Tanzania
+- country=starts_with(Tan)
+- country=ends_with(nia)
+- country=contains(zan)
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("country")',
         defaultCols: true,
@@ -60,8 +82,15 @@ module.exports = [
     },
     {
         name: 'collectingRegion',
-        type: 'string',
-        description: 'The geographic region where the specimen was collected',
+        schema: {
+            type: 'string',
+            description: `The geographic region where the specimen was collected. Can use the following syntax:
+- collectingRegion='Galapagos'
+- collectingRegion=starts_with(Gal)
+- collectingRegion=ends_with(gos)
+- collectingRegion=contains(lap)
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectingRegion")',
         defaultCols: true,
@@ -69,8 +98,15 @@ module.exports = [
     },
     {
         name: 'municipality',
-        type: 'string',
-        description: 'A lower administrative region',
+        schema: {
+            type: 'string',
+            description: `A lower administrative region. Can use the following syntax:
+- municipality='Zona Velasco Ibarra (near Scalesia quadrat)'
+- municipality=starts_with(Zona Velasco)
+- municipality=ends_with(calesia quadrat))
+- municipality=contains(Ibarra)
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("municipality")',
         defaultCols: true,
@@ -78,7 +114,15 @@ module.exports = [
     },
     {
         name: 'county',
-        type: 'string',
+        schema: {
+            type: 'string',
+            description: `The county where the specimen was collected. Can use the following syntax:
+- county='Mahenge District'
+- county=starts_with(Mahenge)
+- county=ends_with(District)
+- county=contains(henge)
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         description: 'The county where the specimen was collected',
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("county")',
@@ -87,8 +131,15 @@ module.exports = [
     },
     {
         name: 'stateProvince',
-        type: 'string',
-        description: 'The state or province where the specimen was collected',
+        schema: {
+            type: 'string',
+            description: `The state or province where the specimen was collected. Can use the following syntax:
+- stateProvince='Iringa Region'
+- stateProvince=starts_with(Iringa)
+- stateProvince=ends_with(Region)
+- stateProvince=contains(ringa)
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("stateProvince")',
         defaultCols: true,
@@ -96,8 +147,15 @@ module.exports = [
     },
     {
         name: 'location',
-        type: 'string',
-        description: 'The location where the specimen was collected',
+        schema: {
+            type: 'string',
+            description: `The location where the specimen was collected. Can use the following syntax:
+- location='Udekwa Village'
+- location=starts_with(Udekwa)
+- location=ends_with(Village)
+- location=contains(ekwa)
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("location")',
         defaultCols: true,
@@ -105,44 +163,62 @@ module.exports = [
     },
     {
         name: 'locationDeviation',
-        type: 'string',
-        description: 'The distance to the nearest location, e.g. 23km NW from…',
+        schema: {
+            type: 'string',
+            description: `The distance to the nearest location, e.g. 23km NW from…. Can use the following syntax:
+- location='mountain top'
+- location=starts_with(mountain)
+- location=ends_with(top)
+- location=contains(tain)
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
+        description: '',
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("locationDeviation")',
         defaultCols: true,
-        defaultOp: ''
+        defaultOp: 'starts_with'
     },
     {
         name: 'specimenCountFemale',
-        type: 'string',
-        description: 'The number of listed female specimens',
+        schema: {
+            type: 'integer',
+            description: 'The number of listed female specimens',
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("specimenCount-female")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
+        defaultCols: true
     },
     {
         name: 'specimenCountMale',
-        type: 'string',
-        description: 'The number of listed male specimens',
+        schema: {
+            type: 'integer',
+            description: 'The number of listed male specimens',
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("specimenCount-male")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
+        defaultCols: true
     },
     {
         name: 'specimenCount',
-        type: 'string',
-        description: 'The number of listed specimens',
+        schema: {
+            type: 'integer',
+            description: 'The number of listed specimens',
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("specimenCount")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
+        defaultCols: true
     },
     {
         name: 'specimenCode',
-        type: 'string',
-        description: 'The code of the specimen',
+        schema: {
+            type: 'string',
+            description: `The code of the specimen. Can use the following syntax:
+- specimenCode='01 - SRNP- 4156'
+- specimenCode=starts_with(01)
+- specimenCode=ends_with(4156)
+- specimenCode=contains(SRNP)
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("specimenCode")',
         defaultCols: true,
@@ -150,8 +226,16 @@ module.exports = [
     },
     {
         name: 'typeStatus',
-        type: 'string',
-        description: 'The nomenclatural status of the specimen, e.g. holotype, paratype',
+        schema: {
+            type: 'string',
+            description: `TThe nomenclatural status of the specimen, e.g. holotype, paratype. Can use the following syntax:
+- specimenCode='1 lectotype and 13 paralectotypes'
+- specimenCode=starts_with(1 lectotype)
+- specimenCode=ends_with(paralectotypes)
+- specimenCode=contains(lectotype)
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
+        description: '',
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("typeStatus")',
         defaultCols: true,
@@ -159,8 +243,15 @@ module.exports = [
     },
     {
         name: 'determinerName',
-        type: 'string',
-        description: 'The person or agent who identified the specimen',
+        schema: {
+            type: 'string',
+            description: `The person or agent who identified the specimen. Can use the following syntax:
+- determinerName='A. d'Orchymont & J. L. Hellman'
+- determinerName=starts_with(A. d'Orchymont)
+- determinerName=ends_with(Hellman)
+- determinerName=contains(Orchymont)
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("determinerName")',
         defaultCols: true,
@@ -168,8 +259,15 @@ module.exports = [
     },
     {
         name: 'collectedFrom',
-        type: 'string',
-        description: 'The substrate where the specimen has been collected, e.g. leaf, flower',
+        schema: {
+            type: 'string',
+            description: `The substrate where the specimen has been collected, e.g. leaf, flower. Can use the following syntax:
+- collectedFrom='5 year-old longleaf pine stand'
+- collectedFrom=starts_with(5 year-old)
+- collectedFrom=ends_with(pine stand)
+- collectedFrom=contains(longleaf)
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectedFrom")',
         defaultCols: true,
@@ -177,8 +275,15 @@ module.exports = [
     },
     {
         name: 'collectingMethod',
-        type: 'string',
-        description: 'The method used for collecting the specimen',
+        schema: {
+            type: 'string',
+            description: `The method used for collecting the specimen. Can use the following syntax:
+- collectingMethod='03 MaxiWinks, mixed samples'
+- collectingMethod=starts_with(03 MaxiWinks)
+- collectingMethod=ends_with(mixed samples)
+- collectingMethod=contains(mixed)
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectingMethod")',
         defaultCols: true,
@@ -187,91 +292,40 @@ module.exports = [
 
     {
         name: 'geolocation',
-        type: 'geolocation',
-        description: 'The geo-location of the materialsCitation'
+        schema: {
+            type: 'string',
+            description: `The geo-location of the materialsCitation. Can use the following syntax:
+- geolocation=within({"radius":10,units:"kilometers","lat":40.00,"lng":-120})
+- geolocation=near({"lat":40.00,"lng":-120})
+  **note:** radius defaults to 1 km when using *near*`,
+        }
     },
-    /*
-    {
-        name: 'latitude',
-        type: 'string',
-        description: `Geographic coordinates of the location where the specimen was collected.
-Since it is unreasonable to expect the user to provide exact lat/lon coordinates, a delta of 0.9
-is used to find all the points contained in the resulting box. For example, if latitude 77 and 
-longitude 78 are provided, the two points A and B are located inside the bounding box made from 
-submitted coordinates +- a delta of 0.9
-
-lat: 77.9                                       lat: 77.9 
-lon: 77.1                                       lon: 78.9
-┌───────────────────────────────────────────────┐
-│                                               │
-│                                               │
-│                        lat: 77.53333          │
-│                        lon: 78.88333          │
-│                             B                 │
-│                                               │
-│                                               │
-│             lat: 77.2                         │
-│             lon: 78.11667                     │
-│                 A                             │
-│                                               │
-│                                               │
-└───────────────────────────────────────────────┘
-lat: 76.1                                      lat: 76.1
-lon: 77.1                                      lon: 78.9`,
-        sqlType: 'TEXT',
-        cheerio: '$("materialsCitation").attr("latitude")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
-    },
-    {
-        name: 'longitude',
-        type: 'string',
-        description: `Geographic coordinates of the location where the specimen was collected.
-Since it is unreasonable to expect the user to provide exact lat/lon coordinates, a delta of 0.9
-is used to find all the points contained in the resulting box. For example, if latitude 77 and 
-longitude 78 are provided, the two points A and B are located inside the bounding box made from 
-submitted coordinates +- a delta of 0.9
-
-lat: 77.9                                       lat: 77.9 
-lon: 77.1                                       lon: 78.9
-┌───────────────────────────────────────────────┐
-│                                               │
-│                                               │
-│                        lat: 77.53333          │
-│                        lon: 78.88333          │
-│                             B                 │
-│                                               │
-│                                               │
-│             lat: 77.2                         │
-│             lon: 78.11667                     │
-│                 A                             │
-│                                               │
-│                                               │
-└───────────────────────────────────────────────┘
-lat: 76.1                                      lat: 76.1
-lon: 77.1                                      lon: 78.9`,
-        sqlType: 'TEXT',
-        cheerio: '$("materialsCitation").attr("longitude")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
-    },
-    */
     {
         name: 'elevation',
-        type: 'string',
-        description: 'Elevation of the location where the specimen was collected',
+        schema: {
+            type: 'integer',
+            description: `Elevation of the location where the specimen was collected. Can use the following syntax:
+- elevation=58
+- elevation=gt(58)
+- elevation=gte(58)
+- elevation=lt(58)
+- elevation=lte(58)
+- elevation=between(-1000 and 102)`,
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("elevation")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
+        defaultCols: true
     },
     {
         name: 'httpUri',
-        type: 'string',
-        description: 'The persistent identifier of the specimen',
+        schema: {
+            type: 'string',
+            format: 'uri',
+            description: 'The persistent identifier of the specimen'
+        },
         sqlType: 'TEXT',
         cheerio: '$("materialsCitation").attr("httpUri")',
         defaultCols: true,
-        defaultOp: 'starts_with'
+        queryable: false
     }
 ]

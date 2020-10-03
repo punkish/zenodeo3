@@ -1,28 +1,45 @@
 'use strict'
 
+const re = {
+    date: '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}',
+    year: '^[0-9]{4}$'
+}
+
 /*
  * All params are queryable unless false
  * Params with 'defaultCols' = true are SELECT-ed by default
  * Param 'type' is looked up in ../definitions.js to create the schema
  * Param 'sqltype' is used in CREATE-ing the db table
- * Param 'sqlname' is used when 'name' is inappropriate for SQL
+ * Param 'selname' is used when 'name' is inappropriate for SQL
  */
 module.exports = [
     {
         name: 'treatmentId',
-        type: 'resourceId',
-        description: 'The unique ID of the treatment',
-        sqlname: 'treatments.treatmentId',
+        schema: { 
+            type: 'string', 
+            maxLength: 32, 
+            minLength: 32,
+            description: `The unique ID of the treatment. Has to be a 32 character string:
+- \`treatmentId=388D179E0D564775C3925A5B93C1C407\``,
+            isResourceId: true
+        },
+        selname: 'treatments.treatmentId',
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("document").attr("docId")',
-        defaultCols: true,
-        defaultOp: 'eq'
+        defaultCols: true
     },
 
     {
         name: 'treatmentTitle',
-        type: 'string',
-        description: 'Title of the treatment',
+        schema: { 
+            type: 'string',
+            description: `Title of the treatment. Can use the following syntax:
+- \`treatmentTitle=Ichneumonoidea (Homolobus) Foerster 1863\`
+- \`treatmentTitle=starts_with(Ichneumonoidea)\`
+- \`treatmentTitle=ends_with(Foerster 1863)\`
+- \`treatmentTitle=contains(Homolobus)\`
+  **Note:** queries involving inexact matches will be considerably slow`
+        },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("docTitle")',
         defaultCols: true,
@@ -31,18 +48,22 @@ module.exports = [
     
     {
         name: 'doi',
-        type: 'doi',
-        description: 'DOI of journal article (for example, "10.15560/16.5.1159")',
+        schema: { 
+            type: 'string',
+            description: `DOI of journal article (for example, "10.3897/BDJ.4.e8151"):
+- \`doi=10.3897/BDJ.4.e8151\``
+        },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("ID-DOI")',
         defaultCols: true,
-        defaultOp: 'eq'
     },
 
     {
         name: 'zenodoDep',
-        type: 'string',
-        description: 'Zenodo record of journal article',
+        schema: {
+            type: 'string',
+            description: 'Zenodo record of journal article'
+        },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("ID-Zenodo-Dep")',
         queryable: false
@@ -50,8 +71,15 @@ module.exports = [
 
     {
         name: 'articleTitle',
-        type: 'string',
-        description: 'The article in which the treatment was published',
+        schema: { 
+            type: 'string',
+            description: `The article in which the treatment was published. Can use the following syntax:
+- \`articleTitle=Checklist of British and Irish Hymenoptera - Braconidae\`
+- \`articleTitle=starts_with(Checklist)\`
+- \`articleTitle=ends_with(Braconidae)\`
+- \`articleTitle=contains(British and Irish)\`
+  **Note:** queries involving inexact matches will be considerably slow`
+        },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("masterDocTitle")',
         defaultCols: true,
@@ -60,8 +88,20 @@ module.exports = [
 
     {
         name: 'publicationDate',
-        type: 'date',
-        description: 'The publication date of the treatment',
+        schema: {
+            type: 'string',
+            pattern: `^((since|until)\\(${re.date}\\))|(${re.date})|(between\\(${re.date} and ${re.date}\\))$`,
+            description: `The publication date of the treatment. Can use the following syntax: 
+- \`publicationDate=2018-1-12\`
+- \`publicationDate=since(2018-12-03)\`
+- \`publicationDate=until(2018-03-22)\`
+- \`publicationDate=between(2018-03-22 and 2019-12-03)\`
+
+  **Note:** Date is made of yyyy-m?-d?
+- yyyy: a four digit year
+- m?: one or two digit month
+- d?: one or two digit day`,
+        },
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:detail[type=pubDate] mods\\\\:number").text()',
         defaultCols: true,
@@ -70,8 +110,15 @@ module.exports = [
 
     {
         name: 'journalTitle',
-        type: 'string',
-        description: 'The journal in which the treatment was published',
+        schema: {
+            type: 'string',
+            description: `The journal in which the treatment was published. Can use the following syntax:
+- \`journalTitle=Biodiversity Data Journal 4\`
+- \`journalTitle=starts_with(Biodiversity)\`
+- \`journalTitle=ends_with(Journal 4)\`
+- \`journalTitle=contains(Data Journal)\`
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:titleInfo mods\\\\:title").text()',
         defaultCols: true,
@@ -80,38 +127,44 @@ module.exports = [
 
     {
         name: 'journalYear',
-        type: 'year',
-        description: 'The year of the journal',
+        schema: {
+            type: 'string',
+            pattern: re.year,
+            description: 'The year of the journal'
+        },
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:date").text()',
-        defaultCols: true,
-        defaultOp: 'eq'
+        defaultCols: true
     },
 
     {
         name: 'journalVolume',
-        type: 'string',
-        description: 'The volume of the journal',
+        schema: {
+            type: 'string',
+            description: 'The volume of the journal'
+        },
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:detail[type=volume] mods\\\\:number").text()',
-        defaultCols: true,
-        defaultOp: 'eq'
+        defaultCols: true
     },
 
     {
         name: 'journalIssue',
-        type: 'string',
-        description: 'The issue of the journal',
+        schema: {
+            type: 'string',
+            description: 'The issue of the journal'
+        },
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:detail[type=issue] mods\\\\:number").text()',
-        defaultCols: true,
-        defaultOp: 'eq'
+        defaultCols: true
     },
 
     {
         name: 'pages',
-        type: 'string',
-        description: 'The "from" and "to" pages where the treatment occurs in the article',
+        schema: {
+            type: 'string',
+            description: 'The "from" and "to" pages where the treatment occurs in the article'
+        },
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:extent[unit=page] mods\\\\:start").text() + "–" + $("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:extent[unit=page] mods\\\\:end").text()',
         defaultCols: true,
@@ -120,8 +173,15 @@ module.exports = [
 
     {
         name: 'authorityName',
-        type: 'string',
-        description: 'The author(s) of the treatment (not necessarily the same as the authors of the journal article, but omitted if same as article authors)',
+        schema: {
+            type: 'string',
+            description: `The author(s) of the treatment (not necessarily the same as the authors of the journal article, but omitted if same as article authors). Can use the following syntax:
+- \`authorityName=Foerster\`
+- \`authorityName=starts_with(Foe)\`
+- \`authorityName=ends_with(ster)\`
+- \`authorityName=contains(erst)\`
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("authorityName")',
         defaultCols: true,
@@ -130,8 +190,11 @@ module.exports = [
 
     {
         name: 'authorityYear',
-        type: 'year',
-        description: 'The year when the taxon name was published',
+        schema: {
+            type: 'string',
+            pattern: re.year,
+            description: 'The year when the taxon name was published'
+        },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("authorityYear")',
         defaultCols: true,
@@ -140,79 +203,93 @@ module.exports = [
 
     {
         name: 'kingdom',
-        type: 'string',
-        description: 'The higher category of the taxonomicName',
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("kingdom")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
+        defaultCols: true
     },
 
     {
         name: 'phylum',
-        type: 'string',
-        description: 'The higher category of the taxonomicName',
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("phylum")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
+        defaultCols: true
     },
 
     {
         name: 'order',
-        type: 'string',
-        description: 'The higher category of the taxonomicName',
-        sqlname: '"order"',
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
+        selname: '"order"',
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("order")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
+        defaultCols: true
     },
 
     {
         name: 'family',
-        type: 'string',
-        description: 'The higher category of the taxonomicName',
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("family")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
+        defaultCols: true
     },
 
     {
         name: 'genus',
-        type: 'string',
-        description: 'The higher category of the taxonomicName',
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("genus")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
+        defaultCols: true
     },
 
     {
         name: 'species',
-        type: 'string',
-        description: 'The higher category of the taxonomicName',
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("species")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
+        defaultCols: true
     },
 
     {
         name: 'status',
-        type: 'string',
-        description: 'The descriptor for the taxonomic status proposed by a given treatment (can be new species, or new combination, or new combination and new synonym)',
+        schema: {
+            type: 'string',
+            description: 'The descriptor for the taxonomic status proposed by a given treatment (can be new species, or new combination, or new combination and new synonym)',
+        },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("status")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
+        defaultCols: true
     },
 
     {
         name: 'taxonomicNameLabel',
-        type: 'string',
-        description: 'The Taxonomic Name Label of a new species',
+        schema: {
+            type: 'string',
+            description: `The Taxonomic Name Label of a new species. Can use the following syntax:
+- \`taxonomicNameLabel=Nilothauma paucisetis\`
+- \`taxonomicNameLabel=starts_with(Nilothauma)\`
+- \`taxonomicNameLabel=ends_with(paucisetis)\`
+- \`taxonomicNameLabel=contains(hauma pauci)\`
+  **Note:** queries involving inexact matches will be considerably slow`,
+        },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").text()',
         defaultCols: true,
@@ -221,26 +298,35 @@ module.exports = [
 
     {
         name: 'rank',
-        type: 'string',
-        description: 'The taxonomic rank of the taxon, e.g. species, family',
-        sqlname: 'treatments.rank',
+        schema: {
+            type: 'string',
+            description: 'The taxonomic rank of the taxon, e.g. species, family',
+            enum: [ 'kingdom', 'phylum', 'order', 'family', 'genus', 'species ']
+        },
+        selname: 'treatments.rank',
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("rank")',
-        defaultCols: true,
-        defaultOp: 'starts_with'
+        defaultCols: true
     },
 
     {
         name: 'geolocation',
-        type: 'geolocation',
-        description: 'The geo-location of the treatment',
+        schema: {
+            type: 'string',
+            description: `The geo-location of the treatment. Can use the following syntax:
+- \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
+- \`geolocation=near({lat: 40.00, lng: -120})\`
+  **note:** radius defaults to 1 km when using *near*`,
+        },
         join: 'materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId'
     },
 
     {
         name: 'q',
-        type: 'fts',
-        description: 'The full text of the treatment',
+        schema: {
+            type: 'string',
+            description: `The full text of the treatment. Can use the following syntax: \`q=spiders\``
+        },
         sqltype: 'TEXT',
         cheerio: '$("treatment").text()',
         defaultCols: false,

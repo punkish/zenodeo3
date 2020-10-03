@@ -35,27 +35,29 @@ const resources = [
     {
         name: 'install',
         description: 'Installation instructions',
-    },
-
-    {
-        name: '',
-        description: 'API documentation',
-        layout: 'docs'
     }
 ]
 
 const routes = async function(fastify, options) {
+
+    // first, add the route for docs
+    fastify.route({
+        method: 'GET',
+        url: '/',
+        schema: {
+            description: 'API documentation'
+        },
+        handler: function(request, reply) {
+            reply.view('./views/layouts/docs', {})
+        }
+    })
+
     resources.forEach(r => {
 
-        //let view = `./layouts/${r.name}`
         let text
         let layout
 
-        if (r.name === '') {
-            text = {}
-            layout = `./views/layouts/docs`
-        }
-        else if (r.name === 'workflow') {
+        if (r.name === 'workflow') {
             const content = fs.readFileSync(`${dir}/${r.name}.md`, 'utf-8')
             text = { text: sh.makeHtml(content) },
             layout = './views/layouts/main'
@@ -68,6 +70,11 @@ const routes = async function(fastify, options) {
         fastify.route({
             method: 'GET',
             url: `/${r.name.toLowerCase()}`,
+            schema: {
+                description: r.description,
+                hide: true,
+                tags: [ 'x-HIDDEN' ]
+            },
             handler: function(request, reply) {
                 reply.view(layout, text)
             }

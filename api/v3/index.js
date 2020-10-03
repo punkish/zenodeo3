@@ -2,7 +2,7 @@
 
 const config = require('config')
 const url = config.get('url')
-const { resources, getSchemaStrict } = require('../../data-dictionary/dd-utils')
+const { resources, getSchema } = require('../../data-dictionary/dd-utils')
 const { handlerFactory } = require('./utils')
 
 const rootHandler = async function(request, reply) {
@@ -48,7 +48,7 @@ const routes = async function(fastify, options) {
         fastify.route({
             method: 'GET',
             url: `/${r.name === 'root' ? '' : r.name.toLowerCase()}`,
-            schema: { querystring: getSchemaStrict(r.name) },
+            schema: { querystring: getSchema(r.name) },
             handler: handlerFactory(r.name)
         })
     })
