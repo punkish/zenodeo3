@@ -28,14 +28,7 @@ module.exports = {
                 swagger: {
                     info: {
                         title: 'API documentation',
-                        description: `Zenodeo is a REST API for treatments and related data. All the queryable parameters are listed below under each resource. Please read the specific notes below:
-
-- the entire URL is case-sensitive. The resource name is all lowercase and the query parameters use camelCase as appropriate
-- the query *has* to be URI encoded. Browses may do this automatically, but if you are accessing the API programmatically, please URI Encode all params.
-- it is possible to submit a query without any query parameters
-- if a parameter is provided, it has to be a valid parameter, that is, one of those listed below.
-- if the query includes a resourceId (for example, "treatmentId" in the case of "treatments"), then no additional parameter is required.
-- if the query includes any valid parameter *other* than the resourceId, then "$page" and "$size" are also required. If not provided, default values will be assigned automatically.`,
+//                      description: '',
                         version: '3.0.0'
                     },
                     externalDocs: {
