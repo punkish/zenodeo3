@@ -66,7 +66,7 @@ fastify.register(require('./api/v3/index'), { prefix: '/v3' })
 // Run the server!
 fastify.listen(port, function (error, address) {
     if (error) {
-        logger.error(error)
+        fastify.log.error(error)
         process.exit(1)
     }
 

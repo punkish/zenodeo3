@@ -1,7 +1,6 @@
 'use strict'
 
 const config = require('config')
-const url = config.get('url')
 const Database = require('better-sqlite3')
 const db = new Database(config.get('data.treatments'))
 const debug = config.get('debug')
@@ -11,6 +10,8 @@ const { zql } = require('../../lib/zql/')
 const crypto = require('crypto')
 const JSON5 = require('json5')
 const querystring = require('querystring')
+const uriZenodeo = config.get('url.zenodeo')
+const uriZenodo = config.get('url.zenodo')
 
 const pino = require('pino')
 const pinoOpts = JSON5.parse(JSON5.stringify(config.get('pino.opts')))
@@ -24,7 +25,13 @@ const acf = require('../../lib/abstract-cache-file')
 const queryAndCacheData = async (request, resource, cache, origParams, cacheKey) => {
 
     // Query for new data
-    const data = _get(request, resource, origParams)
+    let data
+    // if (resource === 'images' || resource === 'publications') {
+    //     getRecords(request, resource, origParams)
+    // }
+    // else {
+        data = _get(request, resource, origParams)
+    //}
                 
     // Now we need to store this data in the cache
     // flag for mkdir success/failure
@@ -119,20 +126,8 @@ const getCacheKey = (params) => {
         .digest('hex')
 }
 
-const packageResult = ({ resource, origParams, result }) => {
+const packageResult = ({ resource, origParams, result, url }) => {
     log.info(`packaging ${resource} result for delivery`)
-    
-    // make a copy of the params
-    //const p = JSON5.parse(JSON5.stringify(origParams))
-
-    // now, remove refreshCache, if present
-    // if ('$refreshCache' in p) {
-    //     delete p.$refreshCache
-    // }
-
-    // if ('poly' in p) {
-    //     delete p.poly
-    // }
     
     const resourceId = getResourceId(resource)
     const data = {
@@ -146,7 +141,7 @@ const packageResult = ({ resource, origParams, result }) => {
     }
 
     if (data.value['num-of-records']) {
-        data.value.records = halify(result.d2, resource, resourceId.name)
+        data.value.records = halify(result.d2, resource, resourceId.name, url)
     }
     else {
         data.value.records = []
@@ -222,7 +217,7 @@ const q2qs = function(q) {
 }
 
 // make HAL links for the record(s)
-const halify = (data, resource, resourceId) => {
+const halify = (data, resource, resourceId, url) => {
     log.info('halifying the records')
 
     for (let i = 0; i < data.length; i++) {
@@ -292,7 +287,8 @@ const _getRelated = (primaryResourceIdName, primaryResourceIdValue, relatedResou
         data['related-records'][relatedResource] = packageResult({
             resource: relatedResource, 
             params: params, 
-            res: res
+            res: res,
+            url: uriZenodeo
         })
     }
 }
@@ -306,7 +302,8 @@ const _get = (request, resource, origParams) => {
     const data = packageResult({
         resource: resource, 
         origParams: origParams, 
-        result: result
+        result: result,
+        url: uriZenodeo
     })
 
     // then we check if related records are also needed,  
@@ -357,7 +354,8 @@ const _get = (request, resource, origParams) => {
                 data['related-records'][r] = packageResult({
                     resource: r, 
                     params: q.params, 
-                    res: res
+                    res: res,
+                    url: uriZenodeo
                 })
             }
 
@@ -378,6 +376,92 @@ const isFresh = (value) => {
     else {
         return ((value.stored + value.ttl) > Date.now()) ? true : false
     }
+}
+
+const getRecords = function(request, resource, origParams) {
+
+    const resourceId = getResourceId(resource)
+
+    let result
+
+    // An id is present. The query is for a specific
+    // record. All other query params are ignored
+    if (resourceId.name in request.query) {
+        result = getOneZenodoRecord(request, resource)
+    }
+    
+    // More complicated queries with search parameters
+    else {
+        result = getManyZenodoRecords(request, resource)
+    }
+
+    const data = packageResult({
+        resource: resource, 
+        origParams: origParams, 
+        result: result,
+        url: uriZenodo
+    })
+
+    return data
+}
+
+const getOneZenodoRecord = async function(request, resource) {
+
+    const resourceId = getResourceId(resource)
+    const resourceIdValue = request.query[resourceId.name]
+    const uriRemote = url.zenodo + resourceIdValue
+
+    request.log.info(`getting ${resource} from ${uriRemote}`)
+
+    let response = await fetch(uriRemote)
+
+    // if HTTP-status is 200-299
+    if (response.ok) {
+
+        // get the response body (the method explained below)
+        const payload = await response.json()
+        return JSON5.parse(payload)
+    } 
+    else {
+        request.log.info("HTTP-Error: " + response.status)
+        return []
+    }
+};
+
+const getManyZenodoRecords = async function(request, resource) {
+
+    let t = process.hrtime();
+
+    /// data will hold all the query results to be sent back
+    
+
+    // calc limit and offset and add them to the queryObject
+    // as we will need them for the query
+    // const page = queryObject.page ? parseInt(queryObject.page) : 1;
+    // const size = queryObject.size ? parseInt(queryObject.size) : 30;
+    // const limit = size;
+    // const offset = (page - 1) * limit;
+    // queryObject.limit = limit;
+    // queryObject.offset = offset;
+
+    const qs = querystring.stringify(request.query.params)
+    console.log(qs)
+    const uriRemote = `${uriZenodo}?${qs}`;
+    request.log.info(`getting ${resource} from ${uriRemote}`)
+
+    let response = await fetch(uriRemote)
+
+    // if HTTP-status is 200-299
+    if (response.ok) {
+
+        // get the response body (the method explained below)
+        const payload = await response.json()
+        return JSON5.parse(payload)
+    } 
+    else {
+        request.log.info("HTTP-Error: " + response.status)
+    }
+
 }
 
 module.exports = {

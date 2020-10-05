@@ -29,5 +29,15 @@ module.exports = [
         name: 'materialsCitations',
         description: 'Fetch materialsCitations of the treatments',
         dictionary: require('./resources/materialsCitations')
-    }
+    },
+    // {
+    //     name: 'images',
+    //     description: 'Fetch images from Zenodo',
+    //     dictionary: require('./resources/images')
+    // },
+    // {
+    //     name: 'publications',
+    //     description: 'Fetch publications from Zenodo',
+    //     dictionary: require('./resources/publications')
+    // }
 ]

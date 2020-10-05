@@ -11,7 +11,10 @@
 
 module.exports = {
     port: 3010,
-    url: 'http://127.0.0.1:3010/v3',
+    url: {
+        zenodeo: 'http://127.0.0.1:3010/v3',
+        zenodo: 'https://zenodo.org/api'
+    },
     pino: {
         opts: {
             prettyPrint: true,

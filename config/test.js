@@ -7,20 +7,16 @@
  **************************************************************/
 
 module.exports = {
-    url: 'http://test.zenodeo.org/v3',
+    url: {
+        zenodeo: 'http://test.zenodeo.org/v3'
+    },
     v3: {
         swagger: {
             options: {
                 swagger: {
-                    host: 'http://test.zenodeo.org/'
+                    host: 'test.zenodeo.org/'
                 }
             }
-        },
-
-        cache: {
-
-            // default cache duration 1 day (24 hours)
-            duration: 1 * 60 * 60 * 1000
         }
     },
 }
