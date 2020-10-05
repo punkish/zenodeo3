@@ -38,6 +38,9 @@ module.exports = {
                         url: 'https://swagger.io',
                         description: 'Find more info here'
                     },
+
+                    // make sure there is no scheme before the host
+                    // that is, there should not be any 'http(s)://'
                     host: '127.0.0.1:3010',
                     schemes: ['http'],
                     consumes: ['application/json'],

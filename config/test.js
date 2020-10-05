@@ -2,7 +2,8 @@
 
 /**************************************************************
  * 
- * The config options start with all the values in this file
+ * The config options this file modify config/default when the
+ * app is running in TEST mode
  * 
  **************************************************************/
 
@@ -14,6 +15,9 @@ module.exports = {
         swagger: {
             options: {
                 swagger: {
+
+                    // make sure there is no scheme before the host
+                    // that is, there should not be any 'http(s)://'
                     host: 'test.zenodeo.org/'
                 }
             }

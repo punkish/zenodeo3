@@ -2,13 +2,16 @@
 
 /**************************************************************
  * 
- * The config options start with all the values in this file
+ * The config options this file modify config/default when the
+ * app is running in PRODUCTION mode
  * 
  **************************************************************/
 
 module.exports = {
-    port: 3010,
-    url: 'https://zenodeo.info/v3',
+    url: {
+        zenodeo: 'http://zenodeo.org/v3',
+        zenodo: 'https://zenodo.org/api'
+    },
     pino: {
         opts: {
             level: 'error'
@@ -17,7 +20,10 @@ module.exports = {
     debug: false,
     v3: {
         swagger: {
-            host: 'https://zenodeo.info'
+
+            // make sure there is no scheme before the host
+            // that is, there should not be any 'http(s)://'
+            host: 'zenodeo.org'
         }
     }
 };
