@@ -21,12 +21,14 @@ const rootHandler = async function(request, reply) {
     })
 
     return {
-        value: {
+        item: {
             'search-criteria': {},
             'num-of-records': records.length,
             _links: { self: { href: `${url}/` }},
             records: records
-        }
+        },
+        stored: null,
+        ttl: null
     }
 }
 /*

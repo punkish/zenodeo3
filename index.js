@@ -5,11 +5,7 @@ const config = require('config')
 const port = config.get('port')
 const ajvOpts = config.get('v3.ajv.options')
 const JSON5 = require('json5')
-
-const pino = require('pino')
-const pinoOpts = JSON5.parse(JSON5.stringify(config.get('pino.opts')))
-pinoOpts.name = 'INDEX'
-const log = pino(pinoOpts)
+const log = require('./utils')('INDEX')
 
 // we need to make a deep clone of the swagger
 // options config settings otherwise config 
@@ -32,9 +28,6 @@ const fastify = require('fastify')({
     // }
 })
 
-fastify.register(require('fastify-blipp'))
-fastify.register(require('fastify-favicon'))
-
 const hbs = {
     engine: {
         handlebars: require('handlebars')
@@ -51,13 +44,8 @@ const hbs = {
     }
 }
 
-// const hbs = {
-//     engine: { 
-//         handlebars: require('handlebars')
-//     },
-//     layout: './views/layouts/main.html' 
-// }
-
+fastify.register(require('fastify-blipp'))
+fastify.register(require('fastify-favicon'))
 fastify.register(require('point-of-view'), hbs)
 fastify.register(require('./static/'))
 fastify.register(require('fastify-swagger'), swagger.options)
@@ -71,7 +59,7 @@ fastify.listen(port, function (error, address) {
     }
 
     fastify.blipp()
-    //fastify.swagger()
+    fastify.swagger()
 
     if (process.env.NODE_ENV) {
         fastify.log.info(

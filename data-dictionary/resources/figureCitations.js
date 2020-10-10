@@ -10,6 +10,7 @@ module.exports = [
             description: `The unique ID of the figureCitation. Has to be a 32 character string like: '10922A65E320FF95FC0FFC83FB80FCAA'`,
             isResourceId: true
         },
+        selname: 'figureCitations.figureCitationId',
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("figureCitation").attr("id")',
         defaultCols: true
@@ -31,8 +32,9 @@ module.exports = [
         name: 'captionText',
         schema: {
             type: 'string',
-            description: `The full text of the figure cited by this treatment. Can use the following syntax: \`q=spiders\``
+            description: `The full text of the figure cited by this treatment. Can use the following syntax: \`captionText=spiders\``
         },
+        selname: 'figureCitations.captionText',
         sqltype: 'TEXT',
         cheerio: '$("figureCitation").attr("captionText")',
         defaultCols: true,

@@ -5,41 +5,14 @@ const Database = require('better-sqlite3')
 const db = new Database(config.get('data.treatments'))
 const debug = config.get('debug')
 const cacheDuration = config.get('v3.cache.duration')
-const { resources, getResourceId, getQueryableParamsWithDefaults } = require('../../data-dictionary/dd-utils')
+const { getResourceId, getQueryableParamsWithDefaults, getSourceOfResource, getResourcesFromSpecifiedSource } = require('../../data-dictionary/dd-utils')
+const uriZenodo = config.get('url.zenodo')
+const uriZenodeo = config.get('url.zenodeo')
 const { zql } = require('../../lib/zql/')
 const crypto = require('crypto')
 const JSON5 = require('json5')
-const querystring = require('querystring')
-const uriZenodeo = config.get('url.zenodeo')
-const uriZenodo = config.get('url.zenodo')
-
-const pino = require('pino')
-const pinoOpts = JSON5.parse(JSON5.stringify(config.get('pino.opts')))
-pinoOpts.name = 'API:V3:UTILS'
-const log = pino(pinoOpts)
-
-// *********** cache stuff ************************** //
-// const ac = require('abstract-cache')
+const log = require('../../utils')('API:V3:UTILS')
 const acf = require('../../lib/abstract-cache-file')
-
-const queryAndCacheData = async (request, resource, cache, origParams, cacheKey) => {
-
-    // Query for new data
-    let data
-    // if (resource === 'images' || resource === 'publications') {
-    //     getRecords(request, resource, origParams)
-    // }
-    // else {
-        data = _get(request, resource, origParams)
-    //}
-                
-    // Now we need to store this data in the cache
-    // flag for mkdir success/failure
-    log.info(`storing data in cache under key: ${cacheKey}`)
-    cache.set(cacheKey, data, cacheDuration)
-    
-    return data
-}
 
 const handlerFactory = (resource) => {
 
@@ -47,24 +20,9 @@ const handlerFactory = (resource) => {
     // make the route to this resource
     return async function(request, reply) {
 
-        log.info(`request received for ${resource}`)
+        const { originalPathname, originalParams } = getOriginalUrl(request)
 
-        // The parameters submitted in request.query get validated
-        // and modified by the JSON schema validator. So, we 
-        // preserve the orignal submitted parameters by extracting
-        // them from request.url and use them to make the links and 
-        // the 'search-params' in the reply
-        const origParams = querystring.parse(request.url.split('?').pop())
-        log.info('query params:' + Object.entries(origParams).join('; '))
-
-        // remove $refreshCache because this is the only submitted 
-        // parameter that is not preserved in the query string
-        if ('$refreshCache' in origParams) {
-            delete origParams.$refreshCache
-        }
-
-        const cacheKey = getCacheKey(origParams)
-        
+        // get a referene to the cache
         const cache = acf({
             base: '',
             segment: resource,
@@ -72,10 +30,25 @@ const handlerFactory = (resource) => {
         })
 
         let data
+        const cacheKey = getCacheKey({ originalPathname, originalParams })
+
+        // convert originalParams to an object
+        const op = {}
+        for (const [key, value] of originalParams) {
+            op[key] = value
+        }
+
+        const qp = {
+            request: request, 
+            resource: resource, 
+            cache: cache, 
+            originalParams: op, 
+            cacheKey: cacheKey
+        }
 
         if (request.query.$refreshCache) {
             log.info('refreshing cache as requested')
-            data = await queryAndCacheData(request, resource, cache, origParams, cacheKey)
+            data = await queryAndCacheData(qp)
         }
         else {
 
@@ -103,7 +76,7 @@ const handlerFactory = (resource) => {
                 // if we reached here, that means no data was 
                 // found in the cache. So we get new data
                 //data = await foo(request, resource, folder, file)
-                data = await queryAndCacheData(request, resource, cache, origParams, cacheKey)
+                data = await queryAndCacheData(qp)
             }
         }
 
@@ -112,99 +85,74 @@ const handlerFactory = (resource) => {
     }
 }
 
-const getCacheKey = (params) => {
-    
-    const qs = Object
-        .keys(params)
-        .sort()
-        .map(k => { return `${k}=${params[k]}` })
-        .join('&')
+const getCacheKey = ({ originalPathname, originalParams }) => {
+
+    // sort the keys so the same URL but with params
+    // in a different order doesn't generate a 
+    // different cacheKey
+    originalParams.sort()
+    const qs = originalParams.toString()
 
     return crypto
         .createHash('md5')
-        .update(qs)
+        .update(`${originalPathname}/${qs}`)
         .digest('hex')
 }
 
-const packageResult = ({ resource, origParams, result, url }) => {
-    log.info(`packaging ${resource} result for delivery`)
+// The parameters submitted in request.query get validated
+// and modified by the JSON schema validator. Default params,
+// if not submitted by the user, get tacked on to the query.
+// Wee need to preserve the orignal parameters by extracting
+// them from request.url so we can  use them to make the 
+// links and the 'search-params' in the reply
+const getOriginalUrl = (request) => {
+
+    // We prefix a fake scheme and host in front of the 
+    // request.url so we can extract the search and hash
+    const url = new URL(`http://server/${request.url}`)
+    const originalParams = url.searchParams
+
+    // remove $refreshCache because this is the only submitted 
+    // parameter that is not preserved in the query string
+    originalParams.delete('$refreshCache')
+
+    return { 
+        originalPathname: url.pathname.split('/').pop(), 
+        originalParams: originalParams 
+    }
+}
+
+const queryAndCacheData = async (o) => {
+    const { request, resource, cache, originalParams, cacheKey } = o
+
+    // Query for new data
+    const qp = { request, resource, originalParams }
+    const sourceOfResource = getSourceOfResource(resource)
+    let data
+
+    // A resource on Zenodo is queried differntly (using `fetch`)
+    // as opposed to a resource on Zenodeo (using `SQL`)
+    if (sourceOfResource === 'zenodo') {
+        data = await getDataFromZenodo(qp)
+    }
+    else if (sourceOfResource === 'zenodeo') {
+        data = await getDataFromZenodeo(qp)
+    }
+
+    // since we are storing data in the cache for the first
+    // time, let's fake a cache entry
+    const cacheEntry = {
+        item: data,
+        stored: Date.now(),
+        ttl: cacheDuration
+    }
+
+    // Now we need to store this data in the cache
+    // flag for mkdir success/failure
+    log.info(`storing data in cache under key: ${cacheKey}`)
+    cache.set(cacheKey, cacheEntry)
     
-    const resourceId = getResourceId(resource)
-    const data = {
-        value: {
-            'search-criteria': origParams,
-            'num-of-records': result.d1[0].num_of_records || 0,
-            _links: {},
-            prevpage: '',
-            nextpage: ''
-        }
-    }
-
-    if (data.value['num-of-records']) {
-        data.value.records = halify(result.d2, resource, resourceId.name, url)
-    }
-    else {
-        data.value.records = []
-    }
-    
-    const thisq = JSON5.parse(JSON5.stringify(origParams))
-
-    if (resourceId.name in origParams) {
-
-        // add link to self
-        data.value._links.self = { href: `${url}/${resource}?${q2qs(thisq)}` }
-    }
-    else {
-
-        // add links to prev and next, with appropriately
-        const prevq = JSON5.parse(JSON5.stringify(origParams))
-        const nextq = JSON5.parse(JSON5.stringify(origParams))
-
-        let prevpage = ''
-        let nextpage = ''
-
-        // update '$page'
-        if ('$page' in origParams) {
-            thisq.$page = origParams.$page
-        }
-        else {
-            const queryableParamsWithDefaults = getQueryableParamsWithDefaults(resource)
-            thisq.$page = queryableParamsWithDefaults
-                .filter(p => p.name === '$page')[0].schema.default
-        }
-
-        prevpage = thisq.$page === 1 ? 1 : thisq.$page - 1
-        prevq.$page = prevpage
-
-        nextpage = thisq.$page + 1
-        nextq.$page = nextpage
-
-        data.value._links.self = { href: `${url}/${resource}?${q2qs(thisq)}` }
-        data.value._links.prev = { href: `${url}/${resource}?${q2qs(prevq)}` }
-        data.value._links.next = { href: `${url}/${resource}?${q2qs(nextq)}` }
-        
-        data.value.prevpage = prevpage
-        data.value.nextpage = nextpage
-    }
-
-    if (debug) {
-        data.debug = {
-            count: {
-                sql: {
-                    query: result.queries.count.debug.join(' '),
-                    t: result.t1
-                }
-            },
-            records: {
-                sql: {
-                    query: result.queries.records.debug.join(' '),
-                    t: result.t2
-                }
-            }
-        }
-    }
-
-    return data
+    return cacheEntry
 }
 
 const q2qs = function(q) {
@@ -230,6 +178,261 @@ const halify = (data, resource, resourceId, url) => {
     return data
 }
 
+const packageResult = ({ resource, params, result, url }) => {
+    log.info(`packaging ${resource} result for delivery`)
+
+    const uri = `${url}/${resource.toLowerCase()}`
+    
+    const sourceOfResource = getSourceOfResource(resource)
+
+    let data
+    if (sourceOfResource === 'zenodo') {
+        data = {
+            'search-criteria': params,
+            count: result.d1[0].count || 0,
+            _links: {},
+            prevpage: '',
+            nextpage: ''
+        }
+
+        data.records = data.count ? result.d2 : []
+    }
+    else if (sourceOfResource === 'zenodeo') {
+        const resourceId = getResourceId(resource)
+        
+        data = {
+            'search-criteria': params,
+            count: result.d1[0].count || 0,
+            _links: {},
+            prevpage: '',
+            nextpage: ''
+        }
+
+        if (data.count) {
+            data.records = halify(result.d2, resource, resourceId.name, url)
+        }
+        else {
+            data.records = []
+        }
+        
+        const q = JSON5.stringify(params)
+        const thisq = JSON5.parse(q)
+        
+        if (Object.keys(params).length) {
+            if (resourceId.name in params) {
+
+                // add link to self
+                data._links.self = { href: `${uri}?${q2qs(thisq)}` }
+            }
+            else {
+    
+                // add links to prev and next
+                const prevq = JSON5.parse(q)
+                const nextq = JSON5.parse(q)
+    
+                let prevpage = ''
+                let nextpage = ''
+    
+                // update '$page'
+                if ('$page' in params) {
+                    thisq.$page = params.$page
+                }
+                else {
+                    const queryableParamsWithDefaults = getQueryableParamsWithDefaults(resource)
+                    thisq.$page = queryableParamsWithDefaults
+                        .filter(p => p.name === '$page')[0].schema.default
+                }
+    
+                prevpage = thisq.$page === 1 ? 1 : thisq.$page - 1
+                prevq.$page = prevpage
+    
+                nextpage = thisq.$page + 1
+                nextq.$page = nextpage
+    
+                data._links.self = { href: `${uri}?${q2qs(thisq)}` }
+                data._links.prev = { href: `${uri}?${q2qs(prevq)}` }
+                data._links.next = { href: `${uri}?${q2qs(nextq)}` }
+                
+                data.prevpage = prevpage
+                data.nextpage = nextpage
+            }
+        }
+        else {
+
+            // add link to self
+            data._links.self = { href: `${uri}` }
+
+            // add links to prev and next
+            const prevq = {}
+            const nextq = {}
+
+            let prevpage = ''
+            let nextpage = ''
+
+            // update '$page'
+            
+            const queryableParamsWithDefaults = getQueryableParamsWithDefaults(resource)
+            const $page = queryableParamsWithDefaults
+                .filter(p => p.name === '$page')[0].schema.default
+            
+            prevpage = $page === 1 ? 1 : $page - 1
+            prevq.$page = prevpage
+
+            nextpage = $page + 1
+            nextq.$page = nextpage
+
+            data._links.prev = { href: `${uri}?${q2qs(prevq)}` }
+            data._links.next = { href: `${uri}?${q2qs(nextq)}` }
+            
+            data.prevpage = prevpage
+            data.nextpage = nextpage
+        }
+        
+        if (debug) {
+            data.debug = {
+                count: {
+                    sql: result.queries ? result.queries.count.debug.join(' ') : '',
+                    time: result.t1
+                },
+                records: {
+                    sql: result.queries ? result.queries.records.debug.join(' ') : '',
+                    time: result.t2
+                }
+            }
+        }
+    }
+
+    return data
+}
+
+const getRequestedResourceFromZenodeo = ({ request, resource }) => {
+
+    // first, we query for the primary dataset.
+    // ZQL gives us the queries and the params to bind therein
+    const { queries, runparams } = zql({
+        resource: resource, 
+        params: request.query
+    })
+
+    return runZenodeoQueries({ resource, queries, runparams })
+
+    
+}
+
+const getRelatedResourcesFromZenodeo = async ({ request, resource, params }) => {
+
+    const relatedResources = {}
+            
+    // if resource is 'treatments' then the related records 
+    // are fetched from all other (zenodeo) resources
+    if (resource === 'treatments') {
+
+        const zenodeoResources = getResourcesFromSpecifiedSource('zenodeo')
+
+        // Go through every resource…
+        for (let i = 0, j = zenodeoResources.length; i < j; i++) {
+            const r = zenodeoResources[i]
+            const relatedResource = r.name
+
+            log.info(`getting related "${relatedResource}" for this ${resource}`)
+            relatedResources[relatedResource] = getRelatedRecords(primaryResourceIdName, primaryResourceIdValue, relatedResource)
+        }
+    }
+
+    // if the (zenodeo) resource is any other than 'treatments'
+    // then related record is only the parent treatment
+    else {
+        const relatedResource = 'treatments'
+        const q = { resource: relatedResource, params: {} }
+        const relatedResourceId = getResourceId(relatedResource)
+        q.params[relatedResourceId.name] = result.d2[0][relatedResourceId.name]
+        
+        const { queries, runparams } = zql(q)
+
+        relatedResources[relatedResource] = runZenodeoQueries({ relatedResource, queries, runparams })  
+        // data = packageResult({
+        //     resource: relatedResource, 
+        //     params: q.params, 
+        //     result: result,
+        //     url: uriZenodeo
+        // })
+    }
+
+    return relatedResources
+}
+
+const getDataFromZenodeo = async ({ request, resource, originalParams }) => {
+
+    // First we get the requested resource
+    const requestedResource = getRequestedResourceFromZenodeo({ request, resource, originalParams })
+    
+    
+    const data = packageResult({
+        resource: resource, 
+        params: originalParams, 
+        result: requestedResource,
+        url: uriZenodeo
+    })
+
+    // then we check if related records are also needed,  
+    // and query for and package them, adding them 
+    // to a key called 'related-records'. Related records
+    // are *only* required if there is a resourceId in the 
+    // the query.
+    data['related-records'] = {}
+    const requestedResourceIdName = getResourceId(resource).name
+    if (requestedResourceIdName in request.query) {
+        const requestedResourceIdValue = request.query[requestedResourceIdName]
+
+        // related records will exist only if  
+        // anything was found in thefirst query
+        const requestedResourceResult = requestedResource.d2
+        if (requestedResourceResult.length) {
+            
+            if (resource === 'treatments') {
+
+                const zenodeoResources = getResourcesFromSpecifiedSource('zenodeo')
+        
+                // Go through every resource…
+                for (let i = 0, j = zenodeoResources.length; i < j; i++) {
+                    const r = zenodeoResources[i]
+                    const relatedResource = r.name
+
+                    if (relatedResource !== 'treatments') {
+        
+                        log.info(`getting related "${relatedResource}" for this ${resource}`)
+                        data['related-records'][relatedResource] = getRelatedRecords(requestedResourceIdName, requestedResourceIdValue, relatedResource)
+                    }
+                }
+            }
+        
+            // if the (zenodeo) resource is any other than 'treatments'
+            // then related record is only the parent treatment
+            else {
+                const relatedResource = 'treatments'
+                const q = { resource: relatedResource, params: {} }
+                const relatedResourceId = getResourceId(relatedResource)
+                q.params[relatedResourceId.name] = requestedResourceResult[0][relatedResourceId.name]
+                
+                const { queries, runparams } = zql(q)
+                const relatedResourceResult = runZenodeoQueries({ resource: relatedResource, queries, runparams })
+                
+                const packagedRelatedResource = packageResult({
+                    resource: relatedResource, 
+                    params: q.params, 
+                    result: relatedResourceResult,
+                    url: uriZenodeo
+                })
+
+                data['related-records'][relatedResource] = packagedRelatedResource
+            }
+        }
+    }
+    
+    
+    return data
+}
+
 const sqlRunner = (sql, params) => {
     
     try {
@@ -247,23 +450,32 @@ const sqlRunner = (sql, params) => {
     }
 }
 
-const __get = (resource, queries, runparams) => {
+const runZenodeoQueries = (o) => {
+    const { resource, queries, runparams } = o
+
+    // This is where we pack all the results
     const res = {}
 
+    // First we find out the total number of records 
+    // returned from the query
     let sql = queries.count.binds.join(' ')
     const [ d1, t1 ] = sqlRunner(sql, runparams)
     res.d1 = d1
     res.t1 = t1
 
-    if (d1[0].num_of_records) {
-        log.info(`${resource} num_of_records is ${d1[0].num_of_records}, so getting actual records`)
+    // if the total number of records is more than 1,
+    // we run the query for getting the actual records
+    // but we use limit and offset to get only a small 
+    // set of records so we an page through the result
+    if (d1[0].count) {
+        log.info(`${resource} count is ${d1[0].count}, so getting actual records`)
         sql = queries.records.binds.join(' ')
         const [ d2, t2 ] = sqlRunner(sql, runparams)
         res.d2 = d2
         res.t2 = t2
     }
     else {
-        log.info(`"${resource}" num_of_records is 0, so returning []`)
+        log.info(`"${resource}" count is 0, so returning []`)
         res.d2 = []
         res.t2 = null
     }
@@ -272,7 +484,7 @@ const __get = (resource, queries, runparams) => {
     return res
 }
 
-const _getRelated = (primaryResourceIdName, primaryResourceIdValue, relatedResource, data) => {
+const getRelatedRecords = (primaryResourceIdName, primaryResourceIdValue, relatedResource) => {
 
     const params = {}
     params[primaryResourceIdName] = primaryResourceIdValue
@@ -280,197 +492,106 @@ const _getRelated = (primaryResourceIdName, primaryResourceIdValue, relatedResou
     const queryableParamsWithDefaults = getQueryableParamsWithDefaults(relatedResource)
     queryableParamsWithDefaults.forEach(p => params[p.name] = p.schema.default)
     
-    const { queries, runparams } = zql({ resource: relatedResource, params: params })
-    const res = __get(relatedResource, queries, runparams)
+    const { queries, runparams } = zql({ 
+        resource: relatedResource, 
+        params: params 
+    })
+    
+    const result = runZenodeoQueries({ relatedResource, queries, runparams })
 
-    if (res.d1[0].num_of_records) {
-        data['related-records'][relatedResource] = packageResult({
+    if (result.d1[0].count) {
+        return packageResult({
             resource: relatedResource, 
             params: params, 
-            res: res,
+            result: result,
             url: uriZenodeo
         })
     }
-}
-
-const _get = (request, resource, origParams) => {
-
-    // first, we query for the primary dataset and package it for delivery
-    const { queries, runparams } = zql({resource: resource, params: request.query})
-    const result = __get(resource, queries, runparams)
-
-    const data = packageResult({
-        resource: resource, 
-        origParams: origParams, 
-        result: result,
-        url: uriZenodeo
-    })
-
-    // then we check if related records are also needed,  
-    // and query for and package them, adding them 
-    // to a key called 'related-records'. Related records
-    // are *only* required if there is a resourceId in the 
-    // the query.
-
-    // related records will exist only if anything was found in the 
-    // first query
-    if (result.d2.length) {
-
-        const primaryResourceId = getResourceId(resource)
-        const primaryResourceIdName = primaryResourceId.name
-        const primaryResourceIdValue = result.d2[0][primaryResourceId.name]
-
-        if (primaryResourceIdName in request.query) {
-
-            data['related-records'] = {}
-            
-            if (resource === 'treatments') {
-
-                // Go through every resource…
-                for (let i = 0, j = resources.length; i < j; i++) {
-                    
-                    const r = resources[i]
-                    const relatedResource = r.name
-
-                    // except 'root' and 'treatments'
-                    if ((relatedResource !== 'root') && (relatedResource !== resource)) {
-
-                        log.info(`getting related "${relatedResource}" for this ${resource}`)
-                        _getRelated(primaryResourceIdName, primaryResourceIdValue, relatedResource, data)
-                        
-                    }
-                }
-
-            }
-            else {
-                const r = 'treatments'
-                const q = { resource: r, params: {} }
-                const relatedResourceId = getResourceId(r)
-                q.params[relatedResourceId.name] = result.d2[0][relatedResourceId.name]
-                
-                const { queries, runparams } = zql(q)
-                const res = __get(queries, runparams)
-
-                data['related-records'][r] = packageResult({
-                    resource: r, 
-                    params: q.params, 
-                    res: res,
-                    url: uriZenodeo
-                })
-            }
-
-        }
-    }
-
-    return data
-}
-
-const isFresh = (value) => {   
-    if (typeof(value) === 'string') {
-        value = JSON5.parse(value)
-    }
-
-    if (value.ttl === 'Infinity') {
-        return true
-    }
     else {
-        return ((value.stored + value.ttl) > Date.now()) ? true : false
-    }
-}
-
-const getRecords = function(request, resource, origParams) {
-
-    const resourceId = getResourceId(resource)
-
-    let result
-
-    // An id is present. The query is for a specific
-    // record. All other query params are ignored
-    if (resourceId.name in request.query) {
-        result = getOneZenodoRecord(request, resource)
-    }
-    
-    // More complicated queries with search parameters
-    else {
-        result = getManyZenodoRecords(request, resource)
-    }
-
-    const data = packageResult({
-        resource: resource, 
-        origParams: origParams, 
-        result: result,
-        url: uriZenodo
-    })
-
-    return data
-}
-
-const getOneZenodoRecord = async function(request, resource) {
-
-    const resourceId = getResourceId(resource)
-    const resourceIdValue = request.query[resourceId.name]
-    const uriRemote = url.zenodo + resourceIdValue
-
-    request.log.info(`getting ${resource} from ${uriRemote}`)
-
-    let response = await fetch(uriRemote)
-
-    // if HTTP-status is 200-299
-    if (response.ok) {
-
-        // get the response body (the method explained below)
-        const payload = await response.json()
-        return JSON5.parse(payload)
-    } 
-    else {
-        request.log.info("HTTP-Error: " + response.status)
         return []
     }
-};
+}
 
-const getManyZenodoRecords = async function(request, resource) {
+const getDataFromZenodo = async ({ request, resource, originalParams }) => {
+    request.log.info('getting data from zenodo')
 
-    let t = process.hrtime();
+    // clean up request.query
+    const params = JSON5.parse(JSON5.stringify(request.query))
 
-    /// data will hold all the query results to be sent back
+    // add type by removing the last 's' from resource name
+    // images -> image
+    // publications -> publication
+    params.type = resource.slice(0, -1)
     
+    // remove the following params
+    const remove = [ '$refreshCache', '$facets', '$stats', '$sortby' ]
+    remove.forEach(p => {
+        if (p in params) {
+            delete params[p]
+        }
+    })
 
-    // calc limit and offset and add them to the queryObject
-    // as we will need them for the query
-    // const page = queryObject.page ? parseInt(queryObject.page) : 1;
-    // const size = queryObject.size ? parseInt(queryObject.size) : 30;
-    // const limit = size;
-    // const offset = (page - 1) * limit;
-    // queryObject.limit = limit;
-    // queryObject.offset = offset;
+    // remove '$' from the following params
+    const remove$ = [ '$page', '$size' ]
+    remove$.forEach(p => {
+        if (p in params) {
+            params[ p.substr(1) ] = params[p]
+            delete params[p]
+        }
+    })
 
-    const qs = querystring.stringify(request.query.params)
-    console.log(qs)
-    const uriRemote = `${uriZenodo}?${qs}`;
+    const qs = querystring.stringify(params)
+    const uriRemote = qs ? `${uriZenodo}?${qs}` : uriZenodo
+
+    // uriRemote should be
+    // https://zenodo.org/api/records/?communities=biosyslit&page=1&size=30&type=image&communities=belgiumherbarium
+
+    // https://zenodo.org/api/records/?sort=mostrecent&subtype=figure&subtype=photo&subtype=drawing&subtype=diagram&subtype=plot&subtype=other&communities=biosyslit&communities=belgiumherbarium&type=image&page=1&size=30
+
     request.log.info(`getting ${resource} from ${uriRemote}`)
 
-    let response = await fetch(uriRemote)
+    let res = {}
 
-    // if HTTP-status is 200-299
-    if (response.ok) {
+    try {
+        let t = process.hrtime()
 
-        // get the response body (the method explained below)
-        const payload = await response.json()
-        return JSON5.parse(payload)
-    } 
-    else {
-        request.log.info("HTTP-Error: " + response.status)
+        request.log.info('awaiting response')
+        let response = await fetch(uriRemote)
+
+        // if HTTP-status is 200-299
+        if (response.ok) {
+    
+            request.log.info('awaiting response.text')
+            const payload = await response.text()
+            const result = JSON5.parse(payload)
+
+            t = process.hrtime(t)
+
+            const d1 = [{ count: result.hits.total }]
+            res.d1 = d1
+            res.t1 = null
+            
+            res.d2 = result.hits.hits
+            res.t2 = t
+
+            return packageResult({
+                resource: resource,
+                params: originalParams,
+                result: res,
+                url: uriZenodeo
+            })
+        } 
+        else {
+            request.log.info("HTTP-Error: " + response.status)
+            return {}
+        }
     }
-
+    catch (error) {
+        request.log.error(error)
+        return {}
+    }
 }
 
 module.exports = {
-    // packageResult: packageResult,
-    // sqlRunner: sqlRunner,
-    // halify: halify,
-    // getCacheKey: getCacheKey,
-    // send: send,
-    // queryCacheAndSend: queryCacheAndSend,
-    // isFresh: isFresh,
-    handlerFactory: handlerFactory
+    handlerFactory: handlerFactory,
 }

@@ -3,7 +3,6 @@
 const util = require('util')
 const commonparams = require('./commonparams')
 const JSON5 = require('json5')
-
 const resources = require('./index')
 
 // All params of a resource
@@ -16,8 +15,18 @@ const getAllParams = (resource) => {
 // All queryable params of a resource.
 // All params are queryable unless 'false'
 const getQueryableParams = (resource) => {
-    const allParams = getAllParams(resource)
-    return allParams.filter(p => p.queryable !== false)
+    return getAllParams(resource)
+        .filter(p => p.queryable !== false)
+}
+
+const getSourceOfResource = (resource) => {
+    return resources
+        .filter(r => r.name === resource)[0].source
+}
+
+const getResourcesFromSpecifiedSource = (source) => {
+    return resources
+        .filter(r => r.source === source)
 }
 
 // All queryable params of a resource with default values
@@ -38,13 +47,13 @@ const getQueryableParamsWithDefaults = (resource) => {
 }
 
 const getNamesOfQueryableParams = (resource) => {
-    return getQueryableParams(resource).map(p => p.name)
+    return getQueryableParams(resource)
+        .map(p => p.name)
 }
 
 // A param is a col if sqltype is present
 const getAllCols = (resource) => {
-    const allParams = getAllParams(resource)
-    return allParams
+    return getAllParams(resource)
         .filter(p => p.sqltype)
         .map(p => {
             return {
@@ -59,8 +68,7 @@ const getAllCols = (resource) => {
 // A param is a part of the set of default columns 
 // if 'defaultCols' is true
 const getDefaultCols = (resource) => {
-    const allParams = getAllParams(resource)
-    return allParams
+    return getAllParams(resource)
         .filter(p => p.defaultCols === true)
         .map(p => { 
             return {
@@ -81,13 +89,11 @@ const getSchema = (resource) => {
     }
     
     queryableParams.forEach(p => {
-
         if (p.schema.default && typeof(p.schema.default) === 'string') {
             p.schema.default = p.schema.default.replace(/resourceId/, resourceId.selname)
         }
 
         schema.properties[p.name] = p.schema
-        
     })
 
     return schema
@@ -151,9 +157,13 @@ const getSchemaStrict = (resource) => {
 */
 
 const getResourceId = (resource) => {
-    const allParams = getAllParams(resource)
-    const col = allParams.filter(c => c.schema.isResourceId)[0]
-    return { name: col.name, selname: col.selname || col.name }
+    const col = getAllParams(resource)
+        .filter(c => c.schema.isResourceId)[0]
+
+    return { 
+        name: col.name, 
+        selname: col.selname || col.name 
+    }
 }
 
 const getForeignKey = (resource) => {
@@ -165,20 +175,37 @@ const getForeignKey = (resource) => {
 }
 
 const getRequiredParams = (resource) => {
-    const allParams = getAllParams(resource)
     const rp = {}
-    allParams.filter(c => c.required === true).forEach(c => {
+
+    getAllParams(resource).filter(c => c.required === true).forEach(c => {
         rp[c.name] = { default: c.default }
     })
 
     return rp
 }
 
+const columnExists = (resource, column) => {
+    const allCols = getAllCols(resource)
+    const vc = allCols
+        .filter(c => c.name === column)
+        .map(c => c.selname ? c.selname : c.name)
+    
+    if (vc.length === 1) {
+        return vc[0]
+    }
+    else {
+        return false
+    }
+}
+
 const dispatch = {
     resources: resources,
+    getSourceOfResource: getSourceOfResource,
+    getResourcesFromSpecifiedSource: getResourcesFromSpecifiedSource,
     getAllParams: getAllParams,
     getSchema: getSchema,
     getAllCols: getAllCols,
+    columnExists: columnExists,
     getDefaultCols: getDefaultCols,
     getResourceId: getResourceId,
     getForeignKey: getForeignKey,

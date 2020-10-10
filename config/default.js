@@ -13,7 +13,7 @@ module.exports = {
     port: 3010,
     url: {
         zenodeo: 'http://127.0.0.1:3010/v3',
-        zenodo: 'https://zenodo.org/api'
+        zenodo: 'https://zenodo.org/api/records'
     },
     pino: {
         opts: {

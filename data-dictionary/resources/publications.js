@@ -14,45 +14,49 @@ module.exports = [
             description: 'unique identifier of the record',
             isResourceId: true
         },
-        sqlType: '',
-        cheerio: '',
         defaultCols: true
     },
 
     {
-        name: 'type',
-        schema: { 
-            type: 'string', 
-            enum: [ "all", "article", "report", "book", "thesis", "section", "workingpaper", "preprint" ],
-            default: "all",
-            description: 'The publication subtype; defaults to <b>"all"</b>'
+        name: 'subtype',
+            schema: { 
+            type: 'array', 
+            items: { 
+                type: 'string',
+                enum: [ "article", "report", "book", "thesis", "section", "workingpaper", "preprint" ]
+            },
+            minItems: 1,
+            maxItems: 7,
+            additionalItems: false,
+            default: [ "article", "report", "book", "thesis", "section", "workingpaper", "preprint" ],
+            description: 'The publication subtype; defaults to all subtypes'
         },
-        sqltype: '',
-        cheerio: '',
         defaultCols: true
     },
 
     {
-        name: 'communities',
-        schema: { 
-            type: 'string', 
-            enum: [ "all", "biosyslit", "belgiumherbarium" ],
-            default: "all",
-            description: 'The community on Zenodo; defaults to <b>"biosyslit"</b>'
-        },
-        sqltype: '',
-        cheerio: '',
-        defaultCols: true
-    },
+      name: 'communities',
+      schema: { 
+          type: 'array', 
+          items: { 
+            type: 'string',
+            enum: [ 'biosyslit', 'belgiumherbarium' ]
+          },
+          minItems: 1,
+          maxItems: 2,
+          additionalItems: false,
+          default: [ 'biosyslit' ],
+          description: 'The community on Zenodo; defaults to <b>"biosyslit"</b>'
+      },
+      defaultCols: true
+  },
 
     {
         name: 'q',
         schema: { 
             type: 'string', 
             description: 'The term for full-text search. Can use the following syntax: \`q=spiders\`'
-        },
-        sqltype: '',
-        cheerio: ''
+        }
     },
 
     {
@@ -72,8 +76,6 @@ module.exports = [
 - creator=Agosti AND Donat
   will find all records containing both Agosti and Donat in any order`
         },
-        sqltype: '',
-        cheerio: '',
         defaultCols: true
     },
 
@@ -94,19 +96,18 @@ module.exports = [
 - title=spider AND peacock
   will find all records containing both spider and peacock in any order`
         },
-        sqltype: '',
-        cheerio: '',
         defaultCols: true
     },
 
     {
         name: 'keywords',
         schema: { 
-            type: 'string',
-            description: `The keywords associated with the publication; more than one keywords may be used`
+            type: 'array',
+            items: {
+                type: 'string'
+            },
+            description: 'The keywords associated with the publication; more than one keywords may be used'
         },
-        sqltype: '',
-        cheerio: '',
         defaultCols: true
     }
 ]

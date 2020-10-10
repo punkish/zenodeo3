@@ -14,33 +14,40 @@ module.exports = [
             description: 'unique identifier of the record',
             isResourceId: true
         },
-        sqlType: '',
-        cheerio: '',
         defaultCols: true
     },
 
     {
-        name: 'type',
-        schema: { 
-            type: 'string', 
-            enum: [ "all", "figure", "photo", "drawing", "diagram", "plot", "other" ],
-            description: 'The image subtype; defaults to <b>"all"</b>'
+        name: 'subtype',
+            schema: { 
+            type: 'array', 
+            items: { 
+                type: 'string',
+                enum: [ 'figure', 'photo', 'drawing', 'diagram', 'plot', 'other' ]
+            },
+            minItems: 1,
+            maxItems: 6,
+            additionalItems: false,
+            default: [ 'figure', 'photo', 'drawing', 'diagram', 'plot', 'other' ],
+            description: 'The image subtype; defaults to all subtypes'
         },
-        sqltype: '',
-        cheerio: '',
         defaultCols: true
     },
 
     {
         name: 'communities',
         schema: { 
-            type: 'string', 
-            enum: [ "all", "biosyslit", "belgiumherbarium" ],
-            default: "all",
+            type: 'array', 
+            items: { 
+              type: 'string',
+              enum: [ 'biosyslit', 'belgiumherbarium' ]
+            },
+            minItems: 1,
+            maxItems: 2,
+            additionalItems: false,
+            default: [ 'biosyslit' ],
             description: 'The community on Zenodo; defaults to <b>"biosyslit"</b>'
         },
-        sqltype: '',
-        cheerio: '',
         defaultCols: true
     },
 
@@ -50,8 +57,6 @@ module.exports = [
             type: 'string', 
             description: 'The term for full-text search. Can use the following syntax: \`q=spiders\`'
         },
-        sqltype: '',
-        cheerio: ''
     },
 
     {
@@ -71,8 +76,6 @@ module.exports = [
 - creator=Agosti AND Donat
   will find all records containing both Agosti and Donat in any order`
         },
-        sqltype: '',
-        cheerio: '',
         defaultCols: true
     },
 
@@ -93,19 +96,18 @@ module.exports = [
 - title=spider AND peacock
   will find all records containing both spider and peacock in any order`
         },
-        sqltype: '',
-        cheerio: '',
         defaultCols: true
     },
 
     {
         name: 'keywords',
         schema: { 
-            type: 'string',
-            description: `The keywords associated with the publication; more than one keywords may be used`
+            type: 'array',
+            items: {
+                type: 'string'
+            },
+            description: 'The keywords associated with the image; more than one keywords may be used'
         },
-        sqltype: '',
-        cheerio: '',
         defaultCols: true
     }
 ]
