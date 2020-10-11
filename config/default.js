@@ -52,6 +52,10 @@ module.exports = {
         ajv: {
             options: {
                 customOptions: {
+
+                    // The following is needed to pass single values as arrays
+                    // See https://github.com/fastify/help/issues/281
+                    coerceTypes: 'array',
         
                     // Refer to [ajv options](https://ajv.js.org/#options)
                     jsonPointers: true, 

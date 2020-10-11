@@ -19,7 +19,7 @@ module.exports = [
 
     {
         name: 'subtype',
-            schema: { 
+        schema: { 
             type: 'array', 
             items: { 
                 type: 'string',

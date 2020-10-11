@@ -6,6 +6,7 @@ const port = config.get('port')
 const ajvOpts = config.get('v3.ajv.options')
 const JSON5 = require('json5')
 const log = require('./utils')('INDEX')
+const qs = require('qs')
 
 // we need to make a deep clone of the swagger
 // options config settings otherwise config 
@@ -13,6 +14,7 @@ const log = require('./utils')('INDEX')
 const swagger = JSON5.parse(JSON5.stringify(config.get('v3.swagger')))
 
 const fastify = require('fastify')({
+    querystringParser: str => qs.parse(str, { comma: true }),
     logger: log,
     ajv: ajvOpts,
     

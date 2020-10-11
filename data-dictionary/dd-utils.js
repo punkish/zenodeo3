@@ -72,7 +72,8 @@ const getDefaultCols = (resource) => {
         .filter(p => p.defaultCols === true)
         .map(p => { 
             return {
-                name: p.selname || p.name, 
+                name: p.name, 
+                selname: p.selname || p.name,
                 join: p.join
             }
         })
@@ -81,6 +82,8 @@ const getDefaultCols = (resource) => {
 const getSchema = (resource) => {
     const queryableParams = getQueryableParams(resource)
     const resourceId = getResourceId(resource)
+    const resourcesFromZenodeo = getResourcesFromSpecifiedSource('zenodeo')
+        .map(r => r.name)
 
     const schema = {
         type: 'object',
@@ -93,68 +96,21 @@ const getSchema = (resource) => {
             p.schema.default = p.schema.default.replace(/resourceId/, resourceId.selname)
         }
 
+        if (resourcesFromZenodeo.includes(resource)) {
+            if (p.schema.type === 'array') {
+                if (p.name === '$cols') {
+                    p.schema.items.enum = getAllCols(resource).map(c => c.name)
+                    p.schema.default = getDefaultCols(resource).map(c => c.name)
+                }
+
+                p.schema.errorMessage = 'should be one of: ' + p.schema.default.join(', ')
+            }
+        }
         schema.properties[p.name] = p.schema
     })
 
     return schema
 }
-
-/*
-const getSchemaStrict = (resource) => {
-    
-    const queryable = getQueryableParams(resource)
-    const resourceId = getResourceId(resource)
-
-    const schema = {
-        type: 'object',
-        properties: {},
-        additionalProperties: false
-    }
-    
-    queryable.forEach(p => {
-        const d = JSON5.parse(JSON5.stringify(definitions[p.type]))
-
-        // we create a scheme for each param starting with the schema
-        // defined in the data dictionary
-        const scheme = {}
-
-        // add more description…
-        scheme.description = p.description
-
-        // and help as apporpriate, customizing each param with its
-        // column name by replacing the 'cname' placeholder
-        const help = d.help
-        if (help) scheme.description += '. ' + help.replace(/cname/g, p.name)
-
-        // add default values, if needed…
-        let defaultval = p.default || ''
-        if (typeof(defaultval) === 'string') {
-            defaultval = defaultval.replace(/resourceId/, resourceId)
-        }
-
-        if (defaultval) {
-            scheme.default = defaultval
-            scheme.description += ` (defaults to ${defaultval})`
-        }
-
-        // and a custom error message
-        if (d.errorMessage) scheme.errorMessage = d.errorMessage
-
-        if (p.type === 'resourceId') {
-            scheme.isResourceId = true
-            //schema.definitions['has-property-other-than-resourceId'].if.required.push(p.name)
-        }
-        else {
-            scheme.isResourceId = false
-        }
-
-        schema.properties[p.name] = scheme
-        
-    })
-
-    return schema
-}
-*/
 
 const getResourceId = (resource) => {
     const col = getAllParams(resource)
@@ -184,18 +140,13 @@ const getRequiredParams = (resource) => {
     return rp
 }
 
-const columnExists = (resource, column) => {
+const getSelName = (resource, column) => {
     const allCols = getAllCols(resource)
     const vc = allCols
         .filter(c => c.name === column)
         .map(c => c.selname ? c.selname : c.name)
     
-    if (vc.length === 1) {
-        return vc[0]
-    }
-    else {
-        return false
-    }
+    return vc[0]
 }
 
 const dispatch = {
@@ -205,7 +156,7 @@ const dispatch = {
     getAllParams: getAllParams,
     getSchema: getSchema,
     getAllCols: getAllCols,
-    columnExists: columnExists,
+    getSelName: getSelName,
     getDefaultCols: getDefaultCols,
     getResourceId: getResourceId,
     getForeignKey: getForeignKey,

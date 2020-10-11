@@ -8,6 +8,8 @@ const cacheDuration = config.get('v3.cache.duration')
 const { getResourceId, getQueryableParamsWithDefaults, getSourceOfResource, getResourcesFromSpecifiedSource } = require('../../data-dictionary/dd-utils')
 const uriZenodo = config.get('url.zenodo')
 const uriZenodeo = config.get('url.zenodeo')
+const querystring = require('qs')
+const fetch = require('node-fetch')
 const { zql } = require('../../lib/zql/')
 const crypto = require('crypto')
 const JSON5 = require('json5')
@@ -20,7 +22,8 @@ const handlerFactory = (resource) => {
     // make the route to this resource
     return async function(request, reply) {
 
-        const { originalPathname, originalParams } = getOriginalUrl(request)
+        // get queryparams and querystring from the original URL
+        const { op, qs } = getOriginalUrl(request)
 
         // get a referene to the cache
         const cache = acf({
@@ -30,13 +33,11 @@ const handlerFactory = (resource) => {
         })
 
         let data
-        const cacheKey = getCacheKey({ originalPathname, originalParams })
 
-        // convert originalParams to an object
-        const op = {}
-        for (const [key, value] of originalParams) {
-            op[key] = value
-        }
+        const cacheKey =  crypto
+            .createHash('md5')
+            .update(`${resource}/${qs}`)
+            .digest('hex')
 
         const qp = {
             request: request, 
@@ -85,20 +86,6 @@ const handlerFactory = (resource) => {
     }
 }
 
-const getCacheKey = ({ originalPathname, originalParams }) => {
-
-    // sort the keys so the same URL but with params
-    // in a different order doesn't generate a 
-    // different cacheKey
-    originalParams.sort()
-    const qs = originalParams.toString()
-
-    return crypto
-        .createHash('md5')
-        .update(`${originalPathname}/${qs}`)
-        .digest('hex')
-}
-
 // The parameters submitted in request.query get validated
 // and modified by the JSON schema validator. Default params,
 // if not submitted by the user, get tacked on to the query.
@@ -107,19 +94,23 @@ const getCacheKey = ({ originalPathname, originalParams }) => {
 // links and the 'search-params' in the reply
 const getOriginalUrl = (request) => {
 
-    // We prefix a fake scheme and host in front of the 
-    // request.url so we can extract the search and hash
-    const url = new URL(`http://server/${request.url}`)
-    const originalParams = url.searchParams
+    const qs_orig = request.url.split('?')[1]
+    const op = querystring.parse(qs_orig, { comma: true })
 
-    // remove $refreshCache because this is the only submitted 
-    // parameter that is not preserved in the query string
-    originalParams.delete('$refreshCache')
+    if ('$refreshCache' in op) delete op.$refreshCache
 
-    return { 
-        originalPathname: url.pathname.split('/').pop(), 
-        originalParams: originalParams 
-    }
+    const qs = Object.keys(op)
+        .sort()
+        .map(k => {
+            const el = op[k]
+
+            return Array.isArray(el) ? 
+                el.sort().map(e => `${k}=${e}`).join('&') : 
+                `${k}=${el}`
+        })
+        .join('&')
+
+    return { op, qs }
 }
 
 const queryAndCacheData = async (o) => {
@@ -185,107 +176,68 @@ const packageResult = ({ resource, params, result, url }) => {
     
     const sourceOfResource = getSourceOfResource(resource)
 
-    let data
-    if (sourceOfResource === 'zenodo') {
-        data = {
-            'search-criteria': params,
-            count: result.d1[0].count || 0,
-            _links: {},
-            prevpage: '',
-            nextpage: ''
-        }
+    const data = {
+        'search-criteria': params,
+        count: result.d1[0].count || 0,
+        _links: {},
+        prevpage: '',
+        nextpage: ''
+    }
 
+    if (sourceOfResource === 'zenodo') {
         data.records = data.count ? result.d2 : []
     }
     else if (sourceOfResource === 'zenodeo') {
         const resourceId = getResourceId(resource)
-        
-        data = {
-            'search-criteria': params,
-            count: result.d1[0].count || 0,
-            _links: {},
-            prevpage: '',
-            nextpage: ''
-        }
 
-        if (data.count) {
-            data.records = halify(result.d2, resource, resourceId.name, url)
-        }
-        else {
-            data.records = []
-        }
+        data.records = data.count ?
+            halify(result.d2, resource, resourceId.name, url) :
+            []
         
         const q = JSON5.stringify(params)
         const thisq = JSON5.parse(q)
-        
-        if (Object.keys(params).length) {
-            if (resourceId.name in params) {
 
-                // add link to self
-                data._links.self = { href: `${uri}?${q2qs(thisq)}` }
-            }
-            else {
-    
-                // add links to prev and next
-                const prevq = JSON5.parse(q)
-                const nextq = JSON5.parse(q)
-    
-                let prevpage = ''
-                let nextpage = ''
-    
-                // update '$page'
-                if ('$page' in params) {
-                    thisq.$page = params.$page
-                }
-                else {
-                    const queryableParamsWithDefaults = getQueryableParamsWithDefaults(resource)
-                    thisq.$page = queryableParamsWithDefaults
-                        .filter(p => p.name === '$page')[0].schema.default
-                }
-    
-                prevpage = thisq.$page === 1 ? 1 : thisq.$page - 1
-                prevq.$page = prevpage
-    
-                nextpage = thisq.$page + 1
-                nextq.$page = nextpage
-    
-                data._links.self = { href: `${uri}?${q2qs(thisq)}` }
-                data._links.prev = { href: `${uri}?${q2qs(prevq)}` }
-                data._links.next = { href: `${uri}?${q2qs(nextq)}` }
-                
-                data.prevpage = prevpage
-                data.nextpage = nextpage
-            }
+        if (resourceId.name in params) {
+
+            // add link to self and we are done
+            data._links.self = { href: `${uri}?${querystring.stringify(thisq)}` }
         }
         else {
+            let prevq
+            let nextq
+            let thispage
 
-            // add link to self
-            data._links.self = { href: `${uri}` }
+            if (Object.keys(params).length) {
 
-            // add links to prev and next
-            const prevq = {}
-            const nextq = {}
+                // add links to prev and next
+                prevq = JSON5.parse(q)
+                nextq = JSON5.parse(q)
 
-            let prevpage = ''
-            let nextpage = ''
+                if ('$page' in params) {
+                    data._links.self = { href: `${uri}?${querystring.stringify(thisq)}` }
+                    thispage = params.$page
+                }
+                else {
+                    data._links.self = { href: `${uri}` }
+                    thispage = getQueryableParamsWithDefaults(resource)
+                        .filter(p => p.name === '$page')[0].schema.default
+                }
+            }
+            else {
 
-            // update '$page'
-            
-            const queryableParamsWithDefaults = getQueryableParamsWithDefaults(resource)
-            const $page = queryableParamsWithDefaults
-                .filter(p => p.name === '$page')[0].schema.default
-            
-            prevpage = $page === 1 ? 1 : $page - 1
-            prevq.$page = prevpage
+                // add links to prev and next
+                prevq = {}
+                nextq = {}
 
-            nextpage = $page + 1
-            nextq.$page = nextpage
+                thispage = getQueryableParamsWithDefaults(resource)
+                    .filter(p => p.name === '$page')[0].schema.default
+            }
 
-            data._links.prev = { href: `${uri}?${q2qs(prevq)}` }
-            data._links.next = { href: `${uri}?${q2qs(nextq)}` }
-            
-            data.prevpage = prevpage
-            data.nextpage = nextpage
+            prevq.$page = thispage === 1 ? 1 : thispage - 1
+            nextq.$page = thispage + 1
+
+            data._links.prev = { href: `${uri}?${querystring.stringify(prevq)}` }
+            data._links.next = { href: `${uri}?${querystring.stringify(nextq)}` }
         }
         
         if (debug) {
