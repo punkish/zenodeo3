@@ -6,7 +6,7 @@
     <p>Let’s say you want to make a web page that displays images for all records with the word 'nymphalidae' in their text. Below is a script that will do the work <i>(change the value  for a different query)</i>:</p> <div class="qryStr" id="q" contenteditable="true" onkeyup="updateCode();">nymphalidae</div>
     <br clear="both">
 
-<pre><code class="js">const url = "v2/treatments?page=1&q=<span id="urlQ">nymphalidae</span>&size=<span id="urlSize">30</span>";
+<pre><code class="js">const url = "v3/treatments?page=1&q=<span id="urlQ">nymphalidae</span>&size=<span id="urlSize">30</span>";
 
 fetch(url)
     .then(function(response) {
@@ -35,7 +35,7 @@ const getTreatments = function() {
     document.getElementById('result').style.display = 'none';
     document.getElementById('loader').style.visibility = 'visible';
     const q = document.getElementById('q').innerHTML;
-    const url = `v2/treatments?page=1&size=30&q=${q}`;
+    const url = `v3/treatments?$page=1&$size=30&q=${q}`;
 
     fetch(url)
         .then(function(response) {

@@ -3,11 +3,11 @@
 <section id="install" class="row">
     <h2>Installation</h2>
 
-    <p>You need <a href="https://git-scm.com/" target="_blank">git</a>, a relatively new version of <a href="https://nodejs.org/en/" target="_blank">nodejs</a> (I am using 8.x) and <a href="https://yarnpkg.com/lang/en/" target="_blank">yarn</a>.</p>
+    <p>You need <a href="https://git-scm.com/" target="_blank">git</a>, a relatively new version of <a href="https://nodejs.org/en/" target="_blank">nodejs</a> (I am using 12.x) and <a href="https://www.npmjs.com/get-npm" target="_blank">npm</a>.</p>
 
-<pre><code class="bash">$ git clone https://github.com/punkish/zenodeo.git
-$ cd zenodeo
-$ yarn
+<pre><code class="bash">$ git clone https://github.com/punkish/zenodeo3.git
+$ cd zenodeo3
+$ npm i
 </code></pre>
 
     <p>While an instance of this application is running on this website as a demo, it is really designed to be installed and run on one’s own (or a team’s) computer. For one, the demo version is really just a demo and is not guaranteed to be either stable or even running all the time. More importantly, this application will soon provide caching of results. This means your own personal queries will be cached on your computer saving you a tremendous amount of time when doing repeated identical queries.</p>
@@ -18,29 +18,41 @@ $ yarn
 
     <p>Once everthing is installed, start the application with <code class="bash">$ node index.js</code>. You should see something like the following</p>
 
-<pre><code class="bash">$ node index.js
+<pre><code class="bash">$ node index
 http://localhost:3030
-    GET    /                              default route
-    GET    /{param*}                      static files
-    GET    /about                         about
-    GET    /docs                          docs
-    GET    /examples                      Examples
-    GET    /install                       installation instructions
-    GET    /swagger.json
-    GET    /swaggerui/{path*}
-    GET    /swaggerui/extend.js
-    GET    /tos                           terms of service
-    GET    /v1                            biosyslit
-    GET    /v1/files/{file_id}            files
-    GET    /v1/record/{id}                records
-    GET    /v1/records                    records
+[1602657251948] INFO  (INDEX/78965 on lucknow.local): Server listening at http://127.0.0.1:3010
+🏷️  Routes:
+GET	/favicon.ico
+GET	/
+GET	/about
+GET	/examples
+GET	/releases
+GET	/workflow
+GET	/tos
+GET	/install
+GET	/documentation
+GET	/documentation/
+GET	/documentation/json
+GET	/documentation/yaml
+GET	/documentation/static/*
+GET	/documentation/*
+GET	/v3
+GET	/v3/
+GET	/v3/treatments
+GET	/v3/treatmentcitations
+GET	/v3/bibrefcitations
+GET	/v3/figurecitations
+GET	/v3/materialscitations
+GET	/v3/images
+GET	/v3/publications
+OPTIONS	*
 
-Server running at: http://localhost:3030
+[1602657251957] INFO  (INDEX/78965 on lucknow.local): Server running in DEVELOPMENT mode on http://127.0.0.1:3010
 </code></pre>
 
     <p>Now you can begin querying the API. Below is an example using <code>curl</code> but feel free to use whatever programming language or application you prefer.</p>
 
-<pre><code class="bash">$ curl -X GET --header 'Accept: application/json' 'http://localhost:3030/v1'
+<pre><code class="bash">$ curl -X GET --header 'Accept: application/json' 'http://localhost:3030/v3'
 {
     &#x22;updated&#x22;: &#x22;2017-05-23T13:27:06.991331+00:00&#x22;,
     &#x22;id_user&#x22;: 1161,

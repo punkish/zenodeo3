@@ -13,7 +13,7 @@ const fetch = require('node-fetch')
 const { zql } = require('../../lib/zql/')
 const crypto = require('crypto')
 const JSON5 = require('json5')
-const log = require('../../utils')('API:V3:UTILS')
+const log = require('../../lib/utils')('API:V3:UTILS')
 const acf = require('../../lib/abstract-cache-file')
 
 const handlerFactory = (resource) => {
@@ -394,6 +394,7 @@ const sqlRunner = (sql, params) => {
     
     try {
         let t = process.hrtime()
+        console.log(sql)
         const data = db.prepare(sql).all(params)
         t = process.hrtime(t)
 

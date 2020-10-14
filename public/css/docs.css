@@ -1,0 +1,20 @@
+#resources_container {width: 100% !important;}
+/* #v1_endpoint_list {margin-left: 0 !important; font-size: 100% !important;} */
+.endpoint {margin-left: -2em !important; font-size: 140% !important;}
+.footer h4 {font-size: 1em !important;}
+input.submit {background-color: #f5f5f5;  line-height: 0;}
+
+ul {margin-left: -40px;}
+div.code { width: 100%; font-size: 14px;
+    padding: 5px 7px;
+    border-radius: 4px;
+    background: rgba(0,0,0,.05);
+    font-family: monospace;
+    font-weight: 600;
+    color: #9012fe;}
+.swagger-ui .opblock .opblock-summary-path { flex-shrink: 0; max-width: unset; }
+* { box-sizing: unset; }
+/* hide the ugly swagger topbar */
+#swagger-ui div.topbar { display: none; }
+section.swagger-ui { padding: 0; }
+table { width: unset !important; }

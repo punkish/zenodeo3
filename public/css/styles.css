@@ -2,22 +2,25 @@
 header {
 	margin-bottom: 3em;
 	text-align: left;
-	padding: 4rem;
+	/* padding: 4rem; */
 }
 header h1 {
 	margin-bottom: 0;
+	font-weight: 200;
 }
 header a.title {
     text-decoration: none;
-    color: black;
-    
+	color: black;
+	font-weight: 200
 }
 header h2.small {
     text-transform: uppercase;
-    font-weight: 400;
-    font-size: xx-small;
+	font-weight: 400;
+	font-size: xx-small;
 	letter-spacing: 0;
+	margin: 0;
 }
+a { color: blue !important; }
 nav a, nav b {margin-right: 0.75em;}
 
 section {

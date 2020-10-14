@@ -5,8 +5,9 @@ const config = require('config')
 const port = config.get('port')
 const ajvOpts = config.get('v3.ajv.options')
 const JSON5 = require('json5')
-const log = require('./utils')('INDEX')
+const log = require('./lib/utils')('INDEX')
 const qs = require('qs')
+const path = require('path')
 
 // we need to make a deep clone of the swagger
 // options config settings otherwise config 
@@ -52,7 +53,11 @@ fastify.register(require('point-of-view'), hbs)
 fastify.register(require('./static/'))
 fastify.register(require('fastify-swagger'), swagger.options)
 fastify.register(require('./api/v3/index'), { prefix: '/v3' })
-fastify.register(require('fastify-cors'), { })
+fastify.register(require('fastify-cors'))
+fastify.register(require('fastify-static'), {
+    root: path.join(__dirname, 'public'),
+    prefix: '/public/',
+})
 
 // Run the server!
 fastify.listen(port, function (error, address) {

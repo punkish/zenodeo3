@@ -8,14 +8,16 @@ const { handlerFactory } = require('./utils')
 const rootHandler = async function(request, reply) {
     const records = [{
         name: 'root',
-        url: url,
+        url: url.zenodeo,
+        summary: 'root of the API',
         description: 'This is where it starts'
     }]
 
     resources.forEach(r => {
         records.push({
             name: r.name,
-            url: `${url}/${r.name.toLowerCase()}`,
+            url: `${url.zenodeo}/${r.name.toLowerCase()}`,
+            summary: r.summary,
             description: r.description
         })
     })
@@ -24,7 +26,7 @@ const rootHandler = async function(request, reply) {
         item: {
             'search-criteria': {},
             'num-of-records': records.length,
-            _links: { self: { href: `${url}/` }},
+            _links: { self: { href: `${url.zenodeo}/` }},
             records: records
         },
         stored: null,
