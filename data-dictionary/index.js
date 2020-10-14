@@ -7,43 +7,50 @@
 module.exports = [
     {
         name: 'treatments',
-        description: 'Fetch treatments',
+        summary: 'Fetch treatments',
+        description: '',
         dictionary: require('./resources/treatments'),
         source: 'zenodeo'
     },
     {
         name: 'treatmentCitations',
-        description: 'Fetch treatmentCitations of the treatments',
+        summary: 'Fetch treatmentCitations of the treatments',
+        description: '',
         dictionary: require('./resources/treatmentCitations'),
         source: 'zenodeo'
     },
     {
         name: 'bibRefCitations',
-        description: 'Fetch bibRefCitations of the treatments',
+        summary: 'Fetch bibRefCitations of the treatments',
+        description: '',
         dictionary: require('./resources/bibRefCitations'),
         source: 'zenodeo'
     },
     {
         name: 'figureCitations',
-        description: 'Fetch figureCitations of the treatments',
+        summary: 'Fetch figureCitations of the treatments',
+        description: '',
         dictionary: require('./resources/figureCitations'),
         source: 'zenodeo'
     },
     {
         name: 'materialsCitations',
-        description: 'Fetch materialsCitations of the treatments',
+        summary: 'Fetch materialsCitations of the treatments',
+        description: '',
         dictionary: require('./resources/materialsCitations'),
         source: 'zenodeo'
     },
     {
         name: 'images',
-        description: 'Fetch images from Zenodo',
+        summary: 'Fetch images from Zenodo',
+        description: '',
         dictionary: require('./resources/images'),
         source: 'zenodo'
     },
     {
         name: 'publications',
-        description: 'Fetch publications from Zenodo',
+        summary: 'Fetch publications from Zenodo',
+        description: '',
         dictionary: require('./resources/publications'),
         source: 'zenodo'
     }

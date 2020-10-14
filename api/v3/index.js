@@ -43,6 +43,10 @@ const routes = async function(fastify, options) {
     fastify.route({
         method: 'GET',
         url: '/',
+        schema: { 
+            summary: 'root of the API',
+            description: 'This is where it starts'
+        },
         handler: rootHandler
     })
 
@@ -50,7 +54,11 @@ const routes = async function(fastify, options) {
         fastify.route({
             method: 'GET',
             url: `/${r.name === 'root' ? '' : r.name.toLowerCase()}`,
-            schema: { querystring: getSchema(r.name) },
+            schema: { 
+                summary: r.summary,
+                description: r.description,
+                querystring: getSchema(r.name) 
+            },
             handler: handlerFactory(r.name)
         })
     })

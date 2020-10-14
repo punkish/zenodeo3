@@ -30,13 +30,23 @@ module.exports = {
                 exposeRoute: true,
                 swagger: {
                     info: {
-                        title: 'API documentation',
-//                      description: '',
-                        version: '3.0.0'
+                        title: 'Zenodeo API documentation',
+                        description: 'A `nodejs` interface to treatments from [TreatmentBank](http://treatmentbank.org) and resources on [Zenodo](https://zenodo.org)',
+                        version: '3.0.0',
+                        termsOfService: '/tos',
+                        contact: {
+                            name: 'API Support',
+                            //url: 'http://www.example.com/support',
+                            email: 'support@plazi.org'
+                        },
+                        license: {
+                            name: 'CC0 Public Domain Dedication',
+                            url: 'https://creativecommons.org/publicdomain/zero/1.0/legalcode'
+                        }
                     },
                     externalDocs: {
                         url: 'https://swagger.io',
-                        description: 'Find more info here'
+                        description: 'Find more info on Swagger here'
                     },
 
                     // make sure there is no scheme before the host
