@@ -169,7 +169,7 @@ const halify = (data, resource, resourceId, url) => {
     return data
 }
 
-const packageResult = ({ resource, params, result, url }) => {
+const packageResult = ({ resource, params, result, url, uriRemote }) => {
     log.info(`packaging ${resource} result for delivery`)
 
     const uri = `${url}/${resource.toLowerCase()}`
@@ -179,21 +179,14 @@ const packageResult = ({ resource, params, result, url }) => {
     const data = {
         'search-criteria': params,
         count: result.d1[0].count || 0,
-        _links: {},
-        prevpage: '',
-        nextpage: ''
+        _links: {}
+        // prevpage: '',
+        // nextpage: ''
     }
 
-    if (sourceOfResource === 'zenodo') {
-        data.records = data.count ? result.d2 : []
-    }
-    else if (sourceOfResource === 'zenodeo') {
-        const resourceId = getResourceId(resource)
+    const resourceId = getResourceId(resource)
 
-        data.records = data.count ?
-            halify(result.d2, resource, resourceId.name, url) :
-            []
-        
+    const foo = (params, resourceId, data, uri, uriRemote) => {
         const q = JSON5.stringify(params)
         const thisq = JSON5.parse(q)
 
@@ -229,6 +222,7 @@ const packageResult = ({ resource, params, result, url }) => {
                 prevq = {}
                 nextq = {}
 
+                data._links.self = { href: `${uri}` }
                 thispage = getQueryableParamsWithDefaults(resource)
                     .filter(p => p.name === '$page')[0].schema.default
             }
@@ -243,16 +237,27 @@ const packageResult = ({ resource, params, result, url }) => {
         if (debug) {
             data.debug = {
                 count: {
-                    sql: result.queries ? result.queries.count.debug.join(' ') : '',
+                    query: result.queries ? result.queries.count.debug.join(' ') : '',
                     time: result.t1
                 },
                 records: {
-                    sql: result.queries ? result.queries.records.debug.join(' ') : '',
+                    query: result.queries ? result.queries.records.debug.join(' ') : uriRemote,
                     time: result.t2
                 }
             }
         }
     }
+
+    if (sourceOfResource === 'zenodo') {
+        data.records = data.count ? result.d2 : []
+    }
+    else if (sourceOfResource === 'zenodeo') {
+        data.records = data.count ?
+            halify(result.d2, resource, resourceId.name, url) :
+            []
+    }
+
+    foo(params, resourceId, data, uri, uriRemote)
 
     return data
 }
@@ -524,13 +529,14 @@ const getDataFromZenodo = async ({ request, resource, originalParams }) => {
             res.t1 = null
             
             res.d2 = result.hits.hits
-            res.t2 = t
+            res.t2 = Math.round((t[0] * 1000) + (t[1] / 1000000))
 
             return packageResult({
                 resource: resource,
                 params: originalParams,
                 result: res,
-                url: uriZenodeo
+                url: uriZenodeo,
+                uriRemote: uriRemote
             })
         } 
         else {

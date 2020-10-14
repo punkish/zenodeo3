@@ -52,6 +52,7 @@ fastify.register(require('point-of-view'), hbs)
 fastify.register(require('./static/'))
 fastify.register(require('fastify-swagger'), swagger.options)
 fastify.register(require('./api/v3/index'), { prefix: '/v3' })
+fastify.register(require('fastify-cors'), { })
 
 // Run the server!
 fastify.listen(port, function (error, address) {
