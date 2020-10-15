@@ -93,9 +93,9 @@ const handlerFactory = (resource) => {
 // them from request.url so we can  use them to make the 
 // links and the 'search-params' in the reply
 const getOriginalUrl = (request) => {
-
     const qs_orig = request.url.split('?')[1]
-    const op = querystring.parse(qs_orig, { comma: true })
+    //const op = querystring.parse(qs_orig, { comma: true })
+    const op = querystring.parse(qs_orig)
 
     if ('$refreshCache' in op) delete op.$refreshCache
 
@@ -262,19 +262,19 @@ const packageResult = ({ resource, params, result, url, uriRemote }) => {
     return data
 }
 
-const getRequestedResourceFromZenodeo = ({ request, resource }) => {
+// const getRequestedResourceFromZenodeo = ({ request, resource }) => {
 
-    // first, we query for the primary dataset.
-    // ZQL gives us the queries and the params to bind therein
-    const { queries, runparams } = zql({
-        resource: resource, 
-        params: request.query
-    })
+//     // first, we query for the primary dataset.
+//     // ZQL gives us the queries and the params to bind therein
+//     const { queries, runparams } = zql({
+//         resource: resource, 
+//         params: request.query
+//     })
 
-    return runZenodeoQueries({ resource, queries, runparams })
+//     return runZenodeoQueries({ resource, queries, runparams })
 
     
-}
+// }
 
 const getRelatedResourcesFromZenodeo = async ({ request, resource, params }) => {
 
@@ -321,8 +321,16 @@ const getRelatedResourcesFromZenodeo = async ({ request, resource, params }) => 
 const getDataFromZenodeo = async ({ request, resource, originalParams }) => {
 
     // First we get the requested resource
-    const requestedResource = getRequestedResourceFromZenodeo({ request, resource, originalParams })
+    //const requestedResource = getRequestedResourceFromZenodeo({ request, resource, originalParams })
     
+    // first, we query for the primary dataset.
+    // ZQL gives us the queries and the params to bind therein
+    const { queries, runparams } = zql({
+        resource: resource, 
+        params: request.query
+    })
+
+    const requestedResource = runZenodeoQueries({ resource, queries, runparams })
     
     const data = packageResult({
         resource: resource, 
@@ -386,15 +394,20 @@ const getDataFromZenodeo = async ({ request, resource, originalParams }) => {
         }
     }
     
-    
+    // get facets
+    // data.facets = {}
+    // if (queries.facets) {
+    //     for (let f in queries.facets) {
+    //         data.facets[f] = sqlRunner(queries.facets[f], runparams)
+    //     }
+    // }
+
     return data
 }
 
 const sqlRunner = (sql, params) => {
-    
     try {
         let t = process.hrtime()
-        console.log(sql)
         const data = db.prepare(sql).all(params)
         t = process.hrtime(t)
 

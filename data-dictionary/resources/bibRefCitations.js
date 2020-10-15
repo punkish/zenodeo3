@@ -54,7 +54,8 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("type")',
-        defaultCols: true
+        defaultCols: true,
+        facets: true
     },
 
     {
@@ -66,6 +67,7 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("year")',
-        defaultCols: true
+        defaultCols: true,
+        facets: true
     }
 ]

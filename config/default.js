@@ -63,6 +63,7 @@ module.exports = {
                     // The following is needed to pass single values as arrays
                     // See https://github.com/fastify/help/issues/281
                     coerceTypes: 'array',
+                    //coerceTypes: 'true',
         
                     // Refer to [ajv options](https://ajv.js.org/#options)
                     jsonPointers: true, 

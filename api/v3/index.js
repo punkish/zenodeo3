@@ -55,12 +55,41 @@ const routes = async function(fastify, options) {
     resources.forEach(r => {
         fastify.route({
             method: 'GET',
-            url: `/${r.name === 'root' ? '' : r.name.toLowerCase()}`,
+            //url: `/${r.name === 'root' ? '' : r.name.toLowerCase()}`,
+            url: `/${r.name.toLowerCase()}`,
             schema: { 
                 summary: r.summary,
                 description: r.description,
                 querystring: getSchema(r.name) 
             },
+
+            preValidation: function(request, reply, done) {
+                if (request.query && request.query.geolocation) {
+                    const g = request.query.geolocation
+                    const clean_g = g.map(e => {
+                        return e.trim().replace(')', '').replace("'", '').split('(')
+                    })
+
+                    const clean_g_flat = clean_g.flat()
+                    const geoloc_operator = clean_g_flat[0]
+                    const geolocation = {}
+                    clean_g_flat.forEach(e => {
+                        if (e.indexOf(':') > -1) {
+                            const [ key, value ] = e.split(':')
+                            const n = Number(value)
+                            geolocation[key] = isNaN(n) ? value : n
+                        }
+                    })
+
+                    // console.log(geoloc_operator)
+                    // console.log(geolocation)
+                    request.query.geoloc_operator = geoloc_operator
+                    request.query.geolocation = geolocation
+                }
+
+                done()
+            },
+
             handler: handlerFactory(r.name)
         })
     })

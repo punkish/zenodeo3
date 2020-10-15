@@ -12,6 +12,17 @@ const getAllParams = (resource) => {
         .concat(...commonparams)))
 }
 
+const getAllFacetColumns = (resource) => {
+    return getAllParams(resource)
+        .filter(p => p.facets)
+        .map(p => {
+            return {
+                name: p.selname || p.name,
+                tables: p.join || ''
+            }
+        })
+}
+
 // All queryable params of a resource.
 // All params are queryable unless 'false'
 const getQueryableParams = (resource) => {
@@ -163,7 +174,8 @@ const dispatch = {
     getRequiredParams: getRequiredParams,
     getQueryableParams: getQueryableParams,
     getQueryableParamsWithDefaults: getQueryableParamsWithDefaults,
-    getNamesOfQueryableParams: getNamesOfQueryableParams
+    getNamesOfQueryableParams: getNamesOfQueryableParams,
+    getAllFacetColumns: getAllFacetColumns
 }
 
 const test = () => {

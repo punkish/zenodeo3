@@ -122,7 +122,8 @@ module.exports = [
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:titleInfo mods\\\\:title").text()',
         defaultCols: true,
-        defaultOp: 'starts_with'
+        defaultOp: 'starts_with',
+        facets: true
     },
 
     {
@@ -134,7 +135,8 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:date").text()',
-        defaultCols: true
+        defaultCols: true,
+        facets: true
     },
 
     {
@@ -276,7 +278,8 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("status")',
-        defaultCols: true
+        defaultCols: true,
+        facets: true
     },
 
     {
@@ -306,14 +309,43 @@ module.exports = [
         selname: 'treatments.rank',
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("rank")',
-        defaultCols: true
+        defaultCols: true,
+        facets: true
+    },
+
+    {
+        name: 'geoloc_operator',
+        schema: {
+            type: 'string',
+            enum: [ 'within', 'near' ],
+            description: 'The geolocation operator',
+        },
+        //queryable: false
     },
 
     {
         name: 'geolocation',
         schema: {
-            type: 'string',
-            description: `The geo-location of the treatment. Can use the following syntax:
+            type: 'object',
+            properties: {
+                radius: { type: 'integer' },
+                units: {
+                    type: 'string',
+                    enum: [ 'kilometers', 'miles' ],
+                    default: 'kilometers'
+                },
+                lat: {
+                    type: 'number',
+                    minimum: -90,
+                    maximum: 90
+                },
+                lng: {
+                    type: 'number',
+                    minimum: -180,
+                    maximum: 180
+                }
+            },
+            description: `The geolocation of the treatment. Can use the following syntax:
 - \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
 - \`geolocation=near({lat: 40.00, lng: -120})\`
   **note:** radius defaults to 1 km when using *near*`,
@@ -321,11 +353,37 @@ module.exports = [
         join: 'materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId'
     },
 
+//     {
+//         name: 'geolocation_str',
+//         schema: {
+//             type: 'string',
+//             description: `The geolocation of the treatment. Can use the following syntax:
+// - \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
+// - \`geolocation=near({lat: 40.00, lng: -120})\`
+//   **note:** radius defaults to 1 km when using *near*`,
+//         },
+//         join: 'materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId'
+//     },
+
+    {
+        name: 'collectionCode',
+        schema: {
+            type: 'string',
+            description: `The collection code of the materialsCitations of the treatment. Can use the following syntax:
+- \`collectionCode=USNM\`
+- \`collectionCode=starts_with(US)\`
+    **Note:** queries involving inexact matches will be considerably slow`
+        },
+        join: 'materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
+        facets: true
+    },
+
     {
         name: 'q',
         schema: {
             type: 'string',
-            description: `The full text of the treatment. Can use the following syntax: \`q=spiders\``
+            description: `The full text of the treatment. Can use the following syntax: 
+- \`q=spiders\``
         },
         sqltype: 'TEXT',
         cheerio: '$("treatment").text()',
