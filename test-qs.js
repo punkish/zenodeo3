@@ -4,25 +4,16 @@ const querystring = require('qs')
 const Ajv = require('ajv')
 const ajv = new Ajv({ coerceTypes: true })
 
-const obj1 = {
-    geolocation : { 
-        radius: 50, 
-        units: 'kilometers',
-        lat: 83, 
-        lng: -121 
-    },
-    authorityName: 'starts_with(Miller)'
+const re = {
+    date: '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}',
+    year: '^[0-9]{4}$'
 }
 
-const str = querystring.stringify(obj1, { encode: false })
-//const obj2 = 'geolocation[radius]=50&geolocation[units]=kilometers&geolocation[lat]=83&geolocation[lng]=-121&authorityName=starts_with(Miller)'
-
-//console.log()
-
-//const q = `geolocation=(${obj2})&authorityName=starts_with(Miller)`
-const data = querystring.parse(str)
-
-const schema1 = {
+const schema = {
+    publicationDate: {
+        type: 'string',
+        pattern: `^((since|until)\\(${re.date}\\))|(${re.date})|(between\\(${re.date} and ${re.date}\\))$`
+    },
     geolocation: {
         type: 'object',
         properties: {
@@ -44,16 +35,29 @@ const schema1 = {
             }
         }
     },
-    authorityName: { type: 'string' }
+    geoloc_operator: { 
+        type: 'string',
+        enum: [ 'within', 'near' ]
+    },
+    authorityName: { type: 'string' },
+    '$cols': {
+        type: 'array', 
+        items: { type: 'string' },
+        emum: [ 'publication', 'geolocation', 'authorityName' ]
+    }
 }
 
-const schema2 = { 
-    geolocation: { type: 'string' },
-    authorityName: { type: 'string' }
- }
+const testAjv = (str) => {
 
-const testAjv = () => {
-    console.log('data')
+    const data = pre(str)
+
+    console.log('orig qs')
+    console.log('-'.repeat(50))
+    console.log(str)
+
+    console.log('='.repeat(50), '\n')
+    
+    console.log('orig qs to data')
     console.log('-'.repeat(50))
     console.log(data)
     
@@ -63,40 +67,43 @@ const testAjv = () => {
     console.log('validating against object')
     console.log('-'.repeat(50))
     for (let p in data) {
-        validate = ajv.compile(schema1[p])
-        console.log(`${p}: ${validate(data[p])}`)
-    }
-    
-    console.log('='.repeat(50), '\n')
-    
-    console.log('validating against string')
-    console.log('-'.repeat(50))
-    for (let p in data) {
-        validate = ajv.compile(schema2[p])
+        validate = ajv.compile(schema[p])
         console.log(`${p}: ${validate(data[p])}`)
     }
 }
 
 
-const pre = () => {
-    const g = [ 'within(radius:10', " units:'kilometers'", ' lat:40', ' lng:-120)' ]
+const pre = (str) => {
+    const data = querystring.parse(str, { decode: true })
+
+    let g = data.geolocation
+    if (typeof(g) === 'string') {
+        g = querystring.parse({ geolocation: g }, { comma: true }).geolocation
+    }
+
     const clean_g = g.map(e => {
         return e.trim().replace(')', '').replace("'", '').split('(')
-    })
-
-    const clean_g_flat = clean_g.flat()
-    const geoloc_operator = clean_g_flat[0]
-    const geolocation = {}
-    clean_g_flat.forEach(e => {
+    }).flat()
+    
+    data.geoloc_operator = clean_g[0]
+    data.geolocation = {}
+    clean_g.forEach(e => {
         if (e.indexOf(':') > -1) {
-            const [ key, value ] = e.split(':')
+            const [ key, value ] = e.split(':').map(e => e.trim().replace(/"/g, '').replace(/'/g, ''))
             const n = Number(value)
-            geolocation[key] = isNaN(n) ? value : n
+            data.geolocation[key] = isNaN(n) ? value : n
         }
     })
 
-    console.log(geoloc_operator)
-    console.log(geolocation)
+    return data
 }
 
-pre()
+const obj = {
+    publicationDate: 'since(2018-10-12)',
+    geolocation : "within(radius: 50, units: 'kilometers', lat: 83, lng: -121)",
+    authorityName: 'starts_with(Miller)',
+    '$cols': [ 'geolocation', 'publicationDate' ]
+}
+
+const str = querystring.stringify(obj, { encode: true  })
+testAjv(str)

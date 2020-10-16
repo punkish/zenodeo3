@@ -66,23 +66,24 @@ const routes = async function(fastify, options) {
             preValidation: function(request, reply, done) {
                 if (request.query && request.query.geolocation) {
                     const g = request.query.geolocation
+                    if (typeof(g) === 'string') {
+                        g = querystring.parse({ geolocation: g }, { comma: true }).geolocation
+                    }
+
                     const clean_g = g.map(e => {
                         return e.trim().replace(')', '').replace("'", '').split('(')
-                    })
+                    }).flat()
 
-                    const clean_g_flat = clean_g.flat()
-                    const geoloc_operator = clean_g_flat[0]
+                    const geoloc_operator = clean_g[0]
                     const geolocation = {}
-                    clean_g_flat.forEach(e => {
+                    clean_g.forEach(e => {
                         if (e.indexOf(':') > -1) {
-                            const [ key, value ] = e.split(':')
+                            const [ key, value ] = e.split(':').map(e => e.trim().replace(/"/g, '').replace(/'/g, ''))
                             const n = Number(value)
                             geolocation[key] = isNaN(n) ? value : n
                         }
                     })
 
-                    // console.log(geoloc_operator)
-                    // console.log(geolocation)
                     request.query.geoloc_operator = geoloc_operator
                     request.query.geolocation = geolocation
                 }
