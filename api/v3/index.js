@@ -4,6 +4,7 @@ const config = require('config')
 const url = config.get('url')
 const { resources, getSchema } = require('../../data-dictionary/dd-utils')
 const { handlerFactory } = require('./utils')
+const querystring = require('qs')
 
 const rootHandler = async function(request, reply) {
     const records = [{
@@ -55,7 +56,6 @@ const routes = async function(fastify, options) {
     resources.forEach(r => {
         fastify.route({
             method: 'GET',
-            //url: `/${r.name === 'root' ? '' : r.name.toLowerCase()}`,
             url: `/${r.name.toLowerCase()}`,
             schema: { 
                 summary: r.summary,
@@ -65,7 +65,7 @@ const routes = async function(fastify, options) {
 
             preValidation: function(request, reply, done) {
                 if (request.query && request.query.geolocation) {
-                    const g = request.query.geolocation
+                    let g = request.query.geolocation
                     if (typeof(g) === 'string') {
                         g = querystring.parse({ geolocation: g }, { comma: true }).geolocation
                     }

@@ -1,6 +1,5 @@
 'use strict'
 
-//const path = require('path')
 const config = require('config')
 const port = config.get('port')
 const ajvOpts = config.get('v3.ajv.options')
