@@ -304,7 +304,7 @@ module.exports = [
         schema: {
             type: 'string',
             description: 'The taxonomic rank of the taxon, e.g. species, family',
-            enum: [ 'kingdom', 'phylum', 'order', 'family', 'genus', 'species ']
+            enum: [ 'kingdom', 'phylum', 'order', 'family', 'genus', 'species']
         },
         selname: 'treatments.rank',
         sqltype: 'TEXT',

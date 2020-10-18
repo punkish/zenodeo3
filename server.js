@@ -31,7 +31,7 @@ server.listen(port, (error, address) => {
 
     server.blipp()
     server.swagger()
-
+    
     if (process.env.NODE_ENV) {
         server.log.info(
             'Server running in %s mode on %s', 

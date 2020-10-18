@@ -1,10 +1,11 @@
 'use strict'
 
 const config = require('config')
-const port = config.get('port')
-const ajvOpts = config.get('v3.ajv.options')
+const uriZenodeo = config.get('url.zenodeo')
+
 const log = require('../lib/utils')('TEST')
 const qs = require('qs')
+const ajvOpts = config.get('v3.ajv.options')
 
 const { test } = require('tap')
 const build = require('../app')
@@ -14,27 +15,42 @@ const opts = {
     ajv: ajvOpts
 }
 
-test('requests "/treatments" with no querystring', async t => {
-	const app = build(opts)
-  
-	const response = await app.inject({
-	  method: 'GET',
-	  url: 'http://127.0.0.1:3010/v3/treatments'
-	})
-	
-	t.strictEqual(response.statusCode, 200, 'returns a status code of 200')
-})
+const app = build(opts)
 
-test('requests "/treatments" with location', async t => {
-	const app = build(opts)
-  
-	const response = await app.inject({
-	  	method: 'GET',
-		url: 'http://127.0.0.1:3010/v3/treatments',
-		query: {
-			geolocation: 'within(radius:50, units:"kilometers", lat:0,lng:0)'
-		}
-	})
+const routes = require('./routes')
+
+routes.forEach(r => {
 	
-	t.strictEqual(response.statusCode, 200, 'returns a status code of 200')
+	const arr = [ '$refreshCache=true' ]
+	for (let k in r.query) {
+		arr.push(`${k}=${r.query[k]}`)
+	}
+	r.query.$refreshCache = true
+	
+	const description = `${r.url}?${arr.join('&')}`
+
+	test(description, t => {
+
+		t.plan(r.response ? 4 : 3)
+		// if (r.response) {
+		// 	t.plan(4)
+		// }
+		// else {
+		// 	t.plan(3)
+		// }
+
+		app.inject({
+			method: 'GET',
+			url: `${uriZenodeo}/${r.url}`,
+			query: r.query
+		}, (error, response) => {
+			t.error(error)
+			t.strictEqual(response.statusCode, 200, 'statusCode 200')
+			t.strictEqual(response.headers['content-type'], 'application/json; charset=utf-8', 'content-type json')
+
+			if (r.response) {
+				t.deepEqual(response.json().item.records, r.response.item.records)
+			}
+		})
+	})
 })

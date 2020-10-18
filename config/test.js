@@ -11,6 +11,11 @@ module.exports = {
     url: {
         zenodeo: 'http://test.zenodeo.org/v3'
     },
+    pino: {
+        opts: {
+            level: 'error'
+        }
+    },
     v3: {
         swagger: {
             options: {

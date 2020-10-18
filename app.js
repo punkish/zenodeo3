@@ -27,9 +27,10 @@ const hbs = {
 }
 
 function build(opts={}) {
-    
+
     const app = fastify(opts)
 
+    
     app.register(require('fastify-blipp'))
     app.register(require('fastify-favicon'))
     app.register(require('point-of-view'), hbs)
