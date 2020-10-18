@@ -14,11 +14,12 @@ const getAllParams = (resource) => {
 
 const getAllFacetColumns = (resource) => {
     return getAllParams(resource)
-        .filter(p => p.facets)
+        .filter(p => p.facet)
         .map(p => {
             return {
-                name: p.selname || p.name,
-                tables: p.join || ''
+                name: p.name,
+                tables: p.join || '',
+                facet: p.facet
             }
         })
 }
@@ -109,14 +110,22 @@ const getSchema = (resource) => {
 
         if (resourcesFromZenodeo.includes(resource)) {
             if (p.schema.type === 'array') {
+                
                 if (p.name === '$cols') {
                     p.schema.items.enum = getAllCols(resource).map(c => c.name)
                     p.schema.default = getDefaultCols(resource).map(c => c.name)
+                    p.schema.errorMessage = {
+                        properties: {
+                            enum: 'should be one of: ' + p.schema.default.join(', ') + '. Provided value is ${/enum}'
+                        }
+                    }
                 }
-
-                p.schema.errorMessage = 'should be one of: ' + p.schema.default.join(', ')
+                else {
+                    p.schema.errorMessage = `should be one of: ${p.schema.default.join(', ')}`
+                }
             }
         }
+
         schema.properties[p.name] = p.schema
     })
 

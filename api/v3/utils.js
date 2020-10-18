@@ -4,6 +4,7 @@ const config = require('config')
 const Database = require('better-sqlite3')
 const db = new Database(config.get('data.treatments'))
 const debug = config.get('debug')
+const cacheOn = config.get('cacheOn')
 const cacheDuration = config.get('v3.cache.duration')
 const { getResourceId, getQueryableParamsWithDefaults, getSourceOfResource, getResourcesFromSpecifiedSource } = require('../../data-dictionary/dd-utils')
 const uriZenodo = config.get('url.zenodo')
@@ -24,61 +25,72 @@ const handlerFactory = (resource) => {
 
         // get queryparams and querystring from the original URL
         const { op, qs } = getOriginalUrl(request)
-
-        // get a referene to the cache
-        const cache = acf({
-            base: '',
-            segment: resource,
-            duration: cacheDuration
-        })
-
         let data
 
-        const cacheKey =  crypto
-            .createHash('md5')
-            .update(`${resource}/${qs}`)
-            .digest('hex')
+        if (cacheOn) {
 
-        const qp = {
-            request: request, 
-            resource: resource, 
-            cache: cache, 
-            originalParams: op, 
-            cacheKey: cacheKey
-        }
+            // get a referene to the cache
+            const cache = acf({
+                base: '',
+                segment: resource,
+                duration: cacheDuration
+            })
 
-        if (request.query.$refreshCache) {
-            log.info('refreshing cache as requested')
-            data = await queryAndCacheData(qp)
-        }
-        else {
+            const cacheKey =  crypto
+                .createHash('md5')
+                .update(`${resource}/${qs}`)
+                .digest('hex')
 
-            let cacheContent
-
-            // check the cache for existing data
-            try {
-                log.info(`checking cache under key: ${cacheKey}`)
-                cacheContent = await cache.get(cacheKey)
+            const qp = {
+                request: request, 
+                resource: resource, 
+                cache: cache, 
+                originalParams: op, 
+                cacheKey: cacheKey
             }
 
-            // there is no data in the cache so log the error
-            // and continue on
-            catch (error) {
-                log.error(error.code === 'ENOENT' ? 'no data in cache' : error)
-                log.info('querying the db for new data')
-            }
-
-            if (cacheContent) {
-                log.info('found data in cache')
-                data = JSON5.parse(cacheContent)
+            if (request.query.$refreshCache) {
+                log.info('refreshing cache as requested')
+                data = await queryAndCacheData(qp)
             }
             else {
 
-                // if we reached here, that means no data was 
-                // found in the cache. So we get new data
-                //data = await foo(request, resource, folder, file)
-                data = await queryAndCacheData(qp)
+                let cacheContent
+
+                // check the cache for existing data
+                try {
+                    log.info(`checking cache under key: ${cacheKey}`)
+                    cacheContent = await cache.get(cacheKey)
+                }
+
+                // there is no data in the cache so log the error
+                // and continue on
+                catch (error) {
+                    log.error(error.code === 'ENOENT' ? 'no data in cache' : error)
+                    log.info('querying the db for new data')
+                }
+
+                if (cacheContent) {
+                    log.info('found data in cache')
+                    data = JSON5.parse(cacheContent)
+                }
+                else {
+
+                    // if we reached here, that means no data was 
+                    // found in the cache. So we get new data
+                    //data = await foo(request, resource, folder, file)
+                    data = await queryAndCacheData(qp)
+                }
             }
+        }
+        else {
+            const qp = {
+                request: request, 
+                resource: resource, 
+                originalParams: op
+            }
+
+            data = await queryData(qp)
         }
 
         log.info('sending back data, request complete')
@@ -142,6 +154,34 @@ const queryAndCacheData = async (o) => {
     // flag for mkdir success/failure
     log.info(`storing data in cache under key: ${cacheKey}`)
     cache.set(cacheKey, cacheEntry)
+    
+    return cacheEntry
+}
+
+const queryData = async (o) => {
+    const { request, resource, originalParams } = o
+
+    // Query for new data
+    const qp = { request, resource, originalParams }
+    const sourceOfResource = getSourceOfResource(resource)
+    let data
+
+    // A resource on Zenodo is queried differntly (using `fetch`)
+    // as opposed to a resource on Zenodeo (using `SQL`)
+    if (sourceOfResource === 'zenodo') {
+        data = await getDataFromZenodo(qp)
+    }
+    else if (sourceOfResource === 'zenodeo') {
+        data = await getDataFromZenodeo(qp)
+    }
+
+    // we won't be storing data in the cache because 
+    // cache is off, so we will fake a cache entry
+    const cacheEntry = {
+        item: data,
+        stored: Date.now(),
+        ttl: cacheDuration
+    }
     
     return cacheEntry
 }
@@ -352,6 +392,7 @@ const getDataFromZenodeo = async ({ request, resource, originalParams }) => {
         // related records will exist only if  
         // anything was found in thefirst query
         const requestedResourceResult = requestedResource.d2
+        
         if (requestedResourceResult.length) {
             
             if (resource === 'treatments') {
@@ -377,30 +418,37 @@ const getDataFromZenodeo = async ({ request, resource, originalParams }) => {
                 const relatedResource = 'treatments'
                 const q = { resource: relatedResource, params: {} }
                 const relatedResourceId = getResourceId(relatedResource)
-                q.params[relatedResourceId.name] = requestedResourceResult[0][relatedResourceId.name]
-                
-                const { queries, runparams } = zql(q)
-                const relatedResourceResult = runZenodeoQueries({ resource: relatedResource, queries, runparams })
-                
-                const packagedRelatedResource = packageResult({
-                    resource: relatedResource, 
-                    params: q.params, 
-                    result: relatedResourceResult,
-                    url: uriZenodeo
-                })
 
-                data['related-records'][relatedResource] = packagedRelatedResource
+                relatedResourceId.value = requestedResourceResult[0][relatedResourceId.name]
+
+                if (relatedResourceId.value) {
+                    q.params[relatedResourceId.name] = relatedResourceId.value
+                    
+                    const { queries, runparams } = zql(q)
+                    
+                    const relatedResourceResult = runZenodeoQueries({ resource: relatedResource, queries, runparams })
+                    
+                    const packagedRelatedResource = packageResult({
+                        resource: relatedResource, 
+                        params: q.params, 
+                        result: relatedResourceResult,
+                        url: uriZenodeo
+                    })
+
+                    data['related-records'][relatedResource] = packagedRelatedResource
+                }
             }
         }
     }
     
     // get facets
-    // data.facets = {}
-    // if (queries.facets) {
-    //     for (let f in queries.facets) {
-    //         data.facets[f] = sqlRunner(queries.facets[f], runparams)
-    //     }
-    // }
+    data.facets = {}
+    if (queries.facets) {
+        for (let f in queries.facets) {
+            log.info(`getting facet ${f}`)
+            data.facets[f] = sqlRunner(queries.facets[f], runparams)
+        }
+    }
 
     return data
 }
@@ -416,7 +464,6 @@ const sqlRunner = (sql, params) => {
         return [ data, Math.round((t[0] * 1000) + (t[1] / 1000000)) ]
     }
     catch(error) {
-        log.error(sql)
         throw error
     }
 }
@@ -430,6 +477,7 @@ const runZenodeoQueries = (o) => {
     // First we find out the total number of records 
     // returned from the query
     let sql = queries.count.binds.join(' ')
+    
     const [ d1, t1 ] = sqlRunner(sql, runparams)
     res.d1 = d1
     res.t1 = t1
@@ -441,6 +489,7 @@ const runZenodeoQueries = (o) => {
     if (d1[0].count) {
         log.info(`${resource} count is ${d1[0].count}, so getting actual records`)
         sql = queries.records.binds.join(' ')
+        
         const [ d2, t2 ] = sqlRunner(sql, runparams)
         res.d2 = d2
         res.t2 = t2
@@ -469,7 +518,7 @@ const getRelatedRecords = (primaryResourceIdName, primaryResourceIdValue, relate
     })
     
     const result = runZenodeoQueries({ relatedResource, queries, runparams })
-
+    
     if (result.d1[0].count) {
         return packageResult({
             resource: relatedResource, 

@@ -123,7 +123,7 @@ module.exports = [
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:titleInfo mods\\\\:title").text()',
         defaultCols: true,
         defaultOp: 'starts_with',
-        facets: true
+        facet: 'count > 100'
     },
 
     {
@@ -136,7 +136,7 @@ module.exports = [
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:date").text()',
         defaultCols: true,
-        facets: true
+        facet: 'count > 1'
     },
 
     {
@@ -279,7 +279,7 @@ module.exports = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("status")',
         defaultCols: true,
-        facets: true
+        facet: 'count > 1'
     },
 
     {
@@ -310,7 +310,7 @@ module.exports = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("rank")',
         defaultCols: true,
-        facets: true
+        facet: 'count > 1'
     },
 
     {
@@ -375,7 +375,7 @@ module.exports = [
     **Note:** queries involving inexact matches will be considerably slow`
         },
         join: 'materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
-        facets: true
+        facet: 'count > 50'
     },
 
     {

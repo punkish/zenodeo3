@@ -19,6 +19,7 @@ module.exports = {
         }
     },
     debug: true,
+    cacheOn: false,
 
     v3: {
         swagger: {

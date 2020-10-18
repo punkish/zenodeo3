@@ -64,6 +64,7 @@ const routes = async function(fastify, options) {
             },
 
             preValidation: function(request, reply, done) {
+
                 if (request.query && request.query.geolocation) {
                     let g = request.query.geolocation
                     if (typeof(g) === 'string') {

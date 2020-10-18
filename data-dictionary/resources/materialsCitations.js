@@ -34,7 +34,7 @@ module.exports = [
             format: 'date',
             description: 'The date when the specimen was collected',
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectingDate")',
         defaultCols: true
     },
@@ -44,7 +44,7 @@ module.exports = [
             type: 'string',
             description: 'The collection code for a natural history collection',
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectionCode")',
         defaultCols: true
     },
@@ -59,7 +59,7 @@ module.exports = [
 - collectorName=contains(Scarp FR)
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectorName")',
         defaultCols: true,
         defaultOp: 'starts_with'
@@ -75,7 +75,7 @@ module.exports = [
 - country=contains(zan)
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("country")',
         defaultCols: true,
         defaultOp: 'starts_with'
@@ -91,7 +91,7 @@ module.exports = [
 - collectingRegion=contains(lap)
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectingRegion")',
         defaultCols: true,
         defaultOp: 'starts_with'
@@ -107,7 +107,7 @@ module.exports = [
 - municipality=contains(Ibarra)
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("municipality")',
         defaultCols: true,
         defaultOp: 'starts_with'
@@ -124,7 +124,7 @@ module.exports = [
   **Note:** queries involving inexact matches will be considerably slow`,
         },
         description: 'The county where the specimen was collected',
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("county")',
         defaultCols: true,
         defaultOp: 'eq'
@@ -140,7 +140,7 @@ module.exports = [
 - stateProvince=contains(ringa)
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("stateProvince")',
         defaultCols: true,
         defaultOp: 'starts_with'
@@ -156,7 +156,7 @@ module.exports = [
 - location=contains(ekwa)
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("location")',
         defaultCols: true,
         defaultOp: 'starts_with'
@@ -173,7 +173,7 @@ module.exports = [
   **Note:** queries involving inexact matches will be considerably slow`,
         },
         description: '',
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("locationDeviation")',
         defaultCols: true,
         defaultOp: 'starts_with'
@@ -184,7 +184,7 @@ module.exports = [
             type: 'integer',
             description: 'The number of listed female specimens',
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("specimenCount-female")',
         defaultCols: true
     },
@@ -194,7 +194,7 @@ module.exports = [
             type: 'integer',
             description: 'The number of listed male specimens',
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("specimenCount-male")',
         defaultCols: true
     },
@@ -204,7 +204,7 @@ module.exports = [
             type: 'integer',
             description: 'The number of listed specimens',
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("specimenCount")',
         defaultCols: true
     },
@@ -219,7 +219,7 @@ module.exports = [
 - specimenCode=contains(SRNP)
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("specimenCode")',
         defaultCols: true,
         defaultOp: 'starts_with'
@@ -236,7 +236,7 @@ module.exports = [
   **Note:** queries involving inexact matches will be considerably slow`,
         },
         description: '',
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("typeStatus")',
         defaultCols: true,
         defaultOp: 'starts_with'
@@ -252,7 +252,7 @@ module.exports = [
 - determinerName=contains(Orchymont)
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("determinerName")',
         defaultCols: true,
         defaultOp: 'starts_with'
@@ -268,7 +268,7 @@ module.exports = [
 - collectedFrom=contains(longleaf)
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectedFrom")',
         defaultCols: true,
         defaultOp: 'starts_with'
@@ -284,7 +284,7 @@ module.exports = [
 - collectingMethod=contains(mixed)
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectingMethod")',
         defaultCols: true,
         defaultOp: 'starts_with'
@@ -312,7 +312,7 @@ module.exports = [
 - elevation=lte(58)
 - elevation=between(-1000 and 102)`,
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("elevation")',
         defaultCols: true
     },
@@ -323,7 +323,7 @@ module.exports = [
             format: 'uri',
             description: 'The persistent identifier of the specimen'
         },
-        sqlType: 'TEXT',
+        sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("httpUri")',
         defaultCols: true,
         queryable: false

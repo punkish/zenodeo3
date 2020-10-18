@@ -20,14 +20,14 @@ module.exports = [
             default: false
         }
     },
-    {
-        name: '$stats',
-        schema: {
-            type: 'boolean',
-            description: 'Calculate statistics (true | false)',
-            default: false
-        }
-    },
+    // {
+    //     name: '$stats',
+    //     schema: {
+    //         type: 'boolean',
+    //         description: 'Calculate statistics (true | false)',
+    //         default: false
+    //     }
+    // },
 
     //****************************************//
     // parameters that are a part of the query 
@@ -75,7 +75,9 @@ module.exports = [
         name: '$cols',
         schema: { 
             type: 'array', 
-            items: { type: 'string' },
+            items: { 
+                type: 'string'
+            },
             description: `Columns to retreive in the result set. Provide a list like so:
 - \`$col=column1&$col=column2&$col=column3\``
         }
