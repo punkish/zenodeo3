@@ -6,10 +6,12 @@ A `nodejs` API to the [Zenodo API](https://zenodo.org/api).
 
 Built with [Fastify](https://www.fastify.io/) and [SQLite](https://sqlite.org/). Requires [nodejs](https://nodejs.org) v. >= 12.x. To install:
 
-1. ~$ git clone git@github.com:punkish/zenodeo3.git
-2. ~$ cd zenodeo3
-3. ~/zenodeo3$ npm i
-4. ~/zenodeo3$ node server
+```
+~$ git clone git@github.com:punkish/zenodeo3.git
+~$ cd zenodeo3
+~/zenodeo3$ npm i
+~/zenodeo3$ node server
+```
 
 ## Documentation
 
