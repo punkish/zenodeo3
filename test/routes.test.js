@@ -32,12 +32,6 @@ routes.forEach(r => {
 	test(description, t => {
 
 		t.plan(r.response ? 4 : 3)
-		// if (r.response) {
-		// 	t.plan(4)
-		// }
-		// else {
-		// 	t.plan(3)
-		// }
 
 		app.inject({
 			method: 'GET',
@@ -49,7 +43,7 @@ routes.forEach(r => {
 			t.strictEqual(response.headers['content-type'], 'application/json; charset=utf-8', 'content-type json')
 
 			if (r.response) {
-				t.deepEqual(response.json().item.records, r.response.item.records)
+				t.deepEqual(response.json().item.count, r.count)
 			}
 		})
 	})
