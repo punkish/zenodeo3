@@ -4,7 +4,13 @@
  * 
  * The config options start with all the values in this file
  * 
+ * 
  **************************************************************/
+
+const path = require('path')
+const cwd = process.cwd()
+const dataDir = path.join(cwd, '..', 'data')
+const dataPrefix = 'test'
 
 module.exports = {
     port: 3010,
@@ -91,7 +97,69 @@ module.exports = {
     },
 
     data: {
-        //treatments: path.join(cwd, 'data', 'treatments.sqlite')
-        treatments: '../data/treatments.sqlite'
+        treatments: path.join(cwd, '..', 'data', `${dataPrefix}-treatments.sqlite`),
+        etlStats:   path.join(cwd, '..', 'data', `${dataPrefix}-etl-stats.sqlite`),
+        queryStats: path.join(cwd, '..', 'data', `${dataPrefix}-query-stats.sqlite`)
+    },
+
+    truebug: {
+        host: 'http://127.0.0.1/plazi/data',
+        downloads: {
+
+            // ********** full **********
+            // example: 'http://127.0.0.1/plazi/data/test.zip'
+            full: {
+                //path: 'http://127.0.0.1/plazi/data',
+                file: 'plazi.zenodeo.zip'
+            },
+
+            // ********** diff **********
+            // example 'http://127.0.0.1/plazi/data/diff.txt'
+            diff: {
+                //path: 'http://127.0.0.1/plazi/data',
+                file: 'diff.json'
+            },
+            
+            // ********** single xml **********
+            // example 'http://127.0.0.1/plazi/data/8C2D95A59531F2DCB34D5040E36E6566'
+            xml: {
+                //path: 'http://127.0.0.1/plazi/data',
+                file: 'xml'
+            }
+        },
+
+        opts: {
+            dryrun: false,
+        
+            //download: 'full',
+            download: 'diff',
+            //download: 'F57587F8FFCFFFF8FF68FBB7FAD2FA31',
+        
+            database: true,
+            parse: true,
+            rearrange: true,
+        
+            preparedInsertStatements: {},
+            
+            etl: {
+                started: Date.now(),
+                downloaded: 0,
+                parsed: {
+                    treatments: 0,
+                    treatmentCitations: 0,
+                    treatmentAuthors: 0,
+                    materialsCitations: 0,
+                    figureCitations: 0,
+                    bibRefCitations: 0
+                },
+                loaded: 0,
+                ended: 0
+            }
+            
+        },
+
+        dataDir:           dataDir,
+        treatmentsDump:    path.join(dataDir, `${dataPrefix}-treatments-dump`),
+        treatmentsArchive: path.join(dataDir, `${dataPrefix}-treatments-archive`)
     }
-};
+}

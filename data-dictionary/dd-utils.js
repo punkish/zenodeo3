@@ -5,7 +5,7 @@ const commonparams = require('./commonparams')
 const JSON5 = require('json5')
 const resources = require('./index')
 
-// All params of a resource
+// All params that can be used in a REST query for a resource
 const getAllParams = (resource) => {
     return JSON5.parse(JSON5.stringify(resources
         .filter(r => r.name === resource)[0].dictionary
@@ -71,10 +71,16 @@ const getAllCols = (resource) => {
             return {
                 name: p.name, 
                 selname: p.selname || p.name, 
+                cheerio: p.cheerio,
                 where: p.where || '', 
                 join: p.join || ''
             }
         })
+}
+
+const getNamesOfAllCols = (resource) => {
+    return getAllCols(resource)
+        .map(p => p.name)
 }
 
 // A param is a part of the set of default columns 
@@ -170,21 +176,22 @@ const getSelName = (resource, column) => {
 }
 
 const dispatch = {
-    resources: resources,
+    getAllParams: getAllParams,
+    getAllFacetColumns: getAllFacetColumns,
+    getQueryableParams: getQueryableParams,
     getSourceOfResource: getSourceOfResource,
     getResourcesFromSpecifiedSource: getResourcesFromSpecifiedSource,
-    getAllParams: getAllParams,
-    getSchema: getSchema,
+    getQueryableParamsWithDefaults: getQueryableParamsWithDefaults,
+    getNamesOfQueryableParams: getNamesOfQueryableParams,
     getAllCols: getAllCols,
-    getSelName: getSelName,
+    getNamesOfAllCols: getNamesOfAllCols,
     getDefaultCols: getDefaultCols,
+    getSchema: getSchema,
     getResourceId: getResourceId,
     getForeignKey: getForeignKey,
     getRequiredParams: getRequiredParams,
-    getQueryableParams: getQueryableParams,
-    getQueryableParamsWithDefaults: getQueryableParamsWithDefaults,
-    getNamesOfQueryableParams: getNamesOfQueryableParams,
-    getAllFacetColumns: getAllFacetColumns
+    getSelName: getSelName
+    //resources: resources,
 }
 
 const test = () => {

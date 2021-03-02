@@ -2,7 +2,8 @@
 
 const config = require('config')
 const url = config.get('url')
-const { resources, getSchema } = require('../../data-dictionary/dd-utils')
+const { getSchema } = require('../../data-dictionary/dd-utils')
+const resources = require('../../data-dictionary/')
 const { handlerFactory } = require('./utils')
 const querystring = require('qs')
 

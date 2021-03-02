@@ -300,6 +300,31 @@ module.exports = [
   **note:** radius defaults to 1 km when using *near*`,
         }
     },
+
+    {
+        name: 'latitude',
+        schema: {
+            type: 'string',
+            description: 'Geographic coordinates of the location where the specimen was collected.',
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("materialsCitation").attr("latitude")',
+        defaultCols: true,
+        qyeryable: false
+    },
+
+    {
+        name: 'longitude',
+        schema: {
+            type: 'string',
+            description: 'Geographic coordinates of the location where the specimen was collected.',
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("materialsCitation").attr("longitude")',
+        defaultCols: true,
+        qyeryable: false
+    },
+
     {
         name: 'elevation',
         schema: {

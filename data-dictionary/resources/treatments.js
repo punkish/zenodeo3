@@ -28,6 +28,19 @@ module.exports = [
         cheerio: '$("document").attr("docId")',
         defaultCols: true
     },
+    
+    {
+        name: 'deleted',
+        schema: { 
+            type: 'boolean',
+            default: false,
+            description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
+            isResourceId: false
+        },
+        sqltype: 'INTEGER DEFAULT 0',
+        cheerio: '$("document").attr("deleted")',
+        defaultCols: false
+    },
 
     {
         name: 'treatmentTitle',
@@ -66,6 +79,17 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("ID-Zenodo-Dep")',
+        queryable: false
+    },
+
+    {
+        name: 'zoobank',
+        schema: {
+            type: 'string',
+            description: 'ZooBank ID of journal article'
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("document").attr("ID-ZooBank")',
         queryable: false
     },
 

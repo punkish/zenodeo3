@@ -3,7 +3,7 @@
 const config = require('config')
 const port = config.get('port')
 const ajvOpts = config.get('v3.ajv.options')
-const log = require('./lib/utils')('INDEX')
+const log = require('./lib/utils').logger('INDEX')
 const qs = require('qs')
 
 const server = require('./app')({

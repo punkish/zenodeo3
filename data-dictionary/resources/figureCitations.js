@@ -56,16 +56,16 @@ module.exports = [
         queryable: false
     },
 
-    {
-        name: 'thumbnailUri',
-        schema: {
-            type: 'string',
-            format: 'uri',
-            description: 'The URI of the thumbnail figure cited by this treatment'
-        },
-        sqltype: 'TEXT',
-        cheerio: '$("figureCitation").attr("httpUri")',
-        defaultCols: true,
-        queryable: false
-    }
+    // {
+    //     name: 'thumbnailUri',
+    //     schema: {
+    //         type: 'string',
+    //         format: 'uri',
+    //         description: 'The URI of the thumbnail figure cited by this treatment'
+    //     },
+    //     sqltype: 'TEXT',
+    //     cheerio: '$("figureCitation").attr("httpUri")',
+    //     defaultCols: true,
+    //     queryable: false
+    // }
 ]

@@ -14,7 +14,10 @@ const fetch = require('node-fetch')
 const { zql } = require('../../lib/zql/')
 const crypto = require('crypto')
 const JSON5 = require('json5')
-const log = require('../../lib/utils')('API:V3:UTILS')
+
+const { logger, timerFormat } = require('../../lib/utils')
+const log = logger('API:V3:UTILS')
+
 const acf = require('../../lib/abstract-cache-file')
 
 const handlerFactory = (resource) => {
@@ -78,7 +81,6 @@ const handlerFactory = (resource) => {
 
                     // if we reached here, that means no data was 
                     // found in the cache. So we get new data
-                    //data = await foo(request, resource, folder, file)
                     data = await queryAndCacheData(qp)
                 }
             }
@@ -101,7 +103,7 @@ const handlerFactory = (resource) => {
 // The parameters submitted in request.query get validated
 // and modified by the JSON schema validator. Default params,
 // if not submitted by the user, get tacked on to the query.
-// Wee need to preserve the orignal parameters by extracting
+// We need to preserve the orignal parameters by extracting
 // them from request.url so we can  use them to make the 
 // links and the 'search-params' in the reply
 const getOriginalUrl = (request) => {
@@ -226,7 +228,7 @@ const packageResult = ({ resource, params, result, url, uriRemote }) => {
 
     const resourceId = getResourceId(resource)
 
-    const foo = (params, resourceId, data, uri, uriRemote) => {
+    const _packageResult = (params, resourceId, data, uri, uriRemote) => {
         const q = JSON5.stringify(params)
         const thisq = JSON5.parse(q)
 
@@ -297,7 +299,7 @@ const packageResult = ({ resource, params, result, url, uriRemote }) => {
             []
     }
 
-    foo(params, resourceId, data, uri, uriRemote)
+    _packageResult(params, resourceId, data, uri, uriRemote)
 
     return data
 }
