@@ -38,9 +38,24 @@ module.exports = [
         sqltype: 'TEXT',
         cheerio: '$("figureCitation").attr("captionText")',
         defaultCols: true,
+        // defaultOp: 'match',
+        // where: 'vfigurecitations',
+        // join: [ 'vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ]
+    },
+
+    {
+        name: 'qct',
+        schema: {
+            type: 'string',
+            description: `The full text of the figure cited by this treatment. Can use the following syntax: \`captionText=spiders\``
+        },
+        selname: 'figureCitations.captionText',
+        sqltype: 'TEXT',
+        //cheerio: '$("figureCitation").attr("captionText")',
+        defaultCols: false,
         defaultOp: 'match',
         where: 'vfigurecitations',
-        join: 'vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId'
+        join: [ 'JOIN vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ]
     },
 
     {

@@ -15,13 +15,14 @@ const dataPrefix = 'z3'
 module.exports = {
     //port: 3010,
     url: {
-        zenodeo: 'http://test.zenodeo.org/v3',
+        //zenodeo: 'http://test.zenodeo.org/v3',
         //zenodo: 'https://zenodo.org/api/records'
     },
     pino: {
         opts: {
             //prettyPrint: true,
-            level: 'error'
+            //level: 'error'
+            level: 'info'
         }
     },
     // debug: true,
@@ -55,7 +56,7 @@ module.exports = {
 
                     // make sure there is no scheme before the host
                     // that is, there should not be any 'http(s)://'
-                    host: 'test.zenodeo.org/',
+                    //host: 'test.zenodeo.org/',
                     // schemes: ['http'],
                     // consumes: ['application/json'],
                     // produces: ['application/json']
@@ -97,9 +98,10 @@ module.exports = {
     },
 
     data: {
-        treatments: path.join(cwd, '..', 'data', `${dataPrefix}-treatments.sqlite`),
-        etlStats:   path.join(cwd, '..', 'data', `${dataPrefix}-etl-stats.sqlite`),
-        queryStats: path.join(cwd, '..', 'data', `${dataPrefix}-query-stats.sqlite`)
+        treatments:  path.join(dataDir, `${dataPrefix}-treatments.sqlite`),
+        etlStats:    path.join(dataDir, `${dataPrefix}-etl-stats.sqlite`),
+        queryStats:  path.join(dataDir, `${dataPrefix}-query-stats.sqlite`),
+        collections: path.join(dataDir, `${dataPrefix}-collections.sqlite`)
     },
 
     truebug: {
@@ -110,7 +112,7 @@ module.exports = {
             // example: 'http://tb.plazi.org/GgServer/dumps/plazi.zenodeo.zip'
             full: {
                 //path: 'http://tb.plazi.org/GgServer/dumps',
-                file: 'dumps/plazi.zenodeo.zip'
+                file: 'plazi.zenodeo.zip'
             },
 
             // ********** diff **********

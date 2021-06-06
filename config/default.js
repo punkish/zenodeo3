@@ -97,9 +97,10 @@ module.exports = {
     },
 
     data: {
-        treatments: path.join(cwd, '..', 'data', `${dataPrefix}-treatments.sqlite`),
-        etlStats:   path.join(cwd, '..', 'data', `${dataPrefix}-etl-stats.sqlite`),
-        queryStats: path.join(cwd, '..', 'data', `${dataPrefix}-query-stats.sqlite`)
+        treatments:  path.join(dataDir, `${dataPrefix}-treatments.sqlite`),
+        etlStats:    path.join(dataDir, `${dataPrefix}-etl-stats.sqlite`),
+        queryStats:  path.join(dataDir, `${dataPrefix}-query-stats.sqlite`),
+        collections: path.join(dataDir, `${dataPrefix}-collections.sqlite`)
     },
 
     truebug: {
@@ -129,12 +130,13 @@ module.exports = {
         },
 
         opts: {
-            dryrun: false,
+            runtype: 'real', // 'dry', 'real', 'test'
         
-            //download: 'full',
-            download: 'diff',
-            //download: 'F57587F8FFCFFFF8FF68FBB7FAD2FA31',
-        
+            source: 'full',
+            //source: 'diff',
+            //source: '0247B450A734FFD280E97BD0FA9FFA55',
+
+            download: true,
             database: true,
             parse: true,
             rearrange: true,
@@ -149,6 +151,7 @@ module.exports = {
                     treatmentCitations: 0,
                     treatmentAuthors: 0,
                     materialsCitations: 0,
+                    collectionCodes: 0,
                     figureCitations: 0,
                     bibRefCitations: 0
                 },

@@ -5,6 +5,9 @@ const re = {
     year: '^[0-9]{4}$'
 }
 
+// see https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289 
+// for notes from @gsautter
+
 /*
  * All params are queryable unless false
  * Params with 'defaultCols' = true are SELECT-ed by default
@@ -28,19 +31,6 @@ module.exports = [
         cheerio: '$("document").attr("docId")',
         defaultCols: true
     },
-    
-    {
-        name: 'deleted',
-        schema: { 
-            type: 'boolean',
-            default: false,
-            description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
-            isResourceId: false
-        },
-        sqltype: 'INTEGER DEFAULT 0',
-        cheerio: '$("document").attr("deleted")',
-        defaultCols: false
-    },
 
     {
         name: 'treatmentTitle',
@@ -60,14 +50,38 @@ module.exports = [
     },
     
     {
-        name: 'doi',
+        name: 'treatmentVersion',
+        schema: { 
+            type: 'integer',
+            description: 'The version of the treatment (might be lower than the version of the parent article, as not all treatments change in each new version of the article).'
+        },
+        sqltype: 'INTEGER',
+        cheerio: '$("document").attr("docVersion")',
+        defaultCols: false
+    },
+
+    {
+        name: 'treatmentDOI',
+        alias: 'doi',
         schema: { 
             type: 'string',
-            description: `DOI of journal article (for example, "10.3897/BDJ.4.e8151"):
-- \`doi=10.3897/BDJ.4.e8151\``
+            description: `DOI of the treatment (for example, "10.5281/zenodo.275008"):
+- \`doi=10.5281/zenodo.275008\``
         },
         sqltype: 'TEXT',
-        cheerio: '$("document").attr("ID-DOI")',
+        cheerio: '$("treatment").attr("ID-DOI")',
+        defaultCols: true,
+    },
+
+    {
+        name: 'treatmentLSID',
+        schema: { 
+            type: 'string',
+            description: `LSID of the treatment (for example, "urn:lsid:plazi:treatment:000B06B02350EF7F0E538C1045DA36A8"):
+- \`lsidurn:lsid:plazi:treatment:000B06B02350EF7F0E538C1045DA36A8\``
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("treatment").attr("LSID")',
         defaultCols: true,
     },
 
@@ -83,7 +97,8 @@ module.exports = [
     },
 
     {
-        name: 'zoobank',
+        name: 'zoobankId',
+        alias: 'zoobank',
         schema: {
             type: 'string',
             description: 'ZooBank ID of journal article'
@@ -91,6 +106,20 @@ module.exports = [
         sqltype: 'TEXT',
         cheerio: '$("document").attr("ID-ZooBank")',
         queryable: false
+    },
+
+    {
+        name: 'articleId',
+        schema: { 
+            type: 'string', 
+            maxLength: 32, 
+            minLength: 32,
+            description: `The unique ID of the article. Has to be a 32 character string:
+- \`articleId=8F39FF8A1E18FF9AFFF6FFB2FFEC6749\``
+        },
+        sqltype: 'TEXT NOT NULL',
+        cheerio: '$("document").attr("masterDocId")',
+        defaultCols: true
     },
 
     {
@@ -108,6 +137,35 @@ module.exports = [
         cheerio: '$("document").attr("masterDocTitle")',
         defaultCols: true,
         defaultOp: 'starts_with'
+    },
+
+    {
+        name: 'articleAuthor',
+        schema: { 
+            type: 'string',
+            description: `The author of the article in which the treatment was published. Unless there is a nomenclature act, this is also the author of the treatment (there only is a nomenclature act if there is a taxonomicNameLabel in the "nomenclature" subSubSection, in which case the treatment authors are to be taken from the authorityName attribute of the first taxonomicName in the "nomenclature" subSubSection … and if said attribute is absent, the treatment author defaults to this field). Can use the following syntax:
+- \`articleAuthor=Kronestedt, Torbjörn &amp; Marusik, Yuri M.\`
+- \`articleAuthor=starts_with(Kronestedt)\`
+- \`articleAuthor=ends_with(Yuri M.)\`
+- \`articleAuthor=contains(Torbjörn)\`
+  **Note:** queries involving inexact matches will be considerably slow`
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("document").attr("docAuthor")',
+        defaultCols: true,
+        defaultOp: 'starts_with'
+    },
+
+    {
+        name: 'articleDOI',
+        schema: { 
+            type: 'string',
+            description: `DOI of journal article (for example, "10.3897/BDJ.4.e8151"):
+- \`doi=10.3897/BDJ.4.e8151\``
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("mods\\\\:identifier[type=DOI]").text()',
+        defaultCols: true,
     },
 
     {
@@ -374,7 +432,7 @@ module.exports = [
 - \`geolocation=near({lat: 40.00, lng: -120})\`
   **note:** radius defaults to 1 km when using *near*`,
         },
-        join: 'materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId'
+        join: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
     },
 
 //     {
@@ -398,23 +456,79 @@ module.exports = [
 - \`collectionCode=starts_with(US)\`
     **Note:** queries involving inexact matches will be considerably slow`
         },
-        join: 'materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
+        join: [
+            'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
+            'JOIN materialsCitationsXcollectionCodes ON materialsCitations.materialsCitationId = materialsCitationsXcollectionCodes.materialsCitationId',
+            'JOIN collectionCodes ON materialsCitationsXcollectionCodes.collectionCode = collectionCodes.collectionCode',
+            'LEFT JOIN z3collections.institutions ON collectionCodes.collectionCode = institution_code'
+        ],
         facet: 'count > 50'
+    },
+
+    {
+        name: 'fulltext',
+        schema: {
+            type: 'string',
+            description: `The full text of the treatment. Can use the following syntax: 
+- \`q=spiders\``
+        },
+        selname: "highlight(vtreatments, 1, '<b>', '</b>') fulltext",
+        sqltype: 'TEXT',
+        cheerio: '$("treatment").text()',
+        defaultCols: false,
+        defaultOp: 'match',
+        where: 'vtreatments',
+        join: [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
     },
 
     {
         name: 'q',
         schema: {
             type: 'string',
-            description: `The full text of the treatment. Can use the following syntax: 
+            description: `A snippet extracted from the full text of the treatment. Can use the following syntax: 
 - \`q=spiders\``
         },
+        selname: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
         sqltype: 'TEXT',
-        cheerio: '$("treatment").text()',
         defaultCols: false,
         defaultOp: 'match',
         where: 'vtreatments',
-        join: 'vtreatments ON treatments.treatmentId = vtreatments.treatmentId'
-    }
-    
+        join: [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
+    },
+    // {
+    //     name: 'updateTime',
+    //     schema: {
+    //         type: 'integer',
+    //         //pattern: re.year,
+    //         description: 'The UTC timestamp when the treatment was last updated (as a result of an update to the article)'
+    //     },
+    //     sqltype: 'INTEGER',
+    //     cheerio: '$("document").attr("updateTime")',
+    //     defaultCols: true
+    // },
+
+    // {
+    //     name: 'checkinTime',
+    //     schema: {
+    //         type: 'integer',
+    //         //pattern: re.year,
+    //         description: 'The UTC timestamp when the article was first uploaded into the system'
+    //     },
+    //     sqltype: 'INTEGER',
+    //     cheerio: '$("document").attr("checkinTime")',
+    //     defaultCols: true
+    // },
+
+    {
+        name: 'deleted',
+        schema: { 
+            type: 'boolean',
+            default: false,
+            description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
+            isResourceId: false
+        },
+        sqltype: 'INTEGER DEFAULT 0',
+        cheerio: '$("document").attr("deleted")',
+        defaultCols: false
+    }    
 ]

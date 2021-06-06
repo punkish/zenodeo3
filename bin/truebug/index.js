@@ -43,12 +43,12 @@ const init = function(opts) {
 
     opts.etl.loaded = selCountOfTreatments()
     if (!opts.etl.loaded) {
-        opts.download = 'full'
+        opts.source = 'full'
     }
 
     if (opts.download) {
         if (fs.existsSync(DUMP)) {
-            cleanOldDump(opts)        
+            cleanOldDump(opts)
         }
         
         createDump(opts)

@@ -19,15 +19,21 @@ const createTables = function(opts) {
     console.log('creating tables')
 
     const dbs = {
+
         treatments: {
             treatments: `CREATE TABLE IF NOT EXISTS treatments ( 
         id INTEGER PRIMARY KEY,
         treatmentId TEXT NOT NULL UNIQUE,
         treatmentTitle TEXT,
-        doi TEXT,
+        treatmentVersion INTEGER,
+        treatmentDOI TEXT,
+        treatmentLSID TEXT,
         zenodoDep TEXT,
-        zoobank TEXT,
+        zoobankId TEXT,
+        articleId TEXT,
         articleTitle TEXT,
+        articleAuthor INTEGER,
+        articleDOI TEXT,
         publicationDate TEXT,
         journalTitle TEXT,
         journalYear TEXT,
@@ -45,7 +51,7 @@ const createTables = function(opts) {
         status TEXT,
         taxonomicNameLabel TEXT,
         rank TEXT,
-        q TEXT,
+        fulltext TEXT,
         author TEXT,
         deleted INTEGER DEFAULT 0,
         created INTEGER DEFAULT (strftime('%s','now')),
@@ -68,7 +74,6 @@ const createTables = function(opts) {
         materialsCitationId TEXT NOT NULL,
         treatmentId TEXT NOT NULL,
         collectingDate TEXT,
-        collectionCode TEXT,
         collectorName TEXT,
         country TEXT,
         collectingRegion TEXT,
@@ -93,6 +98,22 @@ const createTables = function(opts) {
         created INTEGER DEFAULT (strftime('%s','now')),
         updated INTEGER,
         UNIQUE (materialsCitationId, treatmentId)
+    )`,
+
+            materialsCitationsXCollectionCodes: `CREATE TABLE IF NOT EXISTS materialsCitationsXcollectionCodes ( 
+        id INTEGER PRIMARY KEY,
+        materialsCitationId TEXT,
+        collectionCode TEXT,
+        created INTEGER DEFAULT (strftime('%s','now')),
+        updated INTEGER,
+        UNIQUE (collectionCode, materialsCitationId)
+    )`,
+
+            collectionCodes: `CREATE TABLE IF NOT EXISTS collectionCodes ( 
+        id INTEGER PRIMARY KEY,
+        collectionCode TEXT NOT NULL UNIQUE,
+        created INTEGER DEFAULT (strftime('%s','now')),
+        updated INTEGER
     )`,
             
             treatmentCitations: `CREATE TABLE IF NOT EXISTS treatmentCitations ( 
@@ -134,11 +155,8 @@ const createTables = function(opts) {
     )`,
             
             vtreatments: 'CREATE VIRTUAL TABLE IF NOT EXISTS vtreatments USING FTS5(treatmentId, fullText)',
-            
             vfigurecitations: 'CREATE VIRTUAL TABLE IF NOT EXISTS vfigurecitations USING FTS5(figureCitationId, captionText)',
-            
             vbibrefcitations: 'CREATE VIRTUAL TABLE IF NOT EXISTS vbibrefcitations USING FTS5(bibRefCitationId, refString)',
-
             vlocations: 'CREATE VIRTUAL TABLE IF NOT EXISTS vlocations USING geopoly(treatmentId, materialsCitationId)'
         },
 
@@ -194,19 +212,7 @@ const createTables = function(opts) {
 
         for (let t in tables) {
             process.stdout.write(`   - creating table ${chalk.bold(t)} … `)
-            if (!opts.dryrun) DB[db].prepare(tables[t]).run()
-            // if (!opts.dryrun) {
-            //     if (db === 'etlStats') {
-            //         console.log(tables[t])
-            //     }
-
-            //     try {
-            //         DB[db].prepare(tables[t]).run()  
-            //     }
-            //     catch(error) {
-            //         console.error(error)
-            //     }              
-            // }
+            if (opts.runtype === 'real') DB[db].prepare(tables[t]).run()
             console.log(chalk.green('done'))
         }
     }
@@ -222,10 +228,15 @@ const createInsertStatements = function(opts) {
             treatments: `INSERT INTO treatments (
                     treatmentId,
                     treatmentTitle,
-                    doi,
+                    treatmentVersion,
+                    treatmentDOI,
+                    treatmentLSID,
                     zenodoDep,
-                    zoobank,
+                    zoobankId,
+                    articleId,
                     articleTitle,
+                    articleAuthor,
+                    articleDOI,
                     publicationDate,
                     journalTitle,
                     journalYear,
@@ -243,16 +254,21 @@ const createInsertStatements = function(opts) {
                     status,
                     taxonomicNameLabel,
                     rank,
-                    q,
+                    fulltext,
                     deleted
                 )
                 VALUES ( 
                     @treatmentId,
                     @treatmentTitle,
-                    @doi,
+                    @treatmentVersion,
+                    @treatmentDOI,
+                    @treatmentLSID,
                     @zenodoDep,
-                    @zoobank,
+                    @zoobankId,
+                    @articleId,
                     @articleTitle,
+                    @articleAuthor,
+                    @articleDOI,
                     @publicationDate,
                     @journalTitle,
                     @journalYear,
@@ -270,16 +286,20 @@ const createInsertStatements = function(opts) {
                     @status,
                     @taxonomicNameLabel,
                     @rank,
-                    @q,
+                    @fulltext,
                     @deleted
                 )
                 ON CONFLICT (treatmentId)
                 DO UPDATE SET
                     treatmentTitle=excluded.treatmentTitle,
-                    doi=excluded.doi,
+                    treatmentDOI=excluded.treatmentDOI,
+                    treatmentLSID=excluded.treatmentLSID,
                     zenodoDep=excluded.zenodoDep,
-                    zoobank=excluded.zoobank,
+                    zoobankId=excluded.zoobankId,
+                    articleId=excluded.articleId,
                     articleTitle=excluded.articleTitle,
+                    articleAuthor=excluded.articleAuthor,
+                    articleDOI=excluded.articleDOI,
                     publicationDate=excluded.publicationDate,
                     journalTitle=excluded.journalTitle,
                     journalYear=excluded.journalYear,
@@ -297,7 +317,7 @@ const createInsertStatements = function(opts) {
                     status=excluded.status,
                     taxonomicNameLabel=excluded.taxonomicNameLabel,
                     rank=excluded.rank,
-                    q=excluded.q,
+                    fulltext=excluded.fulltext,
                     author=excluded.author,
                     deleted=excluded.deleted,
                     updated=${updateTime}`,
@@ -325,7 +345,6 @@ const createInsertStatements = function(opts) {
                     materialsCitationId,
                     treatmentId,
                     collectingDate,
-                    collectionCode,
                     collectorName,
                     country,
                     collectingRegion,
@@ -352,7 +371,6 @@ const createInsertStatements = function(opts) {
                     @materialsCitationId,
                     @treatmentId,
                     @collectingDate,
-                    @collectionCode,
                     @collectorName,
                     @country,
                     @collectingRegion,
@@ -379,7 +397,6 @@ const createInsertStatements = function(opts) {
                 DO UPDATE SET
                     treatmentId=excluded.treatmentId,
                     collectingDate=excluded.collectingDate,
-                    collectionCode=excluded.collectionCode,
                     collectorName=excluded.collectorName,
                     country=excluded.country,
                     collectingRegion=excluded.collectingRegion,
@@ -402,6 +419,25 @@ const createInsertStatements = function(opts) {
                     httpUri=excluded.httpUri,
                     deleted=excluded.deleted,
                     updated=${updateTime}`,
+
+            collectionCodes: `INSERT INTO collectionCodes (collectionCode)
+                VALUES (@collectionCode)
+                ON CONFLICT (collectionCode)
+                DO UPDATE SET collectionCode=excluded.collectionCode, updated=${updateTime}`,
+
+            materialsCitationsXcollectionCodes: `INSERT INTO materialsCitationsXcollectionCodes (
+                        materialsCitationId,
+                        collectionCode
+                    )
+                    VALUES (
+                        @materialsCitationId,
+                        @collectionCode
+                    )
+                    ON CONFLICT (materialsCitationId, collectionCode)
+                    DO UPDATE SET
+                        materialsCitationId=excluded.materialsCitationId,
+                        collectionCode=excluded.collectionCode,
+                        updated=${updateTime}`,
 
             treatmentCitations: `INSERT INTO treatmentCitations (
                     treatmentCitationId,
@@ -476,7 +512,7 @@ const createInsertStatements = function(opts) {
                     deleted=excluded.deleted,
                     updated=${updateTime}`,
         
-            vtreatments: 'INSERT INTO vtreatments SELECT treatmentId, q FROM treatments WHERE deleted = 0',
+            vtreatments: 'INSERT INTO vtreatments SELECT treatmentId, fulltext FROM treatments WHERE deleted = 0',
             vfigurecitations: 'INSERT INTO vfigurecitations SELECT figureCitationId, captionText FROM figureCitations WHERE deleted = 0',
             vbibrefcitations: 'INSERT INTO vbibrefcitations SELECT bibRefCitationId, refString FROM bibRefCitations WHERE deleted = 0',
             vlocations: "INSERT INTO vlocations(treatmentId, materialsCitationId, _shape) SELECT treatments.treatmentId, materialsCitationId, '[[' || longitude || ',' || latitude || '],[' || longitude || ',' || latitude || '],[' || longitude || ',' || latitude || '],[' || longitude || ',' || latitude || ']]' AS _shape FROM treatments JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId WHERE latitude != '' AND longitude != ''"
@@ -494,7 +530,7 @@ const createInsertStatements = function(opts) {
 
         for (let s in stmts) {
             process.stdout.write(`   - creating insert statement ${chalk.bold(s)} … `)
-            if (!opts.dryrun) opts.preparedInsertStatements[ s ] = DB[db].prepare(stmts[s])
+            if (opts.runtype === 'real') opts.preparedInsertStatements[ s ] = DB[db].prepare(stmts[s])
             console.log(chalk.green('done'))
         }
     }    
@@ -534,7 +570,8 @@ const insertData = function(opts, data) {
      *     { 
      *         treatment: { },
      *         treatmentAuthors:    [ {}, {} …  ],
-     *         materialCitations:   [ {}, {} …  ],
+     *         materialsCitations: [ {}, {} …  ],
+     *         collectionCodes: [ {}, {} …  ],
      *         treatmentCitations:  [ {}, {} …  ],
      *         figureCitations:     [ {}, {} …  ],
      *         bibRefCitations:     [ {}, {} …  ] 
@@ -544,7 +581,8 @@ const insertData = function(opts, data) {
      *     { 
      *         treatment: { },
      *         treatmentAuthors:    [ {}, {} …  ],
-     *         materialCitations:   [ {}, {} …  ],
+     *         materialsCitations:   [ {}, {} …  ],
+     *         collectionCodes: [ {}, {} …  ],
      *         treatmentCitations:  [ {}, {} …  ],
      *         figureCitations:     [ {}, {} …  ],
      *         bibRefCitations:     [ {}, {} …  ] 
@@ -562,6 +600,12 @@ const insertData = function(opts, data) {
      *     treatments: [ {}, {} … ],
      *     treatmentAuthors: [ {}, {} … ],
      *     materialsCitations: [ {}, {} … ],
+     *     collectionCodes: [ {}, {} …  ],
+     *     materialsCitationsXcollectionCodes: [
+     *          {materialsCitationId, collectionCode}, 
+     *          {materialsCitationId, collectionCode} 
+     *          … 
+     *     ],
      *     treatmentCitations: [ {}, {} … ],
      *     figureCitations: [ {}, {} … ],
      *     bibRefCitations: [ {}, {} … ]
@@ -573,6 +617,8 @@ const insertData = function(opts, data) {
         treatments: [],
         treatmentAuthors: [],
         materialsCitations: [],
+        materialsCitationsXcollectionCodes: [],
+        collectionCodes: [],
         treatmentCitations: [],
         figureCitations: [],
         bibRefCitations: []
@@ -586,7 +632,7 @@ const insertData = function(opts, data) {
                 d.treatments.push( t[ table ] );
             }
             else {
-                d[table].push( ...t[ table ] );
+                d[ table ].push( ...t[ table ] );
             }
         }
     }
@@ -605,16 +651,20 @@ const insertData = function(opts, data) {
     }
 }
 
-const loadFTSTreatments = function(opts) {
-    opts.preparedInsertStatements.vtreatments.run()
-}
-
-const loadFTSFigureCitations = function(opts) {
-    opts.preparedInsertStatements.vfigurecitations.run()
-}
-
-const loadFTSBibRefCitations = function(opts) {
-    opts.preparedInsertStatements.vbibrefcitations.run()
+const loadFTS = function(opts) {
+    opts.fts.forEach(f => {
+        console.log(`loading ${f}`)
+        if (opts.runtype === 'real') {
+            try {
+                opts.preparedInsertStatements[f].run()
+                console.log(chalk.green('done'))
+            }
+            catch(error) {
+                console.error(error)
+            }
+        }
+    })
+    
 }
 
 const buildIndexes = function(opts) {
@@ -685,7 +735,7 @@ const buildIndexes = function(opts) {
 
     for (let i in indexes) {
         process.stdout.write(`   - creating index ${chalk.bold(i)} … `)
-        if (!opts.dryrun) {
+        if (opts.runtype === 'real') {
             try {
                 db.prepare(indexes[i]).run()
                 console.log(chalk.green('done'))
@@ -701,21 +751,21 @@ const buildIndexes = function(opts) {
 }
 
 const insertEtlStats = function(opts) {
-    opts.preparedInsertStatements.etl.run({
-        started: opts.etl.started,
-        ended: opts.etl.ended,
-        downloaded: opts.etl.downloaded,
-        parsed: JSON.stringify(opts.etl.parsed),
-        loaded: opts.etl.loaded
-    })
+    if (opts.runtype === 'real') {
+        opts.preparedInsertStatements.etl.run({
+            started: opts.etl.started,
+            ended: opts.etl.ended,
+            downloaded: opts.etl.downloaded,
+            parsed: JSON.stringify(opts.etl.parsed),
+            loaded: opts.etl.loaded
+        })
+    }
 }
 
 module.exports = {
     createTables,
     insertData,
-    loadFTSTreatments,
-    loadFTSFigureCitations,
-    loadFTSBibRefCitations,
+    loadFTS,
     buildIndexes,
     insertEtlStats,
     getDateOfLastEtl,

@@ -11,11 +11,10 @@ const createDump = function(opts) {
 
     // create the dump directory
     console.log(`creating ${chalk.bold(DUMP)}`)
-    if (opts.dryrun) {
-        console.log(`  node% fs.mkdirSync(${DUMP})`)
-    }
-    else {
-        fs.mkdirSync(DUMP)
+    if (opts.runtype === 'real') {
+        if (!fs.existsSync(DUMP)) {
+            fs.mkdirSync(DUMP)
+        }
     }
 }
 
@@ -24,15 +23,11 @@ const cleanOldDump = function(opts) {
 
     if (fs.existsSync(dumpOld)) {
         console.log(`removing ${chalk.bold(dumpOld)}`)
-        if (opts.dryrun) {
-            console.log(`  $ ${chalk.bold('rm -Rf')} ${chalk.green(dumpOld)}`)
-        }
-        else {
+        if (opts.runtype === 'real') {
             execSync(`rm -Rf ${dumpOld}`)
+            fs.renameSync(DUMP, dumpOld)
         }
     }
-
-    fs.renameSync(DUMP, dumpOld)
 }
 
 module.exports = { createDump, cleanOldDump }

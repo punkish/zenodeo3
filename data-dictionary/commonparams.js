@@ -79,7 +79,7 @@ module.exports = [
                 type: 'string'
             },
             description: `Columns to retreive in the result set. Provide a list like so:
-- \`$col=column1&$col=column2&$col=column3\``
+- \`$cols=column1&$cols=column2&$cols=column3\``
         }
     }
 ]

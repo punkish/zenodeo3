@@ -9,7 +9,7 @@
   "author": "Puneet Kishor",
   "license": "CC0-1.0",
   "dependencies": {
-    "@turf/turf": "^5.1.6",
+    "@turf/turf": "^6.3",
     "abstract-cache": "^1.0.1",
     "ajv": "^6.12.5",
     "ajv-errors": "^1.0.1",

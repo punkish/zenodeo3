@@ -18,9 +18,10 @@ const rearrangeFiles = require('./rearrange')
 const {
     //createTables,
     insertData,
-    loadFTSTreatments,
-    loadFTSFigureCitations,
-    loadFTSBibRefCitations,
+    loadFTS,
+    // loadFTSTreatments,
+    // loadFTSFigureCitations,
+    // loadFTSBibRefCitations,
     buildIndexes,
     selCountOfTreatments
 } = require('./database')
@@ -81,6 +82,10 @@ const stats = function(treatments, endProc, parsed) {
 
         if (treatment.materialsCitations) {
             parsed.materialsCitations = parsed.materialsCitations + treatment.materialsCitations.length;
+        }
+
+        if (treatment.collectionCodes) {
+            parsed.collectionCodes = parsed.collectionCodes + treatment.collectionCodes.length;
         }
 
         if (treatment.figureCitations) {
@@ -266,7 +271,75 @@ const parseFigureCitations = function($, treatmentId) {
 
 const parseMaterialsCitations = function($, treatmentId) {
     const elements = $('materialsCitation');
-    return _parse($, elements, 'materialsCitations', 'materialsCitationId', treatmentId);
+    //return _parse($, elements, 'materialsCitations', 'materialsCitationId', treatmentId);
+
+    const num = elements.length;
+    const collectionCodes = []
+    const entries = []
+    const mc = []
+
+    const allCols = getAllCols('materialsCitations')
+
+    if (num) {
+        for (let i = 0; i < num; i++) {
+
+            const missingAttr = [];
+            const entry = {};
+
+            const mId = $(elements[i]).attr('id')
+
+            allCols.forEach(el => {
+                if (el.cheerio) {
+                    const attr = $(elements[i]).attr(el.name)
+                    
+                    if (attr) {
+                        if (el.name === 'collectionCode') {
+                            const cc = attr.split(', ')
+                            collectionCodes.push( ...cc )
+
+                            cc.forEach(c => {
+                                mc.push({ 
+                                    materialsCitationId: mId,
+                                    collectionCode: c
+                                })
+                            })  
+                        }
+                        else {
+                            entry[el.name] = attr
+                        }
+                        
+                    }
+                    else {
+                        entry[el.name] = ''
+                        missingAttr.push(el.name)
+                    }
+                }
+            })
+
+            let deleted = 0
+            if ($(elements[i]).attr('deleted') && ($(elements[i]).attr('deleted') === 'true')) {
+                deleted = 1
+            }
+
+            entry['materialsCitationId'] = $(elements[i]).attr('id') || chance.guid()
+            entry.treatmentId = treatmentId
+            entry.updateVersion = $(elements[i]).attr('updateVersion') || ''
+            entry.deleted = deleted
+
+            entries.push(entry)
+        }
+    }
+
+    // create an array of hashes of unique collection codes
+    // [ {'cc': <code1>}, {'cc': <code2}, … ]
+    //
+    // see https://stackoverflow.com/a/14438954/183692 for `filter` method to 
+    // create uniq array
+    const ccs = collectionCodes
+        .filter((v, i, s) => { return s.indexOf(v) === i })
+        .map(e => { return { collectionCode: e } })
+
+    return [entries, mc, ccs]
 };
 
 const parseTreatment = function($, treatmentId) {
@@ -353,7 +426,10 @@ const cheerioparse = function(xml, treatmentId) {
     treatment.treatmentCitations = parseTreatmentCitations($, treatmentId)
     treatment.bibRefCitations = parseBibRefCitations($, treatmentId)
     treatment.figureCitations = parseFigureCitations($, treatmentId)
-    treatment.materialsCitations = parseMaterialsCitations($, treatmentId)
+    const arr = parseMaterialsCitations($, treatmentId)
+    treatment.materialsCitations = arr[0]
+    treatment.materialsCitationsXcollectionCodes = arr[1]
+    treatment.collectionCodes = arr[2]
 
 
     // const ta = parseTreatmentAuthors($, treatmentId);
@@ -389,9 +465,10 @@ const parse = function(opts) {
 
     // if 'n' is a 32 character string, we assume it is an XML id
     // hence, a single XML to be parsed
-    if (/^[A-Za-z0-9]{32}$/.test(opts.parse)) {
-        console.log(`   - going to parse treatment ${opts.parse}`)
-        const treatment = parseOne(opts.parse);
+    if (/^[A-Za-z0-9]{32}$/.test(opts.source)) {
+        console.log(`   - going to parse treatment ${opts.source}`)
+        const treatment = parseOne(opts.source)
+        stats(treatment, true, opts.etl.parsed)
         console.log('----------------------------------------\n')
         console.log(treatment);
     }
@@ -479,9 +556,13 @@ const parse = function(opts) {
 
         if (opts.database) {
             insertData(opts, treatments)
-            loadFTSTreatments(opts)
-            loadFTSFigureCitations(opts)
-            loadFTSBibRefCitations(opts)
+
+            opts.fts = ['vtreatments', 'vfigurecitations', 'vbibrefcitations']
+            loadFTS(opts)
+            // loadFTSTreatments(opts)
+            // loadFTSFigureCitations(opts)
+            // loadFTSBibRefCitations(opts)
+
             opts.etl.loaded = selCountOfTreatments() - opts.etl.loaded
             buildIndexes(opts)
         }

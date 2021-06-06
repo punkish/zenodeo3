@@ -10,6 +10,7 @@ module.exports = [
             description: `The unique ID of the materialsCitation. Has to be a 32 character string like: '38C63CC3D744DE1FE88B8A56FB7EDD14'`,
             isResourceId: true
         },
+        selname: 'materialsCitations.materialsCitationId',
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("materialsCitation").attr("id")',
         defaultCols: true,
@@ -42,11 +43,25 @@ module.exports = [
         name: 'collectionCode',
         schema: {
             type: 'string',
-            description: 'The collection code for a natural history collection',
+            description: 'The collection code for a natural history collection'
+        },
+        selname: 'collectionCodes.collectionCode',
+        sqltype: 'TEXT',
+        defaultCols: true,
+        join: [ 
+            'JOIN materialsCitationsXcollectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
+            'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
+            'LEFT JOIN z3collections.institutions ON collectionCodes.collectionCode = institution_code'
+        ]
+    },
+    {
+        name: 'institution_name',
+        schema: {
+            type: 'string',
+            description: 'The name of the institution that houses the collection',
         },
         sqltype: 'TEXT',
-        cheerio: '$("materialsCitation").attr("collectionCode")',
-        defaultCols: true
+        defaultCols: true,
     },
     {
         name: 'collectorName',
@@ -307,6 +322,7 @@ module.exports = [
             type: 'string',
             description: 'Geographic coordinates of the location where the specimen was collected.',
         },
+        selname: 'materialsCitations.latitude',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("latitude")',
         defaultCols: true,
@@ -319,6 +335,7 @@ module.exports = [
             type: 'string',
             description: 'Geographic coordinates of the location where the specimen was collected.',
         },
+        selname: 'materialsCitations.longitude',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("longitude")',
         defaultCols: true,

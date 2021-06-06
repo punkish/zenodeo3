@@ -43,7 +43,7 @@ module.exports = [
         defaultCols: true,
         defaultOp: 'match',
         where: 'vbibrefcitations',
-        join: 'vbibrefcitations ON bibRefCitations.bibRefCitationId = vbibrefcitations.bibRefCitationId'
+        join: [ 'JOIN vbibrefcitations ON bibRefCitations.bibRefCitationId = vbibrefcitations.bibRefCitationId' ]
     },
 
     {

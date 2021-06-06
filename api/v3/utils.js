@@ -3,6 +3,11 @@
 const config = require('config')
 const Database = require('better-sqlite3')
 const db = new Database(config.get('data.treatments'))
+
+// https://github.com/JoshuaWise/better-sqlite3/issues/102#issuecomment-369468174
+db.prepare(`ATTACH DATABASE '${config.get('data.collections')}' AS z3collections`).run()
+
+
 const debug = config.get('debug')
 const cacheOn = config.get('cacheOn')
 const cacheDuration = config.get('v3.cache.duration')
@@ -28,6 +33,7 @@ const handlerFactory = (resource) => {
 
         // get queryparams and querystring from the original URL
         const { op, qs } = getOriginalUrl(request)
+
         let data
 
         if (cacheOn) {
@@ -129,10 +135,11 @@ const getOriginalUrl = (request) => {
 
 const queryAndCacheData = async (o) => {
     const { request, resource, cache, originalParams, cacheKey } = o
-
+    
     // Query for new data
     const qp = { request, resource, originalParams }
     const sourceOfResource = getSourceOfResource(resource)
+    
     let data
 
     // A resource on Zenodo is queried differntly (using `fetch`)
@@ -318,47 +325,47 @@ const packageResult = ({ resource, params, result, url, uriRemote }) => {
     
 // }
 
-const getRelatedResourcesFromZenodeo = async ({ request, resource, params }) => {
+// const getRelatedResourcesFromZenodeo = async ({ request, resource, params }) => {
 
-    const relatedResources = {}
+//     const relatedResources = {}
             
-    // if resource is 'treatments' then the related records 
-    // are fetched from all other (zenodeo) resources
-    if (resource === 'treatments') {
+//     // if resource is 'treatments' then the related records 
+//     // are fetched from all other (zenodeo) resources
+//     if (resource === 'treatments') {
 
-        const zenodeoResources = getResourcesFromSpecifiedSource('zenodeo')
+//         const zenodeoResources = getResourcesFromSpecifiedSource('zenodeo')
 
-        // Go through every resource…
-        for (let i = 0, j = zenodeoResources.length; i < j; i++) {
-            const r = zenodeoResources[i]
-            const relatedResource = r.name
+//         // Go through every resource…
+//         for (let i = 0, j = zenodeoResources.length; i < j; i++) {
+//             const r = zenodeoResources[i]
+//             const relatedResource = r.name
 
-            log.info(`getting related "${relatedResource}" for this ${resource}`)
-            relatedResources[relatedResource] = getRelatedRecords(primaryResourceIdName, primaryResourceIdValue, relatedResource)
-        }
-    }
+//             log.info(`getting related "${relatedResource}" for this ${resource}`)
+//             relatedResources[relatedResource] = getRelatedRecords(primaryResourceIdName, primaryResourceIdValue, relatedResource)
+//         }
+//     }
 
-    // if the (zenodeo) resource is any other than 'treatments'
-    // then related record is only the parent treatment
-    else {
-        const relatedResource = 'treatments'
-        const q = { resource: relatedResource, params: {} }
-        const relatedResourceId = getResourceId(relatedResource)
-        q.params[relatedResourceId.name] = result.d2[0][relatedResourceId.name]
+//     // if the (zenodeo) resource is any other than 'treatments'
+//     // then related record is only the parent treatment
+//     else {
+//         const relatedResource = 'treatments'
+//         const q = { resource: relatedResource, params: {} }
+//         const relatedResourceId = getResourceId(relatedResource)
+//         q.params[relatedResourceId.name] = result.d2[0][relatedResourceId.name]
         
-        const { queries, runparams } = zql(q)
+//         const { queries, runparams } = zql(q)
 
-        relatedResources[relatedResource] = runZenodeoQueries({ relatedResource, queries, runparams })  
-        // data = packageResult({
-        //     resource: relatedResource, 
-        //     params: q.params, 
-        //     result: result,
-        //     url: uriZenodeo
-        // })
-    }
+//         relatedResources[relatedResource] = runZenodeoQueries({ relatedResource, queries, runparams })  
+//         // data = packageResult({
+//         //     resource: relatedResource, 
+//         //     params: q.params, 
+//         //     result: result,
+//         //     url: uriZenodeo
+//         // })
+//     }
 
-    return relatedResources
-}
+//     return relatedResources
+// }
 
 const getDataFromZenodeo = async ({ request, resource, originalParams }) => {
 
@@ -372,7 +379,7 @@ const getDataFromZenodeo = async ({ request, resource, originalParams }) => {
         params: request.query
     })
 
-    const requestedResource = runZenodeoQueries({ resource, queries, runparams })
+    const requestedResource = await runZenodeoQueries({ resource, queries, runparams })
     
     const data = packageResult({
         resource: resource, 
@@ -428,7 +435,7 @@ const getDataFromZenodeo = async ({ request, resource, originalParams }) => {
                     
                     const { queries, runparams } = zql(q)
                     
-                    const relatedResourceResult = runZenodeoQueries({ resource: relatedResource, queries, runparams })
+                    const relatedResourceResult = await runZenodeoQueries({ resource: relatedResource, queries, runparams })
                     
                     const packagedRelatedResource = packageResult({
                         resource: relatedResource, 
@@ -458,6 +465,7 @@ const getDataFromZenodeo = async ({ request, resource, originalParams }) => {
 const sqlRunner = (sql, params) => {
     try {
         let t = process.hrtime()
+        //console.log(sql)
         const data = db.prepare(sql).all(params)
         t = process.hrtime(t)
 
@@ -470,7 +478,54 @@ const sqlRunner = (sql, params) => {
     }
 }
 
-const runZenodeoQueries = (o) => {
+// const foo = async function(record) {
+//     const collectionCode = record.collectionCode
+//     try {
+//         let t = process.hrtime()
+
+//         log.info('awaiting response from GRSciColl')
+//         const response = await fetch(`https://api.gbif.org/v1/grscicoll/lookup?institutionCode=${collectionCode}`)
+
+//         // if HTTP-status is 200-299
+//         if (response.ok) {
+    
+//             //request.log.info('awaiting response.text')
+//             const payload = await response.text()
+//             const result = JSON5.parse(payload)
+
+//             // {
+//             //     "institutionMatch": {
+//             //       "matchType": "FUZZY",
+//             //       "status": "DOUBTFUL",
+//             //       "reasons": [
+//             //         "CODE_MATCH"
+//             //       ],
+//             //       "entityMatched": {
+//             //         "key": "1a69e6fc-4a8d-44d5-90a6-a7dc7a1aa7c7",
+//             //         "selfLink": "http://api.gbif.org/v1/grscicoll/institution/1a69e6fc-4a8d-44d5-90a6-a7dc7a1aa7c7",
+//             //         "name": "University of Copenhagen",
+//             //         "code": "C"
+//             //       }
+//             //     },
+//             //     "collectionMatch": {
+//             //       "matchType": "NONE"
+//             //     }
+//             //   }
+
+//             t = process.hrtime(t)
+//             record.collectionName = result.institutionMatch.entityMatched.name
+//             console.log(`name: ${record.collectionName}`)
+//         } 
+//         else {
+//             log.info("HTTP-Error: " + response.status)
+//         }
+//     }
+//     catch (error) {
+//         log.error(error)
+//     }
+// }
+
+const runZenodeoQueries = async (o) => {
     const { resource, queries, runparams } = o
 
     // This is where we pack all the results
@@ -495,6 +550,14 @@ const runZenodeoQueries = (o) => {
         const [ d2, t2 ] = sqlRunner(sql, runparams)
         res.d2 = d2
         res.t2 = t2
+
+        // if (resource === 'materialsCitations') {
+        //     const records = res.d2
+        //     for (let i = 0, j = records.length; i < j; i++) {
+        //         const record = records[i]
+        //         await foo(record)
+        //     }
+        // }
     }
     else {
         log.info(`"${resource}" count is 0, so returning []`)

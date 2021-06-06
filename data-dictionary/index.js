@@ -41,6 +41,13 @@ module.exports = [
         source: 'zenodeo'
     },
     {
+        name: 'collectionCodes',
+        summary: 'Fetch collectionCodes of the materialsCitations',
+        description: '',
+        dictionary: require('./resources/collectionCodes'),
+        source: 'zenodeo'
+    },
+    {
         name: 'images',
         summary: 'Fetch images from Zenodo',
         description: '',
