@@ -22,8 +22,8 @@ module.exports = {
     //         level: 'error'
     //     }
     // },
-    debug: false,
-    cacheOn: true,
+    isDebug: false,
+    //cacheOn: true,
 
     v3: {
         swagger: {
@@ -88,6 +88,8 @@ module.exports = {
         // },
 
         // cache: {
+        //  on: true,
+        //  base: path.join(cwd, 'cache'),
 
         //     // default cache duration 1 day (24 hours)
         //     duration: 1 * 60 * 60 * 1000

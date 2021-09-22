@@ -1,631 +1,241 @@
 'use strict'
 
+const util = require('util')
 const config = require('config')
+
+/* 
+ * prepare and connect to the database
+ *
+ * ATTACH external databases
+ * https://github.com/JoshuaWise/better-sqlite3/issues/102#issuecomment-369468174
+ * 
+ */
 const Database = require('better-sqlite3')
 const db = new Database(config.get('data.treatments'))
-
-// https://github.com/JoshuaWise/better-sqlite3/issues/102#issuecomment-369468174
 db.prepare(`ATTACH DATABASE '${config.get('data.collections')}' AS z3collections`).run()
+db.prepare(`ATTACH DATABASE '${config.get('data.facets')}' AS z3facets`).run()
 
+const { logger } = require('../../lib/utils')
+const log = logger('API:V3:UTILS')
+//log.level = 'error'
 
-const debug = config.get('debug')
-const cacheOn = config.get('cacheOn')
-const cacheDuration = config.get('v3.cache.duration')
-const { getResourceId, getQueryableParamsWithDefaults, getSourceOfResource, getResourcesFromSpecifiedSource } = require('../../data-dictionary/dd-utils')
 const uriZenodo = config.get('url.zenodo')
 const uriZenodeo = config.get('url.zenodeo')
-const querystring = require('qs')
+
 const fetch = require('node-fetch')
-const { zql } = require('../../lib/zql/')
+const zql = require('../../lib/zql/')
 const crypto = require('crypto')
+
 const JSON5 = require('json5')
 
-const { logger, timerFormat } = require('../../lib/utils')
-const log = logger('API:V3:UTILS')
-
+const isDebug = config.get('isDebug')
+const cacheOn = config.get('v3.cache.on')
+const cacheDuration = config.get('v3.cache.duration')
+const cacheBase = config.get('v3.cache.base')
 const acf = require('../../lib/abstract-cache-file')
 
+const { getSourceOfResource } = require('../../data-dictionary/dd-utils')
+
+// resource: the resource being requested; maps to a SQL table
 const handlerFactory = (resource) => {
 
-    // The following handler function is returned to 
-    // make the route to this resource
+    // request: the request object from a client
+    // reply: a fastify object
+    // result: the output of querying the datastore
+    // response: packaged result that is sent back
     return async function(request, reply) {
+        log.info(`handler() -> fetching ${resource} from "${request.url}"`)
 
-        // get queryparams and querystring from the original URL
-        const { op, qs } = getOriginalUrl(request)
-
-        let data
+        const params = request.query
+        let response
 
         if (cacheOn) {
-
-            // get a referene to the cache
+            log.info("handler() -> cache is on")
+            
+            // a reference to the cache
             const cache = acf({
-                base: '',
+                base: cacheBase,
                 segment: resource,
                 duration: cacheDuration
             })
 
-            const cacheKey =  crypto
-                .createHash('md5')
-                .update(`${resource}/${qs}`)
-                .digest('hex')
-
-            const qp = {
-                request: request, 
-                resource: resource, 
-                cache: cache, 
-                originalParams: op, 
-                cacheKey: cacheKey
-            }
-
-            if (request.query.$refreshCache) {
-                log.info('refreshing cache as requested')
-                data = await queryAndCacheData(qp)
+            const cacheKey = getCacheKey(request, resource)
+        
+            if ('$refreshCache' in params && params.$refreshCache) {
+                log.info("handler() -> forcing refresh cache")
+                removeFromCache(cacheKey, cache)
+                response = await queryDataStoreAndCacheResult(request, resource, params, cacheKey, cache)
             }
             else {
-
-                let cacheContent
-
-                // check the cache for existing data
-                try {
-                    log.info(`checking cache under key: ${cacheKey}`)
-                    cacheContent = await cache.get(cacheKey)
-                }
-
-                // there is no data in the cache so log the error
-                // and continue on
-                catch (error) {
-                    log.error(error.code === 'ENOENT' ? 'no data in cache' : error)
-                    log.info('querying the db for new data')
-                }
-
-                if (cacheContent) {
-                    log.info('found data in cache')
-                    data = JSON5.parse(cacheContent)
+                response = await checkCache(cacheKey, cache)
+                
+                if (response) {
+                    log.info("handler() -> found result in cache")
                 }
                 else {
-
-                    // if we reached here, that means no data was 
-                    // found in the cache. So we get new data
-                    data = await queryAndCacheData(qp)
+                    log.info("handler() -> no result in cache")
+                    response =  await queryDataStoreAndCacheResult(request, resource, params, cacheKey, cache)
                 }
             }
         }
         else {
-            const qp = {
-                request: request, 
-                resource: resource, 
-                originalParams: op
-            }
-
-            data = await queryData(qp)
+            log.info("handler() -> cache is off")
+            response = await queryDataStore(request, resource, params)
         }
 
-        log.info('sending back data, request complete')
-        return data
+        return response
     }
 }
 
-// The parameters submitted in request.query get validated
-// and modified by the JSON schema validator. Default params,
-// if not submitted by the user, get tacked on to the query.
-// We need to preserve the orignal parameters by extracting
-// them from request.url so we can  use them to make the 
-// links and the 'search-params' in the reply
-const getOriginalUrl = (request) => {
-    const qs_orig = request.url.split('?')[1]
-    //const op = querystring.parse(qs_orig, { comma: true })
-    const op = querystring.parse(qs_orig)
+const getOriginalSearchParams = function(request) {
+    const p = request.context.config.url
+    const u = request.url
+    const originalSearchParams = new URLSearchParams(u.replace(`${p}?`, ''))
+    if (originalSearchParams.has('$refreshCache')) {
+        originalSearchParams.delete('$refreshCache')
+    }
 
-    if ('$refreshCache' in op) delete op.$refreshCache
-
-    const qs = Object.keys(op)
-        .sort()
-        .map(k => {
-            const el = op[k]
-
-            return Array.isArray(el) ? 
-                el.sort().map(e => `${k}=${e}`).join('&') : 
-                `${k}=${el}`
-        })
-        .join('&')
-
-    return { op, qs }
+    return originalSearchParams
 }
 
-const queryAndCacheData = async (o) => {
-    const { request, resource, cache, originalParams, cacheKey } = o
-    
-    // Query for new data
-    const qp = { request, resource, originalParams }
-    const sourceOfResource = getSourceOfResource(resource)
-    
-    let data
-
-    // A resource on Zenodo is queried differntly (using `fetch`)
-    // as opposed to a resource on Zenodeo (using `SQL`)
-    if (sourceOfResource === 'zenodo') {
-        data = await getDataFromZenodo(qp)
-    }
-    else if (sourceOfResource === 'zenodeo') {
-        data = await getDataFromZenodeo(qp)
-    }
-
-    // since we are storing data in the cache for the first
-    // time, let's fake a cache entry
-    const cacheEntry = {
-        item: data,
-        stored: Date.now(),
-        ttl: cacheDuration
-    }
-
-    // Now we need to store this data in the cache
-    // flag for mkdir success/failure
-    log.info(`storing data in cache under key: ${cacheKey}`)
-    cache.set(cacheKey, cacheEntry)
-    
-    return cacheEntry
-}
-
-const queryData = async (o) => {
-    const { request, resource, originalParams } = o
-
-    // Query for new data
-    const qp = { request, resource, originalParams }
-    const sourceOfResource = getSourceOfResource(resource)
-    let data
-
-    // A resource on Zenodo is queried differntly (using `fetch`)
-    // as opposed to a resource on Zenodeo (using `SQL`)
-    if (sourceOfResource === 'zenodo') {
-        data = await getDataFromZenodo(qp)
-    }
-    else if (sourceOfResource === 'zenodeo') {
-        data = await getDataFromZenodeo(qp)
-    }
-
-    // we won't be storing data in the cache because 
-    // cache is off, so we will fake a cache entry
-    const cacheEntry = {
-        item: data,
-        stored: Date.now(),
-        ttl: cacheDuration
-    }
-    
-    return cacheEntry
-}
-
-const q2qs = function(q) {
-    let qs = []
-    for (let k in q) {
-        qs.push(`${k}=${q[k]}`)
-    }
-
-    return encodeURI(qs.join('&'))
-}
-
-// make HAL links for the record(s)
-const halify = (data, resource, resourceId, url) => {
-    log.info('halifying the records')
-
-    for (let i = 0; i < data.length; i++) {
-        const record = data[i]
-        record._links = {
-            self: { href: `${url}/${resource.toLowerCase()}?${resourceId}=${record[resourceId]}` }
-        }
-    }
-
-    return data
-}
-
-const packageResult = ({ resource, params, result, url, uriRemote }) => {
-    log.info(`packaging ${resource} result for delivery`)
-
-    const uri = `${url}/${resource.toLowerCase()}`
-    
-    const sourceOfResource = getSourceOfResource(resource)
-
-    const data = {
-        'search-criteria': params,
-        count: result.d1[0].count || 0,
-        _links: {}
-        // prevpage: '',
-        // nextpage: ''
-    }
-
-    const resourceId = getResourceId(resource)
-
-    const _packageResult = (params, resourceId, data, uri, uriRemote) => {
-        const q = JSON5.stringify(params)
-        const thisq = JSON5.parse(q)
-
-        if (resourceId.name in params) {
-
-            // add link to self and we are done
-            data._links.self = { href: `${uri}?${querystring.stringify(thisq)}` }
+const _sort = function(url) {
+    const dollar = {}
+    const plain = {}
+    url.forEach((value, name) => {
+        if (name.substring(0) === '$') {
+            dollar[name] = value
         }
         else {
-            let prevq
-            let nextq
-            let thispage
-
-            if (Object.keys(params).length) {
-
-                // add links to prev and next
-                prevq = JSON5.parse(q)
-                nextq = JSON5.parse(q)
-
-                if ('$page' in params) {
-                    data._links.self = { href: `${uri}?${querystring.stringify(thisq)}` }
-                    thispage = params.$page
-                }
-                else {
-                    data._links.self = { href: `${uri}` }
-                    thispage = getQueryableParamsWithDefaults(resource)
-                        .filter(p => p.name === '$page')[0].schema.default
-                }
-            }
-            else {
-
-                // add links to prev and next
-                prevq = {}
-                nextq = {}
-
-                data._links.self = { href: `${uri}` }
-                thispage = getQueryableParamsWithDefaults(resource)
-                    .filter(p => p.name === '$page')[0].schema.default
-            }
-
-            prevq.$page = thispage === 1 ? 1 : thispage - 1
-            nextq.$page = thispage + 1
-
-            data._links.prev = { href: `${uri}?${querystring.stringify(prevq)}` }
-            data._links.next = { href: `${uri}?${querystring.stringify(nextq)}` }
+            plain[name] = value
         }
-        
-        if (debug) {
-            data.debug = {
-                count: {
-                    query: result.queries ? result.queries.count.debug.join(' ') : '',
-                    time: result.t1
-                },
-                records: {
-                    query: result.queries ? result.queries.records.debug.join(' ') : uriRemote,
-                    time: result.t2
-                }
-            }
-        }
-    }
-
-    if (sourceOfResource === 'zenodo') {
-        data.records = data.count ? result.d2 : []
-    }
-    else if (sourceOfResource === 'zenodeo') {
-        data.records = data.count ?
-            halify(result.d2, resource, resourceId.name, url) :
-            []
-    }
-
-    _packageResult(params, resourceId, data, uri, uriRemote)
-
-    return data
-}
-
-// const getRequestedResourceFromZenodeo = ({ request, resource }) => {
-
-//     // first, we query for the primary dataset.
-//     // ZQL gives us the queries and the params to bind therein
-//     const { queries, runparams } = zql({
-//         resource: resource, 
-//         params: request.query
-//     })
-
-//     return runZenodeoQueries({ resource, queries, runparams })
-
-    
-// }
-
-// const getRelatedResourcesFromZenodeo = async ({ request, resource, params }) => {
-
-//     const relatedResources = {}
-            
-//     // if resource is 'treatments' then the related records 
-//     // are fetched from all other (zenodeo) resources
-//     if (resource === 'treatments') {
-
-//         const zenodeoResources = getResourcesFromSpecifiedSource('zenodeo')
-
-//         // Go through every resource…
-//         for (let i = 0, j = zenodeoResources.length; i < j; i++) {
-//             const r = zenodeoResources[i]
-//             const relatedResource = r.name
-
-//             log.info(`getting related "${relatedResource}" for this ${resource}`)
-//             relatedResources[relatedResource] = getRelatedRecords(primaryResourceIdName, primaryResourceIdValue, relatedResource)
-//         }
-//     }
-
-//     // if the (zenodeo) resource is any other than 'treatments'
-//     // then related record is only the parent treatment
-//     else {
-//         const relatedResource = 'treatments'
-//         const q = { resource: relatedResource, params: {} }
-//         const relatedResourceId = getResourceId(relatedResource)
-//         q.params[relatedResourceId.name] = result.d2[0][relatedResourceId.name]
-        
-//         const { queries, runparams } = zql(q)
-
-//         relatedResources[relatedResource] = runZenodeoQueries({ relatedResource, queries, runparams })  
-//         // data = packageResult({
-//         //     resource: relatedResource, 
-//         //     params: q.params, 
-//         //     result: result,
-//         //     url: uriZenodeo
-//         // })
-//     }
-
-//     return relatedResources
-// }
-
-const getDataFromZenodeo = async ({ request, resource, originalParams }) => {
-
-    // First we get the requested resource
-    //const requestedResource = getRequestedResourceFromZenodeo({ request, resource, originalParams })
-    
-    // first, we query for the primary dataset.
-    // ZQL gives us the queries and the params to bind therein
-    const { queries, runparams } = zql({
-        resource: resource, 
-        params: request.query
     })
 
-    const requestedResource = await runZenodeoQueries({ resource, queries, runparams })
-    
-    const data = packageResult({
-        resource: resource, 
-        params: originalParams, 
-        result: requestedResource,
-        url: uriZenodeo
-    })
+    const obj = {}
+    Object.keys(plain).sort().reverse().forEach(k => obj[k] = plain[k])
+    Object.keys(dollar).sort().reverse().forEach(k => obj[k] = plain[k])
 
-    // then we check if related records are also needed,  
-    // and query for and package them, adding them 
-    // to a key called 'related-records'. Related records
-    // are *only* required if there is a resourceId in the 
-    // the query.
-    data['related-records'] = {}
-    const requestedResourceIdName = getResourceId(resource).name
-    if (requestedResourceIdName in request.query) {
-        const requestedResourceIdValue = request.query[requestedResourceIdName]
-
-        // related records will exist only if  
-        // anything was found in thefirst query
-        const requestedResourceResult = requestedResource.d2
-        
-        if (requestedResourceResult.length) {
-            
-            if (resource === 'treatments') {
-
-                const zenodeoResources = getResourcesFromSpecifiedSource('zenodeo')
-        
-                // Go through every resource…
-                for (let i = 0, j = zenodeoResources.length; i < j; i++) {
-                    const r = zenodeoResources[i]
-                    const relatedResource = r.name
-
-                    if (relatedResource !== 'treatments') {
-        
-                        log.info(`getting related "${relatedResource}" for this ${resource}`)
-                        data['related-records'][relatedResource] = getRelatedRecords(requestedResourceIdName, requestedResourceIdValue, relatedResource)
-                    }
-                }
-            }
-        
-            // if the (zenodeo) resource is any other than 'treatments'
-            // then related record is only the parent treatment
-            else {
-                const relatedResource = 'treatments'
-                const q = { resource: relatedResource, params: {} }
-                const relatedResourceId = getResourceId(relatedResource)
-
-                relatedResourceId.value = requestedResourceResult[0][relatedResourceId.name]
-
-                if (relatedResourceId.value) {
-                    q.params[relatedResourceId.name] = relatedResourceId.value
-                    
-                    const { queries, runparams } = zql(q)
-                    
-                    const relatedResourceResult = await runZenodeoQueries({ resource: relatedResource, queries, runparams })
-                    
-                    const packagedRelatedResource = packageResult({
-                        resource: relatedResource, 
-                        params: q.params, 
-                        result: relatedResourceResult,
-                        url: uriZenodeo
-                    })
-
-                    data['related-records'][relatedResource] = packagedRelatedResource
-                }
-            }
-        }
-    }
-    
-    // get facets
-    data.facets = {}
-    if (queries.facets) {
-        for (let f in queries.facets) {
-            log.info(`getting facet ${f}`)
-            data.facets[f] = sqlRunner(queries.facets[f], runparams)
-        }
-    }
-
-    return data
+    return new URLSearchParams(obj)
 }
 
-const sqlRunner = (sql, params) => {
+const getCacheKey = function(request, resource) {
+    const self = _pruneLink(new URLSearchParams(request.query))
+    const _self = `${resource}/${decodeURIComponent(_sort(self).toString())}`
+
+    log.info(`getCacheKey() -> creating key for ${_self}`)
+
+    const cacheKey = crypto
+        .createHash('md5')
+        .update(_self)
+        .digest('hex')
+
+    log.info(`getCacheKey() -> sending key ${cacheKey}`)
+    return cacheKey
+}
+
+const getSearch = function(request) {
+    log.info("getSearch() -> getting search criteria")
+    const originalSearchParams = getOriginalSearchParams(request)
+
+    const search = {}
+    originalSearchParams.forEach((value, name) => {
+        search[name] = value
+    })
+
+    return search
+}
+
+const _sqlRunner = function(sql, runparams) {
     try {
         let t = process.hrtime()
-        //console.log(sql)
-        const data = db.prepare(sql).all(params)
+        const res = db.prepare(sql).all(runparams)
         t = process.hrtime(t)
 
-        // 't' is an array of seconds and nanoseconds
-        // convert 't' into ms 
-        return [ data, Math.round((t[0] * 1000) + (t[1] / 1000000)) ]
+        return {
+            res,
+
+            // 't' is an array of seconds and nanoseconds
+            // convert 't' into ms 
+            runtime: Math.round((t[0] * 1000) + (t[1] / 1000000))
+        }
+
     }
     catch(error) {
         throw error
     }
 }
 
-// const foo = async function(record) {
-//     const collectionCode = record.collectionCode
-//     try {
-//         let t = process.hrtime()
+const getDataFromZenodeo = async function(resource, params) {
+    log.info('getDataFromZenodeo() -> getting data from Zenodeo')
+    const { queries, runparams } = zql({ resource, params })
+    const { res, runtime } = _sqlRunner(queries.countSql, runparams)
+    const result = {}
+    const debug = {}
 
-//         log.info('awaiting response from GRSciColl')
-//         const response = await fetch(`https://api.gbif.org/v1/grscicoll/lookup?institutionCode=${collectionCode}`)
-
-//         // if HTTP-status is 200-299
-//         if (response.ok) {
+    result.count = res[0].num_of_records
     
-//             //request.log.info('awaiting response.text')
-//             const payload = await response.text()
-//             const result = JSON5.parse(payload)
-
-//             // {
-//             //     "institutionMatch": {
-//             //       "matchType": "FUZZY",
-//             //       "status": "DOUBTFUL",
-//             //       "reasons": [
-//             //         "CODE_MATCH"
-//             //       ],
-//             //       "entityMatched": {
-//             //         "key": "1a69e6fc-4a8d-44d5-90a6-a7dc7a1aa7c7",
-//             //         "selfLink": "http://api.gbif.org/v1/grscicoll/institution/1a69e6fc-4a8d-44d5-90a6-a7dc7a1aa7c7",
-//             //         "name": "University of Copenhagen",
-//             //         "code": "C"
-//             //       }
-//             //     },
-//             //     "collectionMatch": {
-//             //       "matchType": "NONE"
-//             //     }
-//             //   }
-
-//             t = process.hrtime(t)
-//             record.collectionName = result.institutionMatch.entityMatched.name
-//             console.log(`name: ${record.collectionName}`)
-//         } 
-//         else {
-//             log.info("HTTP-Error: " + response.status)
-//         }
-//     }
-//     catch (error) {
-//         log.error(error)
-//     }
-// }
-
-const runZenodeoQueries = async (o) => {
-    const { resource, queries, runparams } = o
-
-    // This is where we pack all the results
-    const res = {}
-
-    // First we find out the total number of records 
-    // returned from the query
-    let sql = queries.count.binds.join(' ')
-    
-    const [ d1, t1 ] = sqlRunner(sql, runparams)
-    res.d1 = d1
-    res.t1 = t1
-
-    // if the total number of records is more than 1,
-    // we run the query for getting the actual records
-    // but we use limit and offset to get only a small 
-    // set of records so we an page through the result
-    if (d1[0].count) {
-        log.info(`${resource} count is ${d1[0].count}, so getting actual records`)
-        sql = queries.records.binds.join(' ')
-        
-        const [ d2, t2 ] = sqlRunner(sql, runparams)
-        res.d2 = d2
-        res.t2 = t2
-
-        // if (resource === 'materialsCitations') {
-        //     const records = res.d2
-        //     for (let i = 0, j = records.length; i < j; i++) {
-        //         const record = records[i]
-        //         await foo(record)
-        //     }
-        // }
-    }
-    else {
-        log.info(`"${resource}" count is 0, so returning []`)
-        res.d2 = []
-        res.t2 = null
+    if (isDebug) {
+        debug.countQuery = { query: queries.countSql, runtime }
     }
 
-    res.queries = queries
-    return res
+    if (result.count) {
+        if (queries.fullSql) {
+            const { res, runtime } = _sqlRunner(queries.fullSql, runparams)
+            
+            result.records = res
+            if (isDebug) {
+                debug.fullQuery = { query: queries.fullSql, runtime }
+            }
+        }
+
+        if (queries.facetsSql) {
+            result.facets = {}
+            for (let [facet, sql] of Object.entries(queries.facetsSql)) {
+                const { res, runtime } = _sqlRunner(sql, runparams)
+                result.facets[facet] = res
+                if (isDebug) {
+                    if (!('facets' in debug)) {
+                        debug.facets = {}
+                    }
+                    
+                    debug.facets[facet] = { query: queries.facetsSql[sql], runtime }
+                }
+            }
+        }
+    }
+
+    return { result, debug }
 }
 
-const getRelatedRecords = (primaryResourceIdName, primaryResourceIdValue, relatedResource) => {
-
-    const params = {}
-    params[primaryResourceIdName] = primaryResourceIdValue
-
-    const queryableParamsWithDefaults = getQueryableParamsWithDefaults(relatedResource)
-    queryableParamsWithDefaults.forEach(p => params[p.name] = p.schema.default)
-    
-    const { queries, runparams } = zql({ 
-        resource: relatedResource, 
-        params: params 
-    })
-    
-    const result = runZenodeoQueries({ relatedResource, queries, runparams })
-    
-    if (result.d1[0].count) {
-        return packageResult({
-            resource: relatedResource, 
-            params: params, 
-            result: result,
-            url: uriZenodeo
-        })
-    }
-    else {
-        return []
-    }
-}
-
-const getDataFromZenodo = async ({ request, resource, originalParams }) => {
-    request.log.info('getting data from zenodo')
+const getDataFromZenodo = async (resource, params) => {
+    log.info('getDataFromZenodo() -> getting data from Zenodo')
 
     // clean up request.query
-    const params = JSON5.parse(JSON5.stringify(request.query))
+    const qp = JSON5.parse(JSON5.stringify(params))
 
     // add type by removing the last 's' from resource name
     // images -> image
     // publications -> publication
-    params.type = resource.slice(0, -1)
+    qp.type = resource.slice(0, -1)
+    qp.communities = 'biosyslit'
     
     // remove the following params
     const remove = [ '$refreshCache', '$facets', '$stats', '$sortby' ]
     remove.forEach(p => {
-        if (p in params) {
-            delete params[p]
+        if (p in qp) {
+            delete qp[p]
         }
     })
 
     // remove '$' from the following params
     const remove$ = [ '$page', '$size' ]
     remove$.forEach(p => {
-        if (p in params) {
-            params[ p.substr(1) ] = params[p]
-            delete params[p]
+        if (p in qp) {
+            qp[ p.substr(1) ] = qp[p]
+            delete qp[p]
         }
     })
 
-    const qs = querystring.stringify(params)
+    const qs = new URLSearchParams(qp)
     const uriRemote = qs ? `${uriZenodo}?${qs}` : uriZenodo
 
     // uriRemote should be
@@ -633,39 +243,29 @@ const getDataFromZenodo = async ({ request, resource, originalParams }) => {
 
     // https://zenodo.org/api/records/?sort=mostrecent&subtype=figure&subtype=photo&subtype=drawing&subtype=diagram&subtype=plot&subtype=other&communities=biosyslit&communities=belgiumherbarium&type=image&page=1&size=30
 
-    request.log.info(`getting ${resource} from ${uriRemote}`)
+    log.info(`getDataFromZenodo() -> getting ${resource} from <${uriRemote}>`)
 
-    let res = {}
+    const result = {}
+    const debug = {}
 
     try {
         let t = process.hrtime()
-
-        request.log.info('awaiting response')
-        let response = await fetch(uriRemote)
+        const res = await fetch(uriRemote)
 
         // if HTTP-status is 200-299
-        if (response.ok) {
-    
-            request.log.info('awaiting response.text')
-            const payload = await response.text()
-            const result = JSON5.parse(payload)
-
+        if (res.ok) {
+            const payload = await res.text()
+            const json = JSON5.parse(payload)
             t = process.hrtime(t)
 
-            const d1 = [{ count: result.hits.total }]
-            res.d1 = d1
-            res.t1 = null
-            
-            res.d2 = result.hits.hits
-            res.t2 = Math.round((t[0] * 1000) + (t[1] / 1000000))
+            result.count = json.hits.total
+            result.records = json.hits.hits
 
-            return packageResult({
-                resource: resource,
-                params: originalParams,
-                result: res,
-                url: uriZenodeo,
-                uriRemote: uriRemote
-            })
+            if (isDebug) {
+                const runtime = Math.round((t[0] * 1000) + (t[1] / 1000000))
+                debug.countQuery = '',
+                debug.fullQuery = { sql: qp, runtime }
+            }
         } 
         else {
             request.log.info("HTTP-Error: " + response.status)
@@ -673,11 +273,136 @@ const getDataFromZenodo = async ({ request, resource, originalParams }) => {
         }
     }
     catch (error) {
-        request.log.error(error)
+        log.error(error)
         return {}
+    }
+
+    return { result, debug }
+}
+
+// A resource on Zenodo is queried differntly (using `fetch`)
+// as opposed to a resource on Zenodeo (using `SQL`)
+const dispatch = {
+    zenodeo: getDataFromZenodeo,
+    zenodo: getDataFromZenodo
+}
+
+const queryDataStore = async function(request, resource, params) {
+    log.info("queryDataStore() -> querying the data store")
+
+    const sourceOfResource = getSourceOfResource(resource)
+    const { result, debug } = await dispatch[ sourceOfResource ](resource, params)
+    const response = packageResult(request, result)
+    return { response, debug }
+}
+
+const queryDataStoreAndCacheResult = async function(request, resource, params, cacheKey, cache) {
+    const { response, debug } =  await queryDataStore(request, resource, params)
+    if (response) {
+        storeInCache(response, cacheKey, cache)
+        addDebug(response, debug)
+        return response
+    }
+    else {
+        return false
     }
 }
 
-module.exports = {
-    handlerFactory: handlerFactory,
+const checkCache = async function(cacheKey, cache) {
+    log.info(`checkCache() -> checking cache for key ${cacheKey}`)
+    return await cache.get(cacheKey)
 }
+
+const storeInCache = function(response, cacheKey, cache) {
+    log.info(`storeInCache() -> storing result in cache under key ${cacheKey}`)
+    cache.set(cacheKey, response)
+}
+
+const removeFromCache = function(cacheKey, cache) {
+    log.info(`removeFromCache() -> removing key ${cacheKey} from cache`)
+    cache.delete(cacheKey)
+}
+
+const _pruneLink = function(url) {
+    url.delete('deleted')
+
+    if (url.get('$facets') === 'false') {
+        url.delete('$facets')
+    }
+
+    if (url.has('$refreshCache')) {
+        url.delete('$refreshCache')
+    }
+
+    return url
+}
+
+const makeLinks = function(request) {
+    const self = _pruneLink(new URLSearchParams(request.query))
+    
+    const prev = _pruneLink(new URLSearchParams(request.query))
+    prev.set('$page', prev.get('$page') > 1 ? prev.get('$page') - 1 : 1)
+
+    const next = _pruneLink(new URLSearchParams(request.query))
+    next.set('$page', next.get('$page') > 1 ? Number(next.get('$page')) + 1 : 2)
+
+    return {
+        "_self": decodeURIComponent(_sort(self).toString()),
+        "_prev": decodeURIComponent(_sort(prev).toString()),
+        "_next": decodeURIComponent(_sort(next).toString())
+    }
+}
+
+// This is where the result becomes a response
+const packageResult = function(request, result) {
+    log.info('packageResult() -> packaging results for delivery') 
+
+    const item = {
+        search: getSearch(request),
+        result,
+        _links: makeLinks(request)
+    }
+
+    const response = {
+        item,
+        stored: Date.now(),
+        ttl: cacheDuration
+    }
+
+    return response
+}
+
+const addDebug = function(response, debug) {
+    if (isDebug && debug) {
+        log.info('addDebug() -> adding debug info') 
+        response.debug = debug
+    }
+}
+
+// const request = {
+//     context: {
+//         config: {
+//             url: '/v3/families'
+//         }
+//     },
+//     url: "/v3/families?q=for",
+//     query: {
+//         q: 'for',
+//         //'$refreshCache': true,
+//         //'$facets': false,
+//         // '$page': 2,
+//         // '$size': 30,
+//         //'$sortby': 'id:ASC',
+//         //'$cols': [ 'treatmentTitle' ]
+//     }
+// }
+
+// const reply = null
+// const handler = handlerFactory('families');
+// (async function () {
+//     const response = await handler(request, reply)
+//     console.log(util.inspect(response, {showHidden: false, depth: null, colors: true}))
+//     //console.log(response)
+// })()
+
+module.exports = { handlerFactory }

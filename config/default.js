@@ -14,6 +14,7 @@ const dataPrefix = 'test'
 
 module.exports = {
     port: 3010,
+    address: '0.0.0.0',
     url: {
         zenodeo: 'http://127.0.0.1:3010/v3',
         zenodo: 'https://zenodo.org/api/records'
@@ -24,8 +25,8 @@ module.exports = {
             level: 'info'
         }
     },
-    debug: true,
-    cacheOn: false,
+    isDebug: true,
+    //cacheOn: false,
 
     v3: {
         swagger: {
@@ -69,8 +70,8 @@ module.exports = {
 
                     // The following is needed to pass single values as arrays
                     // See https://github.com/fastify/help/issues/281
-                    coerceTypes: 'array',
-                    //coerceTypes: 'true',
+                    //coerceTypes: 'array',
+                    coerceTypes: true,
         
                     // Refer to [ajv options](https://ajv.js.org/#options)
                     jsonPointers: true, 
@@ -81,7 +82,9 @@ module.exports = {
                     // applied. Without this, any additional props
                     // supplied in the querystring will be silently 
                     // removed but no error will be raised
-                    removeAdditional: false
+                    removeAdditional: false,
+
+                    useDefaults: true
                 },
                 plugins: [
                     require('ajv-errors')
@@ -90,9 +93,12 @@ module.exports = {
         },
 
         cache: {
+            on: false,
+            base: cwd,
 
             // default cache duration 1 day (24 hours)
             duration: 1 * 60 * 60 * 1000
+            //duration: 1000
         }
     },
 
@@ -100,7 +106,8 @@ module.exports = {
         treatments:  path.join(dataDir, `${dataPrefix}-treatments.sqlite`),
         etlStats:    path.join(dataDir, `${dataPrefix}-etl-stats.sqlite`),
         queryStats:  path.join(dataDir, `${dataPrefix}-query-stats.sqlite`),
-        collections: path.join(dataDir, `${dataPrefix}-collections.sqlite`)
+        collections: path.join(dataDir, `${dataPrefix}-collections.sqlite`),
+        facets:      path.join(dataDir, 'facets.sqlite')
     },
 
     truebug: {

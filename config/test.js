@@ -15,7 +15,7 @@ const dataPrefix = 'z3'
 module.exports = {
     //port: 3010,
     url: {
-        //zenodeo: 'http://test.zenodeo.org/v3',
+        zenodeo: 'http://test.zenodeo.org/v3',
         //zenodo: 'https://zenodo.org/api/records'
     },
     pino: {
@@ -26,7 +26,7 @@ module.exports = {
         }
     },
     // debug: true,
-    // cacheOn: false,
+    //cacheOn: false,
 
     v3: {
         swagger: {
@@ -90,11 +90,13 @@ module.exports = {
         //     }
         // },
 
-        // cache: {
+        cache: {
+            on: true,
+            //base: path.join(cwd, 'cache'),
 
-        //     // default cache duration 1 day (24 hours)
-        //     duration: 1 * 60 * 60 * 1000
-        // }
+            // default cache duration 1 day (24 hours)
+            //duration: 1 * 60 * 60 * 1000
+        }
     },
 
     data: {
@@ -116,7 +118,7 @@ module.exports = {
             },
 
             // ********** diff **********
-            // example 'http://tb.plazi.org/GgServer/srsStats/stats?outputFields=doc.uuid+doc.updateDate&groupingFields=doc.uuid+doc.updateDate&orderingFields=doc.updateDate&format=JSON&FP-doc.updateDate=%222020-07-03%22'
+            // example 'http://tb.plazi.org/GgServer/srsStats/stats?outputFields=doc.uuid+doc.updateDate&groupingFields=doc.uuid+doc.updateDate&orderingFields=doc.updateDate&format=JSON&FP-doc.updateDate=%222021-03-01%22'
             diff: {
                 //path: 'http://tb.plazi.org/GgServer',
                 file: 'srsStats/stats?outputFields=doc.uuid+doc.updateDate&groupingFields=doc.uuid+doc.updateDate&orderingFields=doc.updateDate&format=JSON&FP-doc.updateDate=',

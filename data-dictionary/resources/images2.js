@@ -1,36 +1,19 @@
 'use strict'
 
 const re = {
-    date: '\\d{4}-\\d{1,2}-\\d{1,2}',
-    year: '^\\d{4}$',
-    real: '((\\+|-)?(\\d+)(\\.\\d+)?)|((\\+|-)?\\.?\\d+)'
+    date: '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}',
+    year: '^[0-9]{4}$'
 }
 
 // see https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289 
 // for notes from @gsautter
 
 /*
-elements are extracted from articles (-> cheerio expression)
-and stored in a db (-> sql column) table (-> resource).
-
-rest query is made of params that can be directly mapped to a sql column 
-or can be a sql expression
-*/
-
-/*
  * All params are queryable unless false
- *
  * Params with 'defaultCols' = true are SELECT-ed by default
- * 
- * Param 'sqltype' is used to CREATE the db table
- * 
- * Param 'selname' is used when 'name' is inappropriate for SQL. 
- * For example, when a column exists in two JOIN-ed tables, we 
- * can use 'selname' to prefix the column name with the table. Or,
- * if a column name is a reserved SQL word, we can double quote it 
- * as in the case of "order"
- * 
- * 
+ * Param 'type' is looked up in ../definitions.js to create the schema
+ * Param 'sqltype' is used in CREATE-ing the db table
+ * Param 'selname' is used when 'name' is inappropriate for SQL
  */
 module.exports = [
     {
@@ -189,7 +172,7 @@ module.exports = [
         name: 'publicationDate',
         schema: {
             type: 'string',
-            pattern: `^((since|until)\\(${re.date}\\))|(between\\(${re.date} and ${re.date}\\))$`,
+            pattern: `^((since|until)\\(${re.date}\\))|(${re.date})|(between\\(${re.date} and ${re.date}\\))$`,
             description: `The publication date of the treatment. Can use the following syntax: 
 - \`publicationDate=2018-1-12\`
 - \`publicationDate=since(2018-12-03)\`
@@ -202,7 +185,6 @@ module.exports = [
 - d?: one or two digit day`,
         },
         sqltype: 'TEXT',
-        zqltype: 'date',
         cheerio: '$("mods\\\\:detail[type=pubDate] mods\\\\:number").text()',
         defaultCols: true,
         defaultOp: 'eq'
@@ -414,22 +396,43 @@ module.exports = [
     },
 
     {
-        name: 'location',
+        name: 'geoloc_operator',
         schema: {
             type: 'string',
-            pattern: `^within\\(radius:\\s*(?<radius>${re.real}),\\s*units:\\s*(kilometers|miles),\\s*lat:\\s*(${re.real}),\\s*lng:(${re.real})\\)$`,
-            description: `The geolocation of the treatment. Can use the following syntax:
-- \`location=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
-- \`location=near({lat: 40.00, lng: -120})\`
-  **note:** when using 'near'
-  - radius defaults to 1
-  - units default to kilometers`,
+            enum: [ 'within', 'near' ],
+            description: 'The geolocation operator',
         },
-        zqltype: 'loc',
-        joins: {
-            query: null,
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
-        }
+        //queryable: false
+    },
+
+    {
+        name: 'geolocation',
+        schema: {
+            type: 'object',
+            properties: {
+                radius: { type: 'integer' },
+                units: {
+                    type: 'string',
+                    enum: [ 'kilometers', 'miles' ],
+                    default: 'kilometers'
+                },
+                lat: {
+                    type: 'number',
+                    minimum: -90,
+                    maximum: 90
+                },
+                lng: {
+                    type: 'number',
+                    minimum: -180,
+                    maximum: 180
+                }
+            },
+            description: `The geolocation of the treatment. Can use the following syntax:
+- \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
+- \`geolocation=near({lat: 40.00, lng: -120})\`
+  **note:** radius defaults to 1 km when using *near*`,
+        },
+        join: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
     },
 
     {
@@ -441,21 +444,13 @@ module.exports = [
 - \`collectionCode=starts_with(US)\`
     **Note:** queries involving inexact matches will be considerably slow`
         },
-        joins: {
-            query: [
-                'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
-                'JOIN materialsCitationsXcollectionCodes ON materialsCitations.materialsCitationId = materialsCitationsXcollectionCodes.materialsCitationId',
-                'JOIN collectionCodes ON materialsCitationsXcollectionCodes.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN z3collections.institutions ON collectionCodes.collectionCode = institution_code'
-            ],
-            select: [
-                'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
-                'JOIN materialsCitationsXcollectionCodes ON materialsCitations.materialsCitationId = materialsCitationsXcollectionCodes.materialsCitationId',
-                'JOIN collectionCodes ON materialsCitationsXcollectionCodes.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN z3collections.institutions ON collectionCodes.collectionCode = institution_code'
-            ]
-        },
-        //facet: 'count > 50'
+        join: [
+            'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
+            'JOIN materialsCitationsXcollectionCodes ON materialsCitations.materialsCitationId = materialsCitationsXcollectionCodes.materialsCitationId',
+            'JOIN collectionCodes ON materialsCitationsXcollectionCodes.collectionCode = collectionCodes.collectionCode',
+            'LEFT JOIN z3collections.institutions ON collectionCodes.collectionCode = institution_code'
+        ],
+        facet: 'count > 50'
     },
 
     {
@@ -471,10 +466,7 @@ module.exports = [
         defaultCols: false,
         defaultOp: 'match',
         where: 'vtreatments',
-        joins: {
-            query: [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ],
-            select: null
-        }
+        join: [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
     },
 
     {
@@ -489,34 +481,8 @@ module.exports = [
         defaultCols: false,
         defaultOp: 'match',
         where: 'vtreatments',
-        joins: {
-            query: [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ],
-            select: null
-        }
+        join: [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
     },
-    // {
-    //     name: 'updateTime',
-    //     schema: {
-    //         type: 'integer',
-    //         //pattern: re.year,
-    //         description: 'The UTC timestamp when the treatment was last updated (as a result of an update to the article)'
-    //     },
-    //     sqltype: 'INTEGER',
-    //     cheerio: '$("document").attr("updateTime")',
-    //     defaultCols: true
-    // },
-
-    // {
-    //     name: 'checkinTime',
-    //     schema: {
-    //         type: 'integer',
-    //         //pattern: re.year,
-    //         description: 'The UTC timestamp when the article was first uploaded into the system'
-    //     },
-    //     sqltype: 'INTEGER',
-    //     cheerio: '$("document").attr("checkinTime")',
-    //     defaultCols: true
-    // },
 
     {
         name: 'httpUri',
@@ -524,28 +490,12 @@ module.exports = [
             type: 'string',
             description: `URI for the image`
         },
+        //selname: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
         sqltype: 'TEXT',
         defaultCols: false,
-        joins: {
-            query: null,
-            select: [ 'LEFT JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
-        }
-    },
-
-    {
-        name: 'captionText',
-        schema: {
-            type: 'string',
-            description: 'The full text of the figure cited by this treatment'
-        },
-        sqltype: 'TEXT',
-        defaultCols: false,
-        defaultOp: 'match',
-        where: 'vfigurecitations',
-        joins: {
-            query: [ 'vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ],
-            select: [ 'LEFT JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
-        }
+        //defaultOp: 'match',
+        //where: 'figureCitation',
+        join: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
     },
 
     {
@@ -561,8 +511,3 @@ module.exports = [
         defaultCols: false
     }    
 ]
-
-
-// `^((since|until)\\(${re.date}\\))|(${re.date})|(between\\(${re.date} and ${re.date}\\))$`
-// `^(?<zop>since|until)\\((?<date>${re.date})\\)$`
-// `^(?<zop>between)\\((?<from>${re.date})\\sand\\s(?<to>${re.date})\\)$`

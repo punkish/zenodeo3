@@ -49,36 +49,104 @@ const getResources = () => resources.map(r => r.name)
 const getSourceOfResource = (resource) => resources
     .filter(r => r.name === resource)[0].source
 
-const getResourcesFromSpecifiedSource = (source) => resources
-    .filter(r => r.source === source)
-    .map(r => r.name)
-
-const getResourceid = (resource) => {
-    const col = getCols(resource)
-        .filter(c => c.isResourceId)[0]
-
-    return { 
-        name: col.name, 
-        selname: col.selname || col.name 
-    }
-}
-
 // params: all entries in the data dictionary for a given resource
 const getParams = (resource) => resources
     .filter(r => r.name === resource)[0].dictionary
     .concat(...commonparams)
 
-// queryableParams: dd entries that are allowed in a REST query
-const getQueryableParams = (resource) => {
-    const p = getParams(resource)
+// All params that can be used in a REST query for a resource
+// const getAllParams = function(resource) {
+//     // return JSON5.parse(
+//     //     JSON5.stringify(
+//     //         resources
+//     //             .filter(r => r.name === resource)[0].dictionary
+//     //             .concat(...commonparams)
+//     //     )
+//     // )
+
+
+//     return resources
+//         .filter(r => r.name === resource)[0].dictionary
+//         .concat(...commonparams)
+// }
+
+// queryableParams: dd entries that can exist in a REST query
+const getQueryableParams = (resource) =>  getParams(resource)
     .filter(p => p.queryable !== false)
-    //console.log(util.inspect(p, {showHidden: false, depth: null, colors: true}))
-    return p
+
+// cols: all entries in a SQL table
+const getCols = (resource) => getParams(resource)
+    .filter(p => p.sqltype)
+    .map(p => {
+        return {
+            name: p.name, 
+            selname: p.selname || p.name, 
+            where: p.where || '', 
+            join: p.join || '',
+            sqltype: p.sqltype,
+            zqltype: p.zqltype || 'text'
+        }
+    })
+
+// defaultCols: a defaultCol is returned if no columns are 
+// specified in a REST query via $cols
+const getDefaultCols = (resource) => getCols(resource)
+    .filter(p => p.defaultCols === true)
+
+// facetCols: all cols that can be used in facet queries
+const getFacetCols = (resource) => getCols(resource)
+    .filter(p => p.facet)
+
+// All queryable params of a resource.
+// All params are queryable unless 'false'
+// const getQueryableParams = function(resource) {
+//     const allParams = getAllParams(resource)
+//     //console.log(allParams)
+//     return allParams
+//         .filter(p => p.queryable !== false)
+//         .map(p => {
+//             return {
+//                 name: p.name, 
+//                 selname: p.selname || p.name, 
+//                 cheerio: p.cheerio,
+//                 where: p.where || '', 
+//                 join: p.join || '',
+//                 sqltype: p.sqltype,
+//                 zqltype: p.zqltype ? p.zqltype : 'text',
+//                 schema: p.schema
+//             }
+//         })
+// }
+
+// selname: the column name or expression used in a SQL query
+const getSelname = (resource, column) => getCols(resource)
+    .filter(c => c.name === column)[0].selname
+
+const getZqltype = (resource, column) => getQueryableParams(resource)
+    .filter(c => c.name === column)[0].zqltype
+
+// const getSqlTypes = function(resource) {
+//     return getAllCols(resource)
+//         .map(p => {
+//             const sqltype = {}
+//             sqltype[ p.name ] = p.sqltype
+//             return sqltype
+//         })
+// }
+
+// const getSourceOfResource = function(resource) {
+//     return resources
+//         .filter(r => r.name === resource)[0].source
+// }
+
+const getResourcesFromSpecifiedSource = function(source) {
+    return resources
+        .filter(r => r.source === source)
 }
 
 // All queryable params of a resource with default values
 const getQueryableParamsWithDefaults = function(resource) {
-    const resourceId = getResourceid(resource)
+    const resourceId = getResourceId(resource)
     const params = getQueryableParams(resource)
     
     const p = params
@@ -94,58 +162,53 @@ const getQueryableParamsWithDefaults = function(resource) {
     return p
 }
 
-// cols: columns suitable to make a SQL query. Columns in the 
-// SELECT clause can be different from those in the JOIN or  
-// the WHERE clauses
-const getCols = (resource) => getParams(resource)
-    .map(p => {
-        return {
-            name: p.name, 
-            selname: p.selname || p.name, 
-            isResourceId: p.schema.isResourceId || false,
-            where: p.where || p.selname || p.name, 
-            join: p.join || '',
-            sqltype: p.sqltype,
-            zqltype: p.zqltype || 'text',
-            isDefaultCol: p.defaultCols || false,
-            facet: p.facet || false
-        }
-    })
+const getNamesOfQueryableParams = function(resource) {
+    return getQueryableParams(resource)
+        .map(p => p.name)
+}
 
-// defaultCols: columns that are returned if no columns are 
-// specified in a REST query via $cols
-const getDefaultCols = (resource) => getCols(resource)
-    .filter(p => p.isDefaultCol === true)
+// A param is a col if sqltype is present
+// const getAllCols = function(resource) {
+//     return getAllParams(resource)
+//         //.filter(p => p.sqltype)
+//         .map(p => {
+//             return {
+//                 name: p.name, 
+//                 selname: p.selname || p.name, 
+//                 cheerio: p.cheerio,
+//                 where: p.where || '', 
+//                 join: p.join || '',
+//                 sqltype: p.sqltype,
+//                 getConstraint: p.getConstraint
+//             }
+//         })
+// }
 
-// facetCols: all cols that can be used in facet queries
-const getFacetCols = (resource) => getCols(resource)
-    .filter(p => p.facet)
+const getNamesOfAllCols = function(resource) {
+    return getAllCols(resource)
+        .map(p => p.name)
+}
 
-const getSqlCols = (resource) => getParams(resource)
-    .map(p => {
-        return {
-            name: p.name, 
-            isResourceId: p.schema.isResourceId || false,
-        }
-    })
+// A param is a part of the set of default columns 
+// if 'defaultCols' is true
+// const getDefaultCols = function(resource) {
+//     return getAllParams(resource)
+//         .filter(p => p.defaultCols === true)
+//         .map(p => { 
+//             return {
+//                 name: p.name, 
+//                 selname: p.selname || p.name,
+//                 join: p.join
+//             }
+//         })
+// }
 
-// selname: the column name or expression used in a SQL query
-const getSelname = (resource, column) => getCols(resource)
-    .filter(c => c.name === column)[0].selname
-
-// where: the column name used in the WHERE clause of a SQL query
-const getWhere = (resource, column) => getCols(resource)
-    .filter(c => c.name === column)[0].where
-
-const getZqltype = (resource, column) => getCols(resource)
-    .filter(c => c.name === column)[0].zqltype
-
-// schema: we use the schema to validate the query params
 const getSchema = function(resource) {
-    const queryableParams = JSON.parse(JSON.stringify(getQueryableParams(resource)))
-    const resourceId = getResourceid(resource)
+    const queryableParams = getQueryableParams(resource)
+    //console.log(queryableParams)
+    const resourceId = getResourceId(resource)
     const resourcesFromZenodeo = getResourcesFromSpecifiedSource('zenodeo')
-        //.map(r => r.name)
+        .map(r => r.name)
 
     const schema = {
         type: 'object',
@@ -161,7 +224,7 @@ const getSchema = function(resource) {
         if (resourcesFromZenodeo.includes(resource)) {
             if (p.schema.type === 'array') {
                 if (p.name === '$cols') {
-                    p.schema.items.enum = getCols(resource).map(c => c.name)
+                    p.schema.items.enum = getAllCols(resource).map(c => c.name)
                     p.schema.default = getDefaultCols(resource).map(c => c.name)
                     p.schema.errorMessage = {
                         properties: {
@@ -169,6 +232,9 @@ const getSchema = function(resource) {
                         }
                     }
                 }
+                // else {
+                //     p.schema.errorMessage = `should be one of: ${p.schema.default.join(', ')}`
+                // }
             }
         }
 
@@ -178,10 +244,52 @@ const getSchema = function(resource) {
     return schema
 }
 
-const getJoin = (resource, column, joinType) => {
-    const col = getParams(resource)
-        .filter(c => c.name === column)[0]
+const getResourceId = function(resource) {
+    const col = getAllParams(resource)
+        .filter(c => c.schema.isResourceId)[0]
 
+    return { 
+        name: col.name, 
+        selname: col.selname || col.name 
+    }
+}
+
+const getForeignKey = function(resource) {
+    const cols = columns[resource]
+    const fk = cols.filter(c => c.type === 'fk')
+    if (fk.length) {
+        return fk[0].name
+    }
+}
+
+const getRequiredParams = function(resource) {
+    const rp = {}
+
+    getAllParams(resource)
+        .filter(c => c.required === true)
+        .forEach(c => {rp[c.name] = {default: c.default}})
+
+    return rp
+}
+
+
+
+const getConstraint = function(resource, column) {
+    const c = getAllCols(resource)
+        .filter(c => c.name === column)
+        
+    console.log(c)
+    return c[0].getConstraint
+
+}
+
+const getWhere = function(resource, column) {
+    return getAllCols(resource)
+        .filter(c => c.name === column)[0].where
+}
+
+const getJoin = function(resource, column, joinType) {
+    const col = getAllParams(resource).filter(c => c.name === column)[0]
     if (joinType) {
         return col.joins ? col.joins[joinType] : null
     }
@@ -201,20 +309,25 @@ const getArgs = (f) => {
 
 const dispatch = {
     getResources,
+    getAllParams,
+    getAllCols,
+    getAllFacetColumns,
+    getQueryableParams,
+    getSqlTypes,
     getSourceOfResource,
     getResourcesFromSpecifiedSource,
-    getParams,
-    getQueryableParams,
     getQueryableParamsWithDefaults,
-    getCols,
+    getNamesOfQueryableParams,
+    getNamesOfAllCols,
     getDefaultCols,
-    getFacetCols,
-    getSqlCols,
-    getSelname,
-    getWhere,
-    getZqltype,
     getSchema,
-    getResourceid,
+    getResourceId,
+    getForeignKey,
+    getRequiredParams,
+    getSelName,
+    getZQLType,
+    getWhere,
+    getConstraint,
     getJoin
 }
 
@@ -241,8 +354,7 @@ const test = () => {
     }
 
     const inputs = [ a ]
-    
-    /*
+      
     inquirer.prompt(inputs).then((answers) => {
         const func = answers.fn
         const args = getArgs(dispatch[func])
@@ -317,13 +429,12 @@ const test = () => {
             console.log(util.inspect(res, {showHidden: false, depth: null, colors: true}))
         }
     })
-    */
 }
 
 // https://stackoverflow.com/questions/6398196/detect-if-called-through-require-or-directly-by-command-line?rq=1
-// if (require.main === module) {
-//     test()
-// }
-// else {
+if (require.main === module) {
+    test()
+}
+else {
     module.exports = dispatch
-// }
+}

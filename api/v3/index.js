@@ -5,7 +5,6 @@ const url = config.get('url')
 const { getSchema } = require('../../data-dictionary/dd-utils')
 const resources = require('../../data-dictionary/')
 const { handlerFactory } = require('./utils')
-const querystring = require('qs')
 
 const rootHandler = async function(request, reply) {
     const records = [{
@@ -43,7 +42,6 @@ const rootHandler = async function(request, reply) {
  * to create a JSON schema for validation
  */
 const routes = async function(fastify, options) {
-
     fastify.route({
         method: 'GET',
         url: '/',
@@ -66,29 +64,30 @@ const routes = async function(fastify, options) {
 
             preValidation: function(request, reply, done) {
 
-                if (request.query && request.query.geolocation) {
-                    let g = request.query.geolocation
-                    if (typeof(g) === 'string') {
-                        g = querystring.parse({ geolocation: g }, { comma: true }).geolocation
-                    }
+                // if (request.query && request.query.geolocation) {
+                //     let g = request.query.geolocation
+                //     console.log(`g: ${g}`)
+                //     if (typeof(g) === 'string') {
+                //         //g = querystring.parse({ geolocation: g }, { comma: true }).geolocation
+                //     }
 
-                    const clean_g = g.map(e => {
-                        return e.trim().replace(')', '').replace("'", '').split('(')
-                    }).flat()
+                //     const clean_g = g.map(e => {
+                //         return e.trim().replace(')', '').replace("'", '').split('(')
+                //     }).flat()
 
-                    const geoloc_operator = clean_g[0]
-                    const geolocation = {}
-                    clean_g.forEach(e => {
-                        if (e.indexOf(':') > -1) {
-                            const [ key, value ] = e.split(':').map(e => e.trim().replace(/"/g, '').replace(/'/g, ''))
-                            const n = Number(value)
-                            geolocation[key] = isNaN(n) ? value : n
-                        }
-                    })
+                //     const geoloc_operator = clean_g[0]
+                //     const geolocation = {}
+                //     clean_g.forEach(e => {
+                //         if (e.indexOf(':') > -1) {
+                //             const [ key, value ] = e.split(':').map(e => e.trim().replace(/"/g, '').replace(/'/g, ''))
+                //             const n = Number(value)
+                //             geolocation[key] = isNaN(n) ? value : n
+                //         }
+                //     })
 
-                    request.query.geoloc_operator = geoloc_operator
-                    request.query.geolocation = geolocation
-                }
+                //     request.query.geoloc_operator = geoloc_operator
+                //     request.query.geolocation = geolocation
+                // }
 
                 done()
             },

@@ -702,7 +702,7 @@ const buildIndexes = function(opts) {
         ix_materialsCitations_materialsCitationId: 'CREATE INDEX IF NOT EXISTS ix_materialsCitations_materialsCitationId ON materialsCitations (deleted, materialsCitationId)',
         ix_materialsCitations_treatmentId        : 'CREATE INDEX IF NOT EXISTS ix_materialsCitations_treatmentId         ON materialsCitations (deleted, treatmentId)',
         ix_materialsCitations_collectingDate     : 'CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingDate      ON materialsCitations (deleted, collectingDate COLLATE NOCASE)',
-        ix_materialsCitations_collectionCode     : 'CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectionCode      ON materialsCitations (deleted, collectionCode COLLATE NOCASE)',
+        //ix_materialsCitations_collectionCode     : 'CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectionCode      ON materialsCitations (deleted, collectionCode COLLATE NOCASE)',
         ix_materialsCitations_collectorName      : 'CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectorName       ON materialsCitations (deleted, collectorName COLLATE NOCASE)',
         ix_materialsCitations_country            : 'CREATE INDEX IF NOT EXISTS ix_materialsCitations_country             ON materialsCitations (deleted, country COLLATE NOCASE)',
         ix_materialsCitations_collectingRegion   : 'CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingRegion    ON materialsCitations (deleted, collectingRegion COLLATE NOCASE)',
@@ -731,13 +731,14 @@ const buildIndexes = function(opts) {
         ix_bibRefCitations_bibRefCitationId      : 'CREATE INDEX IF NOT EXISTS ix_bibRefCitations_bibRefCitationId       ON bibRefCitations    (deleted, bibRefCitationId)',
         ix_bibRefCitations_treatmentId           : 'CREATE INDEX IF NOT EXISTS ix_bibRefCitations_treatmentId            ON bibRefCitations    (deleted, treatmentId)',
         ix_bibRefCitations_deleted               : 'CREATE INDEX IF NOT EXISTS ix_bibRefCitations_deleted                ON bibRefCitations    (deleted)',
+        ix_collectionCodes_collectionCode        : 'CREATE INDEX IF NOT EXISTS ix_collectionCodes_collectionCode         ON collectionCodes    (collectionCode COLLATE NOCASE)'
     }
 
     for (let i in indexes) {
         process.stdout.write(`   - creating index ${chalk.bold(i)} … `)
         if (opts.runtype === 'real') {
             try {
-                db.prepare(indexes[i]).run()
+                DB.treatments.prepare(indexes[i]).run()
                 console.log(chalk.green('done'))
             }
             catch(error) {

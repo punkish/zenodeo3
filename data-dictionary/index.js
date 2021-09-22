@@ -60,5 +60,19 @@ module.exports = [
         description: '',
         dictionary: require('./resources/publications'),
         source: 'zenodo'
-    }
+    },
+    {
+        name: 'families',
+        summary: 'Fetch families',
+        description: '',
+        dictionary: require('./resources/families'),
+        source: 'zenodeo'
+    },
+    {
+        name: 'fake',
+        summary: 'Fetch families',
+        description: '',
+        dictionary: require('./resources/fake'),
+        source: 'zenodeo'
+    },
 ]

@@ -16,10 +16,12 @@ const hbs = {
     },
     //root: path.join(__dirname, 'views'),
     //layout: '/layouts/main.hbs',
-    viewExt: 'hbs', // it will add the extension to all the views
+
+    // this will add the extension to all the views
+    viewExt: 'hbs',
     options: {
         partials: {
-              meta: './views/partials/meta.hbs',
+            meta: './views/partials/meta.hbs',
             header: './views/partials/head.hbs',
             footer: './views/partials/foot.hbs'
         }
@@ -27,10 +29,8 @@ const hbs = {
 }
 
 function build(opts={}) {
-
     const app = fastify(opts)
 
-    
     app.register(require('fastify-blipp'))
     app.register(require('fastify-favicon'))
     app.register(require('point-of-view'), hbs)

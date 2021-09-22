@@ -12,7 +12,7 @@ const DUMP = config.get('truebug.treatmentsDump')
 
 const { timerFormat } = require('../../../lib/utils')
 
-const { getAllCols } = require('../../../data-dictionary/dd-utils')
+const { getSqlCols } = require('../../../data-dictionary/dd-utils')
 const rearrangeFiles = require('./rearrange')
 
 const {
@@ -221,7 +221,7 @@ const _parse = function($, elements, parts, partId, treatmentId) {
     const num = elements.length;
     let entries = [];
 
-    const allCols = getAllCols(parts)
+    const allCols = getSqlCols(parts)
 
     if (num) {
         for (let i = 0; i < num; i++) {
@@ -278,7 +278,7 @@ const parseMaterialsCitations = function($, treatmentId) {
     const entries = []
     const mc = []
 
-    const allCols = getAllCols('materialsCitations')
+    const allCols = getSqlCols('materialsCitations')
 
     if (num) {
         for (let i = 0; i < num; i++) {
@@ -346,7 +346,7 @@ const parseTreatment = function($, treatmentId) {
         
     let treatment = {};
     
-    const allCols = getAllCols('treatments')
+    const allCols = getSqlCols('treatments')
 
     allCols.forEach(el => {
         if (el.cheerio) {

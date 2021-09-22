@@ -28,10 +28,10 @@ module.exports = [
             minItems: 1,
             maxItems: 6,
             additionalItems: false,
-            default: [ 'figure', 'photo', 'drawing', 'diagram', 'plot', 'other' ],
+            //default: [ 'figure', 'photo', 'drawing', 'diagram', 'plot', 'other' ],
             description: 'The image subtype; defaults to all subtypes'
         },
-        defaultCols: true
+        //defaultCols: true
     },
 
     {

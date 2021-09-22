@@ -36,6 +36,7 @@ module.exports = [
     // parameters that are not columns
 
     // maps --> OFFSET
+    // OFFSET = $page - 1
     {
         name: '$page',
         schema: {
@@ -57,20 +58,20 @@ module.exports = [
         }
     }, 
 
-    // parameters that affect ORDER BY
+    // maps --> ORDER BY
     {
         name: '$sortby',
         schema: {
             type: 'string',
             minimum: 1,
-            description: `comma-separated list of &lt;column name&gt;.&lt;sort direction&gt;. Defaults to &lt;resourceId:ASC&gt;. For example:
-- \`$sortby=treatmentTitle:ASC\`
+            description: `comma-separated list of &lt;column name&gt;.&lt;sort direction&gt;. Defaults to &lt;resourceId:ASC&gt;. Sorting is done in the order the columns appear in the list. For example:
+- \`$sortby=treatmentTitle:ASC,rank:DESC\`
   **Note:** sort direction can be ASC or DESC`,
             default: 'resourceId:ASC'
         }
     },
 
-    // parameters that affect SELECT
+    // maps --> SELECT
     {
         name: '$cols',
         schema: { 
@@ -78,7 +79,7 @@ module.exports = [
             items: { 
                 type: 'string'
             },
-            description: `Columns to retreive in the result set. Provide a list like so:
+            description: `Columns to retreive in the result set. Order of columns doesn't matter. Provide columns like so:
 - \`$cols=column1&$cols=column2&$cols=column3\``
         }
     }
