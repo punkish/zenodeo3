@@ -494,29 +494,30 @@ module.exports = [
             select: null
         }
     },
-    // {
-    //     name: 'updateTime',
-    //     schema: {
-    //         type: 'integer',
-    //         //pattern: re.year,
-    //         description: 'The UTC timestamp when the treatment was last updated (as a result of an update to the article)'
-    //     },
-    //     sqltype: 'INTEGER',
-    //     cheerio: '$("document").attr("updateTime")',
-    //     defaultCols: true
-    // },
 
-    // {
-    //     name: 'checkinTime',
-    //     schema: {
-    //         type: 'integer',
-    //         //pattern: re.year,
-    //         description: 'The UTC timestamp when the article was first uploaded into the system'
-    //     },
-    //     sqltype: 'INTEGER',
-    //     cheerio: '$("document").attr("checkinTime")',
-    //     defaultCols: true
-    // },
+    {
+        name: 'updateTime',
+        schema: {
+            type: 'integer',
+            //pattern: re.year,
+            description: 'The UTC timestamp when the treatment was last updated (as a result of an update to the article)'
+        },
+        sqltype: 'INTEGER',
+        cheerio: '$("document").attr("updateTime")',
+        defaultCols: true
+    },
+
+    {
+        name: 'checkinTime',
+        schema: {
+            type: 'integer',
+            //pattern: re.year,
+            description: 'The UTC timestamp when the article was first uploaded into the system'
+        },
+        sqltype: 'INTEGER',
+        cheerio: '$("document").attr("checkinTime")',
+        defaultCols: true
+    },
 
     {
         name: 'httpUri',
@@ -561,8 +562,3 @@ module.exports = [
         defaultCols: false
     }    
 ]
-
-
-// `^((since|until)\\(${re.date}\\))|(${re.date})|(between\\(${re.date} and ${re.date}\\))$`
-// `^(?<zop>since|until)\\((?<date>${re.date})\\)$`
-// `^(?<zop>between)\\((?<from>${re.date})\\sand\\s(?<to>${re.date})\\)$`

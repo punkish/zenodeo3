@@ -69,12 +69,8 @@ const getParams = (resource) => resources
     .concat(...commonparams)
 
 // queryableParams: dd entries that are allowed in a REST query
-const getQueryableParams = (resource) => {
-    const p = getParams(resource)
+const getQueryableParams = (resource) => getParams(resource)
     .filter(p => p.queryable !== false)
-    //console.log(util.inspect(p, {showHidden: false, depth: null, colors: true}))
-    return p
-}
 
 // All queryable params of a resource with default values
 const getQueryableParamsWithDefaults = function(resource) {
@@ -126,6 +122,7 @@ const getSqlCols = (resource) => getParams(resource)
         return {
             name: p.name, 
             isResourceId: p.schema.isResourceId || false,
+            cheerio: p.cheerio
         }
     })
 

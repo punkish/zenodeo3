@@ -1,5 +1,8 @@
 'use strict'
 
+const { logger } = require('../../../lib/utils')
+const log = logger('TRUEBUG:DOWNLOAD')
+
 const fs = require('fs')
 const execSync = require('child_process').execSync
 const chalk = require('chalk')
@@ -13,16 +16,16 @@ const DOWNLOADS = config.get('truebug.downloads')
 const { getDateOfLastEtl } = require('./database')
 
 const _download = function({ opts, remote, local }) {
-    console.log(`downloading ${chalk.bold(remote)}`)
-    console.log(`curl --output ${local} '${remote}'`)
+    log.info(`_download() -> curl --output ${local} '${remote}'`)
     if (opts.runtype === 'real') execSync(`curl --output ${local} '${remote}'`)
 }
 
 const unzip = function({ opts, archive }) {    
-    console.log('unzipping')
-    console.log(`   - ${chalk.bold(archive)}`)
-    if (opts.runtype === 'real') execSync(`unzip -q -n ${archive} -d ${DUMP}`)
-    opts.etl.downloaded = Number(execSync(`unzip -Z -1 ${archive} | wc -l`).toString().trim())
+    log.info(`unzip() -> unzip -q -n ${chalk.bold(archive)} -d ${chalk.bold(DUMP)}`)
+    if (opts.runtype === 'real') {
+        execSync(`unzip -q -n ${archive} -d ${DUMP}`)
+        opts.etl.downloaded = Number(execSync(`unzip -Z -1 ${archive} | wc -l`).toString().trim())
+    }
 }
 
 const download = function(opts) {
@@ -80,3 +83,4 @@ const download = function(opts) {
 }
 
 module.exports = download
+

@@ -4,13 +4,12 @@
  * 
  * The config options start with all the values in this file
  * 
- * 
  **************************************************************/
 
 const path = require('path')
 const cwd = process.cwd()
 const dataDir = path.join(cwd, '..', 'data')
-const dataPrefix = 'test'
+const dataPrefix = 'z3'
 
 module.exports = {
     port: 3010,
@@ -102,7 +101,7 @@ module.exports = {
         }
     },
 
-    data: {
+    db: {
         treatments:  path.join(dataDir, `${dataPrefix}-treatments.sqlite`),
         etlStats:    path.join(dataDir, `${dataPrefix}-etl-stats.sqlite`),
         queryStats:  path.join(dataDir, `${dataPrefix}-query-stats.sqlite`),
@@ -111,65 +110,91 @@ module.exports = {
     },
 
     truebug: {
-        host: 'http://127.0.0.1/plazi/data',
-        downloads: {
 
-            // ********** full **********
-            // example: 'http://127.0.0.1/plazi/data/test.zip'
-            full: {
-                //path: 'http://127.0.0.1/plazi/data',
-                file: 'plazi.zenodeo.zip'
-            },
+        // run: 'test', // test data (small sample ~10K records)
+        // run: 'real', // real data
+        run: 'real',     // simulated run, no commands executed
 
-            // ********** diff **********
-            // example 'http://127.0.0.1/plazi/data/diff.txt'
-            diff: {
-                //path: 'http://127.0.0.1/plazi/data',
-                file: 'diff.json'
-            },
-            
-            // ********** single xml **********
-            // example 'http://127.0.0.1/plazi/data/8C2D95A59531F2DCB34D5040E36E6566'
-            xml: {
-                //path: 'http://127.0.0.1/plazi/data',
-                file: 'xml'
-            }
+        switches: {
+            checkArchive  : false,
+            createArchive : false,
+            checkDump     : false,
+            createDump    : false,
+            downloadSource: false,
+            unzipSource   : false,
+            createTables  : false,
+            parse         : false,
+            insertData    : false,
+            loadFTS       : false,
+            rearrange     : true,
+            buildIndexes  : false,
+            insertEtlStats: false,
+            deleteOldDump : false
         },
 
-        opts: {
-            runtype: 'real', // 'dry', 'real', 'test'
-        
-            source: 'full',
-            //source: 'diff',
-            //source: '0247B450A734FFD280E97BD0FA9FFA55',
+        // server where the data are stored
+        // server: 'https://tb.plazi.org/dumps/',
+        server: 'http://127.0.0.1/plazi/data/dumps',
 
+        source: 'full',
+        // source: 'monthly',
+        // source: 'weekly',
+        // source: 'daily'
+        // source: '0247B450A734FFD280E97BD0FA9FFA55',
+
+        treatmentsToParse: '',
+
+        // by default, download the daily dump, and then go to
+        // the larger ones if a smaller one doesn't exist:
+        //  - if plazi.zenodeo.daily.zip exists => use it
+        //  - else if plazi.zenodeo.weekly.zip exists => use it
+        //  - else if plazi.zenodeo.monthly.zip exists => use it
+        //  - else use plazi.zenodeo.zip
+
+        // The full dump is packed once a year now
+        // The monthly dump is packed on the first Sunday of the month
+        // The weekly dump is packed every Sunday
+        // The daily dump is packed every day
+        download: {
+
+            // example: 'http://127.0.0.1/plazi/data/dumps/test.zip'
+            full: 'plazi.zenodeo.zip',
+            monthly: 'plazi.zenodeo.monthly.zip',
+            weekly: 'plazi.zenodeo.weekly,zip',
+            daily: 'plazi.zenodeo.daily,zip'
+        },
+
+        // The different operations to perform
+        ops: {
             download: true,
             database: true,
             parse: true,
-            rearrange: true,
+            rearrange: true
+        },
         
-            preparedInsertStatements: {},
-            
-            etl: {
-                started: Date.now(),
-                downloaded: 0,
-                parsed: {
-                    treatments: 0,
-                    treatmentCitations: 0,
-                    treatmentAuthors: 0,
-                    materialsCitations: 0,
-                    collectionCodes: 0,
-                    figureCitations: 0,
-                    bibRefCitations: 0
-                },
-                loaded: 0,
-                ended: 0
-            }
-            
+        preparedInsertStatements: {},
+        fts: ['vtreatments', 'vfigurecitations', 'vbibrefcitations'],
+        etlStats: {
+            started: Date.now(),
+            downloaded: 0,
+            parsed: {
+                treatments: 0,
+                treatmentCitations: 0,
+                treatmentAuthors: 0,
+                materialsCitations: 0,
+                collectionCodes: 0,
+                figureCitations: 0,
+                bibRefCitations: 0
+            },
+            loaded: 0,
+            ended: 0
         },
 
-        dataDir:           dataDir,
-        treatmentsDump:    path.join(dataDir, `${dataPrefix}-treatments-dump`),
-        treatmentsArchive: path.join(dataDir, `${dataPrefix}-treatments-archive`)
+        dirs: {
+            data: dataDir,
+            dump: path.join(dataDir, `${dataPrefix}-treatments-dump`),
+            old: path.join(dataDir, `${dataPrefix}-treatments-dump-old`),
+            archive: path.join(dataDir, `${dataPrefix}-treatments-archive`),
+        }
     }
 }

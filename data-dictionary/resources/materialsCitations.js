@@ -47,6 +47,7 @@ module.exports = [
         },
         selname: 'collectionCodes.collectionCode',
         sqltype: 'TEXT',
+        cheerio: '$("materialsCitation").attr("collectionCode")',
         defaultCols: true,
         join: [ 
             'JOIN materialsCitationsXcollectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',

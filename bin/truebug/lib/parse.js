@@ -1,5 +1,11 @@
 'use strict'
 
+const chalk = require('chalk')
+const c = (str) => `${chalk.red('$')} ${chalk.red(str)}`
+const b = (str) => chalk.bold(str)
+
+const { logger } = require('../../../lib/utils')
+const log = logger('TRUEBUG:PARSE')
 const fs = require('fs')
 const path = require('path')
 
@@ -8,23 +14,12 @@ const cheerio = require('cheerio')
 const chance = require('chance').Chance()
 
 const config = require('config')
-const DUMP = config.get('truebug.treatmentsDump')
 
 const { timerFormat } = require('../../../lib/utils')
 
 const { getSqlCols } = require('../../../data-dictionary/dd-utils')
 const rearrangeFiles = require('./rearrange')
-
-const {
-    //createTables,
-    insertData,
-    loadFTS,
-    // loadFTSTreatments,
-    // loadFTSFigureCitations,
-    // loadFTSBibRefCitations,
-    buildIndexes,
-    selCountOfTreatments
-} = require('./database')
+const { insertData, loadFTS, buildIndexes, selCountOfTreatments } = require('./database')
 
 /*
  * One treatment has several attributes plus
@@ -62,7 +57,6 @@ const {
 // }
 
 const stats = function(treatments, endProc, parsed) {
-    
     let i = 0;
     let j = treatments.length;
 
@@ -99,12 +93,23 @@ const stats = function(treatments, endProc, parsed) {
     }
 
     //return JSON.stringify(extracted, null, '\t');
-};
+}
 
-const parseOne = function(treatmentId) {
-    const xml = fs.readFileSync(`${DUMP}/${treatmentId + '.xml'}`, 'utf8');
-    return cheerioparse(xml, treatmentId);    
-};
+const parseOne = function(truebug, treatmentId) {
+    const s = truebug.switches
+
+    if (s.parse) {
+        //log.info(`parsing treatment ${b(treatmentId)}`)
+
+        if (truebug.run === 'real') {
+            const xml = fs.readFileSync(`${opts.locs['data-dump']}/${treatmentId}.xml`, 'utf8')
+            return cheerioparse(xml, treatmentId)
+        }
+        else {
+            return ''
+        }
+    }
+}
 
 // As to the deleted (or retired, or whatever) elements: they are marked with a deleted attribute bearing value true. In addition, they also have deleteUser, deleteTime, and deleteVersion attributes.
 
@@ -184,9 +189,8 @@ const parseTreatmentCitations = function($, treatmentId) {
         
     }
 
-    return tc;
-
-};
+    return tc
+}
 
 const parseTreatmentAuthors = function($, treatmentId) {
     const treaut = $('mods\\:mods mods\\:name[type=personal]');
@@ -293,6 +297,8 @@ const parseMaterialsCitations = function($, treatmentId) {
                     const attr = $(elements[i]).attr(el.name)
                     
                     if (attr) {
+                        entry[el.name] = attr
+
                         if (el.name === 'collectionCode') {
                             const cc = attr.split(', ')
                             collectionCodes.push( ...cc )
@@ -304,10 +310,6 @@ const parseMaterialsCitations = function($, treatmentId) {
                                 })
                             })  
                         }
-                        else {
-                            entry[el.name] = attr
-                        }
-                        
                     }
                     else {
                         entry[el.name] = ''
@@ -343,13 +345,12 @@ const parseMaterialsCitations = function($, treatmentId) {
 };
 
 const parseTreatment = function($, treatmentId) {
-        
     let treatment = {};
     
     const allCols = getSqlCols('treatments')
-
     allCols.forEach(el => {
         if (el.cheerio) {
+            //console.log(`cheerio: ${el.cheerio}`)
             let val = eval(el.cheerio) || ''
 
             if (val) {
@@ -428,7 +429,7 @@ const cheerioparse = function(xml, treatmentId) {
     treatment.figureCitations = parseFigureCitations($, treatmentId)
     const arr = parseMaterialsCitations($, treatmentId)
     treatment.materialsCitations = arr[0]
-    treatment.materialsCitationsXcollectionCodes = arr[1]
+    treatment.materialsCitations_x_collectionCodes = arr[1]
     treatment.collectionCodes = arr[2]
 
 
@@ -460,17 +461,18 @@ const cheerioparse = function(xml, treatmentId) {
     return treatment;
 };
 
-const parse = function(opts) {
-    console.log('parsing')
+const parse = function(truebug) {
+    const s = truebug.switches
 
     // if 'n' is a 32 character string, we assume it is an XML id
     // hence, a single XML to be parsed
-    if (/^[A-Za-z0-9]{32}$/.test(opts.source)) {
-        console.log(`   - going to parse treatment ${opts.source}`)
-        const treatment = parseOne(opts.source)
-        stats(treatment, true, opts.etl.parsed)
-        console.log('----------------------------------------\n')
-        console.log(treatment);
+    if (/^[A-Za-z0-9]{32}$/.test(truebug.source)) {
+        const treatmentId = truebug.source
+        const treatment = parseOne(truebug, treatmentId)
+        if (treatment) {
+            stats(treatment, true, truebug.etlStats.parsed)
+            log.info(JSON.stringify(treatment, null, 4))          
+        }
     }
 
     // 'n' is either a number (number of treatments to parse) or 
@@ -480,9 +482,11 @@ const parse = function(opts) {
     else {
 
         // const start = new Date().getTime();
-        const xmlsArr = fs.readdirSync(DUMP)
+        const xmlsArr = fs.readdirSync(truebug.dirs.dump)
         let i = 0
-        let j = typeof(n) === 'number' ? n : xmlsArr.length
+        let j = truebug.treatmentsToParse ? 
+            truebug.treatmentsToParse : 
+            xmlsArr.length
 
         /**************************************************************
          * 
@@ -491,85 +495,54 @@ const parse = function(opts) {
          * want to insert more than 5K records at a time.
          * 
          **************************************************************/
-        
-        let batch = 1
-        if (j > 50 && j < 5000) {
-            batch = Math.floor(j / 10)
-        }
-        else if (j > 5000) {
-            batch = 5000
+        const batch = j < 5000 ? Math.floor(j / 10) : 5000
+
+        if (s.parse) {
+            log.info(`parsing, rearranging, and inserting ${j} treatments ${batch} at a time`)
         }
 
-        const tickInterval = Math.floor( j / batch );
-        const bar = new progress('     processing [:bar] :rate files/sec :current/:total done (:percent) time left: :etas', {
+        const tickInterval = Math.floor( j / batch )
+        const barOpts = {
             complete: '=',
             incomplete: ' ',
             width: 30,
             total: j
-        })
+        }
+        const bar = new progress('  processing [:bar] :rate files/sec :current/:total done (:percent) time left: :etas', barOpts)
     
-        
         let treatments = []
         let endProc = false
 
-        console.log(`   - parsing XMLs and inserting into the db ${batch} at a time`)
+        //log.info(`  - parsing XMLs and inserting into the db ${b(batch)} at a time`)
         for (; i < j; i++) {
-
-            if (i == (j - 1)) {
-                endProc = true;
-            }
+            if (i == (j - 1)) endProc = true
 
             // update progress bar every tickInterval
-            if (!(i % tickInterval)) {
-                bar.tick(tickInterval)
-            }
+            if (!(i % tickInterval)) bar.tick(tickInterval)
 
-            if (opts.rearrange) {
-
-                // rearrange XMLs into a hierachical structure
-                const file = xmlsArr[i]
-                rearrangeFiles({ opts, file })
-            }
+            // rearrange XMLs into a hierachical structure
+            rearrangeFiles(truebug, xmlsArr[i])
 
             const treatmentId = path.basename(xmlsArr[i], '.xml');
-            const treatment = parseOne(treatmentId)
-            treatments.push(treatment);
+            const treatment = parseOne(truebug, treatmentId)
+            if (treatment) treatments.push(treatment)
         
             if (!(i % batch)) {
 
                 //bar.interrupt(stats(treatments, endProc) + '\n');
-                stats(treatments, endProc, opts.etl.parsed)
-
-                if (opts.database) {
-                    insertData(opts, treatments)
-                }
+                stats(treatments, endProc, truebug.etlStats.parsed)
+                insertData(truebug, treatments)
                 
                 // empty the treatments for the next batch
                 treatments = []
             }
-
-            
         }
 
-        stats(treatments, endProc, opts.etl.parsed);
-        console.log('   - finished')
+        stats(treatments, endProc, truebug.etlStats.parsed)
+        //log.info('  - finished')
 
-        if (opts.database) {
-            insertData(opts, treatments)
-
-            opts.fts = ['vtreatments', 'vfigurecitations', 'vbibrefcitations']
-            loadFTS(opts)
-            // loadFTSTreatments(opts)
-            // loadFTSFigureCitations(opts)
-            // loadFTSBibRefCitations(opts)
-
-            opts.etl.loaded = selCountOfTreatments() - opts.etl.loaded
-            buildIndexes(opts)
-        }
+        insertData(truebug, treatments)
     }
-
-    console.log('\n')
-    console.log('='.repeat(75))
 }
 
 module.exports = parse
