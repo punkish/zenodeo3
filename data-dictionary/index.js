@@ -70,9 +70,11 @@ module.exports = [
     },
     {
         name: 'fake',
-        summary: 'Fetch families',
+        summary: 'Fake route to test schema',
         description: '',
         dictionary: require('./resources/fake'),
-        source: 'zenodeo'
+        source: 'zenodeo',
+        tags: [ 'hidden', 'user', 'code' ],
+        hide: true
     },
 ]

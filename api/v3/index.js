@@ -53,16 +53,24 @@ const routes = async function(fastify, options) {
     })
 
     resources.forEach(r => {
-        fastify.route({
+        const route = {
             method: 'GET',
             url: `/${r.name.toLowerCase()}`,
             schema: { 
                 summary: r.summary,
                 description: r.description,
-                querystring: getSchema(r.name) 
+                querystring: getSchema(r.name)
             },
 
             preValidation: function(request, reply, done) {
+                    
+                // the following takes care of $cols=col1,col2,col3
+                // as sent by the swagger interface to be validated 
+                // correctly by ajv as an array
+                if (typeof request.query.$cols === 'string') {
+                    const arr = request.query.$cols.split(',')
+                    request.query.$cols = arr
+                }
 
                 // if (request.query && request.query.geolocation) {
                 //     let g = request.query.geolocation
@@ -93,7 +101,14 @@ const routes = async function(fastify, options) {
             },
 
             handler: handlerFactory(r.name)
-        })
+        }
+
+        // hide the fake route
+        if (r.name === 'fake') {
+            route.schema.hide = true
+        }
+
+        fastify.route(route)
     })
 }
 

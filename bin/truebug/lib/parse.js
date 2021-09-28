@@ -510,10 +510,10 @@ const parse = function(truebug) {
         }
         const bar = new progress('  processing [:bar] :rate files/sec :current/:total done (:percent) time left: :etas', barOpts)
     
-        let treatments = []
+        const treatments = []
         let endProc = false
 
-        //log.info(`  - parsing XMLs and inserting into the db ${b(batch)} at a time`)
+        // parsing XMLs and inserting into the db ${b(batch)} at a time`)
         for (; i < j; i++) {
             if (i == (j - 1)) endProc = true
 
@@ -534,7 +534,7 @@ const parse = function(truebug) {
                 insertData(truebug, treatments)
                 
                 // empty the treatments for the next batch
-                treatments = []
+                treatments.length = 0
             }
         }
 
