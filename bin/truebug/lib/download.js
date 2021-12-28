@@ -1,86 +1,38 @@
 'use strict'
 
-const { logger } = require('../../../lib/utils')
-const log = logger('TRUEBUG:DOWNLOAD')
-
-const fs = require('fs')
 const execSync = require('child_process').execSync
-const chalk = require('chalk')
+const Logger = require('../utils')
+const level = 'info'
+const transports = [ 'console', 'file' ]
+const logdir = '/Users/punkish/Projects/zenodeo/zenodeo3/bin/truebug/logs'
+const log = new Logger({level, transports, logdir})
 
-const config = require('config')
-const DATADIR = config.get('truebug.dataDir')
-const DUMP = config.get('truebug.treatmentsDump')
-const HOST = config.get('truebug.host')
-const DOWNLOADS = config.get('truebug.downloads')
+// const fs = require('fs')
+// const http = require('http')
 
-const { getDateOfLastEtl } = require('./database')
-
-const _download = function({ opts, remote, local }) {
-    log.info(`_download() -> curl --output ${local} '${remote}'`)
-    if (opts.runtype === 'real') execSync(`curl --output ${local} '${remote}'`)
-}
-
-const unzip = function({ opts, archive }) {    
-    log.info(`unzip() -> unzip -q -n ${chalk.bold(archive)} -d ${chalk.bold(DUMP)}`)
-    if (opts.runtype === 'real') {
-        execSync(`unzip -q -n ${archive} -d ${DUMP}`)
-        opts.etl.downloaded = Number(execSync(`unzip -Z -1 ${archive} | wc -l`).toString().trim())
+const unzip = function(truebug, downloadtype) {    
+    log.info(`unzipping ${downloadtype} archive`)
+    const archive = `${truebug.dirs.data}/${truebug.download[downloadtype]}`
+    const cmd = `unzip -q -n ${archive} -d ${truebug.dirs.dump}`
+    //log.info($(cmd))
+    if (truebug.run === 'real') {
+        execSync(cmd)
+        const files = Number(execSync(`unzip -Z -1 ${archive} | wc -l`).toString().trim())
+        log.info(`downloaded ${files} files`)
+        return files
     }
 }
 
-const download = function(opts) {
-    if (opts.source === 'full') {
-        _download({ 
-            opts: opts, 
-            remote: `${HOST}/dumps/${DOWNLOADS.full.file}`,
-            local: `${DATADIR}/${DOWNLOADS.full.file}`
-        })
+module.exports = {
+    download: (truebug, downloadtype) => {
+        log.info(`downloading ${downloadtype} archive`)
+        const local = `${truebug.dirs.data}/${truebug.download[downloadtype]}`
+        const remote = `${truebug.server}/${truebug.download[downloadtype]}`
+        const cmd = `curl --silent --output ${local} '${remote}'`
+        //log.info(cmd)
+        //if (truebug.run === 'real') execSync(cmd)
+        return unzip(truebug, downloadtype)
+    },
 
-        unzip({ opts: opts, archive: `${DOWNLOADS.full.file}` })    
-    }
-    else if (opts.source === 'diff') {
-        const dateOfLastEtl = getDateOfLastEtl()
-        const local = `treatments-list-${dateOfLastEtl}.json`
-        let remote = `${HOST}/${DOWNLOADS.diff.file}`
-        if (HOST === 'http://tb.plazi.org/GgServer') remote += `%22${dateOfLastEtl}%22`
-
-        _download({
-            opts: opts, 
-            remote: remote,
-            local: `${DATADIR}/${local}` 
-        })
-    
-        const treatments = JSON.parse(fs.readFileSync(local, 'utf-8')).data
-
-        treatments.forEach(t => {
-            let remote = `${HOST}/xml/${t.DocUuid}`
-            if (HOST === 'http://127.0.0.1/plazi/data') remote += '.xml'
-            _download({ 
-                opts: opts,
-                remote: remote, 
-                local: `${DUMP}/${t.DocUuid}.xml`
-            })
-        })
-
-        opts.etl.downloaded = treatments.length
-    }
-
-    // 'opts.source' is a guid (a single treatment)
-    else if (/^[A-Za-z0-9]{32}$/.test(opts.source)) {
-        let remote = `${HOST}/${DOWNLOADS.xml.file}/${opts.source}`
-        if (HOST === 'http://127.0.0.1/plazi/data') remote += '.xml'
-        _download({ 
-            opts: opts,
-            remote: `${HOST}/${DOWNLOADS.xml.file}/${opts.source}.xml`, 
-            local: `${DUMP}/${opts.source}.xml`
-        })
-
-        opts.etl.downloaded = 1
-    }
-
-    console.log('\n')
-    console.log('='.repeat(75))
+    unzip
 }
-
-module.exports = download
-

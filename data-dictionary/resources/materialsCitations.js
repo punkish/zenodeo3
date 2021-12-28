@@ -370,5 +370,17 @@ module.exports = [
         cheerio: '$("materialsCitation").attr("httpUri")',
         defaultCols: true,
         queryable: false
+    },
+    {
+        name: 'materialsCitation',
+        schema: {
+            type: 'string',
+            //format: 'uri',
+            description: 'xml'
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("materialsCitation")',
+        defaultCols: false,
+        queryable: false
     }
 ]

@@ -7,6 +7,7 @@
 module.exports = [
     {
         name: 'treatments',
+        db: 'tr',
         summary: 'Fetch treatments',
         description: '',
         dictionary: require('./resources/treatments'),
@@ -67,14 +68,5 @@ module.exports = [
         description: '',
         dictionary: require('./resources/families'),
         source: 'zenodeo'
-    },
-    {
-        name: 'fake',
-        summary: 'Fake route to test schema',
-        description: '',
-        dictionary: require('./resources/fake'),
-        source: 'zenodeo',
-        tags: [ 'hidden', 'user', 'code' ],
-        hide: true
-    },
+    }
 ]

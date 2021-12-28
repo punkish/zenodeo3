@@ -9,7 +9,8 @@
 const path = require('path')
 const cwd = process.cwd()
 const dataDir = path.join(cwd, '..', 'data')
-const dataPrefix = 'z3'
+const dbDir = path.join(dataDir, 'z3-sqlite')
+//const dataPrefix = 'z3'
 
 module.exports = {
     port: 3010,
@@ -25,7 +26,6 @@ module.exports = {
         }
     },
     isDebug: true,
-    //cacheOn: false,
 
     v3: {
         swagger: {
@@ -67,20 +67,24 @@ module.exports = {
             options: {
                 customOptions: {
 
-                    // The following is needed to pass single values as arrays
-                    // See https://github.com/fastify/help/issues/281
+                    /*
+                    The following is needed to pass single values as arrays
+                    See https://github.com/fastify/help/issues/281
+                    */
                     //coerceTypes: 'array',
                     coerceTypes: true,
         
-                    // Refer to [ajv options](https://ajv.js.org/#options)
+                    /* Refer to [ajv options](https://ajv.js.org/#options) */
                     jsonPointers: true, 
                     allErrors: true,
         
-                    // the following allows the `addtionalProperties`
-                    // false constraint in the JSON schema to be 
-                    // applied. Without this, any additional props
-                    // supplied in the querystring will be silently 
-                    // removed but no error will be raised
+                    /*
+                    The following allows the `addtionalProperties`
+                    false constraint in the JSON schema to be 
+                    applied. Without this, any additional props
+                    supplied in the querystring will be silently 
+                    removed but no error will be raised
+                    */
                     removeAdditional: false,
 
                     useDefaults: true
@@ -95,73 +99,85 @@ module.exports = {
             on: false,
             base: cwd,
 
-            // default cache duration 1 day (24 hours)
+            /* default cache duration 1 day (24 hours) */
             duration: 1 * 60 * 60 * 1000
-            //duration: 1000
         }
     },
 
     db: {
-        treatments:  path.join(dataDir, `${dataPrefix}-treatments.sqlite`),
-        etlStats:    path.join(dataDir, `${dataPrefix}-etl-stats.sqlite`),
-        queryStats:  path.join(dataDir, `${dataPrefix}-query-stats.sqlite`),
-        collections: path.join(dataDir, `${dataPrefix}-collections.sqlite`),
-        facets:      path.join(dataDir, 'facets.sqlite')
+        main: path.join(dataDir, 'z3.sqlite'),
+        attached: {
+            treatments         : path.join(dbDir, 'treatments.sqlite'),
+            materialsCitations : path.join(dbDir, 'materialscitations.sqlite'),
+            treatmentAuthors   : path.join(dbDir, 'treatmentauthors.sqlite'),
+            treatmentCitations : path.join(dbDir, 'treatmentcitations.sqlite'),
+            figureCitations    : path.join(dbDir, 'figurecitations.sqlite'),
+            bibRefCitations    : path.join(dbDir, 'bibrefcitations.sqlite'),
+            gbifcollections    : path.join(dbDir, 'gbifcollections.sqlite'),
+            facets             : path.join(dbDir, 'facets.sqlite'),
+            stats              : path.join(dbDir, 'stats.sqlite')
+        }
     },
 
     truebug: {
 
         // run: 'test', // test data (small sample ~10K records)
-        // run: 'real', // real data
-        run: 'real',     // simulated run, no commands executed
+        run: 'real', // real data
+        //run: 'dry',     // simulated run, no commands executed
 
         switches: {
-            checkArchive  : false,
-            createArchive : false,
-            checkDump     : false,
-            createDump    : false,
-            downloadSource: false,
-            unzipSource   : false,
-            createTables  : false,
-            parse         : false,
-            insertData    : false,
-            loadFTS       : false,
-            rearrange     : true,
-            buildIndexes  : false,
-            insertEtlStats: false,
-            deleteOldDump : false
+            checkArchive          : false,
+            createArchive         : false,
+            checkDump             : false,
+            createDump            : false,
+            downloadSource        : false,
+            unzipSource           : false,
+            createTables          : true,
+            createInsertStatements: true,
+            parse                 : false,
+            insertBulkData        : false,
+            loadFTS               : false,
+            rearrange             : false,
+            buildIndexes          : false,
+            insertEtlStats        : false,
+            deleteOldDump         : false
         },
 
         // server where the data are stored
         // server: 'https://tb.plazi.org/dumps/',
-        server: 'http://127.0.0.1/plazi/data/dumps',
+        server: 'http://127.0.0.1/plazi/data',
 
-        source: 'full',
+        //source: 'full',
         // source: 'monthly',
         // source: 'weekly',
-        // source: 'daily'
-        // source: '0247B450A734FFD280E97BD0FA9FFA55',
+        //source: 'daily',
+        source: 'single',
 
-        treatmentsToParse: '',
+        /*
+        by default, download the daily dump, and then go to
+        the larger ones if a smaller one doesn't exist:
+         - if plazi.zenodeo.daily.zip exists => use it
+         - else if plazi.zenodeo.weekly.zip exists => use it
+         - else if plazi.zenodeo.monthly.zip exists => use it
+         - else use plazi.zenodeo.zip
 
-        // by default, download the daily dump, and then go to
-        // the larger ones if a smaller one doesn't exist:
-        //  - if plazi.zenodeo.daily.zip exists => use it
-        //  - else if plazi.zenodeo.weekly.zip exists => use it
-        //  - else if plazi.zenodeo.monthly.zip exists => use it
-        //  - else use plazi.zenodeo.zip
-
-        // The full dump is packed once a year now
-        // The monthly dump is packed on the first Sunday of the month
-        // The weekly dump is packed every Sunday
-        // The daily dump is packed every day
+        The full dump is packed once a year now
+        The monthly dump is packed on the first Sunday of the month
+        The weekly dump is packed every Sunday
+        The daily dump is packed every day
+        */
         download: {
 
-            // example: 'http://127.0.0.1/plazi/data/dumps/test.zip'
-            full: 'plazi.zenodeo.zip',
-            monthly: 'plazi.zenodeo.monthly.zip',
-            weekly: 'plazi.zenodeo.weekly,zip',
-            daily: 'plazi.zenodeo.daily,zip'
+            // example: 'http://127.0.0.1/plazi/data/test.zip'
+            full: 'plazi.xmlHistory.zip',
+            monthly: 'plazi.xmlHistory.monthly.zip',
+            weekly: 'plazi.xmlHistory.weekly.zip',
+            daily: 'plazi.xmlHistory.daily.zip',
+
+            // '03FC87E61268FFD6D3E36CD2FE12DF29'
+            // 'BF8A576EC3F6661E96B5590C108213BA'
+            // '0247B450A734FFD280E97BD0FA9FFA55',
+            single: 'BF8A576EC3F6661E96B5590C108213BA',  
         },
 
         // The different operations to perform
@@ -172,29 +188,29 @@ module.exports = {
             rearrange: true
         },
         
-        preparedInsertStatements: {},
-        fts: ['vtreatments', 'vfigurecitations', 'vbibrefcitations'],
-        etlStats: {
-            started: Date.now(),
-            downloaded: 0,
-            parsed: {
-                treatments: 0,
-                treatmentCitations: 0,
-                treatmentAuthors: 0,
-                materialsCitations: 0,
-                collectionCodes: 0,
-                figureCitations: 0,
-                bibRefCitations: 0
-            },
-            loaded: 0,
-            ended: 0
-        },
+        insertStatements: {},
+        // fts: ['vtreatments', 'vfigurecitations', 'vbibrefcitations'],
+        // etlStats: {
+        //     started: Date.now(),
+        //     downloaded: 0,
+        //     parsed: {
+        //         treatments: 0,
+        //         treatmentCitations: 0,
+        //         treatmentAuthors: 0,
+        //         materialsCitations: 0,
+        //         collectionCodes: 0,
+        //         figureCitations: 0,
+        //         bibRefCitations: 0
+        //     },
+        //     loaded: 0,
+        //     ended: 0
+        // },
 
         dirs: {
             data: dataDir,
-            dump: path.join(dataDir, `${dataPrefix}-treatments-dump`),
-            old: path.join(dataDir, `${dataPrefix}-treatments-dump-old`),
-            archive: path.join(dataDir, `${dataPrefix}-treatments-archive`),
+            dump: path.join(dataDir, 'treatments-dump'),
+            old: path.join(dataDir, 'treatments-dump-old'),
+            archive: path.join(dataDir, 'treatments-archive')
         }
     }
 }

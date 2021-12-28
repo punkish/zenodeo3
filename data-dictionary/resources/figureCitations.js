@@ -29,6 +29,18 @@ module.exports = [
     },
 
     {
+        name: 'figureNum',
+        schema: { 
+            type: 'integer', 
+            description: `serial number of figure for a figureCitationId and treatmentId combination`
+        },
+        selname: 'figureCitations.figureNum',
+        sqltype: 'INTEGER DEFAULT 0',
+        cheerio: '$("figureCitation").attr("figureNum")',
+        defaultCols: true
+    },
+
+    {
         name: 'captionText',
         schema: {
             type: 'string',

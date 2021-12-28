@@ -1,117 +1,27 @@
 'use strict'
 
-const chalk = require('chalk')
-const c = (str) => `${chalk.red('$')} ${chalk.red(str)}`
-const b = (str) => chalk.bold(str)
-
-const { logger } = require('../../../lib/utils')
-const log = logger('TRUEBUG:PARSE')
 const fs = require('fs')
 const path = require('path')
-
-const progress = require('progress')
 const cheerio = require('cheerio')
 const chance = require('chance').Chance()
 
-const config = require('config')
-
-const { timerFormat } = require('../../../lib/utils')
-
 const { getSqlCols } = require('../../../data-dictionary/dd-utils')
-const rearrangeFiles = require('./rearrange')
-const { insertData, loadFTS, buildIndexes, selCountOfTreatments } = require('./database')
 
-/*
- * One treatment has several attributes plus
- *      0 or more treatmentCitations
- *      0 or more treatmentAuthors
- *      0 or more materialCitations
- *      0 or more bibRefCitations
- *      0 or more figureCitations
- * 
- * The last three (materialCitations, bibRefCitations, and figureCitations) 
- * are similar to each other in that they contain only attributes from the 
- * XML tagged sections. So we can combine their extraction logic into a 
- * common function called 'parseSectionWithAttribs()'
- * 
- * The treatment data structure looks as follows
- * 
- * treatment = {
- *      treatment: {},
- *      treatmentCitations: [ {}, {}, … ],
- *      treatmentAuthors: [ {}, {}, … ],
- *      materialsCitations: [ {}, {}, … ],
- *      bibRefCitations: [ {}, {}, … ],
- *      figureCitations: [ {}, {}, … ]
- * }
- */
-
-// used to store statistics after every transaction
-// const extracted = {
-//     treatments: 0,
-//     treatmentCitations: 0,
-//     treatmentAuthors: 0,
-//     materialsCitations: 0,
-//     figureCitations: 0,
-//     bibRefCitations: 0
-// }
-
-const stats = function(treatments, endProc, parsed) {
-    let i = 0;
-    let j = treatments.length;
-
-    parsed.treatments = parsed.treatments + j;
-
-    for (; i < j; i++) {
-
-        const treatment = treatments[i];
-
-        if (treatment.treatmentCitations) {
-            parsed.treatmentCitations = parsed.treatmentCitations + treatment.treatmentCitations.length;
-        }
-
-        if (treatment.treatmentAuthors) {
-            parsed.treatmentAuthors = parsed.treatmentAuthors + treatment.treatmentAuthors.length;
-        }
-
-        if (treatment.materialsCitations) {
-            parsed.materialsCitations = parsed.materialsCitations + treatment.materialsCitations.length;
-        }
-
-        if (treatment.collectionCodes) {
-            parsed.collectionCodes = parsed.collectionCodes + treatment.collectionCodes.length;
-        }
-
-        if (treatment.figureCitations) {
-            parsed.figureCitations = parsed.figureCitations + treatment.figureCitations.length;
-        }
-
-        if (treatment.bibRefCitations) {
-            parsed.bibRefCitations = parsed.bibRefCitations + treatment.bibRefCitations.length;
-        }
-
-    }
-
-    //return JSON.stringify(extracted, null, '\t');
+const stats = {
+    treatments: 0,
+    treatmentCitations: 0,
+    materialsCitations: 0,
+    figureCitations: 0,
+    bibRefCitations: 0
 }
 
-const parseOne = function(truebug, treatmentId) {
-    const s = truebug.switches
-
-    if (s.parse) {
-        //log.info(`parsing treatment ${b(treatmentId)}`)
-
-        if (truebug.run === 'real') {
-            const xml = fs.readFileSync(`${opts.locs['data-dump']}/${treatmentId}.xml`, 'utf8')
-            return cheerioparse(xml, treatmentId)
-        }
-        else {
-            return ''
-        }
-    }
+const calcStats = (treatment) => {
+    stats.treatments++
+    stats.treatmentCitations += treatment.treatmentCitations.length
+    stats.materialsCitations += treatment.materialsCitations.length
+    stats.figureCitations    += treatment.figureCitations.length
+    stats.bibRefCitations    += treatment.bibRefCitations.length
 }
-
-// As to the deleted (or retired, or whatever) elements: they are marked with a deleted attribute bearing value true. In addition, they also have deleteUser, deleteTime, and deleteVersion attributes.
 
 const parseTreatmentCitations = function($, treatmentId) {
     let tc = [];
@@ -221,7 +131,8 @@ const parseTreatmentAuthors = function($, treatmentId) {
     return ta;
 };
 
-const _parse = function($, elements, parts, partId, treatmentId) {
+const _parse = function($, part, parts, partId, treatmentId) {
+    const elements = $(part)
     const num = elements.length;
     let entries = [];
 
@@ -229,13 +140,14 @@ const _parse = function($, elements, parts, partId, treatmentId) {
 
     if (num) {
         for (let i = 0; i < num; i++) {
+            const e = elements[i]
 
             const missingAttr = [];
             const entry = {};
 
             allCols.forEach(el => {
                 if (el.cheerio) {
-                    const attr = $(elements[i]).attr(el.name)
+                    const attr = $(e).attr(el.name)
                     if (attr) {
                         entry[el.name] = attr
                     }
@@ -247,14 +159,15 @@ const _parse = function($, elements, parts, partId, treatmentId) {
             })
 
             let deleted = 0
-            if ($(elements[i]).attr('deleted') && ($(elements[i]).attr('deleted') === 'true')) {
+            if ($(e).attr('deleted') && ($(e).attr('deleted') === 'true')) {
                 deleted = 1
             }
 
-            entry[partId] = $(elements[i]).attr('id') || chance.guid()
+            entry[partId] = $(e).attr('id') || chance.guid()
             entry.treatmentId = treatmentId
-            entry.updateVersion = $(elements[i]).attr('updateVersion') || ''
+            entry.updateVersion = $(e).attr('updateVersion') || ''
             entry.deleted = deleted
+            entry[part] = $(e).text()
 
             entries.push(entry)
         }
@@ -264,18 +177,94 @@ const _parse = function($, elements, parts, partId, treatmentId) {
 };
 
 const parseBibRefCitations = function($, treatmentId) {
-    const elements = $('bibRefCitation');
-    return _parse($, elements, 'bibRefCitations', 'bibRefCitationId', treatmentId);  
-};
+    //const elements = $('bibRefCitation');
+    return _parse($, 'bibRefCitation', 'bibRefCitations', 'bibRefCitationId', treatmentId);  
+}
 
 const parseFigureCitations = function($, treatmentId) {
-    const elements = $('figureCitation');
-    return _parse($, elements, 'figureCitations', 'figureCitationId', treatmentId);
-};
+    const entries = []
+    const elements = $('figureCitation')
+    const num = elements.length
+
+    if (num) {
+
+
+        const allCols = getSqlCols('figureCitations')
+        
+        for (let i = 0; i < num; i++) {
+            if (elements[i].parent.name !== 'updateHistory') {
+                const el = elements[i]
+                const fc_keys = Object.keys(el.attribs)
+                let num_of_explosions = 0
+                const cols_to_explode = {}
+                const entry = {}
+
+                allCols.forEach(col => {
+                    if (col.cheerio) {
+                        const matched = fc_keys.filter(key => key.match(new RegExp('^' + col.name + '-[0-9]+', 'gi')))
+                        num_of_explosions = matched.length
+                        cols_to_explode[col.name] = num_of_explosions ? matched : ''
+                        entry[col.name] = $(el).attr(col.name)
+                    }
+                })
+
+                //console.log(`figureCitationId: ${$(el).attr('id')}`)
+                //console.log(cols_to_explode)
+
+                if (num_of_explosions) {
+                    for (let i = 0; i < num_of_explosions; i++) {
+                        const entry = {
+                            figureCitationId: $(el).attr('id') || chance.guid(),
+                            treatmentId: treatmentId,
+                            figureNum: i
+                        }
+
+                        if (cols_to_explode.httpUri) {
+                            entry.httpUri = $(el).attr(cols_to_explode.httpUri[i]) || ''
+                        }
+                        else {
+                            entry.httpUri = ''
+                        }
+
+                        if (cols_to_explode.captionText) {
+                            entry.captionText = $(el).attr(cols_to_explode.captionText[i]) || ''
+                        }
+                        else {
+                            entry.captionText = ''
+                        }
+
+                        // if (cols_to_explode.figureDoi) {
+                        //     entry.figureDoi = $(el).attr(cols_to_explode.figureDoi[i]) || ''
+                        // }
+                        // else {
+                        //     entry.figureDoi = ''
+                        // }
+
+                        entry.updateVersion = $(el).attr('updateVersion') || ''
+                        entry.deleted = $(el).attr('deleted') && ($(el).attr('deleted') === 'true') ? 1 : 0
+                        entries.push(entry)
+                    }
+                }
+                else {
+                    entry.figureCitationId = $(el).attr('id') || chance.guid()
+                    entry.treatmentId = treatmentId
+                    entry.figureNum = 0
+                    entry.httpUri = $(el).attr('httpUri') || ''
+                    entry.captionText = $(el).attr('captionText') || ''
+                    entry.figureDoi = $(el).attr('figureDoi') || ''
+                    entry.updateVersion = $(el).attr('updateVersion') || ''
+                    entry.deleted = $(el).attr('deleted') && ($(el).attr('deleted') === 'true') ? 1 : 0
+                    entries.push(entry)
+                }
+            }
+        }
+    }
+
+    return entries
+}
 
 const parseMaterialsCitations = function($, treatmentId) {
     const elements = $('materialsCitation');
-    //return _parse($, elements, 'materialsCitations', 'materialsCitationId', treatmentId);
 
     const num = elements.length;
     const collectionCodes = []
@@ -286,20 +275,21 @@ const parseMaterialsCitations = function($, treatmentId) {
 
     if (num) {
         for (let i = 0; i < num; i++) {
+            const e = elements[i]
 
             const missingAttr = [];
             const entry = {};
 
-            const mId = $(elements[i]).attr('id')
+            const mId = $(e).attr('id')
 
-            allCols.forEach(el => {
-                if (el.cheerio) {
-                    const attr = $(elements[i]).attr(el.name)
+            allCols.forEach(col => {
+                if (col.cheerio) {
+                    const attr = $(e).attr(col.name)
                     
                     if (attr) {
-                        entry[el.name] = attr
+                        entry[col.name] = attr
 
-                        if (el.name === 'collectionCode') {
+                        if (col.name === 'collectionCode') {
                             const cc = attr.split(', ')
                             collectionCodes.push( ...cc )
 
@@ -312,22 +302,22 @@ const parseMaterialsCitations = function($, treatmentId) {
                         }
                     }
                     else {
-                        entry[el.name] = ''
-                        missingAttr.push(el.name)
+                        entry[col.name] = ''
+                        missingAttr.push(col.name)
                     }
                 }
             })
 
-            let deleted = 0
-            if ($(elements[i]).attr('deleted') && ($(elements[i]).attr('deleted') === 'true')) {
-                deleted = 1
-            }
-
-            entry['materialsCitationId'] = $(elements[i]).attr('id') || chance.guid()
+            entry['materialsCitationId'] = $(e).attr('id') || chance.guid()
             entry.treatmentId = treatmentId
-            entry.updateVersion = $(elements[i]).attr('updateVersion') || ''
-            entry.deleted = deleted
+            entry.updateVersion = $(e).attr('updateVersion') || ''
+            entry.deleted = $(e).attr('deleted') && $(e).attr('deleted') === 'true' ? 1 : 0
 
+            //const tag = $(e).prop('outerHTML')
+            //const t = tag.match(/^<.*?>/)
+            //entry['materialsCitation'] = t[0]
+            entry['materialsCitation'] = $(e).text()
+            
             entries.push(entry)
         }
     }
@@ -376,40 +366,8 @@ const parseTreatment = function($, treatmentId) {
     return treatment
 }
 
-const getLatest = function(array, groupByKey, versionKey) {
-
-    // remove any empty objects
-    array = array.filter((el) => Object.keys(el).length > 0);
-    
-    const tmp = array.reduce((accumulator, currentValue, currentIndex, array) => {
-        (accumulator[ currentValue[groupByKey] ] = accumulator[ currentValue[groupByKey] ] || []).push(currentValue);
-        return accumulator;
-    }, {});
-
-    const reducer = (accumulator, currentValue, currentIndex, array) => {
-        if (accumulator[versionKey] > currentValue[versionKey]) {
-            return accumulator;
-        }
-        else {
-            return currentValue;
-        }
-    };
-
-    const latest = [];
-    Object.values(tmp).forEach(el => {
-        const reduced = el.reduce(reducer);
-        delete(reduced[versionKey]);
-        latest.push(reduced);
-    });
-
-    return latest;
-};
-
 const cheerioparse = function(xml, treatmentId) {
-    const $ = cheerio.load(xml, {
-        normalizeWhitespace: true,
-        xmlMode: true
-    });
+    const $ = cheerio.load(xml, { normalizeWhitespace: true, xmlMode: true }, false);
 
     //const report = {};
     const treatment = {};
@@ -431,118 +389,20 @@ const cheerioparse = function(xml, treatmentId) {
     treatment.materialsCitations = arr[0]
     treatment.materialsCitations_x_collectionCodes = arr[1]
     treatment.collectionCodes = arr[2]
-
-
-    // const ta = parseTreatmentAuthors($, treatmentId);
-    // if (ta.length) {
-    //     treatment.treatmentAuthors = getLatest(ta, 'treatmentAuthorId', 'updateVersion');
-    // }
-
-    // const tc = parseTreatmentCitations($, treatmentId);
-    // if (tc.length) {
-    //     treatment.treatmentCitations = getLatest(tc, 'treatmentCitationId', 'updateVersion');
-    // }
-
-    // const br = parseBibRefCitations($, treatmentId);
-    // if (br.length) {
-    //     treatment.bibRefCitations = getLatest(br, 'bibRefCitationId', 'updateVersion');
-    // }
-
-    // const fc = parseFigureCitations($, treatmentId);
-    // if (fc.length) {
-    //     treatment.figureCitations = getLatest(fc, 'figureCitationId', 'updateVersion');
-    // }
     
-    // const mc = parseMaterialsCitations($, treatmentId);
-    // if (mc.length) {
-    //     treatment.materialsCitations = getLatest(mc, 'materialsCitationId', 'updateVersion');
-    // }
-    
-    return treatment;
-};
-
-const parse = function(truebug) {
-    const s = truebug.switches
-
-    // if 'n' is a 32 character string, we assume it is an XML id
-    // hence, a single XML to be parsed
-    if (/^[A-Za-z0-9]{32}$/.test(truebug.source)) {
-        const treatmentId = truebug.source
-        const treatment = parseOne(truebug, treatmentId)
-        if (treatment) {
-            stats(treatment, true, truebug.etlStats.parsed)
-            log.info(JSON.stringify(treatment, null, 4))          
-        }
-    }
-
-    // 'n' is either a number (number of treatments to parse) or 
-    // it is a string such as 'full' or 'diff', in which case, we 
-    // find out the number of treatments to parse (effectively 'n')
-    // by finding the number of treatments in the dump directory
-    else {
-
-        // const start = new Date().getTime();
-        const xmlsArr = fs.readdirSync(truebug.dirs.dump)
-        let i = 0
-        let j = truebug.treatmentsToParse ? 
-            truebug.treatmentsToParse : 
-            xmlsArr.length
-
-        /**************************************************************
-         * 
-         * update the progress bar every x% of the total num of files
-         * but x% of j should not be more than 5000 because we don't 
-         * want to insert more than 5K records at a time.
-         * 
-         **************************************************************/
-        const batch = j < 5000 ? Math.floor(j / 10) : 5000
-
-        if (s.parse) {
-            log.info(`parsing, rearranging, and inserting ${j} treatments ${batch} at a time`)
-        }
-
-        const tickInterval = Math.floor( j / batch )
-        const barOpts = {
-            complete: '=',
-            incomplete: ' ',
-            width: 30,
-            total: j
-        }
-        const bar = new progress('  processing [:bar] :rate files/sec :current/:total done (:percent) time left: :etas', barOpts)
-    
-        const treatments = []
-        let endProc = false
-
-        // parsing XMLs and inserting into the db ${b(batch)} at a time`)
-        for (; i < j; i++) {
-            if (i == (j - 1)) endProc = true
-
-            // update progress bar every tickInterval
-            if (!(i % tickInterval)) bar.tick(tickInterval)
-
-            // rearrange XMLs into a hierachical structure
-            rearrangeFiles(truebug, xmlsArr[i])
-
-            const treatmentId = path.basename(xmlsArr[i], '.xml');
-            const treatment = parseOne(truebug, treatmentId)
-            if (treatment) treatments.push(treatment)
-        
-            if (!(i % batch)) {
-
-                //bar.interrupt(stats(treatments, endProc) + '\n');
-                stats(treatments, endProc, truebug.etlStats.parsed)
-                insertData(truebug, treatments)
-                
-                // empty the treatments for the next batch
-                treatments.length = 0
-            }
-        }
-
-        stats(treatments, endProc, truebug.etlStats.parsed)
-        //log.info('  - finished')
-
-        insertData(truebug, treatments)
-    }
+    return treatment
 }
 
-module.exports = parse
+const parseOne = (truebug, xml) => {
+    const filename = path.basename(xml, '.xml')
+    const treatmentId = filename.slice(-1) === '.' ? filename.slice(0, -1) : filename
+
+    const treatment = cheerioparse(fs.readFileSync(`${truebug.dirs.dump}/${xml}`, 'utf8'), treatmentId)
+    return truebug.run === 'real' ? treatment : ''
+}
+
+module.exports = {
+    stats,
+    parseOne,
+    calcStats
+}
