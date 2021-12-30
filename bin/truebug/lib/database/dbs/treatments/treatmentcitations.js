@@ -37,7 +37,9 @@ db.tables = [
             treatmentCitation=excluded.treatmentCitation,
             refString=excluded.refString,
             deleted=excluded.deleted,
-            updated=strftime('%s','now')`
+            updated=strftime('%s','now')`,
+        preparedinsert: '',
+        data: []
     }
 ]
 

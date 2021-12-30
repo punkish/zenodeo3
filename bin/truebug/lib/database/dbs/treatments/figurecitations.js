@@ -46,7 +46,9 @@ db.tables = [
             httpUri=excluded.httpUri,
             --thumbnailUri=excluded.thumbnailUri,
             deleted=excluded.deleted,
-            updated=strftime('%s','now')`
+            updated=strftime('%s','now')`,
+        preparedinsert: '',
+        data: []
     },
     {
         name: 'vfigurecitations',
@@ -57,28 +59,34 @@ db.tables = [
             treatmentId,
             captionText
         )`,
-        insert: {
-            row: {
-                select: `SELECT Count(*) AS c FROM ${db.alias}.vfigurecitations WHERE figureCitationId = @figureCitationId AND figureNum = @figureNum`,
-                update: `UPDATE ${db.alias}.vfigurecitations SET captionText = @captionText WHERE figureCitationId = @figureCitationId AND figureNum = @figureNum`,
-                insert: `INSERT INTO ${db.alias}.vfigurecitations (
-                    figureCitationId, 
-                    figureNum,
-                    treatmentId,
-                    captionText
-                )
-                VALUES (
-                    @figureCitationId, 
-                    @figureNum,
-                    @treatmentId,
-                    @captionText
-                )`
-            },
-            bulk: `INSERT INTO ${db.alias}.vfigurecitations 
-                SELECT figureCitationId, figureNum, treatmentId, captionText 
-                FROM ${db.alias}.figureCitations 
-                WHERE deleted = 0`
-        }
+        insert: `INSERT INTO ${db.alias}.vfigurecitations 
+        SELECT figureCitationId, figureNum, treatmentId, captionText 
+        FROM ${db.alias}.figureCitations 
+        WHERE rowid > @maxrowid AND deleted = 0`,
+        preparedinsert: '',
+        maxrowid: 0
+        // insert: {
+        //     row: {
+        //         select: `SELECT Count(*) AS c FROM ${db.alias}.vfigurecitations WHERE figureCitationId = @figureCitationId AND figureNum = @figureNum`,
+        //         update: `UPDATE ${db.alias}.vfigurecitations SET captionText = @captionText WHERE figureCitationId = @figureCitationId AND figureNum = @figureNum`,
+        //         insert: `INSERT INTO ${db.alias}.vfigurecitations (
+        //             figureCitationId, 
+        //             figureNum,
+        //             treatmentId,
+        //             captionText
+        //         )
+        //         VALUES (
+        //             @figureCitationId, 
+        //             @figureNum,
+        //             @treatmentId,
+        //             @captionText
+        //         )`
+        //     },
+        //     bulk: `INSERT INTO ${db.alias}.vfigurecitations 
+        //         SELECT figureCitationId, figureNum, treatmentId, captionText 
+        //         FROM ${db.alias}.figureCitations 
+        //         WHERE deleted = 0`
+        // }
     }
 ]
 

@@ -9,8 +9,8 @@
 const path = require('path')
 const cwd = process.cwd()
 const dataDir = path.join(cwd, '..', 'data')
-const dbDir = path.join(dataDir, 'z3-sqlite')
-//const dataPrefix = 'z3'
+// const dbDir = path.join(dataDir, 'z3-sqlite')
+// const dataPrefix = 'z3'
 
 module.exports = {
     port: 3010,
@@ -105,21 +105,30 @@ module.exports = {
     },
 
     db: {
-        main: path.join(dataDir, 'z3.sqlite'),
-        attached: {
-            treatments         : path.join(dbDir, 'treatments.sqlite'),
-            materialsCitations : path.join(dbDir, 'materialscitations.sqlite'),
-            treatmentAuthors   : path.join(dbDir, 'treatmentauthors.sqlite'),
-            treatmentCitations : path.join(dbDir, 'treatmentcitations.sqlite'),
-            figureCitations    : path.join(dbDir, 'figurecitations.sqlite'),
-            bibRefCitations    : path.join(dbDir, 'bibrefcitations.sqlite'),
-            gbifcollections    : path.join(dbDir, 'gbifcollections.sqlite'),
-            facets             : path.join(dbDir, 'facets.sqlite'),
-            stats              : path.join(dbDir, 'stats.sqlite')
-        }
+        stats          : path.join(dataDir, 'z3-stats.sqlite'),
+        treatments     : path.join(dataDir, 'z3-treatments.sqlite'),
+        facets         : path.join(dataDir, 'z3-facets.sqlite'),
+        gbifcollections: path.join(dataDir, 'z3-gbifcollections.sqlite'),
+        // main: path.join(dataDir, 'z3.sqlite'),
+        // attached: {
+        //     treatments         : path.join(dbDir, 'treatments.sqlite'),
+        //     materialsCitations : path.join(dbDir, 'materialscitations.sqlite'),
+        //     treatmentAuthors   : path.join(dbDir, 'treatmentauthors.sqlite'),
+        //     treatmentCitations : path.join(dbDir, 'treatmentcitations.sqlite'),
+        //     figureCitations    : path.join(dbDir, 'figurecitations.sqlite'),
+        //     bibRefCitations    : path.join(dbDir, 'bibrefcitations.sqlite'),
+        //     gbifcollections    : path.join(dbDir, 'gbifcollections.sqlite'),
+        //     facets             : path.join(dbDir, 'facets.sqlite'),
+        //     stats              : path.join(dbDir, 'stats.sqlite')
+        // }
     },
 
     truebug: {
+
+        log: {
+            level: 'info',
+            transports: [ 'console', 'file' ]
+        },
 
         // run: 'test', // test data (small sample ~10K records)
         run: 'real', // real data
@@ -188,7 +197,7 @@ module.exports = {
             rearrange: true
         },
         
-        insertStatements: {},
+        //insertStatements: {},
         // fts: ['vtreatments', 'vfigurecitations', 'vbibrefcitations'],
         // etlStats: {
         //     started: Date.now(),
@@ -207,9 +216,10 @@ module.exports = {
         // },
 
         dirs: {
-            data: dataDir,
-            dump: path.join(dataDir, 'treatments-dump'),
-            old: path.join(dataDir, 'treatments-dump-old'),
+            logs   : path.join(cwd, 'bin/truebug/logs'),
+            data   : dataDir,
+            dump   : path.join(dataDir, 'treatments-dump'),
+            old    : path.join(dataDir, 'treatments-dump-old'),
             archive: path.join(dataDir, 'treatments-archive')
         }
     }

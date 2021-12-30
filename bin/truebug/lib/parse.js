@@ -5,6 +5,16 @@ const path = require('path')
 const cheerio = require('cheerio')
 const chance = require('chance').Chance()
 
+const config = require('config');
+const truebug = config.get('truebug');
+
+const Logger = require('../utils');
+const log = new Logger({
+    level: truebug.log.level, 
+    transports: truebug.log.transports, 
+    logdir: truebug.dirs.logs
+});
+
 const { getSqlCols } = require('../../../data-dictionary/dd-utils')
 
 const stats = {
@@ -16,11 +26,11 @@ const stats = {
 }
 
 const calcStats = (treatment) => {
-    stats.treatments++
-    stats.treatmentCitations += treatment.treatmentCitations.length
-    stats.materialsCitations += treatment.materialsCitations.length
-    stats.figureCitations    += treatment.figureCitations.length
-    stats.bibRefCitations    += treatment.bibRefCitations.length
+    stats.treatments++;
+    stats.treatmentCitations += treatment.treatmentCitations ? treatment.treatmentCitations.length : 0;
+    stats.materialsCitations += treatment.materialsCitations ? treatment.materialsCitations.length : 0;
+    stats.figureCitations    += treatment.figureCitations    ? treatment.figureCitations.length    : 0;
+    stats.bibRefCitations    += treatment.bibRefCitations    ? treatment.bibRefCitations.length    : 0;
 }
 
 const parseTreatmentCitations = function($, treatmentId) {
@@ -99,7 +109,7 @@ const parseTreatmentCitations = function($, treatmentId) {
         
     }
 
-    return tc
+    return tc;
 }
 
 const parseTreatmentAuthors = function($, treatmentId) {
@@ -277,7 +287,7 @@ const parseMaterialsCitations = function($, treatmentId) {
         for (let i = 0; i < num; i++) {
             const e = elements[i]
 
-            const missingAttr = [];
+            //const missingAttr = [];
             const entry = {};
 
             const mId = $(e).attr('id')
@@ -303,12 +313,12 @@ const parseMaterialsCitations = function($, treatmentId) {
                     }
                     else {
                         entry[col.name] = ''
-                        missingAttr.push(col.name)
+                        //missingAttr.push(col.name)
                     }
                 }
             })
 
-            entry['materialsCitationId'] = $(e).attr('id') || chance.guid()
+            entry.materialsCitationId = $(e).attr('id') || chance.guid()
             entry.treatmentId = treatmentId
             entry.updateVersion = $(e).attr('updateVersion') || ''
             entry.deleted = $(e).attr('deleted') && $(e).attr('deleted') === 'true' ? 1 : 0
@@ -316,7 +326,7 @@ const parseMaterialsCitations = function($, treatmentId) {
             //const tag = $(e).prop('outerHTML')
             //const t = tag.match(/^<.*?>/)
             //entry['materialsCitation'] = t[0]
-            entry['materialsCitation'] = $(e).text()
+            entry.materialsCitation = $(e).text()
             
             entries.push(entry)
         }
@@ -340,8 +350,15 @@ const parseTreatment = function($, treatmentId) {
     const allCols = getSqlCols('treatments')
     allCols.forEach(el => {
         if (el.cheerio) {
-            //console.log(`cheerio: ${el.cheerio}`)
-            let val = eval(el.cheerio) || ''
+            let val
+            try {
+                val = eval(el.cheerio) || '';
+            } 
+            catch(error) {
+                log.error(error);
+                log.info(`el.cheerio: ${el.cheerio}`);
+                log.info(`treatmentId: ${treatmentId}`)
+            }
 
             if (val) {
                 if (el.name === 'treatmentId') {
@@ -393,16 +410,14 @@ const cheerioparse = function(xml, treatmentId) {
     return treatment
 }
 
-const parseOne = (truebug, xml) => {
-    const filename = path.basename(xml, '.xml')
-    const treatmentId = filename.slice(-1) === '.' ? filename.slice(0, -1) : filename
+const parseOne = (xml) => {
+    const filename = path.basename(xml, '.xml');
+    const treatmentId = filename.slice(-1) === '.' ? filename.slice(0, -1) : filename;
 
-    const treatment = cheerioparse(fs.readFileSync(`${truebug.dirs.dump}/${xml}`, 'utf8'), treatmentId)
-    return truebug.run === 'real' ? treatment : ''
+    if (treatmentId !== 'index') {
+        const treatment = cheerioparse(fs.readFileSync(`${truebug.dirs.dump}/${xml}`, 'utf8'), treatmentId)
+        return truebug.run === 'real' ? treatment : ''
+    }
 }
 
-module.exports = {
-    stats,
-    parseOne,
-    calcStats
-}
+module.exports = { stats, parseOne, calcStats }

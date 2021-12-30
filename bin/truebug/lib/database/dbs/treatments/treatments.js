@@ -148,6 +148,8 @@ db.tables = [
             checkinTime=excluded.checkinTime,
             deleted=excluded.deleted,
             updated=strftime('%s','now')`,
+        preparedinsert: '',
+        data: []
     },
     {
         name: 'vtreatments',
@@ -156,18 +158,24 @@ db.tables = [
             treatmentId, 
             fullText
         )`,
-        insert: {
-            row: {
-                select: `SELECT Count(*) AS c FROM ${db.alias}.vtreatments WHERE treatmentId = @treatmentId`,
-                update: `UPDATE ${db.alias}.vtreatments SET fulltext = @fulltext WHERE treatmentId = @treatmentId`,
-                insert: `INSERT INTO ${db.alias}.vtreatments (treatmentId, fulltext) 
-                VALUES (@treatmentId, @fulltext)`
-            },
-            bulk: `INSERT INTO ${db.alias}.vtreatments 
+        insert: `INSERT INTO ${db.alias}.vtreatments 
                 SELECT treatmentId, fulltext 
                 FROM ${db.alias}.treatments 
-                WHERE deleted = 0`
-        }
+                WHERE rowid > @maxrowid AND deleted = 0`,
+        preparedinsert: '',
+        maxrowid: 0
+        // insert: {
+        //     row: {
+        //         select: `SELECT Count(*) AS c FROM ${db.alias}.vtreatments WHERE treatmentId = @treatmentId`,
+        //         update: `UPDATE ${db.alias}.vtreatments SET fulltext = @fulltext WHERE treatmentId = @treatmentId`,
+        //         insert: `INSERT INTO ${db.alias}.vtreatments (treatmentId, fulltext) 
+        //         VALUES (@treatmentId, @fulltext)`
+        //     },
+        //     bulk: `INSERT INTO ${db.alias}.vtreatments 
+        //         SELECT treatmentId, fulltext 
+        //         FROM ${db.alias}.treatments 
+        //         WHERE deleted = 0`
+        // }
     }
 ]
 

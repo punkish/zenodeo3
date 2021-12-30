@@ -6,19 +6,22 @@ const dateFormat = 'YYYY-MM-DD'
 const timestampFormat = `${dateFormat} HH:mm:ss`
 
 class Logger {
-    constructor({level, transports, logdir}) {
-        this.level = level || 'info'
-        this.transports = transports
-        this.logdir = logdir
-        const day = moment().format(dateFormat)
+    constructor({level = 'info', transports, logdir}) {
+        this.level = level;
+        this.transports = transports;
 
-        const dir = `${this.logdir}/${day}`
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir)
+        if (this.transports.includes('file')) {
+            this.logdir = logdir;
 
-        this.file = `${dir}/${day}-${this.level}.log`
+            const day = moment().format(dateFormat);
 
-        // https://stackoverflow.com/questions/3459476/how-to-append-to-a-file-in-node/43370201#43370201
-        this.stream = fs.createWriteStream(this.file, {flags:'a'})
+            const dir = `${this.logdir}/${day}`;
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+            this.file = `${dir}/${day}-${this.level}.log`;
+
+            // https://stackoverflow.com/questions/3459476/how-to-append-to-a-file-in-node/43370201#43370201
+            this.stream = fs.createWriteStream(this.file, {flags:'a'})
+        }
     }
 
     convert(input) {
@@ -41,7 +44,7 @@ class Logger {
         else {
             const msg = `${ts} ${level.toUpperCase()} ${str}`
             if (this.transports.includes('console')) console.log(msg)
-            if (this.transports.includes('file'))    this.stream.write(msg + '\n')
+            if (this.transports.includes('file'))    this.stream.write(`${msg}\n`);
         }
     }
 

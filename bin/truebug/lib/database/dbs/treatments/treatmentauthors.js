@@ -33,7 +33,9 @@ db.tables = [
             treatmentId=excluded.treatmentId,
             treatmentAuthor=excluded.treatmentAuthor,
             deleted=excluded.deleted,
-            updated=strftime('%s','now')`
+            updated=strftime('%s','now')`,
+        preparedinsert: '',
+        data: []
     }
 ]
 

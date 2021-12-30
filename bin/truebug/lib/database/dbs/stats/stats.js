@@ -10,25 +10,29 @@ db.tables = [
             id INTEGER PRIMARY KEY,
             started INTEGER,
             ended INTEGER,
-            parsed TEXT
+            process TEXT,
+            result TEXT
         )`,
         insert: `INSERT INTO ${db.alias}.etlstats (
-            started, 
-            ended, 
-            parsed
-        ) 
-        VALUES (
-            @started, 
-            @ended, 
-            @parsed
-        )`
+                started, 
+                ended, 
+                process,
+                result
+            ) 
+            VALUES (
+                @started, 
+                @ended, 
+                @process,
+                @result
+            )`,
+        preparedinsert: ''
     },
     {
         name: 'webqueries',
         create: `CREATE TABLE IF NOT EXISTS ${db.alias}.webqueries (
             id INTEGER PRIMARY KEY,
             -- stringified queryObject
-            qp TEXT NOT NULL UNIQUE,
+            q TEXT NOT NULL UNIQUE,
             -- counter tracking queries
             count INTEGER DEFAULT 1
         )`

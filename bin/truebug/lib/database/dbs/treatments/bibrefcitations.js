@@ -41,7 +41,9 @@ db.tables = [
             type=excluded.type,
             year=excluded.year,
             deleted=excluded.deleted,
-            updated=strftime('%s','now')`
+            updated=strftime('%s','now')`,
+        preparedinsert: '',
+        data: []
     },
     {
         name: 'vbibrefcitations',
@@ -50,24 +52,30 @@ db.tables = [
             bibRefCitationId, 
             refString
         )`,
-        insert: {
-            row: {
-                select: `SELECT Count(*) AS c FROM ${db.alias}.vbibrefcitations WHERE bibRefCitationId = @bibRefCitationId`,
-                update: `UPDATE ${db.alias}.vbibrefcitations SET refString = @refString WHERE bibRefCitationId = @bibRefCitationId`,
-                insert: `INSERT INTO ${db.alias}.vbibrefcitations (
-                    bibRefCitationId, 
-                    refString
-                )
-                VALUES (
-                    @bibRefCitationId, 
-                    @refString
-                )`
-            },
-            bulk: `INSERT INTO ${db.alias}.vbibrefcitations 
-                SELECT bibRefCitationId, refString 
-                FROM ${db.alias}.bibRefCitations 
-                WHERE deleted = 0`
-        }
+        insert: `INSERT INTO ${db.alias}.vbibrefcitations 
+        SELECT bibRefCitationId, refString 
+        FROM ${db.alias}.bibRefCitations 
+        WHERE rowid > @maxrowid AND deleted = 0`,
+        preparedinsert: '',
+        maxrowid: 0
+        // insert: {
+        //     row: {
+        //         select: `SELECT Count(*) AS c FROM ${db.alias}.vbibrefcitations WHERE bibRefCitationId = @bibRefCitationId`,
+        //         update: `UPDATE ${db.alias}.vbibrefcitations SET refString = @refString WHERE bibRefCitationId = @bibRefCitationId`,
+        //         insert: `INSERT INTO ${db.alias}.vbibrefcitations (
+        //             bibRefCitationId, 
+        //             refString
+        //         )
+        //         VALUES (
+        //             @bibRefCitationId, 
+        //             @refString
+        //         )`
+        //     },
+        //     bulk: `INSERT INTO ${db.alias}.vbibrefcitations 
+        //         SELECT bibRefCitationId, refString 
+        //         FROM ${db.alias}.bibRefCitations 
+        //         WHERE deleted = 0`
+        // }
     }
 ]
 

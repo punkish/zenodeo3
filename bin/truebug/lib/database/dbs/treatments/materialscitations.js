@@ -117,7 +117,9 @@ db.tables = [
             elevation=excluded.elevation,
             httpUri=excluded.httpUri,
             deleted=excluded.deleted,
-            updated=strftime('%s','now')`
+            updated=strftime('%s','now')`,
+        preparedinsert: '',
+        data: []
     },
     {
         name: 'materialsCitations_x_collectionCodes',
@@ -141,7 +143,9 @@ db.tables = [
         DO UPDATE SET
             materialsCitationId=excluded.materialsCitationId,
             collectionCode=excluded.collectionCode,
-            updated=strftime('%s','now')`
+            updated=strftime('%s','now')`,
+        preparedinsert: '',
+        data: []
     },
     {
         name: 'collectionCodes',
@@ -156,7 +160,9 @@ db.tables = [
             ON CONFLICT (collectionCode)
             DO UPDATE SET 
                 collectionCode=excluded.collectionCode, 
-                updated=strftime('%s','now')`
+                updated=strftime('%s','now')`,
+        preparedinsert: '',
+        data: []
     },
     {
         name: 'vloc_geopoly',
@@ -165,33 +171,46 @@ db.tables = [
             treatmentId, 
             materialsCitationId
         )`,
-        insert: {
-            row: {
-                select: `SELECT Count(*) AS c FROM ${db.alias}.vloc_geopoly WHERE treatmentId = @treatmentId AND materialsCitationId = @materialsCitationId`,
-                update: `UPDATE ${db.alias}.vloc_geopoly SET _shape = '[[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || ']]' WHERE treatmentId = @treatmentId AND materialsCitationId = @materialsCitationId`,
-                insert: `INSERT INTO ${db.alias}.vloc_geopoly (
-                    treatmentId, 
-                    materialsCitationId, 
-                    _shape
-                )
-                VALUES (
-                    @treatmentId, 
-                    @materialsCitationId, 
-                    '[[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || ']]'
-                )`
-            },
-            bulk: `INSERT INTO ${db.alias}.vloc_geopoly (
-                    treatmentId, 
-                    materialsCitationId, 
-                    _shape
-                ) 
-                SELECT 
-                    m.treatmentId,
-                    m.materialsCitationId, 
-                    '[[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || ']]' AS _shape 
-                FROM ${db.alias}.materialsCitations m
-                WHERE m.latitude != '' AND m.longitude != '' AND (latitude NOT LIKE '%°%' OR longitude NOT LIKE '%°%')`
-        }
+        insert: `INSERT INTO ${db.alias}.vloc_geopoly (
+            treatmentId, 
+            materialsCitationId, 
+            _shape
+        ) 
+        SELECT 
+            m.treatmentId,
+            m.materialsCitationId, 
+            '[[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || ']]' AS _shape 
+        FROM ${db.alias}.materialsCitations m
+        WHERE m.latitude != '' AND m.longitude != '' AND (latitude NOT LIKE '%°%' OR longitude NOT LIKE '%°%')`,
+        preparedinsert: '',
+        maxrowid: 0
+        // insert: {
+        //     row: {
+        //         select: `SELECT Count(*) AS c FROM ${db.alias}.vloc_geopoly WHERE treatmentId = @treatmentId AND materialsCitationId = @materialsCitationId`,
+        //         update: `UPDATE ${db.alias}.vloc_geopoly SET _shape = '[[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || ']]' WHERE treatmentId = @treatmentId AND materialsCitationId = @materialsCitationId`,
+        //         insert: `INSERT INTO ${db.alias}.vloc_geopoly (
+        //             treatmentId, 
+        //             materialsCitationId, 
+        //             _shape
+        //         )
+        //         VALUES (
+        //             @treatmentId, 
+        //             @materialsCitationId, 
+        //             '[[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || ']]'
+        //         )`
+        //     },
+        //     bulk: `INSERT INTO ${db.alias}.vloc_geopoly (
+        //             treatmentId, 
+        //             materialsCitationId, 
+        //             _shape
+        //         ) 
+        //         SELECT 
+        //             m.treatmentId,
+        //             m.materialsCitationId, 
+        //             '[[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || ']]' AS _shape 
+        //         FROM ${db.alias}.materialsCitations m
+        //         WHERE m.latitude != '' AND m.longitude != '' AND (latitude NOT LIKE '%°%' OR longitude NOT LIKE '%°%')`
+        // }
     },
     {
         name: 'vloc_rtree',
@@ -203,45 +222,64 @@ db.tables = [
             +materialsCitationId TEXT,
             +treatmentId TEXT
         )`,
-        insert: {
-            row: {
-                select: `SELECT Count(*) AS c FROM ${db.alias}.vloc_rtree WHERE treatmentId = @treatmentId AND materialsCitationId = @materialsCitationId`,
-                update: `UPDATE ${db.alias}.vloc_rtree SET minX = @longitude, maxX = @longitude, minY = @latitude, maxY = @latitude WHERE treatmentId = @treatmentId AND materialsCitationId = @materialsCitationId`,
-                insert: `INSERT INTO ${db.alias}.vloc_rtree (
-                    minX,
-                    maxX,
-                    minY,
-                    maxY,
-                    materialsCitationId,
-                    treatmentId
-                )
-                VALUES (
-                    @minX,
-                    @maxX,
-                    @minY,
-                    @maxY,
-                    @materialsCitationId,
-                    @treatmentId
-                )`
-            },
-            bulk: `INSERT INTO ${db.alias}.vloc_rtree (
-                    minX,
-                    maxX,
-                    minY,
-                    maxY,
-                    materialsCitationId,
-                    treatmentId
-                )
-                SELECT
-                    m.longitude,
-                    m.longitude,
-                    m.latitude,
-                    m.latitude,
-                    m.materialsCitationId,
-                    m.treatmentId
-                FROM ${db.alias}.materialsCitations m
-                WHERE m.latitude != '' AND m.longitude != ''`
-        }
+        insert: `INSERT INTO ${db.alias}.vloc_rtree (
+            minX,
+            maxX,
+            minY,
+            maxY,
+            materialsCitationId,
+            treatmentId
+        )
+        SELECT
+            m.longitude,
+            m.longitude,
+            m.latitude,
+            m.latitude,
+            m.materialsCitationId,
+            m.treatmentId
+        FROM ${db.alias}.materialsCitations m
+        WHERE rowid > @maxrowid AND m.latitude != '' AND m.longitude != ''`,
+        preparedinsert: '',
+        maxrowid: 0
+        // insert: {
+        //     row: {
+        //         select: `SELECT Count(*) AS c FROM ${db.alias}.vloc_rtree WHERE treatmentId = @treatmentId AND materialsCitationId = @materialsCitationId`,
+        //         update: `UPDATE ${db.alias}.vloc_rtree SET minX = @longitude, maxX = @longitude, minY = @latitude, maxY = @latitude WHERE treatmentId = @treatmentId AND materialsCitationId = @materialsCitationId`,
+        //         insert: `INSERT INTO ${db.alias}.vloc_rtree (
+        //             minX,
+        //             maxX,
+        //             minY,
+        //             maxY,
+        //             materialsCitationId,
+        //             treatmentId
+        //         )
+        //         VALUES (
+        //             @minX,
+        //             @maxX,
+        //             @minY,
+        //             @maxY,
+        //             @materialsCitationId,
+        //             @treatmentId
+        //         )`
+        //     },
+        //     bulk: `INSERT INTO ${db.alias}.vloc_rtree (
+        //             minX,
+        //             maxX,
+        //             minY,
+        //             maxY,
+        //             materialsCitationId,
+        //             treatmentId
+        //         )
+        //         SELECT
+        //             m.longitude,
+        //             m.longitude,
+        //             m.latitude,
+        //             m.latitude,
+        //             m.materialsCitationId,
+        //             m.treatmentId
+        //         FROM ${db.alias}.materialsCitations m
+        //         WHERE m.latitude != '' AND m.longitude != ''`
+        // }
     }
 ]
 
