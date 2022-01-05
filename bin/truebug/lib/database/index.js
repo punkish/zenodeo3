@@ -4,11 +4,7 @@ const config = require('config');
 const truebug = config.get('truebug');
 
 const Logger = require('../../utils');
-const log = new Logger({
-    level: truebug.log.level, 
-    transports: truebug.log.transports, 
-    logdir: truebug.dirs.logs
-});
+const log = new Logger(truebug.log);
 
 const Database = require('better-sqlite3');
 //const db = new Database(config.get('db.main'));
@@ -194,12 +190,24 @@ const storeMaxrowid = () => {
     })
 }
 
-const insertStats = function(action, stats) {
-    log.info(`inserting ${action.toUpperCase()} stats`);
+const getLastUpdate = () => {
+    const s = "SELECT Max(started) AS lastUpdate FROM etlstats WHERE process = 'etl'";
+    return db.stats.prepare(s).get().lastUpdate
+}
+
+const insertStats = (stats) => {
+    log.info(`inserting etl stats`);
 
     if (truebug.run === 'real') {
         db.stats.prepare(dbs.stats.tables[0].insert).run(stats);
     }
+}
+
+const getDaysSinceLastEtl = () => {
+    const s = `SELECT ((strftime('%s','now') - Max(ended)/1000)/3600/24) AS daysSinceLastEtl
+    FROM etlstats 
+    WHERE process = 'etl'`;
+    return db.stats.prepare(s).get().daysSinceLastEtl
 }
 
 module.exports = {
@@ -211,5 +219,7 @@ module.exports = {
     buildIndexes,
     insertData,
     insertFTS,
-    insertStats
+    insertStats,
+    getDaysSinceLastEtl,
+    getLastUpdate
 }

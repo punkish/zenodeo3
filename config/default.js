@@ -108,59 +108,30 @@ module.exports = {
         stats          : path.join(dataDir, 'z3-stats.sqlite'),
         treatments     : path.join(dataDir, 'z3-treatments.sqlite'),
         facets         : path.join(dataDir, 'z3-facets.sqlite'),
-        gbifcollections: path.join(dataDir, 'z3-gbifcollections.sqlite'),
-        // main: path.join(dataDir, 'z3.sqlite'),
-        // attached: {
-        //     treatments         : path.join(dbDir, 'treatments.sqlite'),
-        //     materialsCitations : path.join(dbDir, 'materialscitations.sqlite'),
-        //     treatmentAuthors   : path.join(dbDir, 'treatmentauthors.sqlite'),
-        //     treatmentCitations : path.join(dbDir, 'treatmentcitations.sqlite'),
-        //     figureCitations    : path.join(dbDir, 'figurecitations.sqlite'),
-        //     bibRefCitations    : path.join(dbDir, 'bibrefcitations.sqlite'),
-        //     gbifcollections    : path.join(dbDir, 'gbifcollections.sqlite'),
-        //     facets             : path.join(dbDir, 'facets.sqlite'),
-        //     stats              : path.join(dbDir, 'stats.sqlite')
-        // }
+        gbifcollections: path.join(dataDir, 'z3-gbifcollections.sqlite')
     },
 
     truebug: {
 
         log: {
             level: 'info',
-            transports: [ 'console', 'file' ]
+            transports: [ 'console', 'file' ],
+            dir: path.join(cwd, 'bin/truebug/logs')
         },
 
         // run: 'test', // test data (small sample ~10K records)
         run: 'real', // real data
         //run: 'dry',     // simulated run, no commands executed
 
-        switches: {
-            checkArchive          : false,
-            createArchive         : false,
-            checkDump             : false,
-            createDump            : false,
-            downloadSource        : false,
-            unzipSource           : false,
-            createTables          : true,
-            createInsertStatements: true,
-            parse                 : false,
-            insertBulkData        : false,
-            loadFTS               : false,
-            rearrange             : false,
-            buildIndexes          : false,
-            insertEtlStats        : false,
-            deleteOldDump         : false
-        },
-
         // server where the data are stored
         // server: 'https://tb.plazi.org/dumps/',
         server: 'http://127.0.0.1/plazi/data',
 
-        //source: 'full',
-        // source: 'monthly',
+        source: 'full',
+        //source: 'monthly',
         // source: 'weekly',
         //source: 'daily',
-        source: 'single',
+        //source: 'single',
 
         /*
         by default, download the daily dump, and then go to
@@ -178,10 +149,10 @@ module.exports = {
         download: {
 
             // example: 'http://127.0.0.1/plazi/data/test.zip'
-            full: 'plazi.xmlHistory.zip',
-            monthly: 'plazi.xmlHistory.monthly.zip',
-            weekly: 'plazi.xmlHistory.weekly.zip',
-            daily: 'plazi.xmlHistory.daily.zip',
+            full: 'plazi.zenodeo.zip',
+            monthly: 'plazi.zenodeo.monthly.zip',
+            weekly: 'plazi.zenodeo.weekly.zip',
+            daily: 'plazi.zenodeo.daily.zip',
 
             // '03FC87E61268FFD6D3E36CD2FE12DF29'
             // 'BF8A576EC3F6661E96B5590C108213BA'
@@ -189,34 +160,7 @@ module.exports = {
             single: 'BF8A576EC3F6661E96B5590C108213BA',  
         },
 
-        // The different operations to perform
-        ops: {
-            download: true,
-            database: true,
-            parse: true,
-            rearrange: true
-        },
-        
-        //insertStatements: {},
-        // fts: ['vtreatments', 'vfigurecitations', 'vbibrefcitations'],
-        // etlStats: {
-        //     started: Date.now(),
-        //     downloaded: 0,
-        //     parsed: {
-        //         treatments: 0,
-        //         treatmentCitations: 0,
-        //         treatmentAuthors: 0,
-        //         materialsCitations: 0,
-        //         collectionCodes: 0,
-        //         figureCitations: 0,
-        //         bibRefCitations: 0
-        //     },
-        //     loaded: 0,
-        //     ended: 0
-        // },
-
         dirs: {
-            logs   : path.join(cwd, 'bin/truebug/logs'),
             data   : dataDir,
             dump   : path.join(dataDir, 'treatments-dump'),
             old    : path.join(dataDir, 'treatments-dump-old'),

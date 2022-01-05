@@ -9,11 +9,7 @@ const config = require('config');
 const truebug = config.get('truebug');
 
 const Logger = require('../utils');
-const log = new Logger({
-    level: truebug.log.level, 
-    transports: truebug.log.transports, 
-    logdir: truebug.dirs.logs
-});
+const log = new Logger(truebug.log);
 
 const { getSqlCols } = require('../../../data-dictionary/dd-utils')
 
@@ -410,13 +406,17 @@ const cheerioparse = function(xml, treatmentId) {
     return treatment
 }
 
-const parseOne = (xml) => {
-    const filename = path.basename(xml, '.xml');
-    const treatmentId = filename.slice(-1) === '.' ? filename.slice(0, -1) : filename;
+const treatmentIdRegex = RegExp(/[^a-zA-Z0-9]/, 'g');
 
-    if (treatmentId !== 'index') {
+const parseOne = (xml) => {
+    const treatmentId = path.basename(xml, '.xml');
+
+    if (treatmentId.length != 32 || !treatmentIdRegex.test(treatmentId)) {
         const treatment = cheerioparse(fs.readFileSync(`${truebug.dirs.dump}/${xml}`, 'utf8'), treatmentId)
         return truebug.run === 'real' ? treatment : ''
+    }
+    else {
+        log.error(`file ${xml} doesn't look like a treatment`)
     }
 }
 

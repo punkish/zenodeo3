@@ -1,12 +1,8 @@
-const db = {
-    name: 'materialsCitations',
-    alias: 'mc'
-}
-
-db.tables = [
+const tables = [
     {
         name: 'materialsCitations',
-        create: `CREATE TABLE IF NOT EXISTS ${db.alias}.materialsCitations ( 
+        type: 'normal',
+        create: `CREATE TABLE IF NOT EXISTS materialsCitations ( 
             id INTEGER PRIMARY KEY,
             materialsCitationId TEXT NOT NULL,
             treatmentId TEXT NOT NULL,
@@ -36,9 +32,20 @@ db.tables = [
             deleted INTEGER DEFAULT 0,
             created INTEGER DEFAULT (strftime('%s','now')),
             updated INTEGER,
+            validGeo INT AS (
+                CASE 
+                    WHEN 
+                        typeof(latitude) = 'real' AND 
+                        abs(latitude) <= 90 AND 
+                        typeof(longitude) = 'real' AND 
+                        abs(longitude) <= 180
+                    THEN 1
+                    ELSE 0
+                END
+            ) STORED,
             UNIQUE (materialsCitationId, treatmentId)
         )`,
-        insert: `INSERT INTO ${db.alias}.materialsCitations (
+        insert: `INSERT INTO materialsCitations (
             materialsCitationId,
             treatmentId,
             collectingDate,
@@ -123,7 +130,8 @@ db.tables = [
     },
     {
         name: 'materialsCitations_x_collectionCodes',
-        create: `CREATE TABLE IF NOT EXISTS ${db.alias}.materialsCitations_x_collectionCodes ( 
+        type: 'normal',
+        create: `CREATE TABLE IF NOT EXISTS materialsCitations_x_collectionCodes ( 
             id INTEGER PRIMARY KEY,
             materialsCitationId TEXT,
             collectionCode TEXT,
@@ -131,7 +139,7 @@ db.tables = [
             updated INTEGER,
             UNIQUE (collectionCode, materialsCitationId)
         )`,
-        insert: `INSERT INTO ${db.alias}.materialsCitations_x_collectionCodes (
+        insert: `INSERT INTO materialsCitations_x_collectionCodes (
             materialsCitationId,
             collectionCode
         )
@@ -149,13 +157,14 @@ db.tables = [
     },
     {
         name: 'collectionCodes',
-        create: `CREATE TABLE IF NOT EXISTS ${db.alias}.collectionCodes ( 
+        type: 'normal',
+        create: `CREATE TABLE IF NOT EXISTS collectionCodes ( 
             id INTEGER PRIMARY KEY,
             collectionCode TEXT NOT NULL UNIQUE,
             created INTEGER DEFAULT (strftime('%s','now')),
             updated INTEGER
         )`,
-        insert: `INSERT INTO ${db.alias}.collectionCodes (collectionCode)
+        insert: `INSERT INTO collectionCodes (collectionCode)
             VALUES (@collectionCode)
             ON CONFLICT (collectionCode)
             DO UPDATE SET 
@@ -167,62 +176,34 @@ db.tables = [
     {
         name: 'vloc_geopoly',
         type: 'virtual',
-        create: `CREATE VIRTUAL TABLE IF NOT EXISTS ${db.alias}.vloc_geopoly USING geopoly(
+        create: `CREATE VIRTUAL TABLE IF NOT EXISTS vloc_geopoly USING geopoly(
             treatmentId, 
             materialsCitationId
         )`,
-        insert: `INSERT INTO ${db.alias}.vloc_geopoly (
-            treatmentId, 
-            materialsCitationId, 
-            _shape
-        ) 
-        SELECT 
-            m.treatmentId,
-            m.materialsCitationId, 
-            '[[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || ']]' AS _shape 
-        FROM ${db.alias}.materialsCitations m
-        WHERE m.latitude != '' AND m.longitude != '' AND (latitude NOT LIKE '%°%' OR longitude NOT LIKE '%°%')`,
+        insert: `INSERT INTO vloc_geopoly (treatmentId, materialsCitationId, _shape) 
+        WITH points AS (
+            SELECT materialsCitationId, treatmentId, '[' || longitude || ',' || latitude || ']' AS p 
+            FROM materialsCitations 
+            WHERE rowid > @maxrowid AND validGeo = 1
+        ) SELECT 
+            points.treatmentId,
+            points.materialsCitationId,
+            '[' || points.p || ',' || points.p || ',' || points.p || ',' || points.p || ']' AS _shape
+        FROM points`,
         preparedinsert: '',
         maxrowid: 0
-        // insert: {
-        //     row: {
-        //         select: `SELECT Count(*) AS c FROM ${db.alias}.vloc_geopoly WHERE treatmentId = @treatmentId AND materialsCitationId = @materialsCitationId`,
-        //         update: `UPDATE ${db.alias}.vloc_geopoly SET _shape = '[[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || ']]' WHERE treatmentId = @treatmentId AND materialsCitationId = @materialsCitationId`,
-        //         insert: `INSERT INTO ${db.alias}.vloc_geopoly (
-        //             treatmentId, 
-        //             materialsCitationId, 
-        //             _shape
-        //         )
-        //         VALUES (
-        //             @treatmentId, 
-        //             @materialsCitationId, 
-        //             '[[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || '],[' || @longitude || ',' || @latitude || ']]'
-        //         )`
-        //     },
-        //     bulk: `INSERT INTO ${db.alias}.vloc_geopoly (
-        //             treatmentId, 
-        //             materialsCitationId, 
-        //             _shape
-        //         ) 
-        //         SELECT 
-        //             m.treatmentId,
-        //             m.materialsCitationId, 
-        //             '[[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || '],[' || m.longitude || ',' || m.latitude || ']]' AS _shape 
-        //         FROM ${db.alias}.materialsCitations m
-        //         WHERE m.latitude != '' AND m.longitude != '' AND (latitude NOT LIKE '%°%' OR longitude NOT LIKE '%°%')`
-        // }
     },
     {
         name: 'vloc_rtree',
         type: 'virtual',
-        create: `CREATE VIRTUAL TABLE IF NOT EXISts ${db.alias}.vloc_rtree USING rtree(
+        create: `CREATE VIRTUAL TABLE IF NOT EXISts vloc_rtree USING rtree(
             id,                         -- primary key
             minX, maxX,                 -- X coordinate
             minY, maxY,                 -- Y coordinate
             +materialsCitationId TEXT,
             +treatmentId TEXT
         )`,
-        insert: `INSERT INTO ${db.alias}.vloc_rtree (
+        insert: `INSERT INTO vloc_rtree (
             minX,
             maxX,
             minY,
@@ -231,84 +212,45 @@ db.tables = [
             treatmentId
         )
         SELECT
-            m.longitude,
-            m.longitude,
-            m.latitude,
-            m.latitude,
-            m.materialsCitationId,
-            m.treatmentId
-        FROM ${db.alias}.materialsCitations m
-        WHERE rowid > @maxrowid AND m.latitude != '' AND m.longitude != ''`,
+            longitude,
+            longitude,
+            latitude,
+            latitude,
+            materialsCitationId,
+            treatmentId
+        FROM materialsCitations 
+        WHERE rowid > @maxrowid AND validGeo = 1`,
         preparedinsert: '',
         maxrowid: 0
-        // insert: {
-        //     row: {
-        //         select: `SELECT Count(*) AS c FROM ${db.alias}.vloc_rtree WHERE treatmentId = @treatmentId AND materialsCitationId = @materialsCitationId`,
-        //         update: `UPDATE ${db.alias}.vloc_rtree SET minX = @longitude, maxX = @longitude, minY = @latitude, maxY = @latitude WHERE treatmentId = @treatmentId AND materialsCitationId = @materialsCitationId`,
-        //         insert: `INSERT INTO ${db.alias}.vloc_rtree (
-        //             minX,
-        //             maxX,
-        //             minY,
-        //             maxY,
-        //             materialsCitationId,
-        //             treatmentId
-        //         )
-        //         VALUES (
-        //             @minX,
-        //             @maxX,
-        //             @minY,
-        //             @maxY,
-        //             @materialsCitationId,
-        //             @treatmentId
-        //         )`
-        //     },
-        //     bulk: `INSERT INTO ${db.alias}.vloc_rtree (
-        //             minX,
-        //             maxX,
-        //             minY,
-        //             maxY,
-        //             materialsCitationId,
-        //             treatmentId
-        //         )
-        //         SELECT
-        //             m.longitude,
-        //             m.longitude,
-        //             m.latitude,
-        //             m.latitude,
-        //             m.materialsCitationId,
-        //             m.treatmentId
-        //         FROM ${db.alias}.materialsCitations m
-        //         WHERE m.latitude != '' AND m.longitude != ''`
-        // }
     }
 ]
 
-db.indexes = [
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_materialsCitationId ON materialsCitations (deleted, materialsCitationId)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_treatmentId         ON materialsCitations (deleted, treatmentId)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_collectingDate      ON materialsCitations (deleted, collectingDate COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_collectionCode      ON materialsCitations (deleted, collectionCode COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_collectorName       ON materialsCitations (deleted, collectorName COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_country             ON materialsCitations (deleted, country COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_collectingRegion    ON materialsCitations (deleted, collectingRegion COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_municipality        ON materialsCitations (deleted, municipality COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_county              ON materialsCitations (deleted, county COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_stateProvince       ON materialsCitations (deleted, stateProvince COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_location            ON materialsCitations (deleted, location COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_locationDeviation   ON materialsCitations (deleted, locationDeviation COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_specimenCountFemale ON materialsCitations (deleted, specimenCountFemale COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_specimenCountMale   ON materialsCitations (deleted, specimenCountMale COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_specimenCount       ON materialsCitations (deleted, specimenCount COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_specimenCode        ON materialsCitations (deleted, specimenCode COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_typeStatus          ON materialsCitations (deleted, typeStatus COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_determinerName      ON materialsCitations (deleted, determinerName COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_collectedFrom       ON materialsCitations (deleted, collectedFrom COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_collectingMethod    ON materialsCitations (deleted, collectingMethod COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_latitude            ON materialsCitations (deleted, latitude)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_longitude           ON materialsCitations (deleted, longitude)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_elevation           ON materialsCitations (deleted, elevation)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_materialsCitations_deleted             ON materialsCitations (deleted)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_collectionCodes_collectionCode         ON collectionCodes (collectionCode)`
+const indexes = [
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_materialsCitationId ON materialsCitations (deleted, materialsCitationId)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_treatmentId         ON materialsCitations (deleted, treatmentId)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingDate      ON materialsCitations (deleted, collectingDate COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectionCode      ON materialsCitations (deleted, collectionCode COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectorName       ON materialsCitations (deleted, collectorName COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_country             ON materialsCitations (deleted, country COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingRegion    ON materialsCitations (deleted, collectingRegion COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_municipality        ON materialsCitations (deleted, municipality COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_county              ON materialsCitations (deleted, county COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_stateProvince       ON materialsCitations (deleted, stateProvince COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_location            ON materialsCitations (deleted, location COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_locationDeviation   ON materialsCitations (deleted, locationDeviation COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCountFemale ON materialsCitations (deleted, specimenCountFemale COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCountMale   ON materialsCitations (deleted, specimenCountMale COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCount       ON materialsCitations (deleted, specimenCount COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCode        ON materialsCitations (deleted, specimenCode COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_typeStatus          ON materialsCitations (deleted, typeStatus COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_determinerName      ON materialsCitations (deleted, determinerName COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectedFrom       ON materialsCitations (deleted, collectedFrom COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingMethod    ON materialsCitations (deleted, collectingMethod COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_latitude            ON materialsCitations (deleted, latitude)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_longitude           ON materialsCitations (deleted, longitude)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_elevation           ON materialsCitations (deleted, elevation)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_deleted             ON materialsCitations (deleted)`,
+    `CREATE INDEX IF NOT EXISTS ix_collectionCodes_collectionCode         ON collectionCodes (collectionCode)`
 ]
 
-module.exports = db
+module.exports = { tables, indexes }

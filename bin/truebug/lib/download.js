@@ -7,16 +7,12 @@ const config = require('config');
 const truebug = config.get('truebug');
 
 const Logger = require('../utils');
-const log = new Logger({
-    level: truebug.log.level, 
-    transports: truebug.log.transports, 
-    logdir: truebug.dirs.logs
-});
+const log = new Logger(truebug.log);
 
-const unzip = function(downloadtype) {    
-    log.info(`unzipping ${downloadtype} archive`);
+const unzip = function(source) {    
+    log.info(`unzipping ${source} archive`);
 
-    const archive = `${truebug.dirs.data}/${truebug.download[downloadtype]}`;
+    const archive = `${truebug.dirs.data}/${truebug.download[source]}`;
     const cmd = `unzip -q -n ${archive} -d ${truebug.dirs.dump}`;
 
     if (truebug.run === 'real') {
@@ -27,7 +23,7 @@ const unzip = function(downloadtype) {
         const idx = `${truebug.dirs.dump}/index.xml`
         if (fs.existsSync(idx)) {
             fs.rmSync(idx);
-            numOfFiles--
+            numOfFiles--;
         }
 
         log.info(`downloaded ${numOfFiles} files`);
@@ -36,13 +32,36 @@ const unzip = function(downloadtype) {
     }
 }
 
-const download = (downloadtype) => {
-    log.info(`downloading ${downloadtype} archive`);
+// const remoteFileExists = (remote) => {
 
-    const local = `${truebug.dirs.data}/${truebug.download[downloadtype]}`;
-    const remote = `${truebug.server}/${truebug.download[downloadtype]}`;
-    const cmd = `curl --silent --output ${local} '${remote}'`;
-    //if (truebug.run === 'real') execSync(cmd);
+//     // https://matthewsetter.com/check-if-file-is-available-with-curl/
+//     const cmd = `curl -o /dev/null -sIw '%{http_code}' '${remote}'`;
+//     const remoteExists = execSync(cmd);
+
+//     if (String(remoteExists) === '200') {
+//         log.info('remote file exists');
+//         return true;
+//     }
+//     else {
+//         log.info("remote file doesn't exist");
+//         return false;
+//     }
+// }
+
+const download = (source) => {
+    const local = `${truebug.dirs.data}/${truebug.download[source]}`;
+    const remote = `${truebug.server}/${truebug.download[source]}`;
+    console.log(`remote: ${remote}`);
+    if (truebug.run === 'real') {
+        //if (remoteFileExists(remote)) {
+            log.info(`downloading ${source} archive`);
+            execSync(`curl -s -o ${local} '${remote}'`);
+            //return true;
+        // }
+        // else {
+        //     return false;
+        // }
+    }
 }
 
 module.exports = { download, unzip }

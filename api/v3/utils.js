@@ -12,7 +12,7 @@ const config = require('config')
  */
 const Database = require('better-sqlite3')
 const db = new Database(config.get('db.treatments'))
-db.prepare(`ATTACH DATABASE '${config.get('db.collections')}' AS z3collections`).run()
+db.prepare(`ATTACH DATABASE '${config.get('db.gbifcollections')}' AS z3collections`).run()
 db.prepare(`ATTACH DATABASE '${config.get('db.facets')}' AS z3facets`).run()
 
 const { logger } = require('../../lib/utils')

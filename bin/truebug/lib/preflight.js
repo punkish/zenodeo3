@@ -4,11 +4,7 @@ const config = require('config');
 const truebug = config.get('truebug');
 
 const Logger = require('../utils');
-const log = new Logger({
-    level: truebug.log.level, 
-    transports: truebug.log.transports, 
-    logdir: truebug.dirs.logs
-});
+const log = new Logger(truebug.log);
 
 const fs = require('fs');
 const path = require('path');

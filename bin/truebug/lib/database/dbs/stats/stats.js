@@ -1,53 +1,62 @@
-const db = {
-    name: 'stats',
-    alias: 'st'
-}
-
-db.tables = [
+const tables = [
     {
         name: 'etlstats',
-        create: `CREATE TABLE IF NOT EXISTS ${db.alias}.etlstats ( 
+        type: 'normal',
+        create: `CREATE TABLE IF NOT EXISTS etlstats ( 
             id INTEGER PRIMARY KEY,
             started INTEGER,
             ended INTEGER,
             process TEXT,
+            timeOfArchive INTEGER,
+            typeOfArchive TEXT,
             result TEXT
         )`,
-        insert: `INSERT INTO ${db.alias}.etlstats (
+        insert: `INSERT INTO etlstats (
                 started, 
                 ended, 
                 process,
+                timeOfArchive,
+                typeOfArchive,
                 result
             ) 
             VALUES (
                 @started, 
                 @ended, 
                 @process,
+                @timeOfArchive,
+                @typeOfArchive,
                 @result
             )`,
         preparedinsert: ''
     },
     {
         name: 'webqueries',
-        create: `CREATE TABLE IF NOT EXISTS ${db.alias}.webqueries (
+        type: 'normal',
+        create: `CREATE TABLE IF NOT EXISTS webqueries (
             id INTEGER PRIMARY KEY,
             -- stringified queryObject
             q TEXT NOT NULL UNIQUE,
             -- counter tracking queries
             count INTEGER DEFAULT 1
-        )`
+        )`,
+        insert: '',
+        preparedinsert: ''
     },
     {
         name: 'sqlqueries',
-        create: `CREATE TABLE IF NOT EXISTS ${db.alias}.sqlqueries (
+        type: 'normal',
+        create: `CREATE TABLE IF NOT EXISTS sqlqueries (
             id INTEGER PRIMARY KEY,
             -- SQL query
             sql TEXT NOT NULL UNIQUE
-        )`
+        )`,
+        insert: '',
+        preparedinsert: ''
     },
     {
         name: 'querystats',
-        create: `CREATE TABLE IF NOT EXISTS ${db.alias}.querystats (
+        type: 'normal',
+        create: `CREATE TABLE IF NOT EXISTS querystats (
             id INTEGER PRIMARY KEY,
             -- Foreign Keys
             webqueries_id INTEGER,
@@ -56,8 +65,12 @@ db.tables = [
             timeTaken INTEGER,
             -- timestamp of query
             created INTEGER DEFAULT (strftime('%s','now'))
-        )`
+        )`,
+        insert: '',
+        preparedinsert: ''
     }
 ]
 
-module.exports = db
+const indexes = []
+
+module.exports = { tables, indexes }

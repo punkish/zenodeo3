@@ -1,5 +1,7 @@
 'use strict';
 
+const https = require('https');
+
 const preflight = require('./lib/preflight');
 const download  = require('./lib/download');
 const database  = require('./lib/database');
@@ -9,11 +11,7 @@ const config = require('config');
 const truebug = config.get('truebug');
 
 const Logger = require('./utils');
-const log = new Logger({
-    level: truebug.log.level, 
-    transports: truebug.log.transports, 
-    logdir: truebug.dirs.logs
-});
+const log = new Logger(truebug.log);
 
 const processFiles = (files) => {
 
@@ -53,6 +51,7 @@ const processFiles = (files) => {
                 }
                 else {
                     if (i === (totalFiles - 1)) {
+
                         // the last remaining files
                         database.insertData();
         
@@ -65,96 +64,153 @@ const processFiles = (files) => {
                 if ((i % dot) == 0) log.info('.', 'end');
             }
             
-            preflight.fileaway(xml)
+            preflight.fileaway(xml);
         }
     }
 
-    log.info(`${'~'.repeat(80)}\n`, 'end')
+    log.info(`${'~'.repeat(80)}\n`, 'end');
 }
 
-const dispatch = {
-    etl: () => {
-        preflight.checkDir('archive');
-        preflight.checkDir('dump');
-        database.prepareDatabases();
-        
-        const files = preflight.filesExistInDump();
-
-        if (files.length) {
-            log.info(`${files.length} files exist… let's do something`);
-
-            database.storeMaxrowid();
-            database.dropIndexes();
-            processFiles(files);
-            database.buildIndexes();
-            database.insertFTS();
-            
-            log.info(`parsed ${parse.stats.treatments} files with`);
-
-            for (const [key, value] of Object.entries(parse.stats)) {
-                log.info(`- ${value} ${key}`);
+const checkRemote = (typeOfArchive = 'daily') => {
+    const options = {
+        hostname: 'tb.plazi.org',
+        port: 443,
+        path: typeOfArchive === 'full' ? '/dumps/plazi.zenodeo.zip' : `/dumps/plazi.zenodeo.${typeOfArchive}.zip`,
+        method: 'HEAD'
+    };
+    
+    const remoteResult = new Promise((resolve, reject) => {
+        const req = https.request(options, (res) => {
+            const result = { timeOfArchive: false, sizeOfArchive: 0 };
+            if (res.statusCode == 200) {
+                result.timeOfArchive  = new Date(res.headers['last-modified']).getTime();
+                result.sizeOfArchive = res.headers['content-length'];
             }
+
+            resolve(result)
+        });
+        
+        req.on('error', (error) => console.error(error));
+        req.end();
+    });
+
+    return remoteResult;
+}
+
+const process = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
+    log.info(`starting a ${typeOfArchive.toUpperCase()} process`);
+    // log.info(`time of archive: ${timeOfArchive}`);
+    // log.info(`size of archive: ${sizeOfArchive}`);
+
+    const stats = [];
+
+    // start download
+    const action = {
+        started: new Date().getTime(),
+        process: 'download',
+        timeOfArchive,
+        typeOfArchive
+    }
+
+    download.download(typeOfArchive);
+    const numOfFiles = download.unzip(typeOfArchive);
+
+    action.result = JSON.stringify({ numOfFiles });
+    action.ended = new Date().getTime();
+    stats.push(action);
+
+    log.info('-'.repeat(80));
+    log.info(`${action.process.toUpperCase()} took: ${action.ended - action.started} ms`);
+
+    // start ETL
+    if (numOfFiles) {
+        const files = preflight.filesExistInDump();
+        log.info(`${files.length} files exist… let's ETL them`);
+
+        action.started = new Date().getTime();
+        action.process = 'etl';
+        action.timeOfArchive = timeOfArchive;
+        action.typeOfArchive = typeOfArchive;
+        
+
+        database.storeMaxrowid();
+        database.dropIndexes();
+        processFiles(files);
+        database.buildIndexes();
+        database.insertFTS();
+        
+        log.info(`parsed ${parse.stats.treatments} files with`);
+
+        for (const [key, value] of Object.entries(parse.stats)) {
+            log.info(`- ${value} ${key}`);
+        }
+
+        action.result = JSON.stringify(parse.stats);
+        action.ended = new Date().getTime();
+        stats.push(action)
+    }
+    else {
+        log.info('there are no files in the dump to process');
+    }
+
+    stats.forEach(row => {
+        database.insertStats(row);
+    })
+
+    log.info('-'.repeat(80));
+    log.info(`${action.process.toUpperCase()} took: ${action.ended - action.started} ms`);
+}
+
+const update = async (typeOfArchives) => {
+    const typeOfArchive = typeOfArchives.shift();
+
+    log.info(`checking if ${typeOfArchive} archive exists on remote server`);
+    const result = await checkRemote(typeOfArchive);
+
+    // the tested timePeriod exists on the remote server
+    if (result.timeOfArchive) {
+
+        // the tested timePeriod is newer than the local update
+        //const timeOfArchive = new Date(result.timeOfArchive).getTime();
+        const lastUpate = database.getLastUpdate(typeOfArchive);
+        if (result.timeOfArchive > lastUpate) {
+            process(typeOfArchive, result.timeOfArchive, result.sizeOfArchive);
         }
         else {
-            log.info('there are no files in the dump to process');
+            log.info(`${typeOfArchive} archive is older than local update… moving on`);
         }
 
-        return 0;
-    },
-
-    download: (downloadtype) => {
-        preflight.checkDir('archive');
-        preflight.checkDir('dump');
-        database.prepareDatabases();
-
-        download.download(downloadtype);
-        const numOfFiles = download.unzip(downloadtype);
-        return numOfFiles;
+        // check the next shorter timePeriod
+        if (typeOfArchives.length) update(typeOfArchives);
+    }
+    else {
+        log.info(`${typeOfArchive} archive doesn't exist`);
     }
 }
 
-const action = process.argv.slice(2)[0];
-const downloadtype = process.argv.slice(3)[0];
+// start here
+log.info('='.repeat(80));
+log.info('STARTING TRUEBUG');
 
-if (!action) {
-    log.error("action not provided (should be one of 'etl' or 'download')");
-}
-else if (!(action in dispatch)) {
-    log.error("unknown action (should be one of 'etl' or 'download')");
+preflight.checkDir('archive');
+preflight.checkDir('dump');
+database.prepareDatabases();
+
+const numOfTreatments = database.selCountOfTreatments();
+log.info(`found ${numOfTreatments} treatments in the db`);
+
+// There are no treatments in the db so no ETL was ever done
+if (numOfTreatments === 0) {
+    process('full', null, null);
 }
 else {
-    log.info('='.repeat(80));
-    log.info(`STARTING ${action.toUpperCase()}`);
-
-    const stats = {
-        started: new Date().getTime(),
-        ended: 0,
-        process: action,
-        result: ''
-    }
-
-    if (action === 'etl') {
-        dispatch.etl();
-        stats.result = JSON.stringify(parse.stats);
-    }
-    else if (action === 'download') {
-        const validDownloadTypes = ['full', 'monthly', 'weekly', 'daily'];
-
-        if (validDownloadTypes.includes(downloadtype)) {
-            const numOfFiles = dispatch.download(downloadtype);
-            stats.result = numOfFiles;
-        }
-        else {
-            log.error("unknown or invalid downloadtype");
-        }
-    }
-
-    stats.ended = new Date().getTime();
-
-    database.insertStats(action, stats);
-    log.info('-'.repeat(80));
-    log.info(`${action.toUpperCase()} took: ${stats.ended - stats.started} ms`);
+    const typeOfArchives = [ 'monthly', 'weekly', 'daily' ];
+    update(typeOfArchives);
 }
 
-// */10 * * * * cd /Users/punkish/Projects/zenodeo/zenodeo3 && /opt/local/bin/node /Users/punkish/Projects/zenodeo/zenodeo3/bin/truebug etl
-// */10 * * * * cd /Users/punkish/Projects/zenodeo/zenodeo3 && /opt/local/bin/node /Users/punkish/Projects/zenodeo/zenodeo3/bin/truebug download
+log.info('TRUEBUG DONE');
+
+// HOME=/Users/punkish
+// PATH=/opt/local/bin:/opt/local/sbin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/Little Snitch.app/Contents/Components:/opt/X11/bin:/Library/Apple/usr/bin
+// NODE_ENV=test
+// 0/5 0 * * * cd ~/Projects/zenodeo/zenodeo3 && node ~/Projects/zenodeo/zenodeo3/bin/truebug

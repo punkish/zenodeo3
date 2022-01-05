@@ -1,12 +1,8 @@
-const db = {
-    name: 'treatmentCitations',
-    alias: 'tc'
-}
-
-db.tables = [
+const tables = [
     {
         name: 'treatmentCitations',
-        create: `CREATE TABLE IF NOT EXISTS ${db.alias}.treatmentCitations ( 
+        type: 'normal',
+        create: `CREATE TABLE IF NOT EXISTS treatmentCitations ( 
             id INTEGER PRIMARY KEY,
             treatmentCitationId TEXT NOT NULL,
             treatmentId TEXT NOT NULL,
@@ -17,7 +13,7 @@ db.tables = [
             updated INTEGER,
             UNIQUE (treatmentCitationId, treatmentId)
         )`,
-        insert: `INSERT INTO ${db.alias}.treatmentCitations (
+        insert: `INSERT INTO treatmentCitations (
             treatmentCitationId,
             treatmentId,
             treatmentCitation,
@@ -40,12 +36,12 @@ db.tables = [
             updated=strftime('%s','now')`,
         preparedinsert: '',
         data: []
-    }
+    },
 ]
 
-db.indexes = [
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatmentCitations_treatmentCitation ON treatmentCitations (deleted, Lower(treatmentCitation)) WHERE deleted = 0`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatmentCitations_refString         ON treatmentCitations (deleted, Lower(refString)) WHERE deleted = 0`
+const indexes = [
+    `CREATE INDEX IF NOT EXISTS ix_treatmentCitations_treatmentCitation ON treatmentCitations (deleted, Lower(treatmentCitation)) WHERE deleted = 0`,
+    `CREATE INDEX IF NOT EXISTS ix_treatmentCitations_refString         ON treatmentCitations (deleted, Lower(refString)) WHERE deleted = 0`,
 ]
 
-module.exports = db
+module.exports = { tables, indexes }

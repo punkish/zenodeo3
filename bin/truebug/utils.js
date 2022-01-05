@@ -6,21 +6,21 @@ const dateFormat = 'YYYY-MM-DD'
 const timestampFormat = `${dateFormat} HH:mm:ss`
 
 class Logger {
-    constructor({level = 'info', transports, logdir}) {
+    constructor({level = 'info', transports, dir}) {
         this.level = level;
         this.transports = transports;
 
         if (this.transports.includes('file')) {
-            this.logdir = logdir;
+            this.dir = dir;
 
             const day = moment().format(dateFormat);
 
-            const dir = `${this.logdir}/${day}`;
-            if (!fs.existsSync(dir)) fs.mkdirSync(dir);
-            this.file = `${dir}/${day}-${this.level}.log`;
+            const logdir = `${this.dir}/${day}`;
+            if (!fs.existsSync(logdir)) fs.mkdirSync(logdir);
+            this.file = `${logdir}/${day}-${this.level}.log`;
 
             // https://stackoverflow.com/questions/3459476/how-to-append-to-a-file-in-node/43370201#43370201
-            this.stream = fs.createWriteStream(this.file, {flags:'a'})
+            this.stream = fs.createWriteStream(this.file, {flags:'a'});
         }
     }
 
@@ -31,19 +31,19 @@ class Logger {
         return typeof(input) === 'number' ? level : number;
     }
 
-    loglevel = () => console.log(`this logger's level is ${this.level.toUpperCase()}`)
+    loglevel = () => console.log(`this logger's level is ${this.level.toUpperCase()}`);
 
     write = (level, str, position) => {
-        const ts = moment().format(timestampFormat)
+        const ts = moment().format(timestampFormat);
         
         if (position) {
-            if (position === 'start') str = `${ts} ${level.toUpperCase()} ${str}`
-            if (this.transports.includes('console')) process.stdout.write(str)
-            if (this.transports.includes('file'))    this.stream.write(str)
+            if (position === 'start') str = `${ts} ${level.toUpperCase()} ${str}`;
+            if (this.transports.includes('console')) process.stdout.write(str);
+            if (this.transports.includes('file'))    this.stream.write(str);
         }
         else {
-            const msg = `${ts} ${level.toUpperCase()} ${str}`
-            if (this.transports.includes('console')) console.log(msg)
+            const msg = `${ts} ${level.toUpperCase()} ${str}`;
+            if (this.transports.includes('console')) console.log(msg);
             if (this.transports.includes('file'))    this.stream.write(`${msg}\n`);
         }
     }

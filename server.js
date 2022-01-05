@@ -1,10 +1,10 @@
 'use strict'
 
-const config = require('config')
-const port = config.get('port')
-const address = config.get('address')
-const ajvOpts = config.get('v3.ajv.options')
-const log = require('./lib/utils').logger('SERVER')
+const config = require('config');
+const port = config.get('port');
+const address = config.get('address');
+const ajvOpts = config.get('v3.ajv.options');
+const log = require('./lib/utils').logger('SERVER');
 //const querystring = require('qs')
 //const querystring = require('querystring')
 
@@ -32,12 +32,12 @@ const server = require('./app')({
 
 server.listen(port, address, (error, address) => {
     if (error) {
-        server.log.error(error)
-        process.exit(1)
+        server.log.error(error);
+        process.exit(1);
     }
 
-    server.blipp()
-    server.swagger()
+    server.blipp();
+    server.swagger();
     
     server.log.info(
         'Server running in %s mode on %s', 

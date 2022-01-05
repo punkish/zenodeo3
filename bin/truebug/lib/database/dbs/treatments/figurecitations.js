@@ -1,12 +1,8 @@
-const db = {
-    name: 'figureCitations',
-    alias: 'fc'
-}
-
-db.tables = [
+const tables = [
     {
         name: 'figureCitations',
-        create: `CREATE TABLE IF NOT EXISTS ${db.alias}.figureCitations ( 
+        type: 'normal',
+        create: `CREATE TABLE IF NOT EXISTS figureCitations ( 
             id INTEGER PRIMARY KEY,
             figureNum INTEGER DEFAULT 0,
             figureCitationId TEXT NOT NULL,
@@ -19,7 +15,7 @@ db.tables = [
             updated INTEGER,
             UNIQUE (figureCitationId, figureNum)
         )`,
-        insert: `INSERT INTO ${db.alias}.figureCitations (
+        insert: `INSERT INTO figureCitations (
             figureNum,
             figureCitationId,
             treatmentId,
@@ -53,46 +49,24 @@ db.tables = [
     {
         name: 'vfigurecitations',
         type: 'virtual',
-        create: `CREATE VIRTUAL TABLE IF NOT EXISTS ${db.alias}.vfigurecitations USING FTS5(
+        create: `CREATE VIRTUAL TABLE IF NOT EXISTS vfigurecitations USING FTS5(
             figureCitationId, 
             figureNum,
             treatmentId,
             captionText
         )`,
-        insert: `INSERT INTO ${db.alias}.vfigurecitations 
-        SELECT figureCitationId, figureNum, treatmentId, captionText 
-        FROM ${db.alias}.figureCitations 
-        WHERE rowid > @maxrowid AND deleted = 0`,
+        insert: `INSERT INTO vfigurecitations 
+            SELECT figureCitationId, figureNum, treatmentId, captionText 
+            FROM figureCitations 
+            WHERE rowid > @maxrowid AND deleted = 0`,
         preparedinsert: '',
         maxrowid: 0
-        // insert: {
-        //     row: {
-        //         select: `SELECT Count(*) AS c FROM ${db.alias}.vfigurecitations WHERE figureCitationId = @figureCitationId AND figureNum = @figureNum`,
-        //         update: `UPDATE ${db.alias}.vfigurecitations SET captionText = @captionText WHERE figureCitationId = @figureCitationId AND figureNum = @figureNum`,
-        //         insert: `INSERT INTO ${db.alias}.vfigurecitations (
-        //             figureCitationId, 
-        //             figureNum,
-        //             treatmentId,
-        //             captionText
-        //         )
-        //         VALUES (
-        //             @figureCitationId, 
-        //             @figureNum,
-        //             @treatmentId,
-        //             @captionText
-        //         )`
-        //     },
-        //     bulk: `INSERT INTO ${db.alias}.vfigurecitations 
-        //         SELECT figureCitationId, figureNum, treatmentId, captionText 
-        //         FROM ${db.alias}.figureCitations 
-        //         WHERE deleted = 0`
-        // }
-    }
+    },
 ]
 
-db.indexes = [
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_figureCitations_treatmentId                            ON figureCitations (deleted, treatmentId)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_figureCitations_figureCitationId_treatmentId_figureNum ON figureCitations (deleted, figureCitationId, treatmentId, figureNum)`        
+const indexes = [
+    `CREATE INDEX IF NOT EXISTS ix_figureCitations_treatmentId                            ON figureCitations (deleted, treatmentId)`,
+    `CREATE INDEX IF NOT EXISTS ix_figureCitations_figureCitationId_treatmentId_figureNum ON figureCitations (deleted, figureCitationId, treatmentId, figureNum)`,
 ]
 
-module.exports = db
+module.exports = { tables, indexes }

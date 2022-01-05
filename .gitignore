@@ -20,13 +20,14 @@
 *.tar
 *.zip
 
-# Logs and databases #
+# Logs, databases and scratch files #
 ######################
 *.log
 *.sql
 *.sqlite
 *.xml
 data/
+scratch/
 
 # OS generated files #
 ######################

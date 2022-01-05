@@ -278,7 +278,7 @@ const getConstraint = function(resource, column) {
     const c = getAllCols(resource)
         .filter(c => c.name === column)
         
-    console.log(c)
+    //console.log(c)
     return c[0].getConstraint
 
 }

@@ -1,12 +1,8 @@
-const db = {
-    name: 'treatments',
-    alias: 'tr'
-}
-
-db.tables = [
+const tables = [
     {
         name: 'treatments',
-        create: `CREATE TABLE IF NOT EXISTS ${db.alias}.treatments ( 
+        type: 'normal',
+        create: `CREATE TABLE IF NOT EXISTS treatments ( 
             id INTEGER PRIMARY KEY,
             treatmentId TEXT NOT NULL UNIQUE,
             treatmentTitle TEXT,
@@ -44,7 +40,7 @@ db.tables = [
             created INTEGER DEFAULT (strftime('%s','now')),
             updated INTEGER
         )`,
-        insert: `INSERT INTO ${db.alias}.treatments (
+        insert: `INSERT INTO treatments (
             treatmentId,
             treatmentTitle,
             treatmentVersion,
@@ -154,55 +150,43 @@ db.tables = [
     {
         name: 'vtreatments',
         type: 'virtual',
-        create: `CREATE VIRTUAL TABLE IF NOT EXISTS ${db.alias}.vtreatments USING FTS5(
+        create: `CREATE VIRTUAL TABLE IF NOT EXISTS vtreatments USING FTS5(
             treatmentId, 
             fullText
         )`,
-        insert: `INSERT INTO ${db.alias}.vtreatments 
+        insert: `INSERT INTO vtreatments 
                 SELECT treatmentId, fulltext 
-                FROM ${db.alias}.treatments 
+                FROM treatments 
                 WHERE rowid > @maxrowid AND deleted = 0`,
         preparedinsert: '',
         maxrowid: 0
-        // insert: {
-        //     row: {
-        //         select: `SELECT Count(*) AS c FROM ${db.alias}.vtreatments WHERE treatmentId = @treatmentId`,
-        //         update: `UPDATE ${db.alias}.vtreatments SET fulltext = @fulltext WHERE treatmentId = @treatmentId`,
-        //         insert: `INSERT INTO ${db.alias}.vtreatments (treatmentId, fulltext) 
-        //         VALUES (@treatmentId, @fulltext)`
-        //     },
-        //     bulk: `INSERT INTO ${db.alias}.vtreatments 
-        //         SELECT treatmentId, fulltext 
-        //         FROM ${db.alias}.treatments 
-        //         WHERE deleted = 0`
-        // }
     }
 ]
 
-db.indexes = [
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_treatmentId        ON treatments (deleted, treatmentId)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_treatmentTitle     ON treatments (deleted, treatmentTitle COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_articleTitle       ON treatments (deleted, articleTitle COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_publicationDate    ON treatments (deleted, publicationDate)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_journalTitle       ON treatments (deleted, journalTitle COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_journalYear        ON treatments (deleted, journalYear)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_authorityName      ON treatments (deleted, authorityName COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_taxonomicNameLabel ON treatments (deleted, taxonomicNameLabel COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_kingdom            ON treatments (deleted, kingdom COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_phylum             ON treatments (deleted, phylum COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_order              ON treatments (deleted, "order" COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_family             ON treatments (deleted, family COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_genus              ON treatments (deleted, genus COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_species            ON treatments (deleted, species COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_status             ON treatments (deleted, status COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_rank               ON treatments (deleted, rank COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_k_phylum           ON treatments (deleted, kingdom, phylum)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_k_p_order          ON treatments (deleted, kingdom, phylum, "order")`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_k_p_o_family       ON treatments (deleted, kingdom, phylum, "order", family)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_k_p_o_f_genus      ON treatments (deleted, kingdom, phylum, "order", family, genus)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_k_p_o_f_g_species  ON treatments (deleted, kingdom, phylum, "order", family, genus, species)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_facets             ON treatments (deleted, treatmentId, journalTitle, journalYear, kingdom, phylum, "order", family, genus, species, status, rank)`,
-    `CREATE INDEX IF NOT EXISTS ${db.alias}.ix_treatments_deleted            ON treatments (deleted)`
+const indexes = [
+    `CREATE INDEX IF NOT EXISTS ix_treatments_treatmentId        ON treatments (deleted, treatmentId)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_treatmentTitle     ON treatments (deleted, treatmentTitle COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_articleTitle       ON treatments (deleted, articleTitle COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_publicationDate    ON treatments (deleted, publicationDate)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_journalTitle       ON treatments (deleted, journalTitle COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_journalYear        ON treatments (deleted, journalYear)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_authorityName      ON treatments (deleted, authorityName COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_taxonomicNameLabel ON treatments (deleted, taxonomicNameLabel COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_kingdom            ON treatments (deleted, kingdom COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_phylum             ON treatments (deleted, phylum COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_order              ON treatments (deleted, "order" COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_family             ON treatments (deleted, family COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_genus              ON treatments (deleted, genus COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_species            ON treatments (deleted, species COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_status             ON treatments (deleted, status COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_rank               ON treatments (deleted, rank COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_k_phylum           ON treatments (deleted, kingdom, phylum)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_k_p_order          ON treatments (deleted, kingdom, phylum, "order")`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_k_p_o_family       ON treatments (deleted, kingdom, phylum, "order", family)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_k_p_o_f_genus      ON treatments (deleted, kingdom, phylum, "order", family, genus)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_k_p_o_f_g_species  ON treatments (deleted, kingdom, phylum, "order", family, genus, species)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_facets             ON treatments (deleted, treatmentId, journalTitle, journalYear, kingdom, phylum, "order", family, genus, species, status, rank)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_deleted            ON treatments (deleted)`,
 ]
 
-module.exports = db
+module.exports = { tables, indexes }
