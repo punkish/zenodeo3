@@ -1,7 +1,5 @@
 'use strict';
 
-const https = require('https');
-
 const preflight = require('./lib/preflight');
 const download  = require('./lib/download');
 const database  = require('./lib/database');
@@ -71,36 +69,8 @@ const processFiles = (files) => {
     log.info(`${'~'.repeat(80)}\n`, 'end');
 }
 
-const checkRemote = (typeOfArchive = 'daily') => {
-    const options = {
-        hostname: 'tb.plazi.org',
-        port: 443,
-        path: typeOfArchive === 'full' ? '/dumps/plazi.zenodeo.zip' : `/dumps/plazi.zenodeo.${typeOfArchive}.zip`,
-        method: 'HEAD'
-    };
-    
-    const remoteResult = new Promise((resolve, reject) => {
-        const req = https.request(options, (res) => {
-            const result = { timeOfArchive: false, sizeOfArchive: 0 };
-            if (res.statusCode == 200) {
-                result.timeOfArchive  = new Date(res.headers['last-modified']).getTime();
-                result.sizeOfArchive = res.headers['content-length'];
-            }
-
-            resolve(result)
-        });
-        
-        req.on('error', (error) => console.error(error));
-        req.end();
-    });
-
-    return remoteResult;
-}
-
 const process = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
     log.info(`starting a ${typeOfArchive.toUpperCase()} process`);
-    // log.info(`time of archive: ${timeOfArchive}`);
-    // log.info(`size of archive: ${sizeOfArchive}`);
 
     const stats = [];
 
@@ -165,7 +135,7 @@ const update = async (typeOfArchives) => {
     const typeOfArchive = typeOfArchives.shift();
 
     log.info(`checking if ${typeOfArchive} archive exists on remote server`);
-    const result = await checkRemote(typeOfArchive);
+    const result = await download.checkRemote(typeOfArchive);
 
     // the tested timePeriod exists on the remote server
     if (result.timeOfArchive) {

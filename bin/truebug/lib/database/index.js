@@ -196,7 +196,7 @@ const getLastUpdate = () => {
 }
 
 const insertStats = (stats) => {
-    log.info(`inserting etl stats`);
+    log.info(`inserting ${stats.process} stats`);
 
     if (truebug.run === 'real') {
         db.stats.prepare(dbs.stats.tables[0].insert).run(stats);

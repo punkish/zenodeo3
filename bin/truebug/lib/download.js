@@ -1,5 +1,6 @@
 'use strict'
 
+const https = require('https');
 const execSync = require('child_process').execSync;
 const fs = require('fs');
 
@@ -8,6 +9,32 @@ const truebug = config.get('truebug');
 
 const Logger = require('../utils');
 const log = new Logger(truebug.log);
+
+const checkRemote = (typeOfArchive = 'daily') => {
+    const options = {
+        hostname: 'tb.plazi.org',
+        port: 443,
+        path: typeOfArchive === 'full' ? '/dumps/plazi.zenodeo.zip' : `/dumps/plazi.zenodeo.${typeOfArchive}.zip`,
+        method: 'HEAD'
+    };
+    
+    const remoteResult = new Promise((resolve, reject) => {
+        const req = https.request(options, (res) => {
+            const result = { timeOfArchive: false, sizeOfArchive: 0 };
+            if (res.statusCode == 200) {
+                result.timeOfArchive  = new Date(res.headers['last-modified']).getTime();
+                result.sizeOfArchive = res.headers['content-length'];
+            }
+
+            resolve(result)
+        });
+        
+        req.on('error', (error) => console.error(error));
+        req.end();
+    });
+
+    return remoteResult;
+}
 
 const unzip = function(source) {    
     log.info(`unzipping ${source} archive`);
@@ -32,36 +59,14 @@ const unzip = function(source) {
     }
 }
 
-// const remoteFileExists = (remote) => {
-
-//     // https://matthewsetter.com/check-if-file-is-available-with-curl/
-//     const cmd = `curl -o /dev/null -sIw '%{http_code}' '${remote}'`;
-//     const remoteExists = execSync(cmd);
-
-//     if (String(remoteExists) === '200') {
-//         log.info('remote file exists');
-//         return true;
-//     }
-//     else {
-//         log.info("remote file doesn't exist");
-//         return false;
-//     }
-// }
-
 const download = (source) => {
     const local = `${truebug.dirs.data}/${truebug.download[source]}`;
     const remote = `${truebug.server}/${truebug.download[source]}`;
-    console.log(`remote: ${remote}`);
+    
     if (truebug.run === 'real') {
-        //if (remoteFileExists(remote)) {
-            log.info(`downloading ${source} archive`);
-            execSync(`curl -s -o ${local} '${remote}'`);
-            //return true;
-        // }
-        // else {
-        //     return false;
-        // }
+        log.info(`downloading ${source} archive`);
+        execSync(`curl -s -o ${local} '${remote}'`);
     }
 }
 
-module.exports = { download, unzip }
+module.exports = { checkRemote, download, unzip }

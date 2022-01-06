@@ -346,10 +346,11 @@ const makeLinks = function(request) {
     const next = _pruneLink(new URLSearchParams(request.query))
     next.set('$page', next.get('$page') > 1 ? Number(next.get('$page')) + 1 : 2)
 
+    const host = `${request.protocol}://${request.hostname}${request.routerPath}`;
     return {
-        "_self": decodeURIComponent(_sort(self).toString()),
-        "_prev": decodeURIComponent(_sort(prev).toString()),
-        "_next": decodeURIComponent(_sort(next).toString())
+        "_self": `${host}?${decodeURIComponent(_sort(self).toString())}`,
+        "_prev": `${host}?${decodeURIComponent(_sort(prev).toString())}`,
+        "_next": `${host}?${decodeURIComponent(_sort(next).toString())}`
     }
 }
 
