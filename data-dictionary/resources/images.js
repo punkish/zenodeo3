@@ -40,7 +40,7 @@ module.exports = [
             type: 'array', 
             items: { 
               type: 'string',
-              enum: [ 'biosyslit', 'belgiumherbarium' ]
+              //enum: [ 'biosyslit', 'belgiumherbarium' ]
             },
             minItems: 1,
             maxItems: 2,
