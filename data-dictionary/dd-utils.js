@@ -109,7 +109,7 @@ const getCols = (resource) => getParams(resource)
     })
 
 // defaultCols: columns that are returned if no columns are 
-// specified in a REST query via $cols
+// specified in a REST query via 'cols'
 const getDefaultCols = (resource) => getCols(resource)
     .filter(p => p.isDefaultCol === true)
 
@@ -157,7 +157,7 @@ const getSchema = function(resource) {
 
         if (resourcesFromZenodeo.includes(resource)) {
             if (p.schema.type === 'array') {
-                if (p.name === '$cols') {
+                if (p.name === 'cols') {
                     p.schema.items.enum = getCols(resource).map(c => c.name)
                     p.schema.default = getDefaultCols(resource).map(c => c.name)
                     p.schema.errorMessage = {
@@ -178,7 +178,7 @@ const getSchema = function(resource) {
 const getJoin = (resource, column, joinType) => {
     const col = getParams(resource)
         .filter(c => c.name === column)[0]
-
+    
     if (joinType) {
         return col.joins ? col.joins[joinType] : null
     }

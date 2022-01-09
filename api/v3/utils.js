@@ -1,7 +1,7 @@
 'use strict'
 
-const util = require('util')
-const config = require('config')
+const util = require('util');
+const config = require('config');
 
 /* 
  * prepare and connect to the database
@@ -10,39 +10,41 @@ const config = require('config')
  * https://github.com/JoshuaWise/better-sqlite3/issues/102#issuecomment-369468174
  * 
  */
-const Database = require('better-sqlite3')
-const db = new Database(config.get('db.treatments'))
-db.prepare(`ATTACH DATABASE '${config.get('db.gbifcollections')}' AS z3collections`).run()
-db.prepare(`ATTACH DATABASE '${config.get('db.facets')}' AS z3facets`).run()
+const Database = require('better-sqlite3');
+const db = new Database(config.get('db.treatments'));
+db.prepare(`ATTACH DATABASE '${config.get('db.gbifcollections')}' AS gbifcollections`).run();
+db.prepare(`ATTACH DATABASE '${config.get('db.facets')}' AS facets`).run();
 
-const { logger } = require('../../lib/utils')
-const log = logger('API:V3:UTILS')
-//log.level = 'error'
+const { logger } = require('../../lib/utils');
+const log = logger('API:V3:UTILS');
 
-const uriZenodo = config.get('url.zenodo')
-const uriZenodeo = config.get('url.zenodeo')
+const uriZenodo = config.get('url.zenodo');
+const uriZenodeo = config.get('url.zenodeo');
 
-const fetch = require('node-fetch')
-const zql = require('../../lib/zql/')
-const crypto = require('crypto')
+const fetch = require('node-fetch');
+const zql = require('../../lib/zql/');
+const crypto = require('crypto');
 
-const JSON5 = require('json5')
+const JSON5 = require('json5');
 
-const isDebug = config.get('isDebug')
-const cacheOn = config.get('v3.cache.on')
-const cacheDuration = config.get('v3.cache.duration')
-const cacheBase = config.get('v3.cache.base')
-const acf = require('../../lib/abstract-cache-file')
+const isDebug = config.get('isDebug');
+const sqlFormatter = require('sql-formatter-plus');
+const cacheOn = config.get('v3.cache.on');
+const cacheDuration = config.get('v3.cache.duration');
+const cacheBase = config.get('v3.cache.base');
+const acf = require('../../lib/abstract-cache-file');
 
-const { getSourceOfResource } = require('../../data-dictionary/dd-utils')
+const { getSourceOfResource } = require('../../data-dictionary/dd-utils');
 
 // resource: the resource being requested; maps to a SQL table
 const handlerFactory = (resource) => {
 
-    // request: the request object from a client
-    // reply: a fastify object
-    // result: the output of querying the datastore
-    // response: packaged result that is sent back
+    /*
+     * request: the request object from a client
+     * reply: a fastify object
+     * result: the output of querying the datastore
+     * response: packaged result that is sent back
+     */
     return async function(request, reply) {
         log.info(`handler() -> fetching ${resource} from "${request.url}"`)
 
@@ -61,65 +63,66 @@ const handlerFactory = (resource) => {
 
             const cacheKey = getCacheKey(request, resource)
         
-            if ('$refreshCache' in params && params.$refreshCache) {
-                log.info("handler() -> forcing refresh cache")
-                removeFromCache(cacheKey, cache)
-                response = await queryDataStoreAndCacheResult(request, resource, params, cacheKey, cache)
+            if ('refreshCache' in params && params.refreshCache) {
+                log.info("handler() -> forcing refresh cache");
+                removeFromCache(cacheKey, cache);
+                response = await queryDataStoreAndCacheResult(request, resource, params, cacheKey, cache);
             }
             else {
-                response = await checkCache(cacheKey, cache)
+                response = await checkCache(cacheKey, cache);
                 
                 if (response) {
-                    log.info("handler() -> found result in cache")
+                    log.info("handler() -> found result in cache");
                 }
                 else {
-                    log.info("handler() -> no result in cache")
-                    response =  await queryDataStoreAndCacheResult(request, resource, params, cacheKey, cache)
+                    log.info("handler() -> no result in cache");
+                    response =  await queryDataStoreAndCacheResult(request, resource, params, cacheKey, cache);
                 }
             }
         }
         else {
-            log.info("handler() -> cache is off")
-            response = await queryDataStore(request, resource, params)
+            log.info("handler() -> cache is off");
+            response = await queryDataStore(request, resource, params);
         }
 
-        return response
+        return response;
     }
 }
 
 const getOriginalSearchParams = function(request) {
-    const p = request.context.config.url
-    const u = request.url
-    const originalSearchParams = new URLSearchParams(u.replace(`${p}?`, ''))
-    if (originalSearchParams.has('$refreshCache')) {
-        originalSearchParams.delete('$refreshCache')
+    const p = request.context.config.url;
+    const u = request.url;
+    const originalSearchParams = new URLSearchParams(u.replace(`${p}?`, ''));
+    if (originalSearchParams.has('refreshCache')) {
+        originalSearchParams.delete('refreshCache');
     }
 
-    return originalSearchParams
+    return originalSearchParams;
 }
 
-const _sort = function(url) {
-    const dollar = {}
-    const plain = {}
-    url.forEach((value, name) => {
-        if (name.substring(0) === '$') {
-            dollar[name] = value
-        }
-        else {
-            plain[name] = value
-        }
-    })
+// const _sort = function(url) {
+//     const dollar = {}
+//     const plain = {}
+//     url.forEach((value, name) => {
+//         if (name.substring(0) === '$') {
+//             dollar[name] = value
+//         }
+//         else {
+//             plain[name] = value
+//         }
+//     })
 
-    const obj = {}
-    Object.keys(plain).sort().reverse().forEach(k => obj[k] = plain[k])
-    Object.keys(dollar).sort().reverse().forEach(k => obj[k] = plain[k])
+//     const obj = {}
+//     Object.keys(plain).sort().reverse().forEach(k => obj[k] = plain[k])
+//     Object.keys(dollar).sort().reverse().forEach(k => obj[k] = plain[k])
 
-    return new URLSearchParams(obj)
-}
+//     return new URLSearchParams(obj)
+// }
 
 const getCacheKey = function(request, resource) {
-    const self = _pruneLink(new URLSearchParams(request.query))
-    const _self = `${resource}/${decodeURIComponent(_sort(self).toString())}`
+    const self = _pruneLink(request.query);
+    self.sort();
+    const _self = `${resource}/${self.toString()}`;
 
     log.info(`getCacheKey() -> creating key for ${_self}`)
 
@@ -147,6 +150,7 @@ const getSearch = function(request) {
 const _sqlRunner = function(sql, runparams) {
     try {
         let t = process.hrtime()
+        
         const res = db.prepare(sql).all(runparams)
         t = process.hrtime(t)
 
@@ -164,41 +168,65 @@ const _sqlRunner = function(sql, runparams) {
     }
 }
 
+const formatDebug = (debug, queryType, sql, runparams, runtime) => {
+    if (isDebug) {
+        const params = {}
+        for (let [k, v] of Object.entries(runparams)) {
+            if (typeof(v) === 'string') {
+                params[k] = "'" + v + "'";
+            }
+            else {
+                params[k] = v;
+            }
+        }
+
+        let formattedSql = sqlFormatter.format(sql, { params });
+        formattedSql = formattedSql.replace(/\n\s*/g, ' ');
+        debug[queryType] = { 
+            query: formattedSql, 
+            runtime
+        }
+    }
+}
+
 const getDataFromZenodeo = async function(resource, params) {
-    log.info('getDataFromZenodeo() -> getting data from Zenodeo')
-    const { queries, runparams } = zql({ resource, params })
-    const { res, runtime } = _sqlRunner(queries.countSql, runparams)
+    log.info('getDataFromZenodeo() -> getting data from Zenodeo');
+    const { queries, runparams } = zql({ resource, params });
+    const { res, runtime } = _sqlRunner(queries.countSql, runparams);
     const result = {}
     const debug = {}
 
-    result.count = res[0].num_of_records
+    result.count = res[0].num_of_records;
     
-    if (isDebug) {
-        debug.countQuery = { query: queries.countSql, runtime }
-    }
+    formatDebug(debug, 'countQuery', queries.countSql, runparams, runtime);
 
     if (result.count) {
         if (queries.fullSql) {
-            const { res, runtime } = _sqlRunner(queries.fullSql, runparams)
+            const { res, runtime } = _sqlRunner(queries.fullSql, runparams);
             
-            result.records = res
-            if (isDebug) {
-                debug.fullQuery = { query: queries.fullSql, runtime }
+            result.records = res;
+            formatDebug(debug, 'fullQuery', queries.fullSql, runparams, runtime);
+        }
+
+        if (queries.relatedSql) {
+            result['related-records'] = {}
+            debug['related-records'] = {}
+
+            for (let [related, relatedQueries] of Object.entries(queries.relatedSql)) {            
+                const { res, runtime } = _sqlRunner(relatedQueries.queries.fullSql, runparams);
+                result['related-records'][related] = res;
+                formatDebug(debug['related-records'], related, relatedQueries.queries.fullSql, runparams, runtime);
             }
         }
 
         if (queries.facetsSql) {
             result.facets = {}
+            debug.facets = {}
+
             for (let [facet, sql] of Object.entries(queries.facetsSql)) {
                 const { res, runtime } = _sqlRunner(sql, runparams)
                 result.facets[facet] = res
-                if (isDebug) {
-                    if (!('facets' in debug)) {
-                        debug.facets = {}
-                    }
-                    
-                    debug.facets[facet] = { query: queries.facetsSql[sql], runtime }
-                }
+                formatDebug(debug.facets, facet, queries.facetsSql[sql], runparams, runtime);
             }
         }
     }
@@ -210,16 +238,16 @@ const getDataFromZenodo = async (resource, params) => {
     log.info('getDataFromZenodo() -> getting data from Zenodo')
 
     // clean up request.query
-    const qp = JSON5.parse(JSON5.stringify(params))
+    const qp = JSON5.parse(JSON5.stringify(params));
 
     // add type by removing the last 's' from resource name
     // images -> image
     // publications -> publication
-    qp.type = resource.slice(0, -1)
-    qp.communities = 'biosyslit'
+    qp.type = resource.slice(0, -1);
+    qp.communities = 'biosyslit';
     
     // remove the following params
-    const remove = [ '$refreshCache', '$facets', '$stats', '$sortby' ]
+    const remove = [ 'refreshCache', 'facets', 'stats', 'sortby' ];
     remove.forEach(p => {
         if (p in qp) {
             delete qp[p]
@@ -227,13 +255,13 @@ const getDataFromZenodo = async (resource, params) => {
     })
 
     // remove '$' from the following params
-    const remove$ = [ '$page', '$size' ]
-    remove$.forEach(p => {
-        if (p in qp) {
-            qp[ p.substr(1) ] = qp[p]
-            delete qp[p]
-        }
-    })
+    // const remove$ = [ '$page', '$size' ]
+    // remove$.forEach(p => {
+    //     if (p in qp) {
+    //         qp[ p.substring(1) ] = qp[p]
+    //         delete qp[p]
+    //     }
+    // })
 
     const qs = new URLSearchParams(qp)
     const uriRemote = qs ? `${uriZenodo}?${qs}` : uriZenodo
@@ -323,34 +351,38 @@ const removeFromCache = function(cacheKey, cache) {
     cache.delete(cacheKey)
 }
 
-const _pruneLink = function(url) {
-    url.delete('deleted')
+const _pruneLink = function(query) {
+    const searchParams = new URLSearchParams(query);
+    searchParams.delete('deleted');
 
-    if (url.get('$facets') === 'false') {
-        url.delete('$facets')
+    if (searchParams.get('facets') === 'false') {
+        searchParams.delete('facets');
     }
 
-    if (url.has('$refreshCache')) {
-        url.delete('$refreshCache')
+    if (searchParams.has('refreshCache')) {
+        searchParams.delete('refreshCache');
     }
 
-    return url
+    return searchParams;
 }
 
 const makeLinks = function(request) {
-    const self = _pruneLink(new URLSearchParams(request.query))
+    const self = _pruneLink(request.query);
+    self.sort();
     
-    const prev = _pruneLink(new URLSearchParams(request.query))
-    prev.set('$page', prev.get('$page') > 1 ? prev.get('$page') - 1 : 1)
+    const prev = _pruneLink(request.query);
+    prev.set('page', prev.get('page') > 1 ? prev.get('page') - 1 : 1);
+    prev.sort();
 
-    const next = _pruneLink(new URLSearchParams(request.query))
-    next.set('$page', next.get('$page') > 1 ? Number(next.get('$page')) + 1 : 2)
+    const next = _pruneLink(request.query);
+    next.set('page', next.get('page') > 1 ? Number(next.get('page')) + 1 : 2);
+    next.sort();
 
     const host = `${request.protocol}://${request.hostname}${request.routerPath}`;
     return {
-        "_self": `${host}?${decodeURIComponent(_sort(self).toString())}`,
-        "_prev": `${host}?${decodeURIComponent(_sort(prev).toString())}`,
-        "_next": `${host}?${decodeURIComponent(_sort(next).toString())}`
+        "_self": `${host}?${self.toString()}`,
+        "_prev": `${host}?${prev.toString()}`,
+        "_next": `${host}?${next.toString()}`
     }
 }
 

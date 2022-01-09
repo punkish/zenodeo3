@@ -27,13 +27,26 @@ const rootHandler = async function(request, reply) {
         item: {
             'search-criteria': {},
             'num-of-records': records.length,
-            _links: { self: { href: `${url.zenodeo}/` }},
+            _links: { _self: { href: `${url.zenodeo}/` }},
             records: records
         },
         stored: null,
         ttl: null
     }
 }
+
+/*
+* the following takes care of cols=col1,col2,col3
+* as sent by the swagger interface to be validated 
+* correctly by ajv as an array
+*/
+const coerceToArray = (request, param) => {
+    if (typeof request.query[param] === 'string') {
+        const arr = request.query[param].split(',');
+        request.query[param] = arr;
+    }
+}
+
 /*
  * This is the route factory that uses the routes configuration
  * defined in data-dictionary and generates a route. The route  
@@ -63,14 +76,8 @@ const routes = async function(fastify, options) {
             },
 
             preValidation: function(request, reply, done) {
-                    
-                // the following takes care of $cols=col1,col2,col3
-                // as sent by the swagger interface to be validated 
-                // correctly by ajv as an array
-                if (typeof request.query.$cols === 'string') {
-                    const arr = request.query.$cols.split(',')
-                    request.query.$cols = arr
-                }
+                coerceToArray(request, 'cols');
+                coerceToArray(request, 'communities');
 
                 // if (request.query && request.query.geolocation) {
                 //     let g = request.query.geolocation
@@ -97,7 +104,7 @@ const routes = async function(fastify, options) {
                 //     request.query.geolocation = geolocation
                 // }
 
-                done()
+                done();
             },
 
             handler: handlerFactory(r.name)
@@ -105,11 +112,11 @@ const routes = async function(fastify, options) {
 
         // hide the fake route
         if (r.name === 'fake') {
-            route.schema.hide = true
+            route.schema.hide = true;
         }
 
-        fastify.route(route)
+        fastify.route(route);
     })
 }
 
-module.exports = routes
+module.exports = routes;

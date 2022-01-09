@@ -5,7 +5,7 @@ module.exports = [
     // parameters that affect the query but are  
     // not a part of it
     {
-        name: '$refreshCache',
+        name: 'refreshCache',
         schema: {
             type: 'boolean',
             description: 'Force refresh cache (true | false)',
@@ -13,7 +13,7 @@ module.exports = [
         }
     },
     {
-        name: '$facets',
+        name: 'facets',
         schema: {
             type: 'boolean',
             description: 'Calculate facets (true | false)',
@@ -21,7 +21,7 @@ module.exports = [
         }
     },
     // {
-    //     name: '$stats',
+    //     name: 'stats',
     //     schema: {
     //         type: 'boolean',
     //         description: 'Calculate statistics (true | false)',
@@ -36,9 +36,9 @@ module.exports = [
     // parameters that are not columns
 
     // maps --> OFFSET
-    // OFFSET = $page - 1
+    // OFFSET = page - 1
     {
-        name: '$page',
+        name: 'page',
         schema: {
             type: 'integer',
             minimum: 1,
@@ -49,7 +49,7 @@ module.exports = [
 
     // maps --> LIMIT
     {
-        name: '$size',
+        name: 'size',
         schema: {
             type: 'integer',
             minimum: 1,
@@ -60,7 +60,7 @@ module.exports = [
 
     // maps --> ORDER BY
     {
-        name: '$sortby',
+        name: 'sortby',
         schema: {
             type: 'string',
             minimum: 1,
@@ -73,14 +73,14 @@ module.exports = [
 
     // maps --> SELECT
     {
-        name: '$cols',
+        name: 'cols',
         schema: { 
             type: 'array', 
             items: { 
                 type: 'string'
             },
             description: `Columns to retreive in the result set. Order of columns doesn't matter. Provide columns like so:
-- \`$cols=column1&$cols=column2&$cols=column3\``
+- \`cols=column1&cols=column2&cols=column3\``
         }
     }
 ]

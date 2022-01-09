@@ -49,11 +49,18 @@ module.exports = [
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectionCode")',
         defaultCols: true,
-        join: [ 
-            'JOIN materialsCitationsXcollectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
-            'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
-            'LEFT JOIN z3collections.institutions ON collectionCodes.collectionCode = institution_code'
-        ]
+        joins: {
+            query: [ 
+                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
+                'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
+                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
+            ],
+            select: [ 
+                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
+                'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
+                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
+            ]
+        },
     },
     {
         name: 'institution_name',
