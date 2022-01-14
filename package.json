@@ -31,6 +31,7 @@
         "fastify": "^3.25.3",
         "fastify-blipp": "^3.1.0",
         "fastify-caching": "^6.2.0",
+        "fastify-compress": "^4.0.1",
         "fastify-cors": "^6.0.2",
         "fastify-favicon": "^3.1.0",
         "fastify-static": "^4.5.0",

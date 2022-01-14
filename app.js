@@ -29,15 +29,16 @@ const hbs = {
 }
 
 function build(opts={}) {
-    const app = fastify(opts)
+    const app = fastify(opts);
 
-    app.register(require('fastify-blipp'))
-    app.register(require('fastify-favicon'))
-    app.register(require('point-of-view'), hbs)
-    app.register(require('./static/'))
-    app.register(require('fastify-swagger'), swagger.options)
-    app.register(require('./api/v3/index'), { prefix: '/v3' })
-    app.register(require('fastify-cors'))
+    app.register(require('fastify-blipp'));
+    app.register(require('fastify-favicon'));
+    app.register(require('point-of-view'), hbs);
+    app.register(require('./static/'));
+    app.register(require('fastify-swagger'), swagger.options);
+    app.register(require('fastify-compress'));
+    app.register(require('./api/v3/index'), { prefix: '/v3' });
+    app.register(require('fastify-cors'));
     app.register(require('fastify-static'), {
         root: path.join(__dirname, 'public'),
         prefix: '/public/',
@@ -46,4 +47,4 @@ function build(opts={}) {
     return app
 }
 
-module.exports = build
+module.exports = build;

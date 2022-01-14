@@ -6,6 +6,39 @@ const re = {
     real: '((\\+|-)?(\\d+)(\\.\\d+)?)|((\\+|-)?\\.?\\d+)'
 }
 
+const getPattern = (field) => {
+    let operator;
+    let condition1;
+    let condition2;
+    let condition;
+
+    if (field === 'location') {
+        const radius     = `\\s*radius:(?<radius>${re.real})`;
+        const units      = `\\s*units:\\s*'(?<units>kilometers|miles)'`;
+        const lat        = `\\s*lat:\\s*(?<lat>${re.real})`;
+        const lng        = `\\s*lng:\\s*(?<lng>${re.real})`;
+        const min_lat    = `lat:\\s*(?<min_lat>${re.real})`;
+        const min_lng    = `lng:\\s*(?<min_lng>${re.real})`;
+        const max_lat    = `lat:\\s*(?<max_lat>${re.real})`;
+        const max_lng    = `lng:\\s*(?<max_lng>${re.real})`;
+        const lowerLeft  = `\\s*lowerLeft:\\s*{${min_lat},\\s*${min_lng}}`;
+        const upperRight = `\\s*upperRight:\\s*{${max_lat},\\s*${max_lng}}`;
+        operator         = `(?<operator>within|containedIn)`;
+        condition1       = `${radius},${units},${lat},${lng}`;
+        condition2       = `${lowerLeft},${upperRight}`;
+        condition        = `{(${condition1}|${condition2})}`;
+    }
+    else if (field === 'publicationDate') {
+        operator         = `(?<operator>eq|since|until|between)?`;
+        condition1       = `(?<date>${re.date})`;
+        condition2       = `(?<from>${re.date})\\s*and\\s*(?<to>${re.date})`;
+        condition        = `(${condition1}|${condition2})`;
+    }
+
+    return `^${operator}\\(${condition}\\)$`;
+}
+
+
 // see https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289 
 // for notes from @gsautter
 
@@ -189,9 +222,9 @@ module.exports = [
         name: 'publicationDate',
         schema: {
             type: 'string',
-            pattern: `^((since|until)\\(${re.date}\\))|(between\\(${re.date} and ${re.date}\\))$`,
+            pattern: getPattern('publicationDate'),
             description: `The publication date of the treatment. Can use the following syntax: 
-- \`publicationDate=2018-1-12\`
+- \`publicationDate=eq(2018-1-12)\`
 - \`publicationDate=since(2018-12-03)\`
 - \`publicationDate=until(2018-03-22)\`
 - \`publicationDate=between(2018-03-22 and 2019-12-03)\`
@@ -414,20 +447,56 @@ module.exports = [
     },
 
     {
+        name: 'latitude',
+        schema: {
+            type: 'number',
+            pattern: re.real,
+            description: `The geolocation of the treatment.`,
+        },
+        //zqltype: 'loc',
+        where: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        joins: {
+            query: null,
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+        }
+    },
+
+    {
+        name: 'longitude',
+        schema: {
+            type: 'number',
+            pattern: re.real,
+            description: `The geolocation of the treatment.`,
+        },
+        //zqltype: 'loc',
+        where: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        joins: {
+            query: null,
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+        }
+    },
+
+    {
         name: 'location',
         schema: {
             type: 'string',
-            pattern: `^within\\(radius:\\s*(?<radius>${re.real}),\\s*units:\\s*(kilometers|miles),\\s*lat:\\s*(${re.real}),\\s*lng:(${re.real})\\)$`,
+            //pattern: `^within\\(radius:\\s*(?<radius>${re.real}),\\s*units:\\s*(kilometers|miles),\\s*lat:\\s*(${re.real}),\\s*lng:(${re.real})\\)$`,
+            pattern: getPattern('location'),
             description: `The geolocation of the treatment. Can use the following syntax:
 - \`location=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
-- \`location=near({lat: 40.00, lng: -120})\`
-  **note:** when using 'near'
-  - radius defaults to 1
-  - units default to kilometers`,
+- \`location=containtedIn({lowerLeft:{lat: -40.00, lng: -120},upperRight: {lat:23,lng:6.564}})\`
+`,
+//             description: `The geolocation of the treatment. Can use the following syntax:
+// - \`location=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
+// - \`location=near({lat: 40.00, lng: -120})\`
+//   **note:** when using 'near'
+//   - radius defaults to 1
+//   - units default to kilometers`,
         },
-        zqltype: 'loc',
+        zqltype: 'location',
+        where: 'materialsCitations.deleted = 0 AND validGeo = 1',
         joins: {
-            query: null,
+            query: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
             select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
         }
     },
@@ -557,6 +626,7 @@ module.exports = [
             description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
             isResourceId: false
         },
+        selname: 'treatments.deleted',
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("document").attr("deleted")',
         defaultCols: false

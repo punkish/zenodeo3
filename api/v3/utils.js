@@ -192,6 +192,7 @@ const formatDebug = (debug, queryType, sql, runparams, runtime) => {
 const getDataFromZenodeo = async function(resource, params) {
     log.info('getDataFromZenodeo() -> getting data from Zenodeo');
     const { queries, runparams } = zql({ resource, params });
+    console.log(queries.countSql)
     const { res, runtime } = _sqlRunner(queries.countSql, runparams);
     const result = {}
     const debug = {}
