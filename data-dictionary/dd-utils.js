@@ -99,7 +99,7 @@ const getCols = (resource) => getParams(resource)
             name: p.name, 
             selname: p.selname || p.name, 
             isResourceId: p.schema.isResourceId || false,
-            where: p.where || p.selname || p.name, 
+            where: p.where, 
             join: p.join || '',
             sqltype: p.sqltype,
             zqltype: p.zqltype || 'text',
@@ -131,8 +131,12 @@ const getSelname = (resource, column) => getCols(resource)
     .filter(c => c.name === column)[0].selname
 
 // where: the column name used in the WHERE clause of a SQL query
-const getWhere = (resource, column) => getCols(resource)
-    .filter(c => c.name === column)[0].where
+const getWhere = (resource, column, type) => {
+    const col = getParams(resource)
+        .filter(c => c.name === column)[0]
+    
+    return col.constraints ? col.constraints[type] : '' 
+}
 
 const getZqltype = (resource, column) => getCols(resource)
     .filter(c => c.name === column)[0].zqltype
@@ -175,16 +179,17 @@ const getSchema = function(resource) {
     return schema
 }
 
-const getJoin = (resource, column, joinType) => {
+const getJoin = (resource, column, type) => {
     const col = getParams(resource)
         .filter(c => c.name === column)[0]
     
-    if (joinType) {
-        return col.joins ? col.joins[joinType] : null
-    }
-    else {
-        return col.joins ? true : false 
-    }
+    // if (type) {
+    //     return col.joins ? col.joins[type] : null
+    // }
+    // else {
+    //     return col.joins ? true : false 
+    // }
+    return col.joins ? col.joins[type] : '' 
 }
 
 // Finding the number of function parameters in JavaScript
@@ -322,5 +327,6 @@ const test = () => {
 //     test()
 // }
 // else {
+    
     module.exports = dispatch
 // }

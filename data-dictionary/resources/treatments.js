@@ -454,7 +454,10 @@ module.exports = [
             description: `The geolocation of the treatment.`,
         },
         //zqltype: 'loc',
-        where: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        constraints: {
+            query: null,
+            select: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        },
         joins: {
             query: null,
             select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
@@ -469,7 +472,10 @@ module.exports = [
             description: `The geolocation of the treatment.`,
         },
         //zqltype: 'loc',
-        where: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        constraints: {
+            query: null,
+            select: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        },
         joins: {
             query: null,
             select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
@@ -494,7 +500,10 @@ module.exports = [
 //   - units default to kilometers`,
         },
         zqltype: 'location',
-        where: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        constraints: {
+            query: 'materialsCitations.deleted = 0 AND validGeo = 1',
+            select: null,
+        },
         joins: {
             query: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
             select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
@@ -531,18 +540,20 @@ module.exports = [
         name: 'fulltext',
         schema: {
             type: 'string',
-            description: `The full text of the treatment. Can use the following syntax: 
-- \`q=spiders\``
+            description: 'The full text of the treatment',
         },
         selname: "highlight(vtreatments, 1, '<b>', '</b>') fulltext",
         sqltype: 'TEXT',
         cheerio: '$("treatment").text()',
         defaultCols: false,
-        defaultOp: 'match',
-        where: 'vtreatments',
+        //defaultOp: 'match',
+        // constraints: {
+        //     query: 'vtreatments',
+        //     select: null
+        // },
         joins: {
-            query: [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ],
-            select: null
+            query: null,
+            select: [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
         }
     },
 
@@ -557,7 +568,10 @@ module.exports = [
         sqltype: 'TEXT',
         defaultCols: false,
         defaultOp: 'match',
-        where: 'vtreatments',
+        constraints: {
+            query: 'vtreatments MATCH @q',
+            select: null
+        },
         joins: {
             query: [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ],
             select: null
@@ -611,7 +625,10 @@ module.exports = [
         sqltype: 'TEXT',
         defaultCols: false,
         defaultOp: 'match',
-        where: 'vfigurecitations',
+        constraints: {
+            query: 'vfigurecitations MATCH @captionText',
+            select: null
+        },
         joins: {
             query: [ 'vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ],
             select: [ 'LEFT JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]

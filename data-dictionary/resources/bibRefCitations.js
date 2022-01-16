@@ -36,14 +36,37 @@ module.exports = [
         name: 'refString',
         schema: {
             type: 'string',
-            description: `The full text of the reference cited by the treatment. Can use the following syntax: \`q=spiders\``
+            description: `The full text of the reference cited by the treatment`
         },
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("refString")',
         defaultCols: true,
+        //defaultOp: 'match',
+        joins: {
+            query: null,
+            select: null
+        }
+    },
+
+    {
+        name: 'q',
+        schema: {
+            type: 'string',
+            description: `A snippet extracted from the full text of the reference cited by the treatment. Can use the following syntax: 
+- \`q=spiders\``
+        },
+        selname: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
+        sqltype: 'TEXT',
+        defaultCols: false,
         defaultOp: 'match',
-        where: 'vbibrefcitations',
-        join: [ 'JOIN vbibrefcitations ON bibRefCitations.bibRefCitationId = vbibrefcitations.bibRefCitationId' ]
+        constraints: {
+            query: 'vbibrefcitations MATCH @q',
+            select: null
+        },
+        joins: {
+            query: [ 'JOIN vbibrefcitations ON bibRefCitations.bibRefCitationId = vbibrefcitations.bibRefCitationId' ],
+            select: null
+        }
     },
 
     {

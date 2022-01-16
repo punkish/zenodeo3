@@ -164,7 +164,8 @@ const _sqlRunner = function(sql, runparams) {
 
     }
     catch(error) {
-        throw error
+        console.log(sql);
+        throw error;
     }
 }
 
@@ -192,42 +193,42 @@ const formatDebug = (debug, queryType, sql, runparams, runtime) => {
 const getDataFromZenodeo = async function(resource, params) {
     log.info('getDataFromZenodeo() -> getting data from Zenodeo');
     const { queries, runparams } = zql({ resource, params });
-    console.log(queries.countSql)
-    const { res, runtime } = _sqlRunner(queries.countSql, runparams);
+    //console.log(queries)
+    const { res, runtime } = _sqlRunner(queries.main.count, runparams);
     const result = {}
     const debug = {}
 
     result.count = res[0].num_of_records;
     
-    formatDebug(debug, 'countQuery', queries.countSql, runparams, runtime);
+    formatDebug(debug, 'countQuery', queries.main.count, runparams, runtime);
 
     if (result.count) {
-        if (queries.fullSql) {
-            const { res, runtime } = _sqlRunner(queries.fullSql, runparams);
+        if (queries.main.full) {
+            const { res, runtime } = _sqlRunner(queries.main.full, runparams);
             
             result.records = res;
-            formatDebug(debug, 'fullQuery', queries.fullSql, runparams, runtime);
+            formatDebug(debug, 'fullQuery', queries.main.full, runparams, runtime);
         }
 
-        if (queries.relatedSql) {
+        if (queries.related) {
             result['related-records'] = {}
             debug['related-records'] = {}
 
-            for (let [related, relatedQueries] of Object.entries(queries.relatedSql)) {            
-                const { res, runtime } = _sqlRunner(relatedQueries.queries.fullSql, runparams);
-                result['related-records'][related] = res;
-                formatDebug(debug['related-records'], related, relatedQueries.queries.fullSql, runparams, runtime);
+            for (let [relatedRecord, sql] of Object.entries(queries.related)) {            
+                const { res, runtime } = _sqlRunner(sql.full, runparams);
+                result['related-records'][relatedRecord] = res;
+                formatDebug(debug['related-records'], relatedRecord, sql.full, runparams, runtime);
             }
         }
 
-        if (queries.facetsSql) {
+        if (queries.facets) {
             result.facets = {}
             debug.facets = {}
 
-            for (let [facet, sql] of Object.entries(queries.facetsSql)) {
+            for (let [facet, sql] of Object.entries(queries.facets)) {
                 const { res, runtime } = _sqlRunner(sql, runparams)
                 result.facets[facet] = res
-                formatDebug(debug.facets, facet, queries.facetsSql[sql], runparams, runtime);
+                formatDebug(debug.facets, facet, sql, runparams, runtime);
             }
         }
     }

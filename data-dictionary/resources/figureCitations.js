@@ -51,7 +51,10 @@ module.exports = [
         cheerio: '$("figureCitation").attr("captionText")',
         defaultCols: true,
         defaultOp: 'match',
-        where: 'vfigurecitations',
+        constraints: {
+            query: 'vfigurecitations MATCH @captionText',
+            select: null
+        },
         joins: {
             query: [ 'vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ],
             select: null
