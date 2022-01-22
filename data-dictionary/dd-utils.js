@@ -1,10 +1,9 @@
 'use strict'
 
-const util = require('util')
-const commonparams = require('./commonparams')
-const JSON5 = require('json5')
-const resources = require('./index')
-const inquirer = require('inquirer')
+// const util = require('util')
+const commonparams = require('./commonparams');
+// const JSON5 = require('json5')
+const resources = require('./index');
 
 /*
 elements are extracted from articles (-> 'cheerio')
@@ -192,6 +191,8 @@ const getJoin = (resource, column, type) => {
     return col.joins ? col.joins[type] : '' 
 }
 
+const getNotCols = () => commonparams.map(c => c.name)
+
 // Finding the number of function parameters in JavaScript
 // https://stackoverflow.com/a/6293830/183692
 const getArgs = (f) => {
@@ -217,116 +218,26 @@ const dispatch = {
     getZqltype,
     getSchema,
     getResourceid,
-    getJoin
+    getJoin,
+    getNotCols
 }
 
 const test = () => {
-    const a = {
-        type: 'list',
-        name: 'fn',
-        message: 'Please choose a function:',
-        choices: Object.keys(dispatch)
+    if (process.argv.length <= 2) {
+        console.log('available functions are:');
+        console.log('- ' + Object.keys(dispatch).join('\n- '));
     }
-
-    const b = {
-        type: 'list',
-        name: 'in',
-        message: 'Please choose a resource:',
-        choices: dispatch.getResources()
+    else {
+        const [one, two, fn, ...args] = process.argv;
+        console.log(dispatch[fn](...args));
     }
-
-    const d = {
-        type: 'list',
-        name: 'in',
-        message: 'Please choose a join type:',
-        choices: ['query', 'select']
-    }
-
-    const inputs = [ a ]
-    
-    /*
-    inquirer.prompt(inputs).then((answers) => {
-        const func = answers.fn
-        const args = getArgs(dispatch[func])
-
-        if (args) {
-            if (args.length == 1) {
-                const inputs = [ b ]
-
-                inquirer.prompt(inputs).then((answers) => {
-                    const resource = answers.in
-                    const res = dispatch[func](resource)
-                    console.log(util.inspect(res, {showHidden: false, depth: null, colors: true}))
-                })
-            }
-            else if (args.length == 2) {
-                const inputs = [ b ]
-
-                inquirer.prompt(inputs).then((answers) => {
-                    const resource = answers.in
-                    const inputs = [ 
-                        {
-                            type: 'list',
-                            name: 'in',
-                            message: 'Please choose a column:',
-                            choices: dispatch.getAllCols(resource)
-                        }
-                    ]
-
-                    inquirer.prompt(inputs).then((answers) => {
-                        const column = answers.in
-                        const res = dispatch[func](resource, column)
-                        console.log(util.inspect(res, {showHidden: false, depth: null, colors: true}))
-                    })
-                })
-            }
-            else if (args.length == 3) {
-                const inputs = [ b ]
-
-                inquirer.prompt(inputs).then((answers) => {
-                    const resource = answers.in
-                    const inputs = [ 
-                        {
-                            type: 'list',
-                            name: 'in',
-                            message: 'Please choose a column:',
-                            choices: dispatch.getAllCols(resource)
-                        }
-                    ]
-
-                    inquirer.prompt(inputs).then((answers) => {
-                        const column = answers.in
-                        const res = dispatch[func](resource, column)
-                        if (res) {
-                            const inputs = [ d ]
-
-                            inquirer.prompt(inputs).then((answers) => {
-                                const joinType = answers.in
-                                const res = dispatch[func](resource, column, joinType)
-                                console.log(util.inspect(res, {showHidden: false, depth: null, colors: true}))
-                            })
-                        }
-                        else {
-                            console.log('This column has no JOINs')
-                        }
-                        
-                    })
-                })
-            }
-        }
-        else {
-            const res = dispatch[func]()
-            console.log(util.inspect(res, {showHidden: false, depth: null, colors: true}))
-        }
-    })
-    */
 }
 
 // https://stackoverflow.com/questions/6398196/detect-if-called-through-require-or-directly-by-command-line?rq=1
-// if (require.main === module) {
-//     test()
-// }
-// else {
+if (require.main === module) {
+    test()
+}
+else {
     
     module.exports = dispatch
-// }
+}

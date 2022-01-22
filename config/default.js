@@ -105,6 +105,7 @@ module.exports = {
     },
 
     db: {
+        h3             : path.join(dataDir, 'h3'),
         stats          : path.join(dataDir, 'z3-stats.sqlite'),
         treatments     : path.join(dataDir, 'z3-treatments.sqlite'),
         facets         : path.join(dataDir, 'z3-facets.sqlite'),
@@ -112,7 +113,6 @@ module.exports = {
     },
 
     truebug: {
-
         log: {
             level: 'info',
             transports: [ 'console', 'file' ],

@@ -250,6 +250,8 @@ const indexes = [
     `CREATE INDEX IF NOT EXISTS ix_materialsCitations_longitude           ON materialsCitations (deleted, longitude)`,
     `CREATE INDEX IF NOT EXISTS ix_materialsCitations_elevation           ON materialsCitations (deleted, elevation)`,
     `CREATE INDEX IF NOT EXISTS ix_materialsCitations_validGeo            ON materialsCitations (deleted, validGeo)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_isOnLand            ON materialsCitations (deleted, isOnLand)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_validGeo_isOnLand   ON materialsCitations (deleted, validGeo, isOnLand)`,
     `CREATE INDEX IF NOT EXISTS ix_materialsCitations_deleted             ON materialsCitations (deleted)`,
     `CREATE INDEX IF NOT EXISTS ix_collectionCodes_collectionCode         ON collectionCodes (collectionCode)`,
 ]

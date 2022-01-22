@@ -20,6 +20,14 @@ module.exports = [
             default: false
         }
     },
+    {
+        name: 'relatedRecords',
+        schema: {
+            type: 'boolean',
+            description: 'Calculate related records (true | false)',
+            default: false
+        }
+    },
     // {
     //     name: 'stats',
     //     schema: {

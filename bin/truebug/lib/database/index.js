@@ -210,6 +210,43 @@ const getDaysSinceLastEtl = () => {
     return db.stats.prepare(s).get().daysSinceLastEtl
 }
 
+const updateIsOnLand = () => {
+    log.info(`updating column isOnLand in table materialsCitations`);
+
+    /*
+    | lat/lng             | validGeo | isOnLand |
+    |---------------------|----------|----------|
+    | lat/lng are empty   | 0        | NULL     |
+    | lat/lng are wrong   | 0        | NULL     |
+    | lat/lng are correct | 1        | 1 or 0   |
+    | lat/lng are correct | 1        | NULL     | <------
+    */
+    const select = db.treatments.prepare('SELECT id, isOnLand FROM materialsCitations WHERE deleted = 0 AND validGeo = 1 AND isOnLand IS NULL').all();
+    const update = db.treatments.prepare('UPDATE materialsCitations SET isOnLand = @isOnLand WHERE id = @id');
+
+    let count = 0;
+
+    for (const rec of select) {
+
+        // default params
+        const params = {id: rec.id};
+
+        if (isSea(rec.latitude, rec.longitude)) {
+
+            // point is in sea so set isOnLand to 0
+            params.isOnLand = 0;
+        }
+        else {
+            params.isOnLand = 1;
+            count++;
+        }
+        
+        update.run(params);
+    }
+
+    log.info(`updated ${count} rows as being on land`);
+}
+
 module.exports = {
     prepareDatabases,
     selCountOfTreatments,
@@ -221,5 +258,6 @@ module.exports = {
     insertFTS,
     insertStats,
     getDaysSinceLastEtl,
-    getLastUpdate
+    getLastUpdate,
+    updateIsOnLand
 }

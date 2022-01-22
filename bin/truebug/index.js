@@ -1,15 +1,16 @@
 'use strict';
 
-const preflight = require('./lib/preflight');
-const download  = require('./lib/download');
-const database  = require('./lib/database');
-const parse     = require('./lib/parse');
+const preflight  = require('./lib/preflight');
+const postflight = require('./lib/preflight');
+const download   = require('./lib/download');
+const database   = require('./lib/database');
+const parse      = require('./lib/parse');
 
-const config = require('config');
-const truebug = config.get('truebug');
+const config     = require('config');
+const truebug    = config.get('truebug');
 
-const Logger = require('./utils');
-const log = new Logger(truebug.log);
+const Logger     = require('./utils');
+const log        = new Logger(truebug.log);
 
 const processFiles = (files) => {
 
@@ -62,7 +63,7 @@ const processFiles = (files) => {
                 if ((i % dot) == 0) log.info('.', 'end');
             }
             
-            preflight.fileaway(xml);
+            postflight.fileaway(xml);
         }
     }
 
@@ -108,6 +109,7 @@ const process = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
         processFiles(files);
         database.buildIndexes();
         database.insertFTS();
+        database.updateIsOnLand();
         
         log.info(`parsed ${parse.stats.treatments} files with`);
 

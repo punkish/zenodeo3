@@ -1,5 +1,7 @@
 'use strict'
 
+const utils = require('../../lib/utils.js');
+
 module.exports = [
     {
         name: 'materialsCitationId',
@@ -313,41 +315,115 @@ module.exports = [
         defaultOp: 'starts_with'
     },
 
-    {
-        name: 'geolocation',
-        schema: {
-            type: 'string',
-            description: `The geo-location of the materialsCitation. Can use the following syntax:
-- geolocation=within({"radius":10,units:"kilometers","lat":40.00,"lng":-120})
-- geolocation=near({"lat":40.00,"lng":-120})
-  **note:** radius defaults to 1 km when using *near*`,
-        }
-    },
+//     {
+//         name: 'geolocation',
+//         schema: {
+//             type: 'string',
+//             description: `The geo-location of the materialsCitation. Can use the following syntax:
+// - geolocation=within({"radius":10,units:"kilometers","lat":40.00,"lng":-120})
+// - geolocation=near({"lat":40.00,"lng":-120})
+//   **note:** radius defaults to 1 km when using *near*`,
+//         }
+//     },
+
+//     {
+//         name: 'latitude',
+//         schema: {
+//             type: 'string',
+//             description: 'Geographic coordinates of the location where the specimen was collected.',
+//         },
+//         selname: 'materialsCitations.latitude',
+//         sqltype: 'TEXT',
+//         cheerio: '$("materialsCitation").attr("latitude")',
+//         defaultCols: true,
+//         qyeryable: false
+//     },
+
+//     {
+//         name: 'longitude',
+//         schema: {
+//             type: 'string',
+//             description: 'Geographic coordinates of the location where the specimen was collected.',
+//         },
+//         selname: 'materialsCitations.longitude',
+//         sqltype: 'TEXT',
+//         cheerio: '$("materialsCitation").attr("longitude")',
+//         defaultCols: true,
+//         qyeryable: false
+//     },
 
     {
         name: 'latitude',
         schema: {
-            type: 'string',
-            description: 'Geographic coordinates of the location where the specimen was collected.',
+            type: 'number',
+            pattern: utils.re.real,
+            description: `The geolocation of the treatment.`,
         },
-        selname: 'materialsCitations.latitude',
-        sqltype: 'TEXT',
-        cheerio: '$("materialsCitation").attr("latitude")',
-        defaultCols: true,
-        qyeryable: false
+        //zqltype: 'loc',
+        constraints: {
+            query: null,
+            select: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        },
+        joins: {
+            query: null,
+            select: null
+        }
     },
 
     {
         name: 'longitude',
         schema: {
-            type: 'string',
-            description: 'Geographic coordinates of the location where the specimen was collected.',
+            type: 'number',
+            pattern: utils.re.real,
+            description: `The geolocation of the treatment.`,
         },
-        selname: 'materialsCitations.longitude',
-        sqltype: 'TEXT',
-        cheerio: '$("materialsCitation").attr("longitude")',
-        defaultCols: true,
-        qyeryable: false
+        //zqltype: 'loc',
+        constraints: {
+            query: null,
+            select: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        },
+        joins: {
+            query: null,
+            select: null
+        }
+    },
+
+    {
+        name: 'geolocation',
+        schema: {
+            type: 'string',
+            pattern: utils.getPattern('geolocation'),
+            description: `The geolocation of the treatment. Can use the following syntax:
+- \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
+- \`geolocation=containtedIn({lowerLeft:{lat: -40.00, lng: -120},upperRight: {lat:23,lng:6.564}})\`
+`,
+        },
+        zqltype: 'geolocation',
+        constraints: {
+            query: 'materialsCitations.deleted = 0 AND validGeo = 1',
+            select: null,
+        },
+        joins: {
+            query: null,
+            select: null
+        }
+    },
+
+    {
+        name: 'isOnLand',
+        schema: {
+            type: 'number',
+            description: `True if treatment is on land.`,
+        },
+        //zqltype: 'loc',
+        constraints: {
+            query: 'materialsCitations.deleted = 0 AND validGeo = 1',
+            select: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        },
+        joins: {
+            query: null,
+            select: null
+        }
     },
 
     {

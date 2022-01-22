@@ -186,6 +186,8 @@ const indexes = [
     `CREATE INDEX IF NOT EXISTS ix_treatments_k_p_o_f_genus      ON treatments (deleted, kingdom, phylum, "order", family, genus)`,
     `CREATE INDEX IF NOT EXISTS ix_treatments_k_p_o_f_g_species  ON treatments (deleted, kingdom, phylum, "order", family, genus, species)`,
     `CREATE INDEX IF NOT EXISTS ix_treatments_facets             ON treatments (deleted, treatmentId, journalTitle, journalYear, kingdom, phylum, "order", family, genus, species, status, rank)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_checkinTime        ON treatments (deleted, checkinTime)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatments_updateTime         ON treatments (deleted, updateTime)`,
     `CREATE INDEX IF NOT EXISTS ix_treatments_deleted            ON treatments (deleted)`,
 ]
 

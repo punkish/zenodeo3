@@ -1,42 +1,6 @@
 'use strict'
 
-const re = {
-    date: '\\d{4}-\\d{1,2}-\\d{1,2}',
-    year: '^\\d{4}$',
-    real: '((\\+|-)?(\\d+)(\\.\\d+)?)|((\\+|-)?\\.?\\d+)'
-}
-
-const getPattern = (field) => {
-    let operator;
-    let condition1;
-    let condition2;
-    let condition;
-
-    if (field === 'location') {
-        const radius     = `\\s*radius:(?<radius>${re.real})`;
-        const units      = `\\s*units:\\s*'(?<units>kilometers|miles)'`;
-        const lat        = `\\s*lat:\\s*(?<lat>${re.real})`;
-        const lng        = `\\s*lng:\\s*(?<lng>${re.real})`;
-        const min_lat    = `lat:\\s*(?<min_lat>${re.real})`;
-        const min_lng    = `lng:\\s*(?<min_lng>${re.real})`;
-        const max_lat    = `lat:\\s*(?<max_lat>${re.real})`;
-        const max_lng    = `lng:\\s*(?<max_lng>${re.real})`;
-        const lowerLeft  = `\\s*lowerLeft:\\s*{${min_lat},\\s*${min_lng}}`;
-        const upperRight = `\\s*upperRight:\\s*{${max_lat},\\s*${max_lng}}`;
-        operator         = `(?<operator>within|containedIn)`;
-        condition1       = `${radius},${units},${lat},${lng}`;
-        condition2       = `${lowerLeft},${upperRight}`;
-        condition        = `{(${condition1}|${condition2})}`;
-    }
-    else if (field === 'publicationDate') {
-        operator         = `(?<operator>eq|since|until|between)?`;
-        condition1       = `(?<date>${re.date})`;
-        condition2       = `(?<from>${re.date})\\s*and\\s*(?<to>${re.date})`;
-        condition        = `(${condition1}|${condition2})`;
-    }
-
-    return `^${operator}\\(${condition}\\)$`;
-}
+const utils = require('../../lib/utils.js');
 
 
 // see https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289 
@@ -222,7 +186,7 @@ module.exports = [
         name: 'publicationDate',
         schema: {
             type: 'string',
-            pattern: getPattern('publicationDate'),
+            pattern: utils.getPattern('date'),
             description: `The publication date of the treatment. Can use the following syntax: 
 - \`publicationDate=eq(2018-1-12)\`
 - \`publicationDate=since(2018-12-03)\`
@@ -263,7 +227,7 @@ module.exports = [
         name: 'journalYear',
         schema: {
             type: 'string',
-            pattern: re.year,
+            pattern: utils.re.year,
             description: 'The year of the journal'
         },
         sqltype: 'TEXT',
@@ -327,7 +291,7 @@ module.exports = [
         name: 'authorityYear',
         schema: {
             type: 'string',
-            pattern: re.year,
+            pattern: utils.re.year,
             description: 'The year when the taxon name was published'
         },
         sqltype: 'TEXT',
@@ -450,7 +414,7 @@ module.exports = [
         name: 'latitude',
         schema: {
             type: 'number',
-            pattern: re.real,
+            pattern: utils.re.real,
             description: `The geolocation of the treatment.`,
         },
         //zqltype: 'loc',
@@ -468,7 +432,7 @@ module.exports = [
         name: 'longitude',
         schema: {
             type: 'number',
-            pattern: re.real,
+            pattern: utils.re.real,
             description: `The geolocation of the treatment.`,
         },
         //zqltype: 'loc',
@@ -483,14 +447,14 @@ module.exports = [
     },
 
     {
-        name: 'location',
+        name: 'geolocation',
         schema: {
             type: 'string',
             //pattern: `^within\\(radius:\\s*(?<radius>${re.real}),\\s*units:\\s*(kilometers|miles),\\s*lat:\\s*(${re.real}),\\s*lng:(${re.real})\\)$`,
-            pattern: getPattern('location'),
+            pattern: utils.getPattern('geolocation'),
             description: `The geolocation of the treatment. Can use the following syntax:
-- \`location=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
-- \`location=containtedIn({lowerLeft:{lat: -40.00, lng: -120},upperRight: {lat:23,lng:6.564}})\`
+- \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
+- \`geolocation=containtedIn({lowerLeft:{lat: -40.00, lng: -120},upperRight: {lat:23,lng:6.564}})\`
 `,
 //             description: `The geolocation of the treatment. Can use the following syntax:
 // - \`location=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
@@ -499,10 +463,27 @@ module.exports = [
 //   - radius defaults to 1
 //   - units default to kilometers`,
         },
-        zqltype: 'location',
+        zqltype: 'geolocation',
         constraints: {
             query: 'materialsCitations.deleted = 0 AND validGeo = 1',
             select: null,
+        },
+        joins: {
+            query: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+        }
+    },
+
+    {
+        name: 'isOnLand',
+        schema: {
+            type: 'number',
+            description: `True if treatment is on land.`,
+        },
+        //zqltype: 'loc',
+        constraints: {
+            query: 'materialsCitations.deleted = 0 AND validGeo = 1',
+            select: 'materialsCitations.deleted = 0 AND validGeo = 1',
         },
         joins: {
             query: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
@@ -581,11 +562,25 @@ module.exports = [
     {
         name: 'updateTime',
         schema: {
-            type: 'integer',
+            type: 'string',
             //pattern: re.year,
-            description: 'The UTC timestamp when the treatment was last updated (as a result of an update to the article)'
+            //description: 'The UTC timestamp when the treatment was last updated (as a result of an update to the article)'
+            pattern: utils.getPattern('date'),
+            description: `The time when the treatment was last updated (as a result of an update to the article). Can use the following syntax: 
+- \`updateTime=eq(2018-1-12)\`
+- \`updateTime=since(2018-12-03)\`
+- \`updateTime=until(2018-03-22)\`
+- \`updateTime=between(2018-03-22 and 2019-12-03)\`
+
+  **Note1:** Date is made of yyyy-m?-d?
+- yyyy: a four digit year
+- m?: one or two digit month
+- d?: one or two digit day
+
+    **Note2:** Even though this field is called "updateTime", for now it can be queried only for dates.`,
         },
         sqltype: 'INTEGER',
+        zqltype: 'date',
         cheerio: '$("document").attr("updateTime")',
         defaultCols: true
     },
@@ -593,11 +588,25 @@ module.exports = [
     {
         name: 'checkinTime',
         schema: {
-            type: 'integer',
+            type: 'string',
             //pattern: re.year,
-            description: 'The UTC timestamp when the article was first uploaded into the system'
+            //description: 'The UTC timestamp when the article was first uploaded into the system'
+            pattern: utils.getPattern('date'),
+            description: `The time when the article was first uploaded into the system. Can use the following syntax: 
+- \`checkinTime=eq(2018-1-12)\`
+- \`checkinTime=since(2018-12-03)\`
+- \`checkinTime=until(2018-03-22)\`
+- \`checkinTime=between(2018-03-22 and 2019-12-03)\`
+
+  **Note1:** Date is made of yyyy-m?-d?
+- yyyy: a four digit year
+- m?: one or two digit month
+- d?: one or two digit day
+
+    **Note2:** Even though this field is called "checkinTime", for now it can be queried only for dates.`,
         },
         sqltype: 'INTEGER',
+        zqltype: 'date',
         cheerio: '$("document").attr("checkinTime")',
         defaultCols: true
     },
