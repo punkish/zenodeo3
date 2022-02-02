@@ -418,10 +418,10 @@ module.exports = [
             description: `The geolocation of the treatment.`,
         },
         //zqltype: 'loc',
-        constraints: {
-            query: null,
-            select: 'materialsCitations.deleted = 0 AND validGeo = 1',
-        },
+        // constraints: {
+        //     query: null,
+        //     select: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        // },
         joins: {
             query: null,
             select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
@@ -436,10 +436,10 @@ module.exports = [
             description: `The geolocation of the treatment.`,
         },
         //zqltype: 'loc',
-        constraints: {
-            query: null,
-            select: 'materialsCitations.deleted = 0 AND validGeo = 1',
-        },
+        // constraints: {
+        //     query: null,
+        //     select: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        // },
         joins: {
             query: null,
             select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
@@ -464,10 +464,10 @@ module.exports = [
 //   - units default to kilometers`,
         },
         zqltype: 'geolocation',
-        constraints: {
-            query: 'materialsCitations.deleted = 0 AND validGeo = 1',
-            select: null,
-        },
+        // constraints: {
+        //     query: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        //     select: null,
+        // },
         joins: {
             query: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
             select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
@@ -481,9 +481,22 @@ module.exports = [
             description: `True if treatment is on land.`,
         },
         //zqltype: 'loc',
-        constraints: {
-            query: 'materialsCitations.deleted = 0 AND validGeo = 1',
-            select: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        // constraints: {
+        //     query: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        //     select: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        // },
+        joins: {
+            query: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+        }
+    },
+
+    {
+        name: 'validGeo',
+        schema: {
+            type: 'number',
+            description: `True if geolocation is valid.`,
+            //default: true
         },
         joins: {
             query: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
@@ -615,12 +628,15 @@ module.exports = [
         name: 'httpUri',
         schema: {
             type: 'string',
-            description: `URI for the image`
+            description: `The URI of the image. Can use the following syntax: 
+- \`httpUri=eq(http://example.com)\`
+- \`httpUri=ne()\``
         },
         sqltype: 'TEXT',
+        zqltype: 'text',
         defaultCols: false,
         joins: {
-            query: null,
+            query: [ 'LEFT JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
             select: [ 'LEFT JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
         }
     },

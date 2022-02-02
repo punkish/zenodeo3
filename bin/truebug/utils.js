@@ -16,7 +16,7 @@ class Logger {
             const day = moment().format(dateFormat);
 
             const logdir = `${this.dir}/${day}`;
-            if (!fs.existsSync(logdir)) fs.mkdirSync(logdir);
+            if (!fs.existsSync(logdir)) fs.mkdirSync(logdir, { recursive: true });
             this.file = `${logdir}/${day}-${this.level}.log`;
 
             // https://stackoverflow.com/questions/3459476/how-to-append-to-a-file-in-node/43370201#43370201

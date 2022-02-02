@@ -349,8 +349,8 @@ const storeInCache = function(response, cacheKey, cache) {
 }
 
 const removeFromCache = function(cacheKey, cache) {
-    log.info(`removeFromCache() -> removing key ${cacheKey} from cache`)
-    cache.delete(cacheKey)
+    log.info(`removeFromCache() -> removing key ${cacheKey} from cache`);
+    cache.delete(cacheKey);
 }
 
 const _pruneLink = function(query) {

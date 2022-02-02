@@ -89,6 +89,18 @@ module.exports = [
         queryable: false
     },
 
+    {
+        name: 'hasImage',
+        schema: {
+            type: 'number',
+            description: 'true if the record has a valid image'
+        },
+        selname: "Iif(httpUri = '', 0, 1) AS hasImage",
+        //sqltype: 'TEXT',
+        //cheerio: '$("figureCitation").attr("httpUri")',
+        defaultCols: false
+    },
+
     // {
     //     name: 'thumbnailUri',
     //     schema: {

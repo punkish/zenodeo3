@@ -65,7 +65,10 @@ const getResourceid = (resource) => {
 // params: all entries in the data dictionary for a given resource
 const getParams = (resource) => resources
     .filter(r => r.name === resource)[0].dictionary
-    .concat(...commonparams)
+    .concat(...commonparams);
+
+const getParamsNameAndSelname = (resource) => getParams(resource)
+    .map(p => {return {name: p.name, selname: p.selname}})
 
 // queryableParams: dd entries that are allowed in a REST query
 const getQueryableParams = (resource) => getParams(resource)
@@ -161,8 +164,9 @@ const getSchema = function(resource) {
         if (resourcesFromZenodeo.includes(resource)) {
             if (p.schema.type === 'array') {
                 if (p.name === 'cols') {
-                    p.schema.items.enum = getCols(resource).map(c => c.name)
-                    p.schema.default = getDefaultCols(resource).map(c => c.name)
+                    p.schema.items.enum = getCols(resource).map(c => c.name);
+                    p.schema.items.enum.push('');
+                    p.schema.default = getDefaultCols(resource).map(c => c.name);
                     p.schema.errorMessage = {
                         properties: {
                             enum: 'should be one of: ' + p.schema.default.join(', ') + '. Provided value is ${/enum}'
@@ -207,6 +211,7 @@ const dispatch = {
     getSourceOfResource,
     getResourcesFromSpecifiedSource,
     getParams,
+    getParamsNameAndSelname,
     getQueryableParams,
     getQueryableParamsWithDefaults,
     getCols,

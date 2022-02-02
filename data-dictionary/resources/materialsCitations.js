@@ -360,14 +360,14 @@ module.exports = [
             description: `The geolocation of the treatment.`,
         },
         //zqltype: 'loc',
-        constraints: {
-            query: null,
-            select: 'materialsCitations.deleted = 0 AND validGeo = 1',
-        },
-        joins: {
-            query: null,
-            select: null
-        }
+        // constraints: {
+        //     query: null,
+        //     select: null
+        // },
+        // joins: {
+        //     query: null,
+        //     select: null
+        // }
     },
 
     {
@@ -375,17 +375,16 @@ module.exports = [
         schema: {
             type: 'number',
             pattern: utils.re.real,
-            description: `The geolocation of the treatment.`,
+            description: 'The geolocation of the treatment.',
         },
-        //zqltype: 'loc',
-        constraints: {
-            query: null,
-            select: 'materialsCitations.deleted = 0 AND validGeo = 1',
-        },
-        joins: {
-            query: null,
-            select: null
-        }
+        // constraints: {
+        //     query: null,
+        //     select: null
+        // },
+        // joins: {
+        //     query: null,
+        //     select: null
+        // }
     },
 
     {
@@ -399,14 +398,14 @@ module.exports = [
 `,
         },
         zqltype: 'geolocation',
-        constraints: {
-            query: 'materialsCitations.deleted = 0 AND validGeo = 1',
-            select: null,
-        },
-        joins: {
-            query: null,
-            select: null
-        }
+        // constraints: {
+        //     query: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        //     select: null,
+        // },
+        // joins: {
+        //     query: null,
+        //     select: null
+        // }
     },
 
     {
@@ -416,14 +415,31 @@ module.exports = [
             description: `True if treatment is on land.`,
         },
         //zqltype: 'loc',
-        constraints: {
-            query: 'materialsCitations.deleted = 0 AND validGeo = 1',
-            select: 'materialsCitations.deleted = 0 AND validGeo = 1',
+        // constraints: {
+        //     query: null,
+        //     select: null
+        // },
+        // joins: {
+        //     query: null,
+        //     select: null
+        // }
+    },
+
+    {
+        name: 'validGeo',
+        schema: {
+            type: 'number',
+            description: `True if treatment is on land.`,
         },
-        joins: {
-            query: null,
-            select: null
-        }
+        //zqltype: 'loc',
+        // constraints: {
+        //     query: null,
+        //     select: null,
+        // },
+        // joins: {
+        //     query: null,
+        //     select: null
+        // }
     },
 
     {
@@ -465,5 +481,19 @@ module.exports = [
         cheerio: '$("materialsCitation")',
         defaultCols: false,
         queryable: false
-    }
+    },
+
+    {
+        name: 'deleted',
+        schema: { 
+            type: 'boolean',
+            default: false,
+            description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
+            isResourceId: false
+        },
+        selname: 'materialsCitations.deleted',
+        sqltype: 'INTEGER DEFAULT 0',
+        cheerio: '$("materialsCitation").attr("deleted")',
+        defaultCols: false
+    } 
 ]
