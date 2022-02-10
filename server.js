@@ -37,7 +37,7 @@ server.listen(port, address, (error, address) => {
     }
 
     server.blipp();
-    server.swagger();
+    //server.swagger();
     
     server.log.info(
         'Server running in %s mode on %s', 
