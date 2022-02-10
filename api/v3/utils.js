@@ -22,7 +22,7 @@ const uriZenodo = config.get('url.zenodo');
 const uriZenodeo = config.get('url.zenodeo');
 
 const fetch = require('node-fetch');
-const zql = require('../../lib/zql/');
+const {zql} = require('../../lib/zql/');
 const crypto = require('crypto');
 
 const JSON5 = require('json5');

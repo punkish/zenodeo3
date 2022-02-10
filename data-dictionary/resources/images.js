@@ -1,11 +1,15 @@
 'use strict';
 
-/***********************************************************************
- * 
- * Data dictionary for images from Zenodo
- * 
- **********************************************************************/
+// see https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289 
+// for notes from @gsautter
 
+/*
+ * All params are queryable unless false
+ * Params with 'defaultCols' = true are SELECT-ed by default
+ * Param 'type' is looked up in ../definitions.js to create the schema
+ * Param 'sqltype' is used in CREATE-ing the db table
+ * Param 'selname' is used when 'name' is inappropriate for SQL
+ */
 module.exports = [
     {
         name: 'id',
