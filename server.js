@@ -31,17 +31,20 @@ const server = require('./app')({
 })
 
 server.listen(port, address, (error, address) => {
+    console.log('came here');
     if (error) {
         server.log.error(error);
         process.exit(1);
     }
+    console.log('then came here');
 
     server.blipp();
-    //server.swagger();
-    
+    server.swagger();
+    console.log('and then came here');
     server.log.info(
         'Server running in %s mode on %s', 
         process.env.NODE_ENV ? process.env.NODE_ENV.toUpperCase() : 'DEVELOPMENT', 
         address
     )
+    console.log('finally came here');
 })
