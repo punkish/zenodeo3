@@ -39,9 +39,9 @@ server.listen(port, address, (error, address) => {
     server.blipp();
     server.swagger();
     
-    // server.log.info(
-    //     'Server running in %s mode on %s', 
-    //     process.env.NODE_ENV ? process.env.NODE_ENV.toUpperCase() : 'DEVELOPMENT', 
-    //     address
-    // )
+    server.log.info(
+        'Server running in %s mode on %s', 
+        process.env.NODE_ENV ? process.env.NODE_ENV.toUpperCase() : 'DEVELOPMENT', 
+        address
+    )
 })
