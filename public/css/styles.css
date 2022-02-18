@@ -1,4 +1,11 @@
-
+body {
+	max-width: unset;
+}
+.sub-container,
+.information-container {
+	max-width:66ch !important;;
+	margin: 0 auto;
+}
 header {
 	margin-bottom: 3em;
 	text-align: left;

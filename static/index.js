@@ -35,6 +35,16 @@ const resources = [
     {
         name: 'install',
         description: 'Installation instructions',
+    },
+
+    {
+        name: 'roadmap',
+        description: 'Zenodeo development roadmap',
+    },
+
+    {
+        name: 'query-help',
+        description: 'Zenodeo Query Language (ZQL) syntax help',
     }
 ]
 
@@ -54,17 +64,17 @@ const routes = async function(fastify, options) {
 
     resources.forEach(r => {
 
-        let text
-        let layout
+        let text;
+        const layout = './views/layouts/main';
 
-        if (r.name === 'workflow') {
-            const content = fs.readFileSync(`${dir}/${r.name}.md`, 'utf-8')
-            text = { text: sh.makeHtml(content) },
-            layout = './views/layouts/main'
+        const textFromMd = ['workflow', 'roadmap', 'query-help'];
+
+        if (textFromMd.includes(r.name)) {
+            const content = fs.readFileSync(`${dir}/${r.name}.md`, 'utf-8');
+            text = { text: sh.makeHtml(content) };
         }
         else {
-            text = { text: fs.readFileSync(`./views/${r.name}.hbs`, 'utf-8') },
-            layout = './views/layouts/main'
+            text = { text: fs.readFileSync(`./views/${r.name}.hbs`, 'utf-8') };
         }
 
         fastify.route({

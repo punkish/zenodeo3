@@ -454,7 +454,7 @@ module.exports = [
             pattern: utils.getPattern('geolocation'),
             description: `The geolocation of the treatment. Can use the following syntax:
 - \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
-- \`geolocation=containtedIn({lowerLeft:{lat: -40.00, lng: -120},upperRight: {lat:23,lng:6.564}})\`
+- \`geolocation=containted_in({lowerLeft:{lat: -40.00, lng: -120},upperRight: {lat:23,lng:6.564}})\`
 `,
 //             description: `The geolocation of the treatment. Can use the following syntax:
 // - \`location=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
