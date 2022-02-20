@@ -1,14 +1,19 @@
 # Zenodeo development roadmap
 
+## Zenodeo 3
+
 * ZQL
-  * explore adding more queries to ZQL
-  * aim for 100% test coverage
+  * 100% test coverage
+  * current status: 63.8% <progress max="100" value="63.8"></progress>
 * Truebug
-  * 
+  * test with node version manager (NVM)
 * Database
-  * make queries faster
+  * performance test queries
   * implement more database-level checks
 * Caching
-  *
+  * implement more robust file-cache
 
-Move all queries to Zenodo, removing the interim database
+
+## Zenodeo 4
+
+* Move all queries to Zenodo, removing the interim database

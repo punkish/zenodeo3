@@ -1,22 +1,33 @@
-Zenodeo is a REST API for treatments and related data. All the queryable parameters are listed below under each resource. Please read the specific notes below:
+# Zenodeo Query Help
 
-* the entire URL is case-sensitive. The resource name is all lowercase and the query parameters use camelCase as appropriate
-* the query *has* to be URL encoded. Browses may do this automatically, but if you are accessing the API programmatically, please URL Encode all params. Here is how to do it with `curl`
+Zenodeo is a REST API for treatments and related data. That means, all queries are performed via HTTP Requests, and the query result is returned as a JSON Response. Below is the anatomy of an HTTP Request:
+    
+```
+http://test.zenodeo.org/v3/treatments?treatmentTitle=Ichneumonoidea
+                           |________| |____________________________|->
+                                |                     |
+                             resource            query string
+```
+
+A few notes about the URL:
+
+* the entire URL is case-sensitive. The **resource** name is all lowercase, query parameter `keys` use camelCase as appropriate, and query parameter `value` uses underscores ('_') where needed.
+* the query *has* to be URL encoded. Browsers usually do this automatically, but if you are accessing the API programmatically, please URL Encode all params. Here is how to do it with `curl`
 
         $ curl -G -v "http://test.zenodeo.org/v3/treatments" \
-        --data-urlencode "treatmentTitle=Ichneumonoidea (Homolobus) Foerster 1863" \
-        --data-urlencode "publicationDate=between(2018-03-22 and 2019-12-03)"
+        --data-urlencode "treatmentTitle=Ichneumonoidea" \
+        --data-urlencode "publicationDate=since(2018-03-22)"
 
-* it is possible to submit a query without any query parameters  
+* it is possible to submit a query without any parameters, as shown below.  
   
         $ curl "http://test.zenodeo.org/v3/treatments"
 
-* if a parameter is provided, it *has* to be a valid parameter, that is, one of those listed below.
-* if the query includes a &lt;resourceId&gt; (for example, "treatmentId" in the case of "treatments"), then no additional parameter is required (any additional parameters will be ignored).
-* if the query includes any valid parameter *other* than the &lt;resourceId&gt;, then "page" and "size" are also required. If not provided, default values will be assigned automatically.
-* if provided, only the specified "cols" will be returned. If not provided, default "cols" for the queried resource will be returned. If a blank "cols" is specifically requested (`cols=`) then only a "Count" query will be performed.
+* if a parameter is provided, it *has* to be a valid parameter. An invalid parameter will not be ignored; it will result in an error.
+* if the query includes a &lt;resourceId&gt; (for example, `http://test.zenodeo.org/v3/treatments?treatmentId=0384B825FF91FF8A9AF8FDBBC56289BE`), then no additional parameter is required and will be ignored if provided.
+* certain parameters (`page`, `size`, `cols`, `sortby`) have default values that will be used if the user doesn't provide them in the query.
+* if `cols` is provided, only the specified "cols" will be returned. If a blank "cols" is specifically requested (use `cols=`) then only a "Count" query will be performed.
 
-# Zenodeo Query Language (ZQL)
+## Zenodeo Query Language (ZQL)
 
 The Zenodeo Query Language is a simple `key=value` syntax usable in the browser query string. 
 
@@ -46,4 +57,4 @@ The following two are equivalent
 
 geographic queries
 * `geolocation=within({radius:100, units: 'kilometers', lat: 43.04, lng: -121.003})`
-* `geolocation=contained_in({lowerLeft: {lat: 43.04, lng: -121.003}, upperRight: {lat: 43.04, lng: -121.003}})`
+* `geolocation=contained_in({lower_left: {lat: 43.04, lng: -121.003}, upper_right: {lat: 43.04, lng: -121.003}})`
