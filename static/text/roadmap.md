@@ -3,15 +3,15 @@
 ## Zenodeo 3
 
 * ZQL
-  * 100% test coverage
-  * current status: 63.8% <progress max="100" value="63.8"></progress>
+    * 100% test coverage
+    * current status: 63.8% <progress max="100" value="63.8"></progress>
 * Truebug
-  * test with node version manager (NVM)
+    * test with node version manager (NVM)
 * Database
-  * performance test queries
-  * implement more database-level checks
+    * performance test queries
+    * implement more database-level checks
 * Caching
-  * implement more robust file-cache
+    * implement more robust file-cache
 
 
 ## Zenodeo 4
