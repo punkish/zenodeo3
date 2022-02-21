@@ -3,41 +3,41 @@ const tables = [
         name: 'bibRefCitations',
         type: 'normal',
         create: `CREATE TABLE IF NOT EXISTS bibRefCitations ( 
-            id INTEGER PRIMARY KEY,
-            bibRefCitationId TEXT NOT NULL,
-            treatmentId TEXT NOT NULL,
-            refString TEXT,
-            type TEXT,
-            year TEXT,
-            deleted INTEGER DEFAULT 0,
-            created INTEGER DEFAULT (strftime('%s','now')),
-            updated INTEGER,
-            UNIQUE (bibRefCitationId)
-        )`,
+    id INTEGER PRIMARY KEY,
+    bibRefCitationId TEXT NOT NULL,
+    treatmentId TEXT NOT NULL,
+    refString TEXT,
+    type TEXT,
+    year TEXT,
+    deleted INTEGER DEFAULT 0,
+    created INTEGER DEFAULT (strftime('%s','now') * 1000),
+    updated INTEGER,
+    UNIQUE (bibRefCitationId)
+)`,
         insert: `INSERT INTO bibRefCitations (
-                bibRefCitationId,
-                treatmentId,
-                refString,
-                type,
-                year,
-                deleted
-            )
-            VALUES ( 
-                @bibRefCitationId,
-                @treatmentId,
-                @refString,
-                @type,
-                @year,
-                @deleted
-            )
-            ON CONFLICT (bibRefCitationId)
-            DO UPDATE SET
-                treatmentId=excluded.treatmentId,
-                refString=excluded.refString,
-                type=excluded.type,
-                year=excluded.year,
-                deleted=excluded.deleted,
-                updated=strftime('%s','now')`,
+    bibRefCitationId,
+    treatmentId,
+    refString,
+    type,
+    year,
+    deleted
+)
+VALUES ( 
+    @bibRefCitationId,
+    @treatmentId,
+    @refString,
+    @type,
+    @year,
+    @deleted
+)
+ON CONFLICT (bibRefCitationId)
+DO UPDATE SET
+    treatmentId=excluded.treatmentId,
+    refString=excluded.refString,
+    type=excluded.type,
+    year=excluded.year,
+    deleted=excluded.deleted,
+    updated=strftime('%s','now') * 1000`,
         preparedinsert: '',
         data: []
     },
@@ -45,13 +45,13 @@ const tables = [
         name: 'vbibrefcitations',
         type: 'virtual',
         create: `CREATE VIRTUAL TABLE IF NOT EXISTS vbibrefcitations USING FTS5(
-            bibRefCitationId, 
-            refString
-        )`,
+    bibRefCitationId, 
+    refString
+)`,
         insert: `INSERT INTO vbibrefcitations 
-            SELECT bibRefCitationId, refString 
-            FROM bibRefCitations 
-            WHERE rowid > @maxrowid AND deleted = 0`,
+SELECT bibRefCitationId, refString 
+FROM bibRefCitations 
+WHERE rowid > @maxrowid AND deleted = 0`,
         preparedinsert: '',
         maxrowid: 0
     },
