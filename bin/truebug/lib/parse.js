@@ -11,6 +11,8 @@ const truebug = config.get('truebug');
 const Logger = require('../utils');
 const log = new Logger(truebug.log);
 
+const isSea = require('is-sea');
+
 const { getSqlCols } = require('../../../data-dictionary/dd-utils')
 
 const stats = {
@@ -269,13 +271,25 @@ const parseFigureCitations = function($, treatmentId) {
     return entries
 }
 
+const isValidGeo = (latitude, longitude) => {
+    const latIsGood = isFinite(latitude) && Math.abs(latitude) <= 90;
+    const lngIsGood = isFinite(longitude) && Math.abs(longitude) <= 180;
+    return latIsGood && lngIsGood ? 1 : 0;
+}
+
+const isOnLand = (latitude, longitude) => {
+    if (isValidGeo(latitude, longitude)) {
+        return isSea(latitude, longitude) ? 0 : 1;
+    }
+}
+
 const parseMaterialsCitations = function($, treatmentId) {
     const elements = $('materialsCitation');
 
     const num = elements.length;
-    const collectionCodes = []
-    const entries = []
-    const mc = []
+    const collectionCodes = [];
+    const entries = [];
+    const mc = [];
 
     const allCols = getSqlCols('materialsCitations')
 
@@ -314,17 +328,15 @@ const parseMaterialsCitations = function($, treatmentId) {
                 }
             })
 
-            entry.materialsCitationId = $(e).attr('id') || chance.guid()
-            entry.treatmentId = treatmentId
-            entry.updateVersion = $(e).attr('updateVersion') || ''
-            entry.deleted = $(e).attr('deleted') && $(e).attr('deleted') === 'true' ? 1 : 0
 
-            //const tag = $(e).prop('outerHTML')
-            //const t = tag.match(/^<.*?>/)
-            //entry['materialsCitation'] = t[0]
-            entry.materialsCitation = $(e).text()
+            //entry.isOnLand = isOnLand(entry.latitude, entry.longitude);
+            entry.materialsCitationId = $(e).attr('id') || chance.guid();
+            entry.treatmentId = treatmentId;
+            entry.updateVersion = $(e).attr('updateVersion') || '';
+            entry.deleted = $(e).attr('deleted') && $(e).attr('deleted') === 'true' ? 1 : 0;
+            entry.materialsCitation = $(e).text();
             
-            entries.push(entry)
+            entries.push(entry);
         }
     }
 

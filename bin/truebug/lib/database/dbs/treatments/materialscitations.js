@@ -43,6 +43,7 @@ const tables = [
             ELSE 0
         END
     ) STORED,
+    isOnLand INTEGER DEFAULT NULL,
     UNIQUE (materialsCitationId, treatmentId)
 )`,
     insert: `INSERT INTO materialsCitations (

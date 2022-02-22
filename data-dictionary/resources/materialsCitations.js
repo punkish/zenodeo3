@@ -359,15 +359,10 @@ module.exports = [
             pattern: utils.re.real,
             description: `The geolocation of the treatment.`,
         },
-        //zqltype: 'loc',
-        // constraints: {
-        //     query: null,
-        //     select: null
-        // },
-        // joins: {
-        //     query: null,
-        //     select: null
-        // }
+        selname: 'materialsCitations.latitude',
+        sqltype: 'TEXT',
+        cheerio: '$("materialsCitation").attr("latitude")',
+        defaultCols: true
     },
 
     {
@@ -377,14 +372,10 @@ module.exports = [
             pattern: utils.re.real,
             description: 'The geolocation of the treatment.',
         },
-        // constraints: {
-        //     query: null,
-        //     select: null
-        // },
-        // joins: {
-        //     query: null,
-        //     select: null
-        // }
+        selname: 'materialsCitations.longitude',
+        sqltype: 'TEXT',
+        cheerio: '$("materialsCitation").attr("longitude")',
+        defaultCols: true
     },
 
     {
@@ -397,15 +388,7 @@ module.exports = [
 - \`geolocation=containted_in({lowerLeft:{lat: -40.00, lng: -120},upperRight: {lat:23,lng:6.564}})\`
 `,
         },
-        zqltype: 'geolocation',
-        // constraints: {
-        //     query: 'materialsCitations.deleted = 0 AND validGeo = 1',
-        //     select: null,
-        // },
-        // joins: {
-        //     query: null,
-        //     select: null
-        // }
+        zqltype: 'geolocation'
     },
 
     {
@@ -413,16 +396,7 @@ module.exports = [
         schema: {
             type: 'number',
             description: `True if treatment is on land.`,
-        },
-        //zqltype: 'loc',
-        // constraints: {
-        //     query: null,
-        //     select: null
-        // },
-        // joins: {
-        //     query: null,
-        //     select: null
-        // }
+        }
     },
 
     {
@@ -430,16 +404,7 @@ module.exports = [
         schema: {
             type: 'number',
             description: `True if treatment is on land.`,
-        },
-        //zqltype: 'loc',
-        // constraints: {
-        //     query: null,
-        //     select: null,
-        // },
-        // joins: {
-        //     query: null,
-        //     select: null
-        // }
+        }
     },
 
     {
@@ -474,7 +439,6 @@ module.exports = [
         name: 'materialsCitation',
         schema: {
             type: 'string',
-            //format: 'uri',
             description: 'xml'
         },
         sqltype: 'TEXT',

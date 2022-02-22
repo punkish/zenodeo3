@@ -5,7 +5,7 @@ const truebug = config.get('truebug');
 
 const Logger = require('../../utils');
 const log = new Logger(truebug.log);
-
+const isSea = require('is-sea');
 const Database = require('better-sqlite3');
 //const db = new Database(config.get('db.main'));
 const db = {
@@ -218,10 +218,10 @@ const updateIsOnLand = () => {
     |---------------------|----------|----------|
     | lat/lng are empty   | 0        | NULL     |
     | lat/lng are wrong   | 0        | NULL     |
-    | lat/lng are correct | 1        | 1 or 0   |
-    | lat/lng are correct | 1        | NULL     | <------
+    | lat/lng are correct | 1        | 1 or 0   | <------ were updated in a previous run
+    | lat/lng are correct | 1        | NULL     | <------ need to be updated
     */
-    const select = db.treatments.prepare('SELECT id, isOnLand FROM materialsCitations WHERE deleted = 0 AND validGeo = 1 AND isOnLand IS NULL').all();
+    const select = db.treatments.prepare('SELECT id, latitude, longitude, isOnLand FROM materialsCitations WHERE deleted = 0 AND validGeo = 1 AND isOnLand IS NULL').all();
     const update = db.treatments.prepare('UPDATE materialsCitations SET isOnLand = @isOnLand WHERE id = @id');
 
     let count = 0;

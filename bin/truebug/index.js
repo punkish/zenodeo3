@@ -83,7 +83,10 @@ const process = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
         typeOfArchive
     }
 
-    download.download(typeOfArchive);
+    if (typeOfArchive !== 'full') {
+        download.download(typeOfArchive);
+    }
+    
     const numOfFiles = download.unzip(typeOfArchive);
 
     action.result = JSON.stringify({ numOfFiles });
@@ -107,9 +110,9 @@ const process = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
         database.storeMaxrowid();
         database.dropIndexes();
         processFiles(files);
-        database.buildIndexes();
         database.insertFTS();
         database.updateIsOnLand();
+        database.buildIndexes();
         
         log.info(`parsed ${parse.stats.treatments} files with`);
 
@@ -131,6 +134,7 @@ const process = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
 
     log.info('-'.repeat(80));
     log.info(`${action.process.toUpperCase()} took: ${action.ended - action.started} ms`);
+    log.info('TRUEBUG DONE');
 }
 
 const update = async (typeOfArchives) => {
@@ -153,10 +157,13 @@ const update = async (typeOfArchives) => {
         }
 
         // check the next shorter timePeriod
-        if (typeOfArchives.length) update(typeOfArchives);
+        if (typeOfArchives.length) {
+            update(typeOfArchives);
+        }
     }
     else {
         log.info(`${typeOfArchive} archive doesn't exist`);
+        log.info('TRUEBUG DONE');
     }
 }
 
@@ -166,6 +173,7 @@ log.info('STARTING TRUEBUG');
 
 preflight.checkDir('archive');
 preflight.checkDir('dump');
+preflight.backupOldDB();
 database.prepareDatabases();
 
 const numOfTreatments = database.selCountOfTreatments();
@@ -180,7 +188,7 @@ else {
     update(typeOfArchives);
 }
 
-log.info('TRUEBUG DONE');
+
 
 // HOME=/Users/punkish
 // PATH=/opt/local/bin:/opt/local/sbin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/Little Snitch.app/Contents/Components:/opt/X11/bin:/Library/Apple/usr/bin
