@@ -656,8 +656,14 @@ module.exports = [
             select: null
         },
         joins: {
-            query:  [ 'JOIN vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ],
-            select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
+            query:  [ 
+                'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId',
+                'JOIN vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' 
+            ],
+            select: [ 
+                'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId',
+                'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' 
+            ]
         }
     },
 
