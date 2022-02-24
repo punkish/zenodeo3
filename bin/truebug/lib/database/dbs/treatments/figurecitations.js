@@ -67,6 +67,7 @@ WHERE rowid > @maxrowid AND deleted = 0`,
 const indexes = [
     `CREATE INDEX IF NOT EXISTS ix_figureCitations_treatmentId                            ON figureCitations (deleted, treatmentId)`,
     `CREATE INDEX IF NOT EXISTS ix_figureCitations_figureCitationId_treatmentId_figureNum ON figureCitations (deleted, figureCitationId, treatmentId, figureNum)`,
+    `CREATE INDEX IF NOT EXISTS ix_figureCitations_httpUri                                ON figureCitations (deleted, httpUri)`
 ]
 
 module.exports = { tables, indexes }

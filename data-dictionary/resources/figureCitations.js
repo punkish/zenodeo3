@@ -56,7 +56,7 @@ module.exports = [
             select: null
         },
         joins: {
-            query: [ 'vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ],
+            query: [ 'JOIN vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ],
             select: null
         }
     },

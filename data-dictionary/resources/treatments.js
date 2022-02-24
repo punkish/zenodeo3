@@ -536,7 +536,7 @@ module.exports = [
             type: 'string',
             description: 'The full text of the treatment',
         },
-        selname: "highlight(vtreatments, 1, '<b>', '</b>') fulltext",
+        //selname: "highlight(vtreatments, 1, '<b>', '</b>') fulltext",
         sqltype: 'TEXT',
         cheerio: '$("treatment").text()',
         defaultCols: false,
@@ -545,10 +545,10 @@ module.exports = [
         //     query: 'vtreatments',
         //     select: null
         // },
-        joins: {
-            query: null,
-            select: [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
-        }
+        // joins: {
+        //     query: null,
+        //     select: [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
+        // }
     },
 
     {
@@ -636,8 +636,8 @@ module.exports = [
         zqltype: 'text',
         defaultCols: false,
         joins: {
-            query: [ 'LEFT JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
-            select: [ 'LEFT JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
+            query:  [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
+            select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
         }
     },
 
@@ -647,6 +647,7 @@ module.exports = [
             type: 'string',
             description: 'The full text of the figure cited by this treatment'
         },
+        selname: 'figureCitations.captionText',
         sqltype: 'TEXT',
         defaultCols: false,
         defaultOp: 'match',
@@ -655,8 +656,8 @@ module.exports = [
             select: null
         },
         joins: {
-            query: [ 'vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ],
-            select: [ 'LEFT JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
+            query:  [ 'JOIN vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ],
+            select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
         }
     },
 
