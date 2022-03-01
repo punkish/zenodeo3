@@ -1,6 +1,6 @@
 'use strict'
 
-// const util = require('util')
+const util = require('util')
 const commonparams = require('./commonparams');
 // const JSON5 = require('json5')
 const resources = require('./index');
@@ -42,30 +42,24 @@ selname: snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet
 */
 
 // resources: REST resources that map 1 -> 1 to SQL tables
-const getResources = () => resources.map(r => r.name)
+// returns an array of resource names
+const getResources = () => resources.map(r => r.name);
 
-// sourceOfResource: [ 'zenodeo', 'zenodo' ] 
+// returns the source ('zenodeo' or 'zenodo') of a given resource
 const getSourceOfResource = (resource) => resources
-    .filter(r => r.name === resource)[0].source
+    .filter(r => r.name === resource)[0].source;
 
-const getResourcesFromSpecifiedSource = (source) => resources
+const getResourcesFromSource = (source) => resources
     .filter(r => r.source === source)
-    .map(r => r.name)
-
-const getResourceid = (resource) => {
-    const col = getCols(resource)
-        .filter(c => c.isResourceId)[0]
-
-    return { 
-        name: col.name, 
-        selname: col.selname || col.name 
-    }
-}
+    .map(r => r.name);
 
 // params: all entries in the data dictionary for a given resource
 const getParams = (resource) => resources
     .filter(r => r.name === resource)[0].dictionary
     .concat(...commonparams);
+
+const getResourceid = (resource) => getParams(resource)
+    .filter(p => p.schema.isResourceId)[0];
 
 const getParamsNameAndSelname = (resource) => getParams(resource)
     .map(p => {return {name: p.name, selname: p.selname}})
@@ -99,7 +93,8 @@ const getCols = (resource) => getParams(resource)
     .map(p => {
         return {
             name: p.name, 
-            selname: p.selname || p.name, 
+            schema: p.schema,
+            alias: p.alias, 
             isResourceId: p.schema.isResourceId || false,
             where: p.where, 
             join: p.join || '',
@@ -129,15 +124,15 @@ const getSqlCols = (resource) => getParams(resource)
     })
 
 // selname: the column name or expression used in a SQL query
-const getSelname = (resource, column) => getCols(resource)
-    .filter(c => c.name === column)[0].selname
+const getSelect = (resource, column) => {
+    const col = getParams(resource).filter(p => p.name === column)[0];
+    return col.alias ? col.alias.select : column;
+}
 
 // where: the column name used in the WHERE clause of a SQL query
-const getWhere = (resource, column, type) => {
-    const col = getParams(resource)
-        .filter(c => c.name === column)[0]
-    
-    return col.constraints ? col.constraints[type] : '' 
+const getWhere = (resource, column) => {
+    const col = getParams(resource).filter(c => c.name === column)[0];
+    return col.alias ? col.alias.where : column;
 }
 
 const getZqltype = (resource, column) => getCols(resource)
@@ -145,27 +140,39 @@ const getZqltype = (resource, column) => getCols(resource)
 
 // schema: we use the schema to validate the query params
 const getSchema = function(resource) {
-    const queryableParams = JSON.parse(JSON.stringify(getQueryableParams(resource)))
-    const resourceId = getResourceid(resource)
-    const resourcesFromZenodeo = getResourcesFromSpecifiedSource('zenodeo')
+    const queryableParams = JSON.parse(JSON.stringify(getQueryableParams(resource)));
+    const rId = getResourceid(resource);
+    const rIdName = rId.alias ? rId.alias.select : rId.name;
+    
+    const resourcesFromZenodeo = getResourcesFromSource('zenodeo');
         //.map(r => r.name)
 
     const schema = {
         type: 'object',
         properties: {},
         additionalProperties: false
-    }
+    };
     
     queryableParams.forEach(p => {
         if (p.schema.default && typeof(p.schema.default) === 'string') {
-            p.schema.default = p.schema.default.replace(/resourceId/, resourceId.selname)
+            p.schema.default = p.schema.default.replace(/resourceId/, rIdName);
         }
 
         if (resourcesFromZenodeo.includes(resource)) {
             if (p.schema.type === 'array') {
                 if (p.name === 'cols') {
-                    p.schema.items.enum = getCols(resource).map(c => c.name);
+                    
+                    //p.schema.prefixItems = getCols(resource).map(c => {
+                    p.schema.items.enum = getCols(resource).map(c => {
+                        // const operator = '(?<groupby>distinct)?';
+                        // return `^${operator}\\(${c.name}\\)$`;
+                        // return { type: c.schema.type }
+                        return c.name;
+                    });
+
+                    // allow empty col as in "cols=''"
                     p.schema.items.enum.push('');
+                    //p.schema.prefixItems.push('');
                     p.schema.default = getDefaultCols(resource).map(c => c.name);
                     p.schema.errorMessage = {
                         properties: {
@@ -176,23 +183,15 @@ const getSchema = function(resource) {
             }
         }
 
-        schema.properties[p.name] = p.schema
+        schema.properties[p.name] = p.schema;
     })
 
     return schema
 }
 
 const getJoin = (resource, column, type) => {
-    const col = getParams(resource)
-        .filter(c => c.name === column)[0]
-    
-    // if (type) {
-    //     return col.joins ? col.joins[type] : null
-    // }
-    // else {
-    //     return col.joins ? true : false 
-    // }
-    return col.joins ? col.joins[type] : '' 
+    const col = getParams(resource).filter(c => c.name === column)[0];
+    return col.joins ? col.joins[type] : '';
 }
 
 const getNotCols = () => commonparams.map(c => c.name)
@@ -209,7 +208,7 @@ const getArgs = (f) => {
 const dispatch = {
     getResources,
     getSourceOfResource,
-    getResourcesFromSpecifiedSource,
+    getResourcesFromSource,
     getParams,
     getParamsNameAndSelname,
     getQueryableParams,
@@ -218,7 +217,7 @@ const dispatch = {
     getDefaultCols,
     getFacetCols,
     getSqlCols,
-    getSelname,
+    getSelect,
     getWhere,
     getZqltype,
     getSchema,
@@ -234,15 +233,15 @@ const test = () => {
     }
     else {
         const [one, two, fn, ...args] = process.argv;
-        console.log(dispatch[fn](...args));
+        //dispatch[fn](...args)
+        console.log(util.inspect(dispatch[fn](...args), false, 4, true));
     }
 }
 
 // https://stackoverflow.com/questions/6398196/detect-if-called-through-require-or-directly-by-command-line?rq=1
 if (require.main === module) {
-    test()
+    test();
 }
 else {
-    
-    module.exports = dispatch
+    module.exports = dispatch;
 }

@@ -1,9 +1,6 @@
 'use strict'
 
-const re = {
-    date: '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}',
-    year: '^[0-9]{4}$'
-}
+const utils = require('../../lib/utils.js');
 
 module.exports = [
     {
@@ -41,31 +38,28 @@ module.exports = [
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("refString")',
         defaultCols: true,
-        //defaultOp: 'match',
-        joins: {
-            query: null,
-            select: null
-        }
+        queryable: false
     },
 
     {
         name: 'q',
+        alias: {
+            select: "snippet(vbibrefcitations, 1, '<b>', '</b>', '…', 25) snippet",
+            where : 'vbibrefcitations'
+        },
         schema: {
             type: 'string',
             description: `A snippet extracted from the full text of the reference cited by the treatment. Can use the following syntax: 
 - \`q=spiders\``
         },
-        selname: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
+        //selname: "snippet(vbibrefcitations, 1, '<b>', '</b>', '…', 25) snippet",
         sqltype: 'TEXT',
         defaultCols: false,
         defaultOp: 'match',
-        constraints: {
-            query: 'vbibrefcitations MATCH @q',
-            select: null
-        },
+        //constraint: 'vbibrefcitations MATCH @q',
         joins: {
-            query: [ 'JOIN vbibrefcitations ON bibRefCitations.bibRefCitationId = vbibrefcitations.bibRefCitationId' ],
-            select: null
+            select: null,
+            where : [ 'JOIN vbibrefcitations ON bibRefCitations.bibRefCitationId = vbibrefcitations.bibRefCitationId' ]
         }
     },
 
@@ -85,7 +79,7 @@ module.exports = [
         name: 'year',
         schema: {
             type: 'string',
-            pattern: re.year,
+            pattern: utils.re.year,
             description: 'The year of the reference cited by this treatment'
         },
         sqltype: 'TEXT',

@@ -5,6 +5,10 @@ const utils = require('../../lib/utils.js');
 module.exports = [
     {
         name: 'materialsCitationId',
+        alias: {
+            select: 'materialsCitations.materialsCitationId',
+            where : null
+        },
         schema: { 
             type: 'string', 
             maxLength: 32, 
@@ -12,7 +16,7 @@ module.exports = [
             description: `The unique ID of the materialsCitation. Has to be a 32 character string like: '38C63CC3D744DE1FE88B8A56FB7EDD14'`,
             isResourceId: true
         },
-        selname: 'materialsCitations.materialsCitationId',
+        //selname: 'materialsCitations.materialsCitationId',
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("materialsCitation").attr("id")',
         defaultCols: true,
@@ -43,21 +47,25 @@ module.exports = [
     },
     {
         name: 'collectionCode',
+        alias: {
+            select: 'collectionCodes.collectionCode',
+            where : null
+        },
         schema: {
             type: 'string',
             description: 'The collection code for a natural history collection'
         },
-        selname: 'collectionCodes.collectionCode',
+        //selname: 'collectionCodes.collectionCode',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectionCode")',
         defaultCols: true,
         joins: {
-            query: [ 
+            select: [ 
                 'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
                 'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
                 'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
             ],
-            select: [ 
+            where : [ 
                 'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
                 'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
                 'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
@@ -148,7 +156,6 @@ module.exports = [
 - county=contains(henge)
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        description: 'The county where the specimen was collected',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("county")',
         defaultCols: true,
@@ -197,7 +204,6 @@ module.exports = [
 - location=contains(tain)
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        description: '',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("locationDeviation")',
         defaultCols: true,
@@ -260,7 +266,6 @@ module.exports = [
 - specimenCode=contains(lectotype)
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        description: '',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("typeStatus")',
         defaultCols: true,
@@ -354,12 +359,16 @@ module.exports = [
 
     {
         name: 'latitude',
+        alias: {
+            select: 'materialsCitations.latitude',
+            where : null
+        },
         schema: {
             type: 'number',
             pattern: utils.re.real,
             description: `The geolocation of the treatment.`,
         },
-        selname: 'materialsCitations.latitude',
+        //selname: 'materialsCitations.latitude',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("latitude")',
         defaultCols: true
@@ -367,12 +376,16 @@ module.exports = [
 
     {
         name: 'longitude',
+        alias: {
+            select: 'materialsCitations.longitude',
+            where : null
+        },
         schema: {
             type: 'number',
             pattern: utils.re.real,
             description: 'The geolocation of the treatment.',
         },
-        selname: 'materialsCitations.longitude',
+        //selname: 'materialsCitations.longitude',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("longitude")',
         defaultCols: true
@@ -449,15 +462,19 @@ module.exports = [
 
     {
         name: 'deleted',
+        alias: {
+            select: 'materialsCitations.deleted',
+            where : null
+        },
         schema: { 
             type: 'boolean',
             default: false,
             description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
             isResourceId: false
         },
-        selname: 'materialsCitations.deleted',
+        //selname: 'materialsCitations.deleted',
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("materialsCitation").attr("deleted")',
         defaultCols: false
-    } 
+    }
 ]

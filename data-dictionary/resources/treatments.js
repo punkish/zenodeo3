@@ -32,6 +32,10 @@ or can be a sql expression
 module.exports = [
     {
         name: 'treatmentId',
+        alias: {
+            select: 'treatments.treatmentId',
+            where : 'vtreatments'
+        },
         schema: { 
             type: 'string', 
             maxLength: 32, 
@@ -40,7 +44,7 @@ module.exports = [
 - \`treatmentId=388D179E0D564775C3925A5B93C1C407\``,
             isResourceId: true
         },
-        selname: 'treatments.treatmentId',
+        //selname: 'treatments.treatmentId',
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("document").attr("docId")',
         defaultCols: true
@@ -76,7 +80,7 @@ module.exports = [
 
     {
         name: 'treatmentDOI',
-        alias: 'doi',
+        //alias: 'doi',
         schema: { 
             type: 'string',
             description: `DOI of the treatment (for example, "10.5281/zenodo.275008"):
@@ -398,12 +402,16 @@ module.exports = [
 
     {
         name: 'rank',
+        alias: {
+            select: 'treatments.rank',
+            where : null
+        },
         schema: {
             type: 'string',
             description: 'The taxonomic rank of the taxon, e.g. species, family',
             enum: [ 'kingdom', 'phylum', 'order', 'family', 'genus', 'species']
         },
-        selname: 'treatments.rank',
+        //selname: 'treatments.rank',
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("rank")',
         defaultCols: true,
@@ -417,14 +425,9 @@ module.exports = [
             pattern: utils.re.real,
             description: `The geolocation of the treatment.`,
         },
-        //zqltype: 'loc',
-        // constraints: {
-        //     query: null,
-        //     select: 'materialsCitations.deleted = 0 AND validGeo = 1',
-        // },
         joins: {
-            query: null,
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            where : null
         }
     },
 
@@ -435,14 +438,9 @@ module.exports = [
             pattern: utils.re.real,
             description: `The geolocation of the treatment.`,
         },
-        //zqltype: 'loc',
-        // constraints: {
-        //     query: null,
-        //     select: 'materialsCitations.deleted = 0 AND validGeo = 1',
-        // },
         joins: {
-            query: null,
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            where : null
         }
     },
 
@@ -450,27 +448,16 @@ module.exports = [
         name: 'geolocation',
         schema: {
             type: 'string',
-            //pattern: `^within\\(radius:\\s*(?<radius>${re.real}),\\s*units:\\s*(kilometers|miles),\\s*lat:\\s*(${re.real}),\\s*lng:(${re.real})\\)$`,
             pattern: utils.getPattern('geolocation'),
             description: `The geolocation of the treatment. Can use the following syntax:
 - \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
 - \`geolocation=contained_in({lower_left:{lat: -40.00, lng: -120},upper_right: {lat:23,lng:6.564}})\`
 `,
-//             description: `The geolocation of the treatment. Can use the following syntax:
-// - \`location=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
-// - \`location=near({lat: 40.00, lng: -120})\`
-//   **note:** when using 'near'
-//   - radius defaults to 1
-//   - units default to kilometers`,
         },
         zqltype: 'geolocation',
-        // constraints: {
-        //     query: 'materialsCitations.deleted = 0 AND validGeo = 1',
-        //     select: null,
-        // },
         joins: {
-            query: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: null,
+            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
         }
     },
 
@@ -480,14 +467,9 @@ module.exports = [
             type: 'number',
             description: `True if treatment is on land.`,
         },
-        //zqltype: 'loc',
-        // constraints: {
-        //     query: 'materialsCitations.deleted = 0 AND validGeo = 1',
-        //     select: 'materialsCitations.deleted = 0 AND validGeo = 1',
-        // },
         joins: {
-            query: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
         }
     },
 
@@ -499,8 +481,8 @@ module.exports = [
             //default: true
         },
         joins: {
-            query: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
         }
     },
 
@@ -514,19 +496,19 @@ module.exports = [
     **Note:** queries involving inexact matches will be considerably slow`
         },
         joins: {
-            query: [
-                'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
-                'JOIN materialsCitationsXcollectionCodes ON materialsCitations.materialsCitationId = materialsCitationsXcollectionCodes.materialsCitationId',
-                'JOIN collectionCodes ON materialsCitationsXcollectionCodes.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN z3collections.institutions ON collectionCodes.collectionCode = institution_code'
-            ],
             select: [
                 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
                 'JOIN materialsCitationsXcollectionCodes ON materialsCitations.materialsCitationId = materialsCitationsXcollectionCodes.materialsCitationId',
                 'JOIN collectionCodes ON materialsCitationsXcollectionCodes.collectionCode = collectionCodes.collectionCode',
                 'LEFT JOIN z3collections.institutions ON collectionCodes.collectionCode = institution_code'
+            ],
+            where : [
+                'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
+                'JOIN materialsCitationsXcollectionCodes ON materialsCitations.materialsCitationId = materialsCitationsXcollectionCodes.materialsCitationId',
+                'JOIN collectionCodes ON materialsCitationsXcollectionCodes.collectionCode = collectionCodes.collectionCode',
+                'LEFT JOIN z3collections.institutions ON collectionCodes.collectionCode = institution_code'
             ]
-        },
+        }
         //facet: 'count > 50'
     },
 
@@ -536,48 +518,38 @@ module.exports = [
             type: 'string',
             description: 'The full text of the treatment',
         },
-        //selname: "highlight(vtreatments, 1, '<b>', '</b>') fulltext",
         sqltype: 'TEXT',
         cheerio: '$("treatment").text()',
         defaultCols: false,
-        //defaultOp: 'match',
-        // constraints: {
-        //     query: 'vtreatments',
-        //     select: null
-        // },
-        // joins: {
-        //     query: null,
-        //     select: [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
-        // }
+        queryable: false
     },
 
     {
         name: 'q',
+        alias: {
+            select: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
+            where : 'vtreatments'
+        },
         schema: {
             type: 'string',
             description: `A snippet extracted from the full text of the treatment. Can use the following syntax: 
 - \`q=spiders\``
         },
-        selname: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
+        //selname: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
         sqltype: 'TEXT',
         defaultCols: false,
         defaultOp: 'match',
-        constraints: {
-            query: 'vtreatments MATCH @q',
-            select: null
-        },
+        //constraint: 'vtreatments MATCH @q',
         joins: {
-            query: [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ],
-            select: null
-        }
+            select: null,
+            where : [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
+        },
     },
 
     {
         name: 'updateTime',
         schema: {
             type: 'string',
-            //pattern: re.year,
-            //description: 'The UTC timestamp when the treatment was last updated (as a result of an update to the article)'
             pattern: utils.getPattern('date'),
             description: `The time when the treatment was last updated (as a result of an update to the article). Can use the following syntax: 
 - \`updateTime=eq(2018-1-12)\`
@@ -602,8 +574,6 @@ module.exports = [
         name: 'checkinTime',
         schema: {
             type: 'string',
-            //pattern: re.year,
-            //description: 'The UTC timestamp when the article was first uploaded into the system'
             pattern: utils.getPattern('date'),
             description: `The time when the article was first uploaded into the system. Can use the following syntax: 
 - \`checkinTime=eq(2018-1-12)\`
@@ -635,47 +605,47 @@ module.exports = [
         sqltype: 'TEXT',
         zqltype: 'text',
         defaultCols: false,
+        //constraint: "httpUri != ''",
         joins: {
-            query:  [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
-            select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
+            select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
+            where : [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
         }
     },
 
     {
         name: 'captionText',
+        alias: {
+            select: 'figureCitations.captionText',
+            where : 'vfigurecitations'
+        },
         schema: {
             type: 'string',
             description: 'The full text of the figure cited by this treatment'
         },
-        selname: 'figureCitations.captionText',
+        //selname: 'figureCitations.captionText',
         sqltype: 'TEXT',
         defaultCols: false,
         defaultOp: 'match',
-        constraints: {
-            query: 'vfigurecitations MATCH @captionText',
-            select: null
-        },
+        //constraint: 'vfigurecitations MATCH @captionText',
         joins: {
-            query:  [ 
-                'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId',
-                'JOIN vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' 
-            ],
-            select: [ 
-                'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId',
-                'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' 
-            ]
+            select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
+            where : [ 'JOIN vfigurecitations ON treatments.treatmentId = vfigurecitations.treatmentId']
         }
     },
 
     {
         name: 'deleted',
+        alias: {
+            select: 'treatments.deleted',
+            where : null
+        },
         schema: { 
             type: 'boolean',
             default: false,
             description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
             isResourceId: false
         },
-        selname: 'treatments.deleted',
+        //selname: 'treatments.deleted',
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("document").attr("deleted")',
         defaultCols: false

@@ -21,6 +21,9 @@ module.exports = [
         },
         sqltype: 'TEXT',
         //defaultCols: true,
-        join: [ 'LEFT JOIN z3collections.institutions ON collectionCode = institution_code' ]
+        joins: {
+            select: [ 'LEFT JOIN z3collections.institutions ON collectionCode = institution_code' ],
+            where : [ 'LEFT JOIN z3collections.institutions ON collectionCode = institution_code' ]
+        }
     }
 ]
