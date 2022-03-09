@@ -332,7 +332,10 @@ module.exports = [
             type: 'string',
             description: 'The higher category of the taxonomicName',
         },
-        selname: '"order"',
+        alias: {
+            select: '"order"',
+            where : null
+        },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("order")',
         defaultCols: true
@@ -411,7 +414,6 @@ module.exports = [
             description: 'The taxonomic rank of the taxon, e.g. species, family',
             enum: [ 'kingdom', 'phylum', 'order', 'family', 'genus', 'species']
         },
-        //selname: 'treatments.rank',
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("rank")',
         defaultCols: true,
