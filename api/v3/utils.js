@@ -73,6 +73,7 @@ const handlerFactory = (resource) => {
                 
                 if (response) {
                     log.info("handler() -> found result in cache");
+                    response.cacheHit = true;
                 }
                 else {
                     log.info("handler() -> no result in cache");
@@ -124,15 +125,15 @@ const getCacheKey = function(request, resource) {
     self.sort();
     const _self = `${resource}/${self.toString()}`;
 
-    log.info(`getCacheKey() -> creating key for ${_self}`)
+    log.info(`getCacheKey() -> creating key for ${_self}`);
 
     const cacheKey = crypto
         .createHash('md5')
         .update(_self)
-        .digest('hex')
+        .digest('hex');
 
-    log.info(`getCacheKey() -> sending key ${cacheKey}`)
-    return cacheKey
+    log.info(`getCacheKey() -> generated key ${cacheKey}`);
+    return cacheKey;
 }
 
 const getSearch = function(request) {
@@ -164,7 +165,7 @@ const _sqlRunner = function(sql, runparams) {
 
     }
     catch(error) {
-        console.log(sql);
+        log.error(sql);
         throw error;
     }
 }
@@ -193,7 +194,8 @@ const formatDebug = (debug, queryType, sql, runparams, runtime) => {
 const getDataFromZenodeo = async function(resource, params) {
     log.info('getDataFromZenodeo() -> getting data from Zenodeo');
     const { queries, runparams } = zql({ resource, params });
-    console.log(queries, runparams);
+    log.info(queries);
+    log.info(runparams);
     const { res, runtime } = _sqlRunner(queries.main.count, runparams);
     const result = {}
     const debug = {}
@@ -237,7 +239,6 @@ const getDataFromZenodeo = async function(resource, params) {
 }
 
 const getDataFromZenodo = async (resource, params) => {
-    log.info('getDataFromZenodo() -> getting data from Zenodo')
 
     // clean up request.query
     const qp = JSON5.parse(JSON5.stringify(params));
@@ -273,7 +274,7 @@ const getDataFromZenodo = async (resource, params) => {
 
     // https://zenodo.org/api/records/?sort=mostrecent&subtype=figure&subtype=photo&subtype=drawing&subtype=diagram&subtype=plot&subtype=other&communities=biosyslit&communities=belgiumherbarium&type=image&page=1&size=30
 
-    log.info(`getDataFromZenodo() -> getting ${resource} from <${uriRemote}>`)
+    log.info(`getDataFromZenodo() -> getting ${resource} from ${uriRemote}`)
 
     const result = {}
     const debug = {}
@@ -333,14 +334,13 @@ const queryDataStoreAndCacheResult = async function(request, resource, params, c
         addDebug(response, debug)
         return response
     }
-    else {
-        return false
-    }
+    
+    return false;
 }
 
 const checkCache = async function(cacheKey, cache) {
-    log.info(`checkCache() -> checking cache for key ${cacheKey}`)
-    return await cache.get(cacheKey)
+    log.info(`checkCache() -> checking cache for key ${cacheKey}`);
+    return await cache.get(cacheKey);
 }
 
 const storeInCache = function(response, cacheKey, cache) {
