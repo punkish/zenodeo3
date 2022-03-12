@@ -109,7 +109,6 @@ const routes = async function(fastify, options) {
                         datekeys.forEach(key => {
                             if (request.query[key].indexOf('yesterday') > -1) {
                                 request.query[key] = request.query[key].replace('yesterday', yesterday());
-                                request.query.refreshCache = true;
                             }
                         })
                     }
@@ -147,9 +146,9 @@ const routes = async function(fastify, options) {
         }
 
         // hide the fake route
-        if (r.name === 'fake') {
-            route.schema.hide = true;
-        }
+        // if (r.name === 'fake') {
+        //     route.schema.hide = true;
+        // }
 
         fastify.route(route);
     })
