@@ -30,7 +30,7 @@ const JSON5 = require('json5');
 const isDebug = config.get('isDebug');
 const sqlFormatter = require('sql-formatter-plus');
 const cacheOn = config.get('v3.cache.on');
-const cacheDuration = config.get('v3.cache.duration');
+const ttl = config.get('v3.cache.ttl');
 const cacheBase = config.get('v3.cache.base');
 const acf = require('../../lib/abstract-cache-file');
 
@@ -57,8 +57,7 @@ const handlerFactory = (resource) => {
             // a reference to the cache
             const cache = acf({
                 base: cacheBase,
-                segment: resource,
-                duration: cacheDuration
+                segment: resource
             })
 
             const cacheKey = getCacheKey(request, resource)
@@ -100,25 +99,6 @@ const getOriginalSearchParams = function(request) {
 
     return originalSearchParams;
 }
-
-// const _sort = function(url) {
-//     const dollar = {}
-//     const plain = {}
-//     url.forEach((value, name) => {
-//         if (name.substring(0) === '$') {
-//             dollar[name] = value
-//         }
-//         else {
-//             plain[name] = value
-//         }
-//     })
-
-//     const obj = {}
-//     Object.keys(plain).sort().reverse().forEach(k => obj[k] = plain[k])
-//     Object.keys(dollar).sort().reverse().forEach(k => obj[k] = plain[k])
-
-//     return new URLSearchParams(obj)
-// }
 
 const getCacheKey = function(request, resource) {
     const self = _pruneLink(request.query);
@@ -401,7 +381,7 @@ const packageResult = function(request, result) {
     const response = {
         item,
         stored: Date.now(),
-        ttl: cacheDuration
+        ttl
     }
 
     return response
