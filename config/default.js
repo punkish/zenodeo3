@@ -99,8 +99,8 @@ module.exports = {
             on: false,
             base: cwd,
 
-            /* default cache duration 1 day (24 hours) */
-            duration: 1 * 24 * 60 * 60 * 1000
+            /* default cache ttl 1 day (24 hours) */
+            ttl: 1 * 24 * 60 * 60 * 1000
         }
     },
 
