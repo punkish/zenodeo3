@@ -7,7 +7,6 @@
 module.exports = [
     {
         name: 'treatments',
-        db: 'tr',
         summary: 'Fetch treatments',
         description: '',
         dictionary: require('./resources/treatments'),
