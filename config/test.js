@@ -23,6 +23,22 @@ module.exports = {
     },
 
     v3: {
+        swagger: {
+            options: {
+                //routePrefix: '/documentation',
+                exposeRoute: true,
+                swagger: {
+
+                    // make sure there is no scheme before the host
+                    // that is, there should not be any 'http(s)://'
+                    host: 'test.zenodeo.org',
+                    schemes: ['https'],
+                    consumes: ['application/json'],
+                    produces: ['application/json']
+                }
+            }
+        },
+
         cache: {
             on: true,
         }
