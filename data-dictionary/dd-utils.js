@@ -62,7 +62,16 @@ const getResourceid = (resource) => getParams(resource)
     .filter(p => p.schema.isResourceId)[0];
 
 const getParamsNameAndSelname = (resource) => getParams(resource)
-    .map(p => {return {name: p.name, selname: p.selname}})
+    .map(p => {
+        let selname = p.name;
+        if (p.alias) {
+            if (p.alias.select) {
+                selname = p.alias.select;
+            }
+        }
+
+        return { name: p.name, selname } 
+    })
 
 // queryableParams: dd entries that are allowed in a REST query
 const getQueryableParams = (resource) => getParams(resource)
@@ -77,7 +86,13 @@ const getQueryableParamsWithDefaults = function(resource) {
         .filter(p => 'default' in p.schema)
         .map(p => {
             if (typeof p.schema.default === 'string') {
-                p.schema.default = p.schema.default.replace(/resourceId/, resourceId.selname)
+                let selname = p.name;
+                if (p.alias) {
+                    if (p.alias.select) {
+                        selname = p.alias.select;
+                    }
+                }
+                p.schema.default = p.schema.default.replace(/resourceId/, selname)
             }
 
             return p
@@ -123,7 +138,7 @@ const getSqlCols = (resource) => getParams(resource)
         }
     })
 
-// selname: the column name or expression used in a SQL query
+// getSelect: the column name or expression used in a SQL query
 const getSelect = (resource, column) => {
     const col = getParams(resource).filter(p => p.name === column)[0];
     return col.alias ? col.alias.select : column;
