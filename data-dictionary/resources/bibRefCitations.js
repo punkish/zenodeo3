@@ -5,6 +5,10 @@ const utils = require('../../lib/utils.js');
 module.exports = [
     {
         name: 'bibRefCitationId',
+        alias: {
+            select: "bibRefCitations.bibRefCitationId",
+            where : null
+        },
         schema: { 
             type: 'string', 
             maxLength: 32, 
