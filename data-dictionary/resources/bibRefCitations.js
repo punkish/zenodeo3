@@ -35,6 +35,10 @@ module.exports = [
 
     {
         name: 'refString',
+        alias: {
+            select: "bibRefCitations.refString",
+            where : null
+        },
         schema: {
             type: 'string',
             description: `The full text of the reference cited by the treatment`
