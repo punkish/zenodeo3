@@ -24,7 +24,7 @@ module.exports = [
         name: 'treatmentId',
         alias: {
             select: 'figureCitations.treatmentId',
-            where : null
+            where : 'figureCitations.treatmentId'
         },
         schema: { 
             type: 'string', 
