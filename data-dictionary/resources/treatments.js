@@ -32,10 +32,6 @@ or can be a sql expression
 module.exports = [
     {
         name: 'treatmentId',
-        alias: {
-            select: 'treatments.treatmentId',
-            where : 'vtreatments'
-        },
         schema: { 
             type: 'string', 
             maxLength: 32, 
@@ -44,7 +40,6 @@ module.exports = [
 - \`treatmentId=388D179E0D564775C3925A5B93C1C407\``,
             isResourceId: true
         },
-        //selname: 'treatments.treatmentId',
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("document").attr("docId")',
         defaultCols: true
@@ -80,7 +75,6 @@ module.exports = [
 
     {
         name: 'treatmentDOI',
-        //alias: 'doi',
         schema: { 
             type: 'string',
             description: `DOI of the treatment (for example, "10.5281/zenodo.275008"):
@@ -333,8 +327,8 @@ module.exports = [
             description: 'The higher category of the taxonomicName',
         },
         alias: {
-            select: '"order"',
-            where : null
+            select: 'treatments."order"',
+            where : 'treatments."order"'
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("order")',
@@ -407,7 +401,7 @@ module.exports = [
         name: 'rank',
         alias: {
             select: 'treatments.rank',
-            where : null
+            where : 'treatments.rank'
         },
         schema: {
             type: 'string',
@@ -537,11 +531,9 @@ module.exports = [
             description: `A snippet extracted from the full text of the treatment. Can use the following syntax: 
 - \`q=spiders\``
         },
-        //selname: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
         sqltype: 'TEXT',
         defaultCols: false,
         defaultOp: 'match',
-        //constraint: 'vtreatments MATCH @q',
         joins: {
             select: null,
             where : [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
@@ -598,6 +590,10 @@ module.exports = [
 
     {
         name: 'httpUri',
+        alias: {
+            select: 'figureCitations.httpUri',
+            where : 'figureCitations.httpUri'
+        },
         schema: {
             type: 'string',
             description: `The URI of the image. Can use the following syntax: 
@@ -607,7 +603,6 @@ module.exports = [
         sqltype: 'TEXT',
         zqltype: 'text',
         defaultCols: false,
-        //constraint: "httpUri != ''",
         joins: {
             select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
             where : [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
@@ -624,11 +619,9 @@ module.exports = [
             type: 'string',
             description: 'The full text of the figure cited by this treatment'
         },
-        //selname: 'figureCitations.captionText',
         sqltype: 'TEXT',
         defaultCols: false,
         defaultOp: 'match',
-        //constraint: 'vfigurecitations MATCH @captionText',
         joins: {
             select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
             where : [ 'JOIN vfigurecitations ON treatments.treatmentId = vfigurecitations.treatmentId']
@@ -639,7 +632,7 @@ module.exports = [
         name: 'deleted',
         alias: {
             select: 'treatments.deleted',
-            where : null
+            where : 'treatments.deleted'
         },
         schema: { 
             type: 'boolean',
@@ -647,7 +640,6 @@ module.exports = [
             description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
             isResourceId: false
         },
-        //selname: 'treatments.deleted',
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("document").attr("deleted")',
         defaultCols: false

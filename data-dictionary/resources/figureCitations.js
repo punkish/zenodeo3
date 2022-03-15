@@ -3,10 +3,6 @@
 module.exports = [
     {
         name: 'figureCitationId',
-        alias: {
-            select: 'figureCitations.figureCitationId',
-            where : null
-        },
         schema: { 
             type: 'string', 
             maxLength: 32, 
@@ -14,7 +10,6 @@ module.exports = [
             description: `The unique ID of the figureCitation. Has to be a 32 character string like: '10922A65E320FF95FC0FFC83FB80FCAA'`,
             isResourceId: true
         },
-        //selname: 'figureCitations.figureCitationId',
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("figureCitation").attr("id")',
         defaultCols: true
@@ -38,15 +33,10 @@ module.exports = [
 
     {
         name: 'figureNum',
-        alias: {
-            select: 'figureCitations.figureNum',
-            where : null
-        },
         schema: { 
             type: 'integer', 
             description: `serial number of figure for a figureCitationId and treatmentId combination`
         },
-        //selname: 'figureCitations.figureNum',
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("figureCitation").attr("figureNum")',
         defaultCols: true
@@ -54,15 +44,10 @@ module.exports = [
 
     {
         name: 'captionText',
-        alias: {
-            select: 'figureCitations.captionText',
-            where : null
-        },
         schema: {
             type: 'string',
             description: `The full text of the figure cited by this treatment. Can use the following syntax: \`captionText=spiders\``
         },
-        //selname: 'figureCitations.captionText',
         sqltype: 'TEXT',
         cheerio: '$("figureCitation").attr("captionText")',
         defaultCols: true,
@@ -73,21 +58,6 @@ module.exports = [
             where : [ 'JOIN vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ]
         }
     },
-
-    // {
-    //     name: 'qct',
-    //     schema: {
-    //         type: 'string',
-    //         description: `The full text of the figure cited by this treatment. Can use the following syntax: \`captionText=spiders\``
-    //     },
-    //     selname: 'figureCitations.captionText',
-    //     sqltype: 'TEXT',
-    //     //cheerio: '$("figureCitation").attr("captionText")',
-    //     defaultCols: false,
-    //     defaultOp: 'match',
-    //     where: 'vfigurecitations',
-    //     join: [ 'JOIN vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ]
-    // },
 
     {
         name: 'httpUri',
@@ -102,32 +72,16 @@ module.exports = [
         queryable: false
     },
 
-    {
-        name: 'hasImage',
-        alias: {
-            select: "Iif(httpUri = '', 0, 1) AS hasImage",
-            where : null
-        },
-        schema: {
-            type: 'number',
-            description: 'true if the record has a valid image'
-        },
-        //selname: "Iif(httpUri = '', 0, 1) AS hasImage",
-        //sqltype: 'TEXT',
-        //cheerio: '$("figureCitation").attr("httpUri")',
-        defaultCols: false
-    },
-
     // {
-    //     name: 'thumbnailUri',
-    //     schema: {
-    //         type: 'string',
-    //         format: 'uri',
-    //         description: 'The URI of the thumbnail figure cited by this treatment'
+    //     name: 'hasImage',
+    //     alias: {
+    //         select: "Iif(httpUri = '', 0, 1) AS hasImage",
+    //         where : null
     //     },
-    //     sqltype: 'TEXT',
-    //     cheerio: '$("figureCitation").attr("httpUri")',
-    //     defaultCols: true,
-    //     queryable: false
+    //     schema: {
+    //         type: 'number',
+    //         description: 'true if the record has a valid image'
+    //     },
+    //     defaultCols: false
     // }
 ]

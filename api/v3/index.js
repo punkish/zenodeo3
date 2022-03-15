@@ -101,18 +101,18 @@ const routes = async function(fastify, options) {
                 coerceToArray(request, 'cols');
                 coerceToArray(request, 'communities');
 
-                const zqldates = ['publicationDate', 'checkinTime', 'updateTime', 'created', 'updated'];
+                // const zqldates = ['publicationDate', 'checkinTime', 'updateTime', 'created', 'updated'];
 
-                if (request.query) {
-                    const datekeys = Object.keys(request.query).filter(val => zqldates.includes(val));
-                    if (datekeys.length) {
-                        datekeys.forEach(key => {
-                            if (request.query[key].indexOf('yesterday') > -1) {
-                                request.query[key] = request.query[key].replace('yesterday', yesterday());
-                            }
-                        })
-                    }
-                }
+                // if (request.query) {
+                //     const datekeys = Object.keys(request.query).filter(val => zqldates.includes(val));
+                //     if (datekeys.length) {
+                //         datekeys.forEach(key => {
+                //             if (request.query[key].indexOf('yesterday') > -1) {
+                //                 request.query[key] = request.query[key].replace('yesterday', yesterday());
+                //             }
+                //         })
+                //     }
+                // }
 
                 // if (request.query && request.query.geolocation) {
                 //     let g = request.query.geolocation
