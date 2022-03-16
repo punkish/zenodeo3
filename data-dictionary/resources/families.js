@@ -15,7 +15,7 @@ module.exports = [
             isResourceId: true
         },
         sqltype: 'INTEGER',
-        defaultCols: false
+        notDefaultCol: true
     },
     {
         name: 'q',
@@ -25,7 +25,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         selname: 'family',
-        defaultOp: 'starts_with',
-        defaultCols: true
+        defaultOp: 'starts_with'
     }
 ]

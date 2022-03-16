@@ -13,8 +13,7 @@ module.exports = [
             type:"integer",
             description: 'unique identifier of the record',
             isResourceId: true
-        },
-        defaultCols: true
+        }
     },
 
     {
@@ -30,8 +29,7 @@ module.exports = [
             additionalItems: false,
             default: [ "article", "report", "book", "thesis", "section", "workingpaper", "preprint" ],
             description: 'The publication subtype; defaults to all subtypes'
-        },
-        defaultCols: true
+        }
     },
 
     {
@@ -47,8 +45,7 @@ module.exports = [
           additionalItems: false,
           default: [ 'biosyslit' ],
           description: 'The community on Zenodo; defaults to <b>"biosyslit"</b>'
-      },
-      defaultCols: true
+      }
   },
 
     {
@@ -75,8 +72,7 @@ module.exports = [
 
 - creator=Agosti AND Donat
   will find all records containing both Agosti and Donat in any order`
-        },
-        defaultCols: true
+        }
     },
 
     {
@@ -95,8 +91,7 @@ module.exports = [
 
 - title=spider AND peacock
   will find all records containing both spider and peacock in any order`
-        },
-        defaultCols: true
+        }
     },
 
     {
@@ -107,7 +102,6 @@ module.exports = [
                 type: 'string'
             },
             description: 'The keywords associated with the publication; more than one keywords may be used'
-        },
-        defaultCols: true
+        }
     }
 ]

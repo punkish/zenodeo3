@@ -19,8 +19,7 @@ module.exports = {
                 isResourceId: true
             },
             sqlType       : 'TEXT NOT NULL UNIQUE',
-            cheerio: '$("treatmentAuthor").attr("id")',
-            defaultCols: true
+            cheerio: '$("treatmentAuthor").attr("id")'
         },
         {
             name     : 'treatmentAuthor',
@@ -30,7 +29,6 @@ module.exports = {
             },
             sqlType       : 'TEXT',
             cheerio: 'mods\\\\:namePart',
-            defaultCols: true,
             defaultOp: 'starts_with'
         }
     ]

@@ -11,8 +11,7 @@ module.exports = [
             isResourceId: true
         },
         sqltype: 'TEXT NOT NULL UNIQUE',
-        cheerio: '$("figureCitation").attr("id")',
-        defaultCols: true
+        cheerio: '$("figureCitation").attr("id")'
     },
 
     {
@@ -27,8 +26,7 @@ module.exports = [
             minLength: 32,
             description: `The unique ID of the parent treatment (FK). Has to be a 32 character string like:  '000087F6E320FF95FF7EFDC1FAE4FA7B'`
         },
-        sqltype: 'TEXT NOT NULL',
-        defaultCols: true
+        sqltype: 'TEXT NOT NULL'
     },
 
     {
@@ -38,8 +36,7 @@ module.exports = [
             description: `serial number of figure for a figureCitationId and treatmentId combination`
         },
         sqltype: 'INTEGER DEFAULT 0',
-        cheerio: '$("figureCitation").attr("figureNum")',
-        defaultCols: true
+        cheerio: '$("figureCitation").attr("figureNum")'
     },
 
     {
@@ -50,7 +47,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("figureCitation").attr("captionText")',
-        defaultCols: true,
         defaultOp: 'match',
         constraint: 'vfigurecitations MATCH @captionText',
         joins: {
@@ -68,8 +64,7 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("figureCitation").attr("httpUri")',
-        defaultCols: true,
-        queryable: false
+        notQueryable: true
     },
 
     // {

@@ -15,23 +15,37 @@ or can be a sql expression
 */
 
 /*
- * All params are queryable unless false
- *
- * Params with 'defaultCols' = true are SELECT-ed by default
- * 
- * Param 'sqltype' is used to CREATE the db table
- * 
- * Param 'selname' is used when 'name' is inappropriate for SQL. 
- * For example, when a column exists in two JOIN-ed tables, we 
- * can use 'selname' to prefix the column name with the table. Or,
- * if a column name is a reserved SQL word, we can double quote it 
- * as in the case of "order"
- * 
- * 
+
+
+  All params are queryable unless notqueryable is true
+ 
+  Params with 'defaultCols' = true are SELECT-ed by default
+  
+  Param 'sqltype' is used to CREATE the db table
+  
+  Param 'selname' is used when 'name' is inappropriate for SQL. 
+  For example, when a column exists in two JOIN-ed tables, we 
+  can use 'selname' to prefix the column name with the table. Or,
+  if a column name is a reserved SQL word, we can double quote it 
+  as in the case of "order"
+  
+  
  */
 module.exports = [
     {
+        // the name used in the REST query
         name: 'treatmentId',
+
+        // alternative name to use in the SELECT and 
+        // WHERE clauses of SQL
+        /*
+        alias: {
+            select: 'treatments.rank',
+            where : 'treatments.rank'
+        },
+        */
+        
+        // JSON schema that verifies the queries
         schema: { 
             type: 'string', 
             maxLength: 32, 
@@ -40,9 +54,29 @@ module.exports = [
 - \`treatmentId=388D179E0D564775C3925A5B93C1C407\``,
             isResourceId: true
         },
+
+        // SQL datatype
         sqltype: 'TEXT NOT NULL UNIQUE',
+
+        // zqltype is 'text' by default unless defined explicitly
+        /*
+        zqltype: 'date' | 'geolocation' | 'number'
+        */
+
+        // cheerio expression used to parse the value 
+        // from the XML
         cheerio: '$("document").attr("docId")',
-        defaultCols: true
+
+        // all columns are included in the query results by 
+        // default unless notDefaultCol is true
+        /*
+        notDefaultCol: true
+        */
+
+        // all params are queryable unless notqueryable is true
+        /*
+        notQueryable: true
+        */
     },
 
     {
@@ -58,7 +92,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("docTitle")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
     
@@ -70,7 +103,7 @@ module.exports = [
         },
         sqltype: 'INTEGER',
         cheerio: '$("document").attr("docVersion")',
-        defaultCols: false
+        notDefaultCol: true
     },
 
     {
@@ -82,7 +115,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("treatment").attr("ID-DOI")',
-        defaultCols: true,
     },
 
     {
@@ -94,7 +126,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("treatment").attr("LSID")',
-        defaultCols: true,
     },
 
     {
@@ -105,19 +136,18 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("ID-Zenodo-Dep")',
-        queryable: false
+        notQueryable: true
     },
 
     {
         name: 'zoobankId',
-        alias: 'zoobank',
         schema: {
             type: 'string',
             description: 'ZooBank ID of journal article'
         },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("ID-ZooBank")',
-        queryable: false
+        notQueryable: true
     },
 
     {
@@ -131,7 +161,6 @@ module.exports = [
         },
         sqltype: 'TEXT NOT NULL',
         cheerio: '$("document").attr("masterDocId")',
-        defaultCols: true
     },
 
     {
@@ -147,7 +176,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("masterDocTitle")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
 
@@ -164,7 +192,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("docAuthor")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
 
@@ -177,7 +204,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:identifier[type=DOI]").text()',
-        defaultCols: true,
     },
 
     {
@@ -199,7 +225,6 @@ module.exports = [
         sqltype: 'TEXT',
         zqltype: 'date',
         cheerio: '$("mods\\\\:detail[type=pubDate] mods\\\\:number").text()',
-        defaultCols: true,
         defaultOp: 'eq'
     },
 
@@ -216,7 +241,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:titleInfo mods\\\\:title").text()',
-        defaultCols: true,
         defaultOp: 'starts_with',
         facet: 'count > 100'
     },
@@ -230,7 +254,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:date").text()',
-        defaultCols: true,
         facet: 'count > 1'
     },
 
@@ -241,8 +264,7 @@ module.exports = [
             description: 'The volume of the journal'
         },
         sqltype: 'TEXT',
-        cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:detail[type=volume] mods\\\\:number").text()',
-        defaultCols: true
+        cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:detail[type=volume] mods\\\\:number").text()'
     },
 
     {
@@ -253,7 +275,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:detail[type=issue] mods\\\\:number").text()',
-        defaultCols: true
     },
 
     {
@@ -264,8 +285,7 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:extent[unit=page] mods\\\\:start").text() + "–" + $("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:extent[unit=page] mods\\\\:end").text()',
-        defaultCols: true,
-        queryable: false
+        notQueryable: true
     },
 
     {
@@ -281,7 +301,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("authorityName")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
 
@@ -294,7 +313,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("authorityYear")',
-        defaultCols: true,
         defaultOp: 'eq'
     },
 
@@ -306,7 +324,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("kingdom")',
-        defaultCols: true
     },
 
     {
@@ -317,7 +334,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("phylum")',
-        defaultCols: true
     },
 
     {
@@ -332,7 +348,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("order")',
-        defaultCols: true
     },
 
     {
@@ -343,7 +358,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("family")',
-        defaultCols: true
     },
 
     {
@@ -354,7 +368,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("genus")',
-        defaultCols: true
     },
 
     {
@@ -365,7 +378,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("species")',
-        defaultCols: true
     },
 
     {
@@ -376,7 +388,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("status")',
-        defaultCols: true,
         facet: 'count > 1'
     },
 
@@ -393,7 +404,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").text()',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
 
@@ -410,12 +420,15 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("rank")',
-        defaultCols: true,
         facet: 'count > 1'
     },
 
     {
         name: 'latitude',
+        alias: {
+            select: 'materialsCitations.latitude',
+            where : 'materialsCitations.latitude'
+        },
         schema: {
             type: 'number',
             pattern: utils.re.real,
@@ -423,12 +436,16 @@ module.exports = [
         },
         joins: {
             select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : null
+            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
         }
     },
 
     {
         name: 'longitude',
+        alias: {
+            select: 'materialsCitations.longitude',
+            where : 'materialsCitations.longitude'
+        },
         schema: {
             type: 'number',
             pattern: utils.re.real,
@@ -436,7 +453,7 @@ module.exports = [
         },
         joins: {
             select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : null
+            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
         }
     },
 
@@ -451,6 +468,7 @@ module.exports = [
 `,
         },
         zqltype: 'geolocation',
+        notDefaultCol: true,
         joins: {
             select: null,
             where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
@@ -463,6 +481,7 @@ module.exports = [
             type: 'number',
             description: `True if treatment is on land.`,
         },
+        notDefaultCol: true,
         joins: {
             select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
             where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
@@ -474,8 +493,8 @@ module.exports = [
         schema: {
             type: 'number',
             description: `True if geolocation is valid.`,
-            //default: true
         },
+        notDefaultCol: true,
         joins: {
             select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
             where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
@@ -484,6 +503,10 @@ module.exports = [
 
     {
         name: 'collectionCode',
+        alias: {
+            select: 'collectionCodes.collectionCode',
+            where : 'collectionCodes.collectionCode'
+        },
         schema: {
             type: 'string',
             description: `The collection code of the materialsCitations of the treatment. Can use the following syntax:
@@ -494,15 +517,15 @@ module.exports = [
         joins: {
             select: [
                 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
-                'JOIN materialsCitationsXcollectionCodes ON materialsCitations.materialsCitationId = materialsCitationsXcollectionCodes.materialsCitationId',
-                'JOIN collectionCodes ON materialsCitationsXcollectionCodes.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN z3collections.institutions ON collectionCodes.collectionCode = institution_code'
+                'JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
+                'JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
+                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
             ],
             where : [
                 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
-                'JOIN materialsCitationsXcollectionCodes ON materialsCitations.materialsCitationId = materialsCitationsXcollectionCodes.materialsCitationId',
-                'JOIN collectionCodes ON materialsCitationsXcollectionCodes.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN z3collections.institutions ON collectionCodes.collectionCode = institution_code'
+                'JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
+                'JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
+                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
             ]
         }
         //facet: 'count > 50'
@@ -516,8 +539,8 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("treatment").text()',
-        defaultCols: false,
-        queryable: false
+        notDefaultCol: true,
+        notQueryable: true
     },
 
     {
@@ -532,7 +555,7 @@ module.exports = [
 - \`q=spiders\``
         },
         sqltype: 'TEXT',
-        defaultCols: false,
+        notDefaultCol: true,
         defaultOp: 'match',
         joins: {
             select: null,
@@ -560,8 +583,7 @@ module.exports = [
         },
         sqltype: 'INTEGER',
         zqltype: 'date',
-        cheerio: '$("document").attr("updateTime")',
-        defaultCols: true
+        cheerio: '$("document").attr("updateTime")'
     },
 
     {
@@ -584,8 +606,7 @@ module.exports = [
         },
         sqltype: 'INTEGER',
         zqltype: 'date',
-        cheerio: '$("document").attr("checkinTime")',
-        defaultCols: true
+        cheerio: '$("document").attr("checkinTime")'
     },
 
     {
@@ -602,7 +623,7 @@ module.exports = [
         },
         sqltype: 'TEXT',
         zqltype: 'text',
-        defaultCols: false,
+        notDefaultCol: true,
         joins: {
             select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
             where : [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
@@ -620,7 +641,7 @@ module.exports = [
             description: 'The full text of the figure cited by this treatment'
         },
         sqltype: 'TEXT',
-        defaultCols: false,
+        notDefaultCol: true,
         defaultOp: 'match',
         joins: {
             select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
@@ -642,6 +663,6 @@ module.exports = [
         },
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("document").attr("deleted")',
-        defaultCols: false
+        notDefaultCol: true
     }    
 ]

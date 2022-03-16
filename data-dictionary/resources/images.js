@@ -4,7 +4,7 @@
 // for notes from @gsautter
 
 /*
- * All params are queryable unless false
+ * All params are queryable unless notqueryable is true
  * Params with 'defaultCols' = true are SELECT-ed by default
  * Param 'type' is looked up in ../definitions.js to create the schema
  * Param 'sqltype' is used in CREATE-ing the db table
@@ -17,8 +17,7 @@ module.exports = [
             type:"integer",
             description: 'unique identifier of the record',
             isResourceId: true
-        },
-        defaultCols: true
+        }
     },
 
     {
@@ -34,8 +33,7 @@ module.exports = [
             additionalItems: false,
             //default: [ 'figure', 'photo', 'drawing', 'diagram', 'plot', 'other' ],
             description: 'The image subtype; defaults to all subtypes'
-        },
-        //defaultCols: true
+        }
     },
 
     {
@@ -51,8 +49,7 @@ module.exports = [
             additionalItems: false,
             default: [ 'biosyslit' ],
             description: 'The community on Zenodo; defaults to <b>"biosyslit"</b>'
-        },
-        defaultCols: true
+        }
     },
 
     {
@@ -79,8 +76,7 @@ module.exports = [
 
 - creator=Agosti AND Donat
   will find all records containing both Agosti and Donat in any order`
-        },
-        defaultCols: true
+        }
     },
 
     {
@@ -99,8 +95,7 @@ module.exports = [
 
 - title=spider AND peacock
   will find all records containing both spider and peacock in any order`
-        },
-        defaultCols: true
+        }
     },
 
     {
@@ -111,7 +106,6 @@ module.exports = [
                 type: 'string'
             },
             description: 'The keywords associated with the image; more than one keywords may be used'
-        },
-        defaultCols: true
+        }
     }
 ]

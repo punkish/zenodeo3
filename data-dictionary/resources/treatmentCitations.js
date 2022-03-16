@@ -11,8 +11,7 @@ module.exports = [
             isResourceId: true
         },
         sqltype: 'TEXT NOT NULL UNIQUE',
-        cheerio: '$("treatmentCitation").attr("id")',
-        defaultCols: true
+        cheerio: '$("treatmentCitation").attr("id")'
     },
 
     {
@@ -23,8 +22,7 @@ module.exports = [
             minLength: 32,
             description: `The unique ID of the parent treatment (FK). Has to be a 32 character string like: '000587EFFFADFFC267F7FAC4351CFBC7'`
         },
-        sqltype: 'TEXT NOT NULL',
-        defaultCols: true
+        sqltype: 'TEXT NOT NULL'
     },
 
     {
@@ -40,7 +38,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=reference_group] treatmentCitationGroup taxonomicName").text() + " " + $("subSubSection[type=reference_Group] treatmentCitationGroup taxonomicName").attr("authority") + " sec. " + $("subSubSection[type=reference_Group] treatmentCitationGroup bibRefCitation").text()',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
 
@@ -57,7 +54,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=referenceGroup] treatmentCitationGroup treatmentCitation bibRefCitation").attr("refString")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     }
 ]

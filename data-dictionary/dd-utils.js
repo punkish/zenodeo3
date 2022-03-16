@@ -111,10 +111,10 @@ const getResourceid = (resource) => getParams(resource)
 
 // queryableParams: dd entries that are allowed in a REST query
 const getQueryableParams = (resource) => getParams(resource)
-    .filter(p => p.queryable !== false);
+    .filter(p => !('notQueryable' in p));
 
 // All queryable params of a resource with default values
-// const getQueryableParamsWithDefaults = function(resource) {
+// const getQueryableParamsWithDefaul`ts = function(resource) {
 //     const resourceId = getResourceid(resource)
 //     const params = getQueryableParams(resource)
     
@@ -139,21 +139,21 @@ const getCols = (resource) => getParams(resource)
         return {
             name: p.name, 
             schema: p.schema,
-            alias: p.alias, 
+            selname: getSelect(resource, p.name), 
             isResourceId: p.schema.isResourceId || false,
-            where: p.where, 
+            wherename: getWhere(resource, p.name), 
             join: p.join || '',
             sqltype: p.sqltype,
             zqltype: p.zqltype || 'text',
-            isDefaultCol: p.defaultCols || false,
+            isDefaultCol: 'notDefaultCol' in p ? true : false,
             facet: p.facet || false
         }
     })
 
 // defaultCols: columns that are returned if no columns are 
 // specified in a REST query via 'cols'
-const getDefaultCols = (resource) => getCols(resource)
-    .filter(p => p.isDefaultCol === true)
+const getDefaultCols = (resource) => getParams(resource)
+    .filter(p => !('notDefaultCol' in p))
 
 // facetCols: all cols that can be used in facet queries
 const getFacetCols = (resource) => getCols(resource)
@@ -168,7 +168,7 @@ const getSqlCols = (resource) => getParams(resource)
         }
     })
 
-const getName = (resource, col, type) => {
+const _getName = (resource, col, type) => {
     let selname = `${resource}.${col.name}`;
 
     if (col.alias && col.alias[type]) {
@@ -181,13 +181,13 @@ const getName = (resource, col, type) => {
 // getSelect: the column name or expression used in a SQL query
 const getSelect = (resource, column) => {
     const col = getParams(resource).filter(p => p.name === column)[0];
-    return getName(resource, col, 'select');
+    return _getName(resource, col, 'select');
 }
 
 // where: the column name used in the WHERE clause of a SQL query
 const getWhere = (resource, column) => {
     const col = getParams(resource).filter(p => p.name === column)[0];
-    return getName(resource, col, 'where');
+    return _getName(resource, col, 'where');
 }
 
 const getZqltype = (resource, column) => getCols(resource)
@@ -196,17 +196,7 @@ const getZqltype = (resource, column) => getCols(resource)
 // schema: we use the schema to validate the query params
 const getSchema = function(resource) {
     const queryableParams = JSON.parse(JSON.stringify(getQueryableParams(resource)));
-    
-    // let resourceIdName = `${resource}.${resourceId.name}`;
-    // if (resourceId.alias) {
-    //     if (resourceId.alias.select) {
-    //         resourceIdName = resourceId.alias.select
-    //     }
-    // }
-    
-
     const resourcesFromZenodeo = getResourcesFromSource('zenodeo');
-
     const schema = {
         type: 'object',
         properties: {},
@@ -216,7 +206,7 @@ const getSchema = function(resource) {
     queryableParams.forEach(p => {
         if (p.schema.default && typeof(p.schema.default) === 'string') {
             const resourceId = getResourceid(resource);
-            const resourceIdName = getName(resource, resourceId, 'select');
+            const resourceIdName = _getName(resource, resourceId, 'select');
             p.schema.default = p.schema.default.replace(/resourceId/, resourceIdName);
         }
 
@@ -224,18 +214,11 @@ const getSchema = function(resource) {
             if (p.schema.type === 'array') {
                 if (p.name === 'cols') {
                     
-                    //p.schema.prefixItems = getCols(resource).map(c => {
-                    p.schema.items.enum = getCols(resource).map(c => {
-                        // const operator = '(?<groupby>distinct)?';
-                        // return `^${operator}\\(${c.name}\\)$`;
-                        // return { type: c.schema.type }
-                        return c.name;
-                    });
+                    p.schema.items.enum = getCols(resource).map(c => c.name);
 
                     // allow empty col as in "cols=''"
                     p.schema.items.enum.push('');
 
-                    //p.schema.prefixItems.push('');
                     p.schema.default = getDefaultCols(resource).map(c => c.name);
                     p.schema.errorMessage = {
                         properties: {
@@ -257,7 +240,7 @@ const getJoin = (resource, column, type) => {
     return col.joins ? col.joins[type] : '';
 }
 
-const getNotCols = () => commonparams.map(c => c.name)
+const getNotCols = () => commonparams.map(c => c.name);
 
 // Finding the number of function parameters in JavaScript
 // https://stackoverflow.com/a/6293830/183692
@@ -273,9 +256,7 @@ const dispatch = {
     getSourceOfResource,
     getResourcesFromSource,
     getParams,
-    //getParamsNameAndSelname,
     getQueryableParams,
-    //getQueryableParamsWithDefaults,
     getCols,
     getDefaultCols,
     getFacetCols,

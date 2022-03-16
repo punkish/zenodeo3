@@ -18,8 +18,7 @@ module.exports = [
         },
         //selname: 'materialsCitations.materialsCitationId',
         sqltype: 'TEXT NOT NULL UNIQUE',
-        cheerio: '$("materialsCitation").attr("id")',
-        defaultCols: true,
+        cheerio: '$("materialsCitation").attr("id")'
     },
 
     {
@@ -30,8 +29,7 @@ module.exports = [
             minLength: 32,
             description: `The unique ID of the parent treatment (FK). Has to be a 32 character string like: '00078788D744DE18E88B8B8BFE7FDBF9'`
         },
-        sqltype: 'TEXT NOT NULL',
-        defaultCols: true
+        sqltype: 'TEXT NOT NULL'
     },
 
     {
@@ -42,8 +40,7 @@ module.exports = [
             description: 'The date when the specimen was collected',
         },
         sqltype: 'TEXT',
-        cheerio: '$("materialsCitation").attr("collectingDate")',
-        defaultCols: true
+        cheerio: '$("materialsCitation").attr("collectingDate")'
     },
     {
         name: 'collectionCode',
@@ -58,7 +55,6 @@ module.exports = [
         //selname: 'collectionCodes.collectionCode',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectionCode")',
-        defaultCols: true,
         joins: {
             select: [ 
                 'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
@@ -78,8 +74,7 @@ module.exports = [
             type: 'string',
             description: 'The name of the institution that houses the collection',
         },
-        sqltype: 'TEXT',
-        defaultCols: true,
+        sqltype: 'TEXT'
     },
     {
         name: 'collectorName',
@@ -94,7 +89,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectorName")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
     {
@@ -110,7 +104,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("country")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
     {
@@ -126,7 +119,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectingRegion")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
     {
@@ -142,7 +134,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("municipality")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
     {
@@ -158,7 +149,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("county")',
-        defaultCols: true,
         defaultOp: 'eq'
     },
     {
@@ -174,7 +164,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("stateProvince")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
     {
@@ -190,7 +179,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("location")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
     {
@@ -206,7 +194,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("locationDeviation")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
     {
@@ -216,8 +203,7 @@ module.exports = [
             description: 'The number of listed female specimens',
         },
         sqltype: 'TEXT',
-        cheerio: '$("materialsCitation").attr("specimenCount-female")',
-        defaultCols: true
+        cheerio: '$("materialsCitation").attr("specimenCount-female")'
     },
     {
         name: 'specimenCountMale',
@@ -226,8 +212,7 @@ module.exports = [
             description: 'The number of listed male specimens',
         },
         sqltype: 'TEXT',
-        cheerio: '$("materialsCitation").attr("specimenCount-male")',
-        defaultCols: true
+        cheerio: '$("materialsCitation").attr("specimenCount-male")'
     },
     {
         name: 'specimenCount',
@@ -236,8 +221,7 @@ module.exports = [
             description: 'The number of listed specimens',
         },
         sqltype: 'TEXT',
-        cheerio: '$("materialsCitation").attr("specimenCount")',
-        defaultCols: true
+        cheerio: '$("materialsCitation").attr("specimenCount")'
     },
     {
         name: 'specimenCode',
@@ -252,7 +236,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("specimenCode")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
     {
@@ -268,7 +251,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("typeStatus")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
     {
@@ -284,7 +266,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("determinerName")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
     {
@@ -300,7 +281,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectedFrom")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
     {
@@ -316,7 +296,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectingMethod")',
-        defaultCols: true,
         defaultOp: 'starts_with'
     },
 
@@ -371,7 +350,7 @@ module.exports = [
         //selname: 'materialsCitations.latitude',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("latitude")',
-        defaultCols: true
+        notDefaultCol: true
     },
 
     {
@@ -388,7 +367,7 @@ module.exports = [
         //selname: 'materialsCitations.longitude',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("longitude")',
-        defaultCols: true
+        notDefaultCol: true
     },
 
     {
@@ -433,8 +412,7 @@ module.exports = [
 - elevation=between(-1000 and 102)`,
         },
         sqltype: 'TEXT',
-        cheerio: '$("materialsCitation").attr("elevation")',
-        defaultCols: true
+        cheerio: '$("materialsCitation").attr("elevation")'
     },
     {
         name: 'httpUri',
@@ -445,8 +423,7 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("httpUri")',
-        defaultCols: true,
-        queryable: false
+        notQueryable: true
     },
     {
         name: 'materialsCitation',
@@ -456,8 +433,7 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation")',
-        defaultCols: false,
-        queryable: false
+        notQueryable: true
     },
 
     {
@@ -472,9 +448,8 @@ module.exports = [
             description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
             isResourceId: false
         },
-        //selname: 'materialsCitations.deleted',
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("materialsCitation").attr("deleted")',
-        defaultCols: false
+        notDefaultCol: true
     }
 ]

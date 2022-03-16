@@ -17,8 +17,7 @@ module.exports = [
             isResourceId: true
         },
         sqltype: 'TEXT NOT NULL UNIQUE',
-        cheerio: '$("bibRefCitation").attr("id")',
-        defaultCols: true
+        cheerio: '$("bibRefCitation").attr("id")'
     },
 
     {
@@ -29,8 +28,7 @@ module.exports = [
             minLength: 32,
             description: `The unique ID of the parent treatment (FK). Has to be a 32 character string like: '000087F6E320FF99FDC9FA73FA90FABE'`
         },
-        sqltype: 'TEXT NOT NULL',
-        defaultCols: true
+        sqltype: 'TEXT NOT NULL'
     },
 
     {
@@ -45,8 +43,7 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("refString")',
-        defaultCols: true,
-        queryable: false
+        notQueryable: true
     },
 
     {
@@ -62,7 +59,7 @@ module.exports = [
         },
         //selname: "snippet(vbibrefcitations, 1, '<b>', '</b>', '…', 25) snippet",
         sqltype: 'TEXT',
-        defaultCols: false,
+        notDefaultCol: true,
         defaultOp: 'match',
         //constraint: 'vbibrefcitations MATCH @q',
         joins: {
@@ -79,7 +76,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("type")',
-        defaultCols: true,
         facets: true
     },
 
@@ -92,7 +88,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("year")',
-        defaultCols: true,
         facets: true
     }
 ]

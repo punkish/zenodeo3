@@ -10,7 +10,6 @@ module.exports = [
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectionCode")',
-        defaultCols: true,
         //join: [ 'z3collections.institutions ON collectionCode = institution_code' ]
     },
     {
@@ -20,7 +19,6 @@ module.exports = [
             description: 'The name of the institution that houses the collection',
         },
         sqltype: 'TEXT',
-        //defaultCols: true,
         joins: {
             select: [ 'LEFT JOIN z3collections.institutions ON collectionCode = institution_code' ],
             where : [ 'LEFT JOIN z3collections.institutions ON collectionCode = institution_code' ]

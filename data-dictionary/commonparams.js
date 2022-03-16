@@ -10,7 +10,8 @@ module.exports = [
             type: 'boolean',
             description: 'Force refresh cache (true | false)',
             default: false
-        }
+        },
+        notDefaultCol: true
     },
     {
         name: 'facets',
@@ -18,7 +19,8 @@ module.exports = [
             type: 'boolean',
             description: 'Calculate facets (true | false)',
             default: false
-        }
+        },
+        notDefaultCol: true
     },
     {
         name: 'relatedRecords',
@@ -26,7 +28,8 @@ module.exports = [
             type: 'boolean',
             description: 'Calculate related records (true | false)',
             default: false
-        }
+        },
+        notDefaultCol: true
     },
     // {
     //     name: 'stats',
@@ -52,7 +55,8 @@ module.exports = [
             minimum: 1,
             description: 'Starting page. Has to be an integer greater than 0. Defaults to 1',
             default: 1
-        }
+        },
+        notDefaultCol: true
     },
 
     // maps --> LIMIT
@@ -63,7 +67,8 @@ module.exports = [
             minimum: 1,
             description: 'Number of records to fetch per page. Has to be an integer between 1 and 100. Defaults to 30',
             default: 30
-        }
+        },
+        notDefaultCol: true
     }, 
 
     // maps --> ORDER BY
@@ -76,7 +81,8 @@ module.exports = [
 - \`sortby=treatmentTitle:ASC,rank:DESC\`
   **Note:** sort direction can be ASC or DESC`,
             default: 'resourceId:ASC'
-        }
+        },
+        notDefaultCol: true
     },
 
     // maps --> SELECT
@@ -89,6 +95,7 @@ module.exports = [
             },
             description: `Columns to retreive in the result set. Order of columns doesn't matter. Provide columns like so:
 - \`cols=column1&cols=column2&cols=column3\``
-        }
+        },
+        notDefaultCol: true
     }
 ]
