@@ -13,7 +13,8 @@ const parts = {
         require('./treatments/treatmentauthors'),
         require('./treatments/bibrefcitations'),
         require('./treatments/figurecitations'),
-        require('./treatments/materialscitations')
+        require('./treatments/materialscitations'),
+        require('./treatments/treatmentimages')
     ],
     stats: [
         require('./stats/stats')

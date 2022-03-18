@@ -121,7 +121,7 @@ module.exports = {
 
         // run: 'test', // test data (small sample ~10K records)
         run: 'real', // real data
-        //run: 'dry',     // simulated run, no commands executed
+        // run: 'dry',     // simulated run, no commands executed
 
         // server where the data are stored
         // server: 'https://tb.plazi.org/dumps/',

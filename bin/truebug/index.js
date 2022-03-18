@@ -99,18 +99,18 @@ const process = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
     // start ETL
     if (numOfFiles) {
         const files = preflight.filesExistInDump();
-        log.info(`${files.length} files exist… let's ETL them`);
+        log.info(`${files.length} files exist in dump… let's ETL them`);
 
         action.started = new Date().getTime();
         action.process = 'etl';
         action.timeOfArchive = timeOfArchive;
         action.typeOfArchive = typeOfArchive;
         
-
         database.storeMaxrowid();
         database.dropIndexes();
         processFiles(files);
         database.insertFTS();
+        database.insertDerived();
         database.updateIsOnLand();
         database.buildIndexes();
         
@@ -143,12 +143,10 @@ const update = async (typeOfArchives) => {
     log.info(`checking if ${typeOfArchive} archive exists on remote server`);
     const result = await download.checkRemote(typeOfArchive);
 
-    // the tested timePeriod exists on the remote server
     if (result.timeOfArchive) {
-
-        // the tested timePeriod is newer than the local update
-        //const timeOfArchive = new Date(result.timeOfArchive).getTime();
         const lastUpate = database.getLastUpdate(typeOfArchive);
+
+        // the remote archive's time is newer than the last update
         if (result.timeOfArchive > lastUpate) {
             process(typeOfArchive, result.timeOfArchive, result.sizeOfArchive);
         }
@@ -187,8 +185,6 @@ else {
     const typeOfArchives = [ 'monthly', 'weekly', 'daily' ];
     update(typeOfArchives);
 }
-
-
 
 // HOME=/Users/punkish
 // PATH=/opt/local/bin:/opt/local/sbin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/Little Snitch.app/Contents/Components:/opt/X11/bin:/Library/Apple/usr/bin

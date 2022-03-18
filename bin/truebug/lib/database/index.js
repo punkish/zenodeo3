@@ -7,7 +7,7 @@ const Logger = require('../../utils');
 const log = new Logger(truebug.log);
 const isSea = require('is-sea');
 const Database = require('better-sqlite3');
-//const db = new Database(config.get('db.main'));
+
 const db = {
     treatments: new Database(config.get('db.treatments')),
     stats: new Database(config.get('db.stats')),
@@ -72,9 +72,7 @@ const repackageTreatment = (treatment) => {
                     }
                     catch (error) {
                         log.error(error);
-                        log.error('*****************************');
                         log.error(treatment);
-                        log.error('*****************************');
                     }
                 }
             }
@@ -145,6 +143,23 @@ const insertFTS = () => {
     })
 }
 
+const insertDerived = () => {
+    dbs.treatments.tables.forEach(t => {
+        if (truebug.run === 'real') {
+            if (t.type === 'derived') {
+                log.info(`inserting data in derived table ${t.name}`);
+
+                try {
+                    t.preparedinsert.run({maxrowid: t.maxrowid});
+                }
+                catch(error) {
+                    log.error(error);
+                }
+            }
+        }
+    })
+}
+
 const dropIndexes = () => {
     log.info('dropping indexes');
 
@@ -164,25 +179,34 @@ const buildIndexes = () => {
     dbs.treatments.indexes.forEach(i => {
         if (truebug.run === 'real') {
             try {
-                db.treatments.prepare(i).run()
+                db.treatments.prepare(i).run();
             }
             catch(error) {
-                log.error(error)
-                log.error(i)
+                log.error(error);
+                log.error(i);
             }
         }
     })
 }
 
-const selCountOfTreatments = () => db.treatments.prepare('SELECT Count(*) AS c FROM treatments').get().c
-const selMaxrowidVtable = (vtable) => db.treatments.prepare(`SELECT Max(rowid) AS c FROM ${vtable}`).get().c
+const selCountOfTreatments = () => db.treatments.prepare('SELECT Count(*) AS c FROM treatments').get().c;
+
+const selMaxrowidVirtualTable = (vtable) => db.treatments.prepare(`SELECT Max(rowid) AS c FROM ${vtable}`).get().c;
+
+const selMaxrowidDerivedTable = (vtable) => db.treatments.prepare(`SELECT Max(rowid) AS c FROM ${vtable}`).get().c;
 
 const storeMaxrowid = () => {
     dbs.treatments.tables.forEach(t => {
         if (truebug.run === 'real') {
             if (t.type === 'virtual') {
-                const maxrowid = selMaxrowidVtable(t.name) || 0;
+                const maxrowid = selMaxrowidVirtualTable(t.name) || 0;
                 log.info(`storing maxrowid ${maxrowid} of the virtual table ${t.name}`);
+
+                t.maxrowid = maxrowid;
+            }
+            else if (t.type === 'derived') {
+                const maxrowid = selMaxrowidDerivedTable(t.name) || 0;
+                log.info(`storing maxrowid ${maxrowid} of the derived table ${t.name}`);
 
                 t.maxrowid = maxrowid;
             }
@@ -192,7 +216,7 @@ const storeMaxrowid = () => {
 
 const getLastUpdate = () => {
     const s = "SELECT Max(started) AS lastUpdate FROM etlstats WHERE process = 'etl'";
-    return db.stats.prepare(s).get().lastUpdate
+    return db.stats.prepare(s).get().lastUpdate;
 }
 
 const insertStats = (stats) => {
@@ -218,8 +242,8 @@ const updateIsOnLand = () => {
     |---------------------|----------|----------|
     | lat/lng are empty   | 0        | NULL     |
     | lat/lng are wrong   | 0        | NULL     |
-    | lat/lng are correct | 1        | 1 or 0   | <------ were updated in a previous run
-    | lat/lng are correct | 1        | NULL     | <------ need to be updated
+    | lat/lng are correct | 1        | 1 or 0   | <- were updated previously
+    | lat/lng are correct | 1        | NULL     | <- need to be updated
     */
     const select = db.treatments.prepare('SELECT id, latitude, longitude, isOnLand FROM materialsCitations WHERE deleted = 0 AND validGeo = 1 AND isOnLand IS NULL').all();
     const update = db.treatments.prepare('UPDATE materialsCitations SET isOnLand = @isOnLand WHERE id = @id');
@@ -256,6 +280,7 @@ module.exports = {
     buildIndexes,
     insertData,
     insertFTS,
+    insertDerived,
     insertStats,
     getDaysSinceLastEtl,
     getLastUpdate,
