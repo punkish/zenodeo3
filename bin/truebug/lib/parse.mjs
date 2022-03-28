@@ -1,5 +1,9 @@
 'use strict'
 
+// The following two lines make "require" available
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+
 const fs = require('fs')
 const path = require('path')
 const cheerio = require('cheerio')
@@ -8,8 +12,10 @@ const chance = require('chance').Chance()
 const config = require('config');
 const truebug = config.get('truebug');
 
-const Logger = require('../utils');
-const log = new Logger(truebug.log);
+import { Zlogger } from '@punkish/zlogger';
+const logOpts = JSON.parse(JSON.stringify(config.get('truebug.log')));
+logOpts.name  = 'TRUEBUG:PARSE';
+const log     = new Zlogger(logOpts);
 
 const isSea = require('is-sea');
 
@@ -157,11 +163,11 @@ const _parse = function($, part, parts, partId, treatmentId) {
                 if (el.cheerio) {
                     const attr = $(e).attr(el.name)
                     if (attr) {
-                        entry[el.name] = attr
+                        entry[el.name] = attr;
                     }
                     else {
-                        entry[el.name] = ''
-                        missingAttr.push(el.name)
+                        entry[el.name] = '';
+                        missingAttr.push(el.name);
                     }
                 }
             })
@@ -171,13 +177,14 @@ const _parse = function($, part, parts, partId, treatmentId) {
                 deleted = 1
             }
 
-            entry[partId] = $(e).attr('id') || chance.guid()
-            entry.treatmentId = treatmentId
-            entry.updateVersion = $(e).attr('updateVersion') || ''
-            entry.deleted = deleted
-            entry[part] = $(e).text()
+            entry[partId] = $(e).attr('id') || chance.guid();
+            entry.treatmentId = treatmentId;
+            entry.updateVersion = $(e).attr('updateVersion') || '';
+            entry.deleted = deleted;
+            //entry[part] = $(e).text()
+            entry.fulltext = $(e).text();
 
-            entries.push(entry)
+            entries.push(entry);
         }
     }
 
@@ -248,21 +255,23 @@ const parseFigureCitations = function($, treatmentId) {
                         //     entry.figureDoi = ''
                         // }
 
-                        entry.updateVersion = $(el).attr('updateVersion') || ''
-                        entry.deleted = $(el).attr('deleted') && ($(el).attr('deleted') === 'true') ? 1 : 0
-                        entries.push(entry)
+                        entry.updateVersion = $(el).attr('updateVersion') || '';
+                        entry.deleted = $(el).attr('deleted') && ($(el).attr('deleted') === 'true') ? 1 : 0;
+                        entry.fulltext = $(el).text();
+                        entries.push(entry);
                     }
                 }
                 else {
-                    entry.figureCitationId = $(el).attr('id') || chance.guid()
-                    entry.treatmentId = treatmentId
-                    entry.figureNum = 0
-                    entry.httpUri = $(el).attr('httpUri') || ''
-                    entry.captionText = $(el).attr('captionText') || ''
-                    entry.figureDoi = $(el).attr('figureDoi') || ''
-                    entry.updateVersion = $(el).attr('updateVersion') || ''
-                    entry.deleted = $(el).attr('deleted') && ($(el).attr('deleted') === 'true') ? 1 : 0
-                    entries.push(entry)
+                    entry.figureCitationId = $(el).attr('id') || chance.guid();
+                    entry.treatmentId = treatmentId;
+                    entry.figureNum = 0;
+                    entry.httpUri = $(el).attr('httpUri') || '';
+                    entry.captionText = $(el).attr('captionText') || '';
+                    entry.figureDoi = $(el).attr('figureDoi') || '';
+                    entry.updateVersion = $(el).attr('updateVersion') || '';
+                    entry.deleted = $(el).attr('deleted') && ($(el).attr('deleted') === 'true') ? 1 : 0;
+                    entry.fulltext = $(el).text();
+                    entries.push(entry);
                 }
             }
         }
@@ -296,45 +305,48 @@ const parseMaterialsCitations = function($, treatmentId) {
     if (num) {
         for (let i = 0; i < num; i++) {
             const e = elements[i]
-
-            //const missingAttr = [];
             const entry = {};
-
-            const mId = $(e).attr('id')
+            const materialsCitationId = $(e).attr('id')
 
             allCols.forEach(col => {
                 if (col.cheerio) {
-                    const attr = $(e).attr(col.name)
-                    
+                    const attr = $(e).attr(col.name);
+
+                    let key = col.name;
+                    if (key === 'specimenCount-female') {
+                        key = 'specimenCountFemale';
+                    }
+                    else if (key === 'specimenCount-male') {
+                        key = 'specimenCountMale';
+                    }
+
                     if (attr) {
-                        entry[col.name] = attr
+                        entry[key] = attr;
 
                         if (col.name === 'collectionCode') {
                             const cc = attr.split(', ')
                             collectionCodes.push( ...cc )
 
-                            cc.forEach(c => {
+                            cc.forEach(collectionCode => {
                                 mc.push({ 
-                                    materialsCitationId: mId,
-                                    collectionCode: c
+                                    materialsCitationId,
+                                    collectionCode
                                 })
                             })  
                         }
                     }
                     else {
-                        entry[col.name] = ''
-                        //missingAttr.push(col.name)
+                        entry[key] = '';
                     }
                 }
             })
 
-
             //entry.isOnLand = isOnLand(entry.latitude, entry.longitude);
-            entry.materialsCitationId = $(e).attr('id') || chance.guid();
+            entry.materialsCitationId = materialsCitationId || chance.guid();
             entry.treatmentId = treatmentId;
             entry.updateVersion = $(e).attr('updateVersion') || '';
             entry.deleted = $(e).attr('deleted') && $(e).attr('deleted') === 'true' ? 1 : 0;
-            entry.materialsCitation = $(e).text();
+            entry.fulltext = $(e).text();
             
             entries.push(entry);
         }
@@ -424,12 +436,12 @@ const parseOne = (xml) => {
     const treatmentId = path.basename(xml, '.xml');
 
     if (treatmentId.length != 32 || !treatmentIdRegex.test(treatmentId)) {
-        const treatment = cheerioparse(fs.readFileSync(`${truebug.dirs.dump}/${xml}`, 'utf8'), treatmentId)
-        return truebug.run === 'real' ? treatment : ''
+        const treatment = cheerioparse(fs.readFileSync(`${truebug.dirs.dump}/${xml}`, 'utf8'), treatmentId);
+        return treatment;
     }
     else {
         log.error(`file ${xml} doesn't look like a treatment`)
     }
 }
 
-module.exports = { stats, parseOne, calcStats }
+export { stats, parseOne, calcStats }

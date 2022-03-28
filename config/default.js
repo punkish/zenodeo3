@@ -12,7 +12,7 @@ const dataDir = path.join(cwd, '..', 'data')
 // const dbDir = path.join(dataDir, 'z3-sqlite')
 // const dataPrefix = 'z3'
 
-module.exports = {
+const config = {
     port: 3010,
     address: '0.0.0.0',
     url: {
@@ -121,16 +121,16 @@ module.exports = {
 
         // run: 'test', // test data (small sample ~10K records)
         run: 'real', // real data
-        // run: 'dry',     // simulated run, no commands executed
+        //run: 'dry',     // simulated run, no commands executed
 
         // server where the data are stored
         // server: 'https://tb.plazi.org/dumps/',
         server: 'http://127.0.0.1/plazi/data',
 
-        source: 'full',
+        //source: 'full',
         //source: 'monthly',
         // source: 'weekly',
-        //source: 'daily',
+        source: 'daily',
         //source: 'single',
 
         /*
@@ -157,7 +157,10 @@ module.exports = {
             // '03FC87E61268FFD6D3E36CD2FE12DF29'
             // 'BF8A576EC3F6661E96B5590C108213BA'
             // '0247B450A734FFD280E97BD0FA9FFA55',
-            single: 'BF8A576EC3F6661E96B5590C108213BA',  
+            // BF83FD94E0CDA346729786FC4E1CBDB9
+            // BF87E6B3C70B5DA7BFE7958FCE167A46
+            // 00078788D744DE18E88B8B8BFE7FDBF9
+            single: '00078788D744DE18E88B8B8BFE7FDBF9',  
         },
 
         dirs: {
@@ -168,3 +171,5 @@ module.exports = {
         }
     }
 }
+
+module.exports = config;

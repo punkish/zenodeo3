@@ -197,7 +197,7 @@ module.exports = [
         defaultOp: 'starts_with'
     },
     {
-        name: 'specimenCountFemale',
+        name: 'specimenCount-female',
         schema: {
             type: 'integer',
             description: 'The number of listed female specimens',
@@ -206,7 +206,7 @@ module.exports = [
         cheerio: '$("materialsCitation").attr("specimenCount-female")'
     },
     {
-        name: 'specimenCountMale',
+        name: 'specimenCount-male',
         schema: {
             type: 'integer',
             description: 'The number of listed male specimens',
@@ -238,16 +238,12 @@ module.exports = [
         cheerio: '$("materialsCitation").attr("specimenCode")',
         defaultOp: 'starts_with'
     },
+
     {
         name: 'typeStatus',
         schema: {
             type: 'string',
-            description: `TThe nomenclatural status of the specimen, e.g. holotype, paratype. Can use the following syntax:
-- specimenCode='1 lectotype and 13 paralectotypes'
-- specimenCode=starts_with(1 lectotype)
-- specimenCode=ends_with(paralectotypes)
-- specimenCode=contains(lectotype)
-  **Note:** queries involving inexact matches will be considerably slow`,
+            description: 'The type status',
         },
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("typeStatus")',
@@ -299,55 +295,13 @@ module.exports = [
         defaultOp: 'starts_with'
     },
 
-//     {
-//         name: 'geolocation',
-//         schema: {
-//             type: 'string',
-//             description: `The geo-location of the materialsCitation. Can use the following syntax:
-// - geolocation=within({"radius":10,units:"kilometers","lat":40.00,"lng":-120})
-// - geolocation=near({"lat":40.00,"lng":-120})
-//   **note:** radius defaults to 1 km when using *near*`,
-//         }
-//     },
-
-//     {
-//         name: 'latitude',
-//         schema: {
-//             type: 'string',
-//             description: 'Geographic coordinates of the location where the specimen was collected.',
-//         },
-//         selname: 'materialsCitations.latitude',
-//         sqltype: 'TEXT',
-//         cheerio: '$("materialsCitation").attr("latitude")',
-//         defaultCols: true,
-//         qyeryable: false
-//     },
-
-//     {
-//         name: 'longitude',
-//         schema: {
-//             type: 'string',
-//             description: 'Geographic coordinates of the location where the specimen was collected.',
-//         },
-//         selname: 'materialsCitations.longitude',
-//         sqltype: 'TEXT',
-//         cheerio: '$("materialsCitation").attr("longitude")',
-//         defaultCols: true,
-//         qyeryable: false
-//     },
-
     {
         name: 'latitude',
-        alias: {
-            select: 'materialsCitations.latitude',
-            where : null
-        },
         schema: {
             type: 'number',
             pattern: utils.re.real,
             description: `The geolocation of the treatment.`,
         },
-        //selname: 'materialsCitations.latitude',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("latitude")',
         notDefaultCol: true
@@ -355,48 +309,14 @@ module.exports = [
 
     {
         name: 'longitude',
-        alias: {
-            select: 'materialsCitations.longitude',
-            where : null
-        },
         schema: {
             type: 'number',
             pattern: utils.re.real,
             description: 'The geolocation of the treatment.',
         },
-        //selname: 'materialsCitations.longitude',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("longitude")',
         notDefaultCol: true
-    },
-
-    {
-        name: 'geolocation',
-        schema: {
-            type: 'string',
-            pattern: utils.getPattern('geolocation'),
-            description: `The geolocation of the treatment. Can use the following syntax:
-- \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
-- \`geolocation=containted_in({lowerLeft:{lat: -40.00, lng: -120},upperRight: {lat:23,lng:6.564}})\`
-`,
-        },
-        zqltype: 'geolocation'
-    },
-
-    {
-        name: 'isOnLand',
-        schema: {
-            type: 'number',
-            description: `True if treatment is on land.`,
-        }
-    },
-
-    {
-        name: 'validGeo',
-        schema: {
-            type: 'number',
-            description: `True if treatment is on land.`,
-        }
     },
 
     {
@@ -414,6 +334,7 @@ module.exports = [
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("elevation")'
     },
+
     {
         name: 'httpUri',
         schema: {
@@ -425,8 +346,22 @@ module.exports = [
         cheerio: '$("materialsCitation").attr("httpUri")',
         notQueryable: true
     },
+
     {
-        name: 'materialsCitation',
+        name: 'deleted',
+        schema: { 
+            type: 'boolean',
+            default: false,
+            description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
+            isResourceId: false
+        },
+        sqltype: 'INTEGER DEFAULT 0',
+        cheerio: '$("materialsCitation").attr("deleted")',
+        notDefaultCol: true
+    },
+
+    {
+        name: 'innerText',
         schema: {
             type: 'string',
             description: 'xml'
@@ -437,19 +372,33 @@ module.exports = [
     },
 
     {
-        name: 'deleted',
-        alias: {
-            select: 'materialsCitations.deleted',
-            where : null
+        name: 'validGeo',
+        schema: {
+            type: 'number',
+            description: 'True if treatment has a valid geolocation.',
         },
-        schema: { 
-            type: 'boolean',
-            default: false,
-            description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
-            isResourceId: false
+        sqltype: 'INTEGER'
+    },
+
+    {
+        name: 'isOnLand',
+        schema: {
+            type: 'number',
+            description: 'True if treatment is on land.',
         },
-        sqltype: 'INTEGER DEFAULT 0',
-        cheerio: '$("materialsCitation").attr("deleted")',
-        notDefaultCol: true
+        sqltype: 'INTEGER DEFAULT NULL'
+    },
+
+    {
+        name: 'geolocation',
+        schema: {
+            type: 'string',
+            pattern: utils.getPattern('geolocation'),
+            description: `The geolocation of the treatment. Can use the following syntax:
+- \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
+- \`geolocation=containted_in({lowerLeft:{lat: -40.00, lng: -120},upperRight: {lat:23,lng:6.564}})\`
+`,
+        },
+        zqltype: 'expression'
     }
 ]

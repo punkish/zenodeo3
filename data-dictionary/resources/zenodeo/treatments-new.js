@@ -2,48 +2,40 @@
 
 const utils = require('../../../lib/utils.js');
 
-
 // see https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289 
 // for notes from @gsautter
 
 /*
-elements are extracted from articles (-> cheerio expression)
-and stored in a db (-> sql column) table (-> resource).
+    Elements are extracted from articles (-> cheerio expression)
+    and stored in a db (-> sql column) table (-> resource).
 
-rest query is made of params that can be directly mapped to a sql column 
-or can be a sql expression
-*/
+    REST query is made of params that can be directly mapped to a 
+    sql column or can be a sql expression.
 
-/*
+    All params are queryable unless notqueryable is true.
 
+    Params with 'defaultCols' = true are SELECT-ed by default.
 
-  All params are queryable unless notqueryable is true
- 
-  Params with 'defaultCols' = true are SELECT-ed by default
+    Param 'sqltype' is used to CREATE the db table.
+
+    Param 'selname' is used when 'name' is inappropriate for SQL. 
+    For example, when a column exists in two JOIN-ed tables, we 
+    can use 'selname' to prefix the column name with the table. Or,
+    if a column name is a reserved SQL word, we can double quote it 
+    as in the case of "order".
   
-  Param 'sqltype' is used to CREATE the db table
-  
-  Param 'selname' is used when 'name' is inappropriate for SQL. 
-  For example, when a column exists in two JOIN-ed tables, we 
-  can use 'selname' to prefix the column name with the table. Or,
-  if a column name is a reserved SQL word, we can double quote it 
-  as in the case of "order"
-  
-  
- */
-const treatments = [
+    Structure of a param entry
+
     {
         // the name used in the REST query
         name: 'treatmentId',
 
         // alternative name to use in the SELECT and 
         // WHERE clauses of SQL
-        /*
         alias: {
-            select: 'treatments.rank',
-            where : 'treatments.rank'
+            select: 'treatments.treatmentId',
+            where : 'treatments.treatmentId'
         },
-        */
         
         // JSON schema that verifies the queries
         schema: { 
@@ -59,24 +51,34 @@ const treatments = [
         sqltype: 'TEXT NOT NULL UNIQUE',
 
         // zqltype is 'text' by default unless defined explicitly
-        /*
-        zqltype: 'date' | 'geolocation' | 'number'
-        */
+        zqltype: 'expression' | 'date' | 'number' | 'text'
 
         // cheerio expression used to parse the value 
         // from the XML
         cheerio: '$("document").attr("docId")',
 
         // all columns are included in the query results by 
-        // default unless notDefaultCol is true
-        /*
-        notDefaultCol: true
-        */
+        // default unless 'notDefaultCol' is true
+        notDefaultCol: true,
 
-        // all params are queryable unless notqueryable is true
-        /*
+        // all params are queryable unless 'notqueryable' is true
         notQueryable: true
-        */
+    }
+ */
+
+const treatments = [
+    {
+        name: 'treatmentId',
+        schema: { 
+            type: 'string', 
+            maxLength: 32, 
+            minLength: 32,
+            description: `The unique ID of the treatment. Has to be a 32 character string:
+- \`treatmentId=388D179E0D564775C3925A5B93C1C407\``,
+            isResourceId: true
+        },
+        sqltype: 'TEXT NOT NULL UNIQUE',
+        cheerio: '$("document").attr("docId")'
     },
 
     {
@@ -338,6 +340,9 @@ const treatments = [
 
     {
         name: 'order',
+
+        // 'order' is a reserved word in SQL so it has to 
+        // be double-quoted so it can be used in SQL queries
         alias: {
             select: 'treatments."order"',
             where : 'treatments."order"'
@@ -409,10 +414,6 @@ const treatments = [
 
     {
         name: 'rank',
-        // alias: {
-        //     select: 'treatments.rank',
-        //     where : 'treatments.rank'
-        // },
         schema: {
             type: 'string',
             description: 'The taxonomic rank of the taxon, e.g. species, family',
@@ -496,8 +497,9 @@ const treatments = [
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("document").attr("deleted")',
         notDefaultCol: true
-    },
+    }   
 
+    /*
     {
         name: 'latitude',
         alias: {
@@ -583,7 +585,9 @@ const treatments = [
             where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
         }
     },
+    */
 
+    /*
     {
         name: 'collectionCode',
         alias: {
@@ -613,7 +617,10 @@ const treatments = [
         }
         //facet: 'count > 50'
     },
+    */
 
+    
+    /*
     {
         name: 'q',
         alias: {
@@ -634,7 +641,9 @@ const treatments = [
             where : [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
         },
     },
-
+    */
+    
+    /*
     {
         name: 'httpUri',
         alias: {
@@ -673,8 +682,69 @@ const treatments = [
             select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
             where : [ 'JOIN vfigurecitations ON treatments.treatmentId = vfigurecitations.treatmentId']
         }
-    }
+    },
+    */
  
 ];
 
+const otherResources = {
+    materialsCitations: {
+        dd: require('./materialsCitations.js'),
+        params: [
+            'latitude',
+            'longitude',
+            'geolocation',
+            'isOnLand',
+            'validGeo'
+        ]
+    }
+};
+
+for (let [resource, desc] of Object.entries(otherResources)) {
+    const dd = desc.dd;
+    const params = desc.params;
+
+    params.forEach(param => {
+        const p = dd.filter(p => p.name === param)[0];
+    
+        if (p.zqltype && p.zqltype !== 'expression') {
+            if (!('alias' in p)) {
+                p.alias = {
+                    select: `${resource}.${param}`,
+                    where : `${resource}.${param}`
+                };
+            }
+            
+            if (!('joins' in p)) {
+                p.joins = {
+                    select: [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ],
+                    where : [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ]
+                };
+            }
+    
+            p.notDefaultCol = true;
+        }
+        else {
+            if (!('alias' in p)) {
+                p.alias = {
+                    select: `${resource}.${param}`,
+                    where : `${resource}.${param}`
+                };
+            }
+            
+            if (!('joins' in p)) {
+                p.joins = {
+                    select: [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ],
+                    where : [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ]
+                };
+            }
+    
+            p.notDefaultCol = true;
+        }
+        
+        treatmentImages.push(p);
+    });
+}
+
+console.log(JSON.stringify(treatments, null, 2));
 module.exports = treatments;

@@ -204,6 +204,7 @@ const getSchema = function(resource) {
     };
     
     queryableParams.forEach(p => {
+
         if (p.schema.default && typeof(p.schema.default) === 'string') {
             const resourceId = getResourceid(resource);
             const resourceIdName = _getName(resource, resourceId, 'select');

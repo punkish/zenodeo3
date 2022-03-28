@@ -1,10 +1,20 @@
 'use strict';
 
-const config = require('config');
+// The following two lines make "require" available
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+
+// const config = require('config');
+import config from 'config';
 const truebug = config.get('truebug');
 
-const Logger = require('../../utils');
-const log = new Logger(truebug.log);
+// const Logger = require('../../utils');
+// const log = new Logger(truebug.log);
+import { Zlogger } from '@punkish/zlogger';
+const logOpts = JSON.parse(JSON.stringify(config.get('truebug.log')));
+logOpts.name  = 'TRUEBUG:DATABASE';
+const log     = new Zlogger(logOpts);
+
 const isSea = require('is-sea');
 const Database = require('better-sqlite3');
 
@@ -25,20 +35,21 @@ const prepareDatabases = () => {
 
     for (let [database, dbdesc] of Object.entries(dbs)) {
 
-        /***** 
-         * 'database' is either 'treatments' or 'stats' and 'dbdesc' is an 
-         * object of 'tables' and 'indexes' 
-         */
+        /*
+            'database' is either 'treatments' or 'stats' and 
+            'dbdesc' is an object of 'tables' and 'indexes' 
+        */
         log.info(`preparing database ${database}`);
 
         for (let [k, v] of Object.entries(dbdesc)) {
 
-            //****** 'k' is an array of either 'tables' or 'indexes' */
+            //'k' is an array of either 'tables' or 'indexes'
             if (k === 'tables') {
                 log.info('creating tables and preparing insert statements')
 
                 v.forEach(t => {
                     log.info(`  - ${database}.${t.name}`);
+
                     if (truebug.run === 'real') {
                         db[database].prepare(t.create).run();
     
@@ -46,6 +57,7 @@ const prepareDatabases = () => {
                             t.preparedinsert = db[database].prepare(t.insert);
                         }
                     }
+                    
                 })
             }
         }
@@ -53,16 +65,16 @@ const prepareDatabases = () => {
 }
 
 /*
- * Convert an array of single treatments into 
- * flattened array of arrays of treatment parts 
- * suitable for transaction insert in the db
- */
+    Convert an array of single treatments into 
+    flattened array of arrays of treatment parts 
+    suitable for transaction insert in the db
+*/
 const repackageTreatment = (treatment) => {
     dbs.treatments.tables.forEach(t => {
         if (truebug.run === 'real') {
             if (t.type === 'normal') {
 
-                //****** note the name of the table is 'treatments' (plural) */
+                // note the name of the table is 'treatments' (plural)
                 if (t.name === 'treatments') {
                     t.data.push(treatment.treatment);
                 }
@@ -81,10 +93,10 @@ const repackageTreatment = (treatment) => {
 }
 
 /*
- * Resets the data structure by emptrying it.
- * This is very important as without this step,
- * nodejs will run out of memory and crash.
- */
+    Resets the data structure by emptrying it.
+    This is very important as without this step,
+    nodejs will run out of memory and crash.
+*/
 const resetData = () => {
     dbs.treatments.tables.forEach(t => {
         if (truebug.run === 'real') {
@@ -101,9 +113,9 @@ const insertData = () => {
             if (t.type === 'normal') {
 
                 /*
-                * Create a transaction function that takes an 
-                * array of rows and inserts them in the db 
-                * row by row.
+                    Create a transaction function that takes an 
+                    array of rows and inserts them in the db 
+                    row by row.
                 */
                 const insertMany = db.treatments.transaction((rows) => {
                     for (const row of rows) {  
@@ -150,7 +162,8 @@ const insertDerived = () => {
                 log.info(`inserting data in derived table ${t.name}`);
 
                 try {
-                    t.preparedinsert.run({maxrowid: t.maxrowid});
+                    //t.preparedinsert.run({maxrowid: t.maxrowid});
+                    t.preparedinsert.run();
                 }
                 catch(error) {
                     log.error(error);
@@ -191,9 +204,9 @@ const buildIndexes = () => {
 
 const selCountOfTreatments = () => db.treatments.prepare('SELECT Count(*) AS c FROM treatments').get().c;
 
-const selMaxrowidVirtualTable = (vtable) => db.treatments.prepare(`SELECT Max(rowid) AS c FROM ${vtable}`).get().c;
+const selMaxrowidVirtualTable = (table) => db.treatments.prepare(`SELECT Max(rowid) AS c FROM ${table}`).get().c;
 
-const selMaxrowidDerivedTable = (vtable) => db.treatments.prepare(`SELECT Max(rowid) AS c FROM ${vtable}`).get().c;
+//const selMaxrowidDerivedTable = (table) => db.treatments.prepare(`SELECT Max(figureCitationRowid) AS c FROM ${table}`).get().c;
 
 const storeMaxrowid = () => {
     dbs.treatments.tables.forEach(t => {
@@ -204,18 +217,18 @@ const storeMaxrowid = () => {
 
                 t.maxrowid = maxrowid;
             }
-            else if (t.type === 'derived') {
-                const maxrowid = selMaxrowidDerivedTable(t.name) || 0;
-                log.info(`storing maxrowid ${maxrowid} of the derived table ${t.name}`);
+            // else if (t.type === 'derived') {
+            //     const maxrowid = selMaxrowidDerivedTable(t.name) || 0;
+            //     log.info(`storing maxrowid ${maxrowid} of the derived table ${t.name}`);
 
-                t.maxrowid = maxrowid;
-            }
+            //     t.maxrowid = maxrowid;
+            // }
         }
     })
 }
 
-const getLastUpdate = () => {
-    const s = "SELECT Max(started) AS lastUpdate FROM etlstats WHERE process = 'etl'";
+const getLastUpdate = (typeOfArchive) => {
+    const s = `SELECT Max(started) AS lastUpdate FROM etlstats WHERE process = 'etl' AND typeOfArchive = '${typeOfArchive}'`;
     return db.stats.prepare(s).get().lastUpdate;
 }
 
@@ -271,7 +284,7 @@ const updateIsOnLand = () => {
     log.info(`updated ${count} rows as being on land`);
 }
 
-module.exports = {
+export {
     prepareDatabases,
     selCountOfTreatments,
     storeMaxrowid,

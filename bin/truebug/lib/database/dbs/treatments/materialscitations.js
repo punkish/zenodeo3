@@ -7,8 +7,7 @@ const tables = [
     materialsCitationId TEXT NOT NULL,
     treatmentId TEXT NOT NULL,
     collectingDate TEXT,
-    -- collection code here is a csv string as in the text
-    collectionCode TEXT,
+    collectionCode TEXT,  -- csv string as in the text
     collectorName TEXT,
     country TEXT,
     collectingRegion TEXT,
@@ -29,10 +28,9 @@ const tables = [
     longitude REAL,
     elevation REAL,
     httpUri TEXT,
+    innerText TEXT,
     deleted INTEGER DEFAULT 0,
-    created INTEGER DEFAULT (strftime('%s','now') * 1000),
-    updated INTEGER,
-    validGeo INT AS (
+    validGeo INTEGER AS (
         CASE 
             WHEN 
                 typeof(latitude) = 'real' AND 
@@ -44,6 +42,8 @@ const tables = [
         END
     ) STORED,
     isOnLand INTEGER DEFAULT NULL,
+    created INTEGER DEFAULT (strftime('%s','now') * 1000),
+    updated INTEGER,
     UNIQUE (materialsCitationId, treatmentId)
 )`,
     insert: `INSERT INTO materialsCitations (
@@ -71,6 +71,7 @@ const tables = [
     longitude,
     elevation,
     httpUri,
+    innerText,
     deleted
 )
 VALUES ( 
@@ -98,6 +99,7 @@ VALUES (
     @longitude,
     @elevation,
     @httpUri,
+    @innerText,
     @deleted
 )
 ON CONFLICT (materialsCitationId, treatmentId)
@@ -124,6 +126,7 @@ DO UPDATE SET
     longitude=excluded.longitude,
     elevation=excluded.elevation,
     httpUri=excluded.httpUri,
+    innerText=excluded.innerText,
     deleted=excluded.deleted,
     updated=strftime('%s','now') * 1000`,
         preparedinsert: '',

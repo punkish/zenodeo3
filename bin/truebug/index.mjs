@@ -1,16 +1,18 @@
 'use strict';
 
-const preflight  = require('./lib/preflight');
-const postflight = require('./lib/preflight');
-const download   = require('./lib/download');
-const database   = require('./lib/database');
-const parse      = require('./lib/parse');
+import * as preflight from './lib/preflight.mjs';
+import * as postflight from './lib/preflight.mjs';
+import * as download from './lib/download.mjs';
+import * as database from './lib/database/index.mjs';
+import * as parse from './lib/parse.mjs';
+import config from 'config';
 
-const config     = require('config');
 const truebug    = config.get('truebug');
 
-const Logger     = require('./utils');
-const log        = new Logger(truebug.log);
+import { Zlogger } from '@punkish/zlogger';
+const logOpts = JSON.parse(JSON.stringify(config.get('truebug.log')));
+logOpts.name  = 'TRUEBUG';
+const log     = new Zlogger(logOpts);
 
 const processFiles = (files) => {
 
@@ -60,7 +62,9 @@ const processFiles = (files) => {
                     }
                 }
 
-                if ((i % dot) == 0) log.info('.', 'end');
+                if ((i % dot) == 0) {
+                    log.info('.', 'end');
+                }
             }
             
             postflight.fileaway(xml);
@@ -144,14 +148,21 @@ const update = async (typeOfArchives) => {
     const result = await download.checkRemote(typeOfArchive);
 
     if (result.timeOfArchive) {
-        const lastUpate = database.getLastUpdate(typeOfArchive);
+        const lastUpdate = database.getLastUpdate(typeOfArchive);
 
-        // the remote archive's time is newer than the last update
-        if (result.timeOfArchive > lastUpate) {
-            process(typeOfArchive, result.timeOfArchive, result.sizeOfArchive);
+        if (lastUpdate) {
+
+            // the remote archive's time is newer than the last update
+            if (result.timeOfArchive > lastUpdate) {
+                process(typeOfArchive, result.timeOfArchive, result.sizeOfArchive);
+            }
+            else {
+                log.info(`${typeOfArchive} archive is older than local update… moving on`);
+            }
         }
         else {
-            log.info(`${typeOfArchive} archive is older than local update… moving on`);
+            log.info(`${typeOfArchive} archive has not been processed yet`);
+            process(typeOfArchive, result.timeOfArchive, result.sizeOfArchive);
         }
 
         // check the next shorter timePeriod
@@ -165,28 +176,39 @@ const update = async (typeOfArchives) => {
     }
 }
 
-// start here
+// `truebug` starts here
 log.info('='.repeat(80));
-log.info('STARTING TRUEBUG');
+log.info(`STARTING TRUEBUG (mode ${truebug.run})`);
 
-preflight.checkDir('archive');
-preflight.checkDir('dump');
-preflight.backupOldDB();
-database.prepareDatabases();
-
-const numOfTreatments = database.selCountOfTreatments();
-log.info(`found ${numOfTreatments} treatments in the db`);
-
-// There are no treatments in the db so no ETL was ever done
-if (numOfTreatments === 0) {
-    process('full', null, null);
+if (truebug.source === 'single') {
+    preflight.copyXmlToDump(`${truebug.download.single}.xml`);
+    const treatment = parse.parseOne(truebug.download.single);
+    console.log(treatment);
 }
 else {
-    const typeOfArchives = [ 'monthly', 'weekly', 'daily' ];
-    update(typeOfArchives);
+    preflight.checkDir('archive');
+    preflight.checkDir('dump');
+    preflight.backupOldDB();
+    database.prepareDatabases();
+    
+    const numOfTreatments = database.selCountOfTreatments();
+    log.info(`found ${numOfTreatments} treatments in the db`);
+    
+    // There are no treatments in the db so no ETL was ever done
+    if (numOfTreatments === 0) {
+        process('full', null, null);
+    }
+    else {
+        const typeOfArchives = [ 'monthly', 'weekly', 'daily' ];
+        update(typeOfArchives);
+    }
 }
 
-// HOME=/Users/punkish
-// PATH=/opt/local/bin:/opt/local/sbin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/Little Snitch.app/Contents/Components:/opt/X11/bin:/Library/Apple/usr/bin
-// NODE_ENV=test
-// 0/5 0 * * * cd ~/Projects/zenodeo/zenodeo3 && node ~/Projects/zenodeo/zenodeo3/bin/truebug
+/*
+# this crontab entry runs truebug etl every midnight
+# set environment variables
+HOME=/Users/punkish
+PATH=/Users/punkish/.nvm/versions/node/v16.14.0/bin:/opt/local/bin:/opt/local/sbin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/Little Snitch.app/Contents/Components:/opt/X11/bin:/Library/Apple/usr/bin
+NODE_ENV=cron
+0 0 * * * cd ~/Projects/zenodeo/zenodeo3 && node ~/Projects/zenodeo/zenodeo3/bin/truebug
+*/

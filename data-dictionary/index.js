@@ -44,7 +44,7 @@ module.exports = [
         name: 'treatmentImages',
         summary: 'Fetch treatment images from Zenodeo',
         description: '',
-        dictionary: require('./resources/zenodeo/treatmentImages'),
+        dictionary: require('./resources/zenodeo/treatmentImages-new'),
         source: 'zenodeo'
     },
     {
