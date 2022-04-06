@@ -77,7 +77,7 @@ const download = (source) => {
     
     if (truebug.run === 'real') {
         log.info(`downloading ${source} archive`);
-        //execSync(`curl -s -o ${local} '${remote}'`);
+        execSync(`curl -s -o ${local} '${remote}'`);
     }
 }
 

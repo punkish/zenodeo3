@@ -1,9 +1,5 @@
 'use strict'
 
-const chalk = require('chalk')
-const i = (i) => chalk.bold.blue(i)
-const o = (o) => chalk.bold.green(o)
-
 const ddUtils = require('../data-dictionary/dd-utils.js')
 
 describe('getResources: returns all available resource', () => {
@@ -25,7 +21,7 @@ describe('getResources: returns all available resource', () => {
     ]
 
     tests.forEach(t => {
-        test(`available resources -> "${o(t.output.join(', '))}"`, () => {
+        test(`available resources -> "${t.output.join(', ')}"`, () => {
             expect(ddUtils.getResources()).toEqual(t.output)
         })
     })
@@ -72,7 +68,7 @@ describe('getSourceOfResource: given a resource, returns its source', () => {
     ]
 
     tests.forEach(t => {
-        test(`source of ${i(t.input)} -> "${o(t.output)}"`, () => {
+        test(`source of ${t.input} -> "${t.output}"`, () => {
             expect(ddUtils.getSourceOfResource(t.input)).toBe(t.output)
         })
     })
@@ -102,7 +98,7 @@ describe('getResourcesFromSpecifiedSource: given a source, returns its resources
     ]
 
     tests.forEach(t => {
-        test(`source ${i(t.input)} -> resources "${o(t.output.join(', '))}"`, () => {
+        test(`source ${t.input} -> resources "${t.output.join(', ')}"`, () => {
             expect(ddUtils.getResourcesFromSpecifiedSource(t.input)).toEqual(t.output)
         })
     })
@@ -176,7 +172,7 @@ describe('getResourceid: given a resource, returns its resourceId', () => {
     ]
 
     tests.forEach(t => {
-        test(`resource ${i(t.input)} -> resourceId "${o(JSON.stringify(t.output))}"`, () => {
+        test(`resource ${t.input} -> resourceId "${JSON.stringify(t.output)}"`, () => {
             expect(ddUtils.getResourceid(t.input)).toEqual(t.output)
         })
     })
@@ -415,7 +411,7 @@ describe('getParamsNameAndSelname: given a resource, returns its params', () => 
     ]
 
     tests.forEach(t => {
-        test(`resource ${i(t.input)}`, () => {
+        test(`resource ${t.input}`, () => {
             expect(ddUtils.getParamsNameAndSelname(t.input)).toEqual(t.output)
         })
     })

@@ -10,6 +10,7 @@ import config from 'config';
 const truebug    = config.get('truebug');
 
 import { Zlogger } from '@punkish/zlogger';
+// import { Zlogger } from '../../../../zlogger/index.js';
 const logOpts = JSON.parse(JSON.stringify(config.get('truebug.log')));
 logOpts.name  = 'TRUEBUG';
 const log     = new Zlogger(logOpts);
@@ -177,32 +178,36 @@ const update = async (typeOfArchives) => {
 }
 
 // `truebug` starts here
-log.info('='.repeat(80));
-log.info(`STARTING TRUEBUG (mode ${truebug.run})`);
+const init = () => {
+    log.info('='.repeat(80));
+    log.info(`STARTING TRUEBUG (mode ${truebug.run})`);
 
-if (truebug.source === 'single') {
-    preflight.copyXmlToDump(`${truebug.download.single}.xml`);
-    const treatment = parse.parseOne(truebug.download.single);
-    console.log(treatment);
-}
-else {
-    preflight.checkDir('archive');
-    preflight.checkDir('dump');
-    preflight.backupOldDB();
-    database.prepareDatabases();
-    
-    const numOfTreatments = database.selCountOfTreatments();
-    log.info(`found ${numOfTreatments} treatments in the db`);
-    
-    // There are no treatments in the db so no ETL was ever done
-    if (numOfTreatments === 0) {
-        process('full', null, null);
+    if (truebug.source === 'single') {
+        preflight.copyXmlToDump(`${truebug.download.single}.xml`);
+        const treatment = parse.parseOne(truebug.download.single);
+        console.log(treatment);
     }
     else {
-        const typeOfArchives = [ 'monthly', 'weekly', 'daily' ];
-        update(typeOfArchives);
+        preflight.checkDir('archive');
+        preflight.checkDir('dump');
+        preflight.backupOldDB();
+        database.prepareDatabases();
+        
+        const numOfTreatments = database.selCountOfTreatments();
+        log.info(`found ${numOfTreatments} treatments in the db`);
+        
+        // There are no treatments in the db so no ETL was ever done
+        if (numOfTreatments === 0) {
+            process('full', null, null);
+        }
+        else {
+            const typeOfArchives = [ 'monthly', 'weekly', 'daily' ];
+            update(typeOfArchives);
+        }
     }
 }
+
+init();
 
 /*
 # this crontab entry runs truebug etl every midnight
