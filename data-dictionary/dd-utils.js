@@ -90,12 +90,7 @@ const getParams = (resource) => {
         .concat(...commonparams);
 
     params.forEach(p => {
-        if (p.sqltype) {
-            p.selname = `${resource}.${p.name}`;
-        }
-        else {
-            p.selname = p.name;
-        }
+        p.selname = p.sqltype ? `${resource}.${p.name}` : p.name;
     })
 
     return params;

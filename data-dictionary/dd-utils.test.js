@@ -22,7 +22,7 @@ describe('getResources: returns all available resource', () => {
     ]
 
     tests.forEach(t => {
-        test(`available resources -> "${t.output.join(', ')}"`, () => {
+        test(`available resources -> "${JSON.stringify(t.output, null, 2)}"`, () => {
             expect(ddUtils.getResources()).toEqual(t.output)
         })
     })
@@ -97,8 +97,8 @@ describe('getResourcesFromSource: given a source, returns its resources', () => 
     ]
 
     tests.forEach(t => {
-        test(`source ${t.input} -> resources "${t.output.join(', ')}"`, () => {
-            expect(ddUtils.getResourcesFromSpecifiedSource(t.input)).toEqual(t.output)
+        test(`source ${t.input} -> resources "${JSON.stringify(t.output, null, 2)}"`, () => {
+            expect(ddUtils.getResourcesFromSource(t.input)).toEqual(t.output)
         })
     })
 })
@@ -168,12 +168,13 @@ describe('getResourceid: given a resource, returns its resourceId', () => {
     ]
 
     tests.forEach(t => {
-        test(`resource ${t.input} -> resourceId "${JSON.stringify(t.output)}"`, () => {
+        test(`resource ${t.input} -> resourceId "${JSON.stringify(t.output, null, 2)}"`, () => {
             expect(ddUtils.getResourceid(t.input)).toEqual(t.output)
         })
     })
 })
 
+/*
 describe('getParamsNameAndSelname: given a resource, returns its params', () => {
     const tests = [
         {
@@ -412,3 +413,4 @@ describe('getParamsNameAndSelname: given a resource, returns its params', () => 
         })
     })
 })
+*/
