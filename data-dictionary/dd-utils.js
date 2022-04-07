@@ -185,7 +185,11 @@ const getSqlCols = (resource) => getParams(resource)
 
 const getSqlDefs = (resource) => getParams(resource)
     .filter(p => p.sqltype)
-    .map(p => `${p.name} ${p.sqltype}`)
+    .map(p => {
+        return p.alias && p.alias.create ? 
+            `${p.alias.create} ${p.sqltype}` :
+            `${p.name} ${p.sqltype}`
+    })
 
 const _getName = (resource, col, type) => {
     return col.alias && col.alias[type] ? 

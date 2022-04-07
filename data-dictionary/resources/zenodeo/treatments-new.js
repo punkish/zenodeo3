@@ -335,6 +335,7 @@ const treatments = [
         // 'order' is a reserved word in SQL so it has to 
         // be double-quoted so it can be used in SQL queries
         alias: {
+            create: '"order"',
             select: 'treatments."order"',
             where : 'treatments."order"'
         },
