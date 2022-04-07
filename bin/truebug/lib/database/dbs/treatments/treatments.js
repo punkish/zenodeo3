@@ -13,7 +13,7 @@ const tables = [
     zoobankId TEXT,
     articleId TEXT,
     articleTitle TEXT,
-    articleAuthor INTEGER,
+    articleAuthor TEXT,
     articleDOI TEXT,
     publicationDate TEXT,
     journalTitle TEXT,

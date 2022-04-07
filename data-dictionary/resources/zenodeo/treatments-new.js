@@ -425,6 +425,18 @@ const treatments = [
     },
 
     {
+        name: 'fulltext',
+        schema: {
+            type: 'string',
+            description: 'The full text of the treatment',
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("treatment").text()',
+        notDefaultCol: true,
+        notQueryable: true
+    },
+
+    {
         name: 'updateTime',
         schema: {
             type: 'string',
@@ -442,7 +454,7 @@ const treatments = [
 
     **Note2:** Even though this field is called "updateTime", for now it can be queried only for dates.`,
         },
-        sqltype: 'INTEGER',
+        sqltype: 'INTEGER DEFAULT NULL',
         zqltype: 'date',
         cheerio: '$("document").attr("updateTime")'
     },
@@ -465,29 +477,13 @@ const treatments = [
 
     **Note2:** Even though this field is called "checkinTime", for now it can be queried only for dates.`,
         },
-        sqltype: 'INTEGER',
+        sqltype: 'INTEGER DEFAULT NULL',
         zqltype: 'date',
         cheerio: '$("document").attr("checkinTime")'
     },
 
     {
-        name: 'fulltext',
-        schema: {
-            type: 'string',
-            description: 'The full text of the treatment',
-        },
-        sqltype: 'TEXT',
-        cheerio: '$("treatment").text()',
-        notDefaultCol: true,
-        notQueryable: true
-    },
-
-    {
         name: 'deleted',
-        alias: {
-            select: 'treatments.deleted',
-            where : 'treatments.deleted'
-        },
         schema: { 
             type: 'boolean',
             default: false,
@@ -497,7 +493,29 @@ const treatments = [
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("document").attr("deleted")',
         notDefaultCol: true
-    }   
+    },
+    
+    {
+        name: 'created',
+        schema: { 
+            type: 'string',
+            description: 'The date the record was created',
+            isResourceId: false
+        },
+        sqltype: "INTEGER DEFAULT (strftime('%s','now') * 1000)",
+        notDefaultCol: true
+    },
+
+    {
+        name: 'updated',
+        schema: { 
+            type: 'string',
+            description: 'The date the record was updated',
+            isResourceId: false
+        },
+        sqltype: 'INTEGER',
+        notDefaultCol: true
+    }
 
     /*
     {
@@ -687,64 +705,66 @@ const treatments = [
  
 ];
 
-const otherResources = {
-    materialsCitations: {
-        dd: require('./materialsCitations.js'),
-        params: [
-            'latitude',
-            'longitude',
-            'geolocation',
-            'isOnLand',
-            'validGeo'
-        ]
-    }
-};
-
-for (let [resource, desc] of Object.entries(otherResources)) {
-    const dd = desc.dd;
-    const params = desc.params;
-
-    params.forEach(param => {
-        const p = dd.filter(p => p.name === param)[0];
-    
-        if (p.zqltype && p.zqltype !== 'expression') {
-            if (!('alias' in p)) {
-                p.alias = {
-                    select: `${resource}.${param}`,
-                    where : `${resource}.${param}`
-                };
-            }
-            
-            if (!('joins' in p)) {
-                p.joins = {
-                    select: [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ],
-                    where : [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ]
-                };
-            }
-    
-            p.notDefaultCol = true;
+const restify = () => {
+    const otherResources = {
+        materialsCitations: {
+            dd: require('./materialsCitations.js'),
+            params: [
+                'latitude',
+                'longitude',
+                'geolocation',
+                'isOnLand',
+                'validGeo'
+            ]
         }
-        else {
-            if (!('alias' in p)) {
-                p.alias = {
-                    select: `${resource}.${param}`,
-                    where : `${resource}.${param}`
-                };
-            }
-            
-            if (!('joins' in p)) {
-                p.joins = {
-                    select: [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ],
-                    where : [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ]
-                };
-            }
+    };
     
-            p.notDefaultCol = true;
-        }
+    for (let [resource, desc] of Object.entries(otherResources)) {
+        const dd = desc.dd;
+        const params = desc.params;
+    
+        params.forEach(param => {
+            const p = dd.filter(p => p.name === param)[0];
         
-        treatmentImages.push(p);
-    });
+            if (p.zqltype && p.zqltype !== 'expression') {
+                if (!('alias' in p)) {
+                    p.alias = {
+                        select: `${resource}.${param}`,
+                        where : `${resource}.${param}`
+                    };
+                }
+                
+                if (!('joins' in p)) {
+                    p.joins = {
+                        select: [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ],
+                        where : [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ]
+                    };
+                }
+        
+                p.notDefaultCol = true;
+            }
+            else {
+                if (!('alias' in p)) {
+                    p.alias = {
+                        select: `${resource}.${param}`,
+                        where : `${resource}.${param}`
+                    };
+                }
+                
+                if (!('joins' in p)) {
+                    p.joins = {
+                        select: [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ],
+                        where : [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ]
+                    };
+                }
+        
+                p.notDefaultCol = true;
+            }
+            
+            treatments.push(p);
+        });
+    }
 }
 
-console.log(JSON.stringify(treatments, null, 2));
+//console.log(JSON.stringify(treatments, null, 2));
 module.exports = treatments;

@@ -4,75 +4,63 @@
  * This is the only place where configuration for  
  * all the routes is described.
  */
-module.exports = [
+
+const resources = [
     {
         name: 'treatments',
         summary: 'Fetch treatments',
-        description: '',
-        dictionary: require('./resources/zenodeo/treatments'),
-        source: 'zenodeo'
+        description: './resources/zenodeo/treatments-new.js'
     },
     {
         name: 'treatmentCitations',
         summary: 'Fetch treatmentCitations of the treatments',
-        description: '',
-        dictionary: require('./resources/zenodeo/treatmentCitations'),
-        source: 'zenodeo'
+        description: './resources/zenodeo/treatmentCitations'
     },
     {
         name: 'bibRefCitations',
         summary: 'Fetch bibRefCitations of the treatments',
-        description: '',
-        dictionary: require('./resources/zenodeo/bibRefCitations'),
-        source: 'zenodeo'
+        description: './resources/zenodeo/bibRefCitations'
     },
     {
         name: 'figureCitations',
         summary: 'Fetch figureCitations of the treatments',
-        description: '',
-        dictionary: require('./resources/zenodeo/figureCitations'),
-        source: 'zenodeo'
+        description: './resources/zenodeo/figureCitations'
     },
     {
         name: 'materialsCitations',
         summary: 'Fetch materialsCitations of the treatments',
-        description: '',
-        dictionary: require('./resources/zenodeo/materialsCitations'),
-        source: 'zenodeo'
+        description: './resources/zenodeo/materialsCitations'
     },
     {
         name: 'treatmentImages',
         summary: 'Fetch treatment images from Zenodeo',
-        description: '',
-        dictionary: require('./resources/zenodeo/treatmentImages'),
-        source: 'zenodeo'
+        description: './resources/zenodeo/treatmentImages'
     },
     {
         name: 'collectionCodes',
         summary: 'Fetch collectionCodes of the materialsCitations',
-        description: '',
-        dictionary: require('./resources/zenodeo/collectionCodes'),
-        source: 'zenodeo'
+        description: './resources/zenodeo/collectionCodes'
     },
     {
         name: 'images',
         summary: 'Fetch images from Zenodo',
-        description: '',
-        dictionary: require('./resources/zenodo/images'),
-        source: 'zenodo'
+        description: './resources/zenodo/images'
     },
     {
         name: 'publications',
         summary: 'Fetch publications from Zenodo',
-        description: '',
-        dictionary: require('./resources/zenodo/publications'),
-        source: 'zenodo'
+        description: './resources/zenodo/publications'
     },
     {
         name: 'families',
         summary: 'Fetch families',
-        description: '',
-        dictionary: require('./resources/zenodeo/families'),
-        source: 'zenodeo'
+        description: './resources/zenodeo/families'
     }
-]
+];
+
+resources.forEach(r => {
+    r.dictionary = require(r.description);
+    r.source = r.description.split('/')[2];
+});
+
+module.exports = resources;
