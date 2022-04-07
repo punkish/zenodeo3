@@ -2,21 +2,18 @@
 
 const utils = require('../../../lib/utils.js');
 
-// see https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289 
-// for notes from @gsautter
+// 
 
 /*
+
+    see notes from @gsautter https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289 
+
+    ************************************************************************
     Elements are extracted from articles (-> cheerio expression)
     and stored in a db (-> sql column) table (-> resource).
 
-    REST query is made of params that can be directly mapped to a 
+    A REST query is made of params that can be directly mapped to a 
     sql column or can be a sql expression.
-
-    All params are queryable unless notqueryable is true.
-
-    Params with 'defaultCols' = true are SELECT-ed by default.
-
-    Param 'sqltype' is used to CREATE the db table.
 
     Param 'selname' is used when 'name' is inappropriate for SQL. 
     For example, when a column exists in two JOIN-ed tables, we 
@@ -29,13 +26,6 @@ const utils = require('../../../lib/utils.js');
     {
         // the name used in the REST query
         name: 'treatmentId',
-
-        // alternative name to use in the SELECT and 
-        // WHERE clauses of SQL
-        alias: {
-            select: 'treatments.treatmentId',
-            where : 'treatments.treatmentId'
-        },
         
         // JSON schema that verifies the queries
         schema: { 
@@ -47,7 +37,7 @@ const utils = require('../../../lib/utils.js');
             isResourceId: true
         },
 
-        // SQL datatype
+        // SQL datatype is used to CREATE the db table
         sqltype: 'TEXT NOT NULL UNIQUE',
 
         // zqltype is 'text' by default unless defined explicitly
@@ -61,7 +51,7 @@ const utils = require('../../../lib/utils.js');
         // default unless 'notDefaultCol' is true
         notDefaultCol: true,
 
-        // all params are queryable unless 'notqueryable' is true
+        // all params are queryable unless 'notQueryable' is true
         notQueryable: true
     }
  */

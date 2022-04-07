@@ -6,11 +6,9 @@
  * 
  **************************************************************/
 
-const path = require('path')
-const cwd = process.cwd()
-const dataDir = path.join(cwd, '..', 'data')
-// const dbDir = path.join(dataDir, 'z3-sqlite')
-// const dataPrefix = 'z3'
+const path = require('path');
+const cwd = process.cwd();
+const dataDir = path.join(cwd, '..', 'data');
 
 const config = {
     port: 3010,
@@ -30,7 +28,6 @@ const config = {
     v3: {
         swagger: {
             options: {
-                //routePrefix: '/documentation',
                 exposeRoute: true,
                 swagger: {
                     info: {
@@ -40,7 +37,6 @@ const config = {
                         termsOfService: '/tos',
                         contact: {
                             name: 'API Support',
-                            //url: 'http://www.example.com/support',
                             email: 'support@plazi.org'
                         },
                         license: {
@@ -124,7 +120,6 @@ const config = {
         //run: 'dry',     // simulated run, no commands executed
 
         // server where the data are stored
-        // server: 'https://tb.plazi.org/dumps/',
         server: 'http://127.0.0.1/plazi/data',
 
         //source: 'full',

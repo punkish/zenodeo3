@@ -183,14 +183,14 @@ const getSqlCols = (resource) => getParams(resource)
         }
     })
 
+const getSqlDefs = (resource) => getParams(resource)
+    .filter(p => p.sqltype)
+    .map(p => `${p.name} ${p.sqltype}`)
+
 const _getName = (resource, col, type) => {
-    let selname = `${resource}.${col.name}`;
-
-    if (col.alias && col.alias[type]) {
-        selname = col.alias[type];
-    }
-
-    return selname;
+    return col.alias && col.alias[type] ? 
+        col.alias[type] : 
+        `${resource}.${col.name}`
 }
 
 // getSelect: the column name or expression used in a SQL query
@@ -283,7 +283,8 @@ const dispatch = {
     getSchema,
     getResourceid,
     getJoin,
-    getNotCols
+    getNotCols,
+    getSqlDefs
 }
 
 const test = () => {

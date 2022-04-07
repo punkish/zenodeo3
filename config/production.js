@@ -7,28 +7,28 @@
  * 
  **************************************************************/
 
-// const path = require('path')
-// const cwd = process.cwd()
+// const path = require('path');
+// const cwd = process.cwd();
+// const dataDir = path.join(cwd, '..', 'data');
 
-module.exports = {
+const config = {
     //port: 3010,
+    //address: '0.0.0.0',
     url: {
         zenodeo: 'http://zenodeo.org/v3',
         //zenodo: 'https://zenodo.org/api/records'
     },
     // pino: {
     //     opts: {
-    //         //prettyPrint: true,
-    //         level: 'error'
+    //         prettyPrint: true,
+    //         level: 'info'
     //     }
     // },
     isDebug: false,
-    //cacheOn: true,
 
     v3: {
         swagger: {
             options: {
-                //routePrefix: '/documentation',
                 //exposeRoute: true,
                 swagger: {
                     // info: {
@@ -38,7 +38,6 @@ module.exports = {
                     //     termsOfService: '/tos',
                     //     contact: {
                     //         name: 'API Support',
-                    //         //url: 'http://www.example.com/support',
                     //         email: 'support@plazi.org'
                     //     },
                     //     license: {
@@ -51,12 +50,13 @@ module.exports = {
                     //     description: 'Find more info on Swagger here'
                     // },
 
+
                     // make sure there is no scheme before the host
                     // that is, there should not be any 'http(s)://'
-                    host: 'zenodeo.org/',
-                    // schemes: ['http'],
-                    // consumes: ['application/json'],
-                    // produces: ['application/json']
+                    host: 'zenodeo.org',
+                    schemes: [ 'https' ],
+                    // consumes: [ 'application/json' ],
+                    // produces: [ 'application/json' ]
                 }
             }
         },
@@ -65,21 +65,27 @@ module.exports = {
         //     options: {
         //         customOptions: {
 
-        //             // The following is needed to pass single values as arrays
-        //             // See https://github.com/fastify/help/issues/281
+        //             /*
+        //             The following is needed to pass single values as arrays
+        //             See https://github.com/fastify/help/issues/281
+        //             */
         //             coerceTypes: 'array',
-        //             //coerceTypes: 'true',
+        //             //coerceTypes: true,
         
-        //             // Refer to [ajv options](https://ajv.js.org/#options)
+        //             /* Refer to [ajv options](https://ajv.js.org/#options) */
         //             jsonPointers: true, 
         //             allErrors: true,
         
-        //             // the following allows the `addtionalProperties`
-        //             // false constraint in the JSON schema to be 
-        //             // applied. Without this, any additional props
-        //             // supplied in the querystring will be silently 
-        //             // removed but no error will be raised
-        //             removeAdditional: false
+        //             /*
+        //             The following allows the `addtionalProperties`
+        //             false constraint in the JSON schema to be 
+        //             applied. Without this, any additional props
+        //             supplied in the querystring will be silently 
+        //             removed but no error will be raised
+        //             */
+        //             removeAdditional: false,
+
+        //             useDefaults: true
         //         },
         //         plugins: [
         //             require('ajv-errors')
@@ -87,48 +93,80 @@ module.exports = {
         //     }
         // },
 
-        // cache: {
-        //  on: true,
-        //  base: path.join(cwd, 'cache'),
+        cache: {
+            on: true,
+            //base: cwd,
 
-        //     // default cache duration 1 day (24 hours)
-        //     duration: 1 * 60 * 60 * 1000
-        // }
+            /* default cache ttl 1 day (24 hours) */
+            //ttl: 1 * 24 * 60 * 60 * 1000
+        }
     },
 
-    // data: {
-    //     treatments: path.join(cwd, '..', 'data', 'z3-treatments.sqlite'),
-    //     etlStats:   path.join(cwd, '..', 'data', 'z3-etl-stats.sqlite'),
-    //     queryStats: path.join(cwd, '..', 'data', 'z3-query-stats.sqlite')
+    // db: {
+    //     h3             : path.join(dataDir, 'h3'),
+    //     stats          : path.join(dataDir, 'z3-stats.sqlite'),
+    //     treatments     : path.join(dataDir, 'z3-treatments.sqlite'),
+    //     facets         : path.join(dataDir, 'z3-facets.sqlite'),
+    //     gbifcollections: path.join(dataDir, 'z3-gbifcollections.sqlite')
     // },
 
-    // truebug: {
-    //     downloads: {
+    //truebug: {
+        // log: {
+        //     level: 'info',
+        //     transports: [ 'console', 'file' ],
+        //     dir: path.join(cwd, 'bin/truebug/logs')
+        // },
 
-    //         // ********** full **********
-    //         // example: 'http://tb.plazi.org/GgServer/dumps/plazi.zenodeo.zip'
-    //         full: {
-    //             path: 'http://tb.plazi.org/GgServer/dumps',
-    //             file: 'plazi.zenodeo.zip'
-    //         },
+        // run: 'test', // test data (small sample ~10K records)
+        // run: 'real', // real data
+        // run: 'dry',     // simulated run, no commands executed
 
-    //         // ********** diff **********
-    //         // example 'http://tb.plazi.org/GgServer/srsStats/stats?outputFields=doc.uuid+doc.updateDate&groupingFields=doc.uuid+doc.updateDate&orderingFields=doc.updateDate&format=JSON&FP-doc.updateDate=%222020-07-03%22'
-    //         diff: {
-    //             path: 'http://tb.plazi.org/GgServer',
-    //             file: 'srsStats/stats?outputFields=doc.uuid+doc.updateDate&groupingFields=doc.uuid+doc.updateDate&orderingFields=doc.updateDate&format=JSON&FP-doc.updateDate=',
-    //         },
+        // server where the data are stored
+        //server: 'https://tb.plazi.org/dumps/',
 
-    //         // ********** single xml **********
-    //         // example 'http://tb.plazi.org/GgServer/xml/8C2D95A59531F2DCB34D5040E36E6566'
-    //         xml: {
-    //             path: 'http://tb.plazi.org/GgServer',
-    //             file: '',
-    //         }
-    //     },
+        //source: 'full',
+        //source: 'monthly',
+        //source: 'weekly',
+        //source: 'daily',
+        //source: 'single',
 
-    //     //dataDir:         path.join(cwd, '..', 'data'),
-    //     treatmentsDump:    path.join(cwd, '..', 'data', 'z3-treatments-dump'),
-    //     treatmentsArchive: path.join(cwd, '..', 'data', 'z3-treatments-archive')
-    // }
+        /*
+        by default, download the daily dump, and then go to
+        the larger ones if a smaller one doesn't exist:
+         - if plazi.zenodeo.daily.zip exists => use it
+         - else if plazi.zenodeo.weekly.zip exists => use it
+         - else if plazi.zenodeo.monthly.zip exists => use it
+         - else use plazi.zenodeo.zip
+
+        The full dump is packed once a year now
+        The monthly dump is packed on the first Sunday of the month
+        The weekly dump is packed every Sunday
+        The daily dump is packed every day
+        */
+        // download: {
+
+        //     // example: 'http://127.0.0.1/plazi/data/test.zip'
+        //     full: 'plazi.zenodeo.zip',
+        //     monthly: 'plazi.zenodeo.monthly.zip',
+        //     weekly: 'plazi.zenodeo.weekly.zip',
+        //     daily: 'plazi.zenodeo.daily.zip',
+
+        //     // '03FC87E61268FFD6D3E36CD2FE12DF29'
+        //     // 'BF8A576EC3F6661E96B5590C108213BA'
+        //     // '0247B450A734FFD280E97BD0FA9FFA55',
+        //     // BF83FD94E0CDA346729786FC4E1CBDB9
+        //     // BF87E6B3C70B5DA7BFE7958FCE167A46
+        //     // 00078788D744DE18E88B8B8BFE7FDBF9
+        //     single: '00078788D744DE18E88B8B8BFE7FDBF9',  
+        // },
+
+        // dirs: {
+        //     data   : dataDir,
+        //     dump   : path.join(dataDir, 'treatments-dump'),
+        //     old    : path.join(dataDir, 'treatments-dump-old'),
+        //     archive: path.join(dataDir, 'treatments-archive')
+        // }
+    //}
 }
+
+module.exports = config;
