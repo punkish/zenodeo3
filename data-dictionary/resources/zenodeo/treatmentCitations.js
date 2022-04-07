@@ -8,8 +8,9 @@ module.exports = [
             maxLength: 32, 
             minLength: 32,
             description: `The unique ID of the treatmentCitation. Has to be a 32 character string like: 'EC3D4B08FFADFFCE66FAFA5E334CFA00'`,
-            isResourceId: true
+            // isResourceId: true
         },
+        isResourceId: true,
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("treatmentCitation").attr("id")'
     },

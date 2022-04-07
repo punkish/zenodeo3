@@ -84,13 +84,33 @@ const getResourcesFromSource = (source) => resources
     .map(r => r.name);
 
 // params: all entries in the data dictionary for a given resource
-const getParams = (resource) => resources
-    .filter(r => r.name === resource)[0].dictionary
-    .concat(...commonparams);
+const getParams = (resource) => {
+    const params = resources
+        .filter(r => r.name === resource)[0].dictionary
+        .concat(...commonparams);
+
+    params.forEach(p => {
+        if (p.sqltype) {
+            p.selname = `${resource}.${p.name}`;
+        }
+        else {
+            p.selname = p.name;
+        }
+    })
+
+    return params;
+}
 
 // resourceId of a resource
-const getResourceid = (resource) => getParams(resource)
-    .filter(p => p.schema.isResourceId)[0];
+const getResourceid = (resource) => {
+    const resourceId = getParams(resource)
+        .filter(p => p.isResourceId)[0];
+    
+    return {
+        name: resourceId.name,
+        selname: resourceId.selname
+    }
+}
 
 // const getSelname = (resource, param) => {
 //     let selname = param.name;

@@ -8,8 +8,9 @@ module.exports = [
             maxLength: 32, 
             minLength: 32,
             description: `The unique ID of the figureCitation. Has to be a 32 character string like: '10922A65E320FF95FC0FFC83FB80FCAA'`,
-            isResourceId: true
+            // isResourceId: true
         },
+        isResourceId: true,
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("figureCitation").attr("id")'
     },

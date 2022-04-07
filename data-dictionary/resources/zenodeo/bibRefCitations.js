@@ -9,17 +9,14 @@ const utils = require('../../../lib/utils.js');
 module.exports = [
     {
         name: 'bibRefCitationId',
-        alias: {
-            select: "bibRefCitations.bibRefCitationId",
-            where : null
-        },
         schema: { 
             type: 'string', 
             maxLength: 32, 
             minLength: 32,
             description: `The unique ID of the bibRefCitation. Has to be a 32 character string like: 'EC384B11E320FF95FB78F995FEA0F964'`,
-            isResourceId: true
+            // isResourceId: true
         },
+        isResourceId: true,
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("bibRefCitation").attr("id")'
     },

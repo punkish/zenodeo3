@@ -12,8 +12,9 @@ module.exports = [
         schema: {
             type:"integer",
             description: 'unique identifier of the record',
-            isResourceId: true
-        }
+            // isResourceId: true
+        },
+        isResourceId: true
     },
 
     {

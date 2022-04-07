@@ -74,9 +74,10 @@ const treatments = [
             maxLength: 32, 
             minLength: 32,
             description: `The unique ID of the treatment. Has to be a 32 character string:
-- \`treatmentId=388D179E0D564775C3925A5B93C1C407\``,
-            isResourceId: true
+- \`treatmentId=388D179E0D564775C3925A5B93C1C407\``
+            //isResourceId: true
         },
+        isResourceId: true,
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("document").attr("docId")'
     },

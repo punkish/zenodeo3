@@ -10,15 +10,16 @@ module.exports = {
     cache: true,
     fields: [
         {
-            name     : 'treatmentAuthorId',
+            name: 'treatmentAuthorId',
             schema: {
                 type: 'string', 
                 maxLength: 32, 
                 minLength: 32,
                 description: `The unique ID of the treatmentAuthor. Has to be a 32 character string like: 'EC3D4B08FFADFFCE66FAFA5E334CFA00'`,
-                isResourceId: true
+                // isResourceId: true
             },
-            sqlType       : 'TEXT NOT NULL UNIQUE',
+            isResourceId: true,
+            sqltype: 'TEXT NOT NULL UNIQUE',
             cheerio: '$("treatmentAuthor").attr("id")'
         },
         {

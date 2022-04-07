@@ -6,8 +6,9 @@ module.exports = [
         schema: {
             type: 'string',
             description: 'The collection code for a natural history collection',
-            isResourceId: true
+            // isResourceId: true
         },
+        isResourceId: true,
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectionCode")',
         //join: [ 'z3collections.institutions ON collectionCode = institution_code' ]

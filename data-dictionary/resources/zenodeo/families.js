@@ -12,8 +12,9 @@ module.exports = [
         schema: { 
             type: 'integer', 
             description: 'The unique ID of the family',
-            isResourceId: true
+            // isResourceId: true
         },
+        isResourceId: true,
         sqltype: 'INTEGER',
         notDefaultCol: true
     },

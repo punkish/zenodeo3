@@ -5,17 +5,14 @@ const utils = require('../../../lib/utils.js');
 module.exports = [
     {
         name: 'materialsCitationId',
-        alias: {
-            select: 'materialsCitations.materialsCitationId',
-            where : null
-        },
         schema: { 
             type: 'string', 
             maxLength: 32, 
             minLength: 32,
             description: `The unique ID of the materialsCitation. Has to be a 32 character string like: '38C63CC3D744DE1FE88B8A56FB7EDD14'`,
-            isResourceId: true
+            // isResourceId: true
         },
+        isResourceId: true,
         //selname: 'materialsCitations.materialsCitationId',
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("materialsCitation").attr("id")'

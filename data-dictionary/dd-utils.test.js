@@ -12,6 +12,7 @@ describe('getResources: returns all available resource', () => {
                 'bibRefCitations',
                 'figureCitations',
                 'materialsCitations',
+                'treatmentImages',
                 'collectionCodes',
                 'images',
                 'publications',
@@ -74,14 +75,11 @@ describe('getSourceOfResource: given a resource, returns its source', () => {
     })
 })
 
-describe('getResourcesFromSpecifiedSource: given a source, returns its resources', () => {
+describe('getResourcesFromSource: given a source, returns its resources', () => {
     const tests = [
         {
             input: 'zenodo',
-            output: [
-                'images',
-                'publications' 
-            ]
+            output: [ 'images', 'publications' ]
         },
         {
             input: 'zenodeo',
@@ -91,6 +89,7 @@ describe('getResourcesFromSpecifiedSource: given a source, returns its resources
                 'bibRefCitations',
                 'figureCitations',
                 'materialsCitations',
+                'treatmentImages',
                 'collectionCodes',
                 'families'
             ]
@@ -108,23 +107,23 @@ describe('getResourceid: given a resource, returns its resourceId', () => {
     const tests = [
         {
             input: 'treatments',
-            output: {
-                name: 'treatmentId',
-                selname: 'treatments.treatmentId'
+            output: { 
+                name: 'treatmentId', 
+                selname: 'treatments.treatmentId' 
             }
         },
         {
             input: 'bibRefCitations',
             output: {
                 name: 'bibRefCitationId',
-                selname: 'bibRefCitationId'
+                selname: 'bibRefCitations.bibRefCitationId'
             }
         },
         {
             input: 'collectionCodes',
-            output: {
-                name: 'collectionCode',
-                selname: 'collectionCode'
+            output: { 
+                name: 'collectionCode', 
+                selname: 'collectionCodes.collectionCode' 
             }
         },
         {
@@ -145,15 +144,12 @@ describe('getResourceid: given a resource, returns its resourceId', () => {
             input: 'treatmentCitations',
             output: {
                 name: 'treatmentCitationId',
-                selname: 'treatmentCitationId'
+                selname: 'treatmentCitations.treatmentCitationId'
             }
         },
         {
             input: 'families',
-            output: {
-                name: 'id',
-                selname: 'id'
-            }
+            output: { name: 'id', selname: 'families.id' }
         },
         {
             input: 'images',
