@@ -8,7 +8,6 @@ const treatmentImages = [
         schema: {
             type:"integer",
             description: 'unique identifier of the record',
-            //isResourceId: true
         },
         isResourceId: true,
         sqltype: 'INTEGER PRIMARY KEY',
@@ -27,7 +26,8 @@ const treatmentImages = [
         name: 'captionText',
         schema: { 
             type: 'string', 
-            description: `The full text of the figure cited by this treatment. Can use the following syntax: \`captionText=spiders\``
+            description: `The full text of the figure cited by this treatment. Can use the following syntax: 
+- \`captionText=spiders\``
         },
         sqltype: 'TEXT',
     },
@@ -38,7 +38,7 @@ const treatmentImages = [
             type: 'string', 
             maxLength: 32, 
             minLength: 32,
-            description: `The unique ID of the parent treatment (FK). Has to be a 32 character string like:  '000087F6E320FF95FF7EFDC1FAE4FA7B'`
+            description: `The unique ID of the parent treatment (FK). Has to be a 32 character string like: '000087F6E320FF95FF7EFDC1FAE4FA7B'`
         },
         sqltype: 'TEXT',
     },
@@ -178,7 +178,7 @@ const treatmentImages = [
 - m?: one or two digit month
 - d?: one or two digit day
 
-    **Note2:** Even though this field is called "checkinTime", for now it can be queried only for dates.`,
+  **Note2:** Even though this field is called "checkinTime", for now it can be queried only for dates.`,
         },
         joins: {
             select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
