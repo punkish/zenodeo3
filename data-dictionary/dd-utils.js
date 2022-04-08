@@ -1,7 +1,7 @@
 'use strict'
 
 const util = require('util');
-const commonparams = require('./commonparams');
+const commonparams = require('./resources/commonparams');
 // const JSON5 = require('json5')
 const resources = require('./index');
 
@@ -101,10 +101,11 @@ const getResourceid = (resource) => {
     const resourceId = getParams(resource)
         .filter(p => p.isResourceId)[0];
     
-    return {
-        name: resourceId.name,
-        selname: resourceId.selname
-    }
+    // return {
+    //     name: resourceId.name,
+    //     selname: resourceId.selname
+    // }
+    return resourceId.name;
 }
 
 // const getSelname = (resource, param) => {
@@ -214,20 +215,20 @@ const getZqltype = (resource, column) => getCols(resource)
 
 // schema: we use the schema to validate the query params
 const getSchema = function(resource) {
-    const queryableParams = JSON.parse(JSON.stringify(getQueryableParams(resource)));
+    //const queryableParams = JSON.parse(JSON.stringify(getQueryableParams(resource)));
+    const params = getParams(resource);
     const resourcesFromZenodeo = getResourcesFromSource('zenodeo');
+
     const schema = {
         type: 'object',
         properties: {},
         additionalProperties: false
     };
     
-    queryableParams.forEach(p => {
-
-        if (p.schema.default && typeof(p.schema.default) === 'string') {
+    params.forEach(p => {
+        if (p.name === 'sortby') {
             const resourceId = getResourceid(resource);
-            const resourceIdName = _getName(resource, resourceId, 'select');
-            p.schema.default = p.schema.default.replace(/resourceId/, resourceIdName);
+            p.schema.default = p.schema.default.replace(/resourceId/, `${resource}.${resourceId}`);
         }
 
         if (resourcesFromZenodeo.includes(resource)) {

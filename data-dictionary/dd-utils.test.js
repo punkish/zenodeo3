@@ -107,68 +107,44 @@ describe('getResourceid: given a resource, returns its resourceId', () => {
     const tests = [
         {
             input: 'treatments',
-            output: { 
-                name: 'treatmentId', 
-                selname: 'treatments.treatmentId' 
-            }
+            output: 'treatmentId'
         },
         {
             input: 'bibRefCitations',
-            output: {
-                name: 'bibRefCitationId',
-                selname: 'bibRefCitations.bibRefCitationId'
-            }
+            output: 'bibRefCitationId'
         },
         {
             input: 'collectionCodes',
-            output: { 
-                name: 'collectionCode', 
-                selname: 'collectionCodes.collectionCode' 
-            }
+            output: 'collectionCode'
         },
         {
             input: 'figureCitations',
-            output: {
-                name: 'figureCitationId',
-                selname: 'figureCitations.figureCitationId'
-            }
+            output: 'figureCitationId'
         },
         {
             input: 'materialsCitations',
-            output: {
-                name: 'materialsCitationId',
-                selname: 'materialsCitations.materialsCitationId'
-            }
+            output: 'materialsCitationId'
         },
         {
             input: 'treatmentCitations',
-            output: {
-                name: 'treatmentCitationId',
-                selname: 'treatmentCitations.treatmentCitationId'
-            }
+            output: 'treatmentCitationId'
         },
         {
             input: 'families',
-            output: { name: 'id', selname: 'families.id' }
+            output: 'id'
         },
         {
             input: 'images',
-            output: {
-                name: 'id',
-                selname: 'id'
-            }
+            output: 'id'
         },
         {
             input: 'publications',
-            output: {
-                name: 'id',
-                selname: 'id'
-            }
+            output: 'id'
         }
     ]
 
     tests.forEach(t => {
-        test(`resource ${t.input} -> resourceId "${JSON.stringify(t.output, null, 2)}"`, () => {
+        test(`resource ${t.input} -> resourceId "${t.output}"`, () => {
             expect(ddUtils.getResourceid(t.input)).toEqual(t.output)
         })
     })

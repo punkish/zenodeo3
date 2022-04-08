@@ -60,7 +60,7 @@ module.exports = [
         name: 'httpUri',
         schema: {
             type: 'string',
-            format: 'uri',
+            //format: 'uri',
             description: 'The URI of the figure cited by this treatment'
         },
         sqltype: 'TEXT',

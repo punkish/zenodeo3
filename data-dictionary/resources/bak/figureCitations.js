@@ -16,10 +16,6 @@ module.exports = [
 
     {
         name: 'treatmentId',
-        alias: {
-            select: 'figureCitations.treatmentId',
-            where : 'figureCitations.treatmentId'
-        },
         schema: { 
             type: 'string', 
             maxLength: 32, 
@@ -59,12 +55,12 @@ module.exports = [
         name: 'httpUri',
         schema: {
             type: 'string',
-            format: 'uri',
-            description: 'The URI of the figure cited by this treatment'
+            description: `The URI of the image. Can use the following syntax: 
+- \`httpUri=eq(http://example.com)\`
+- \`httpUri=ne()\``
         },
         sqltype: 'TEXT',
-        cheerio: '$("figureCitation").attr("httpUri")',
-        notQueryable: true
+        cheerio: '$("figureCitation").attr("httpUri")'
     },
 
     // {

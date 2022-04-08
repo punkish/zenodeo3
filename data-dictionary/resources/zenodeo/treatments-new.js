@@ -65,7 +65,6 @@ const treatments = [
             minLength: 32,
             description: `The unique ID of the treatment. Has to be a 32 character string:
 - \`treatmentId=388D179E0D564775C3925A5B93C1C407\``
-            //isResourceId: true
         },
         isResourceId: true,
         sqltype: 'TEXT NOT NULL UNIQUE',
@@ -479,8 +478,7 @@ const treatments = [
         schema: { 
             type: 'boolean',
             default: false,
-            description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
-            isResourceId: false
+            description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no'
         },
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("document").attr("deleted")',
@@ -491,8 +489,7 @@ const treatments = [
         name: 'created',
         schema: { 
             type: 'string',
-            description: 'The date the record was created',
-            isResourceId: false
+            description: 'The date the record was created'
         },
         sqltype: "INTEGER DEFAULT (strftime('%s','now') * 1000)",
         notDefaultCol: true
@@ -502,100 +499,32 @@ const treatments = [
         name: 'updated',
         schema: { 
             type: 'string',
-            description: 'The date the record was updated',
-            isResourceId: false
+            description: 'The date the record was updated'
         },
         sqltype: 'INTEGER',
         notDefaultCol: true
-    }
-
-    /*
-    {
-        name: 'latitude',
-        alias: {
-            select: 'materialsCitations.latitude',
-            where : 'materialsCitations.latitude'
-        },
-        schema: {
-            type: 'number',
-            pattern: utils.re.real,
-            description: `The geolocation of the treatment.`,
-        },
-        joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
-        }
     },
 
     {
-        name: 'longitude',
+        name: 'q',
         alias: {
-            select: 'materialsCitations.longitude',
-            where : 'materialsCitations.longitude'
+            select: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
+            where : 'vtreatments'
         },
-        schema: {
-            type: 'number',
-            pattern: utils.re.real,
-            description: `The geolocation of the treatment.`,
-        },
-        joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
-        }
-    },
-
-    {
-        name: 'geolocation',
         schema: {
             type: 'string',
-            pattern: utils.getPattern('geolocation'),
-            description: `The geolocation of the treatment. Can use the following syntax:
-- \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
-- \`geolocation=contained_in({lower_left:{lat: -40.00, lng: -120},upper_right: {lat:23,lng:6.564}})\`
-`,
+            description: `A snippet extracted from the full text of the treatment. Can use the following syntax: 
+- \`q=spiders\``
         },
+        sqltype: 'TEXT',
         zqltype: 'expression',
         notDefaultCol: true,
+        defaultOp: 'match',
         joins: {
             select: null,
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
-        }
-    },
-
-    {
-        name: 'isOnLand',
-        alias: {
-            select: 'materialsCitations.isOnLand',
-            where : 'materialsCitations.isOnLand'
+            where : [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
         },
-        schema: {
-            type: 'number',
-            description: `True if treatment is on land.`,
-        },
-        notDefaultCol: true,
-        joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
-        }
-    },
-
-    {
-        name: 'validGeo',
-        alias: {
-            select: 'materialsCitations.validGeo',
-            where : 'materialsCitations.validGeo'
-        },
-        schema: {
-            type: 'number',
-            description: `True if geolocation is valid.`,
-        },
-        notDefaultCol: true,
-        joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
-        }
-    },
-    */
+    }
 
     /*
     {
@@ -629,29 +558,6 @@ const treatments = [
     },
     */
 
-    
-    /*
-    {
-        name: 'q',
-        alias: {
-            select: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
-            where : 'vtreatments'
-        },
-        schema: {
-            type: 'string',
-            description: `A snippet extracted from the full text of the treatment. Can use the following syntax: 
-- \`q=spiders\``
-        },
-        sqltype: 'TEXT',
-        zqltype: 'expression',
-        notDefaultCol: true,
-        defaultOp: 'match',
-        joins: {
-            select: null,
-            where : [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
-        },
-    },
-    */
     
     /*
     {
@@ -697,7 +603,7 @@ const treatments = [
  
 ];
 
-const restify = () => {
+const restify = (target) => {
     const otherResources = {
         materialsCitations: {
             dd: require('./materialsCitations.js'),
@@ -707,6 +613,12 @@ const restify = () => {
                 'geolocation',
                 'isOnLand',
                 'validGeo'
+            ]
+        },
+        figureCitations: {
+            dd: require('./figureCitations.js'),
+            params: [
+                'httpUri'
             ]
         }
     };
@@ -718,9 +630,10 @@ const restify = () => {
         params.forEach(param => {
             const p = dd.filter(p => p.name === param)[0];
         
-            if (p.zqltype && p.zqltype !== 'expression') {
+            //if (p.zqltype && p.zqltype !== 'expression') {
                 if (!('alias' in p)) {
                     p.alias = {
+                        create: `${resource}.${param}`,
                         select: `${resource}.${param}`,
                         where : `${resource}.${param}`
                     };
@@ -728,35 +641,36 @@ const restify = () => {
                 
                 if (!('joins' in p)) {
                     p.joins = {
-                        select: [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ],
-                        where : [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ]
+                        select: [ `JOIN ${resource} ON ${target}.treatmentId = ${resource}.treatmentId` ],
+                        where : [ `JOIN ${resource} ON ${target}.treatmentId = ${resource}.treatmentId` ]
                     };
                 }
         
                 p.notDefaultCol = true;
-            }
-            else {
-                if (!('alias' in p)) {
-                    p.alias = {
-                        select: `${resource}.${param}`,
-                        where : `${resource}.${param}`
-                    };
-                }
+            // }
+            // else {
+            //     if (!('alias' in p)) {
+            //         p.alias = {
+            //             create: `${resource}.${param}`,
+            //             select: `${resource}.${param}`,
+            //             where : `${resource}.${param}`
+            //         };
+            //     }
                 
-                if (!('joins' in p)) {
-                    p.joins = {
-                        select: [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ],
-                        where : [ `JOIN ${resource} ON treatmentImages.treatmentId = ${resource}.treatmentId` ]
-                    };
-                }
+            //     if (!('joins' in p)) {
+            //         p.joins = {
+            //             select: [ `JOIN ${resource} ON ${target}.treatmentId = ${resource}.treatmentId` ],
+            //             where : [ `JOIN ${resource} ON ${target}.treatmentId = ${resource}.treatmentId` ]
+            //         };
+            //     }
         
-                p.notDefaultCol = true;
-            }
+            //     p.notDefaultCol = true;
+            // }
             
             treatments.push(p);
         });
     }
 }
 
-//console.log(JSON.stringify(treatments, null, 2));
+restify('treatments');
 module.exports = treatments;
