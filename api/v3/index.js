@@ -66,6 +66,13 @@ const routes = async function(fastify, options) {
     })
 
     resources.forEach(r => {
+
+        if (r.name === 'treatmentImages') {
+            const sch = getSchema(r.name);
+            console.log(JSON.stringify(sch, null, 4));
+        }
+
+
         const route = {
             method: 'GET',
             url: `/${r.name.toLowerCase()}`,

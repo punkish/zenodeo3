@@ -9,7 +9,7 @@ const resources = [
     {
         name: 'treatments',
         summary: 'Fetch treatments',
-        description: './resources/zenodeo/treatments-new.js'
+        description: './resources/zenodeo/treatments.js'
     },
     {
         name: 'treatmentCitations',

@@ -67,6 +67,7 @@ const treatmentImages = [
         defaultOp: 'starts_with'
     },
 
+    /*
     {
         name: 'treatmentDOI',
         alias: {
@@ -86,6 +87,7 @@ const treatmentImages = [
         cheerio: '$("treatment").attr("ID-DOI")',
         notDefaultCol: true
     },
+    */
 
     {
         name: 'zenodoDep',
@@ -271,7 +273,7 @@ const treatmentImages = [
             where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
         },
         notDefaultCol: true
-    },
+    }
 ]
 
 module.exports = treatmentImages;

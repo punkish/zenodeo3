@@ -210,13 +210,20 @@ const getWhere = (resource, column) => {
     return _getName(resource, col, 'where');
 }
 
+const getJoin = (resource, column, type) => {
+    const col = getParams(resource).filter(c => c.name === column)[0];
+    return col.joins ? col.joins[type] : '';
+}
+
 const getZqltype = (resource, column) => getCols(resource)
     .filter(c => c.name === column)[0].zqltype;
 
 // schema: we use the schema to validate the query params
 const getSchema = function(resource) {
-    //const queryableParams = JSON.parse(JSON.stringify(getQueryableParams(resource)));
-    const params = getParams(resource);
+
+    // make a deep copy of params because they[*] will be modified
+    // [*] specifically, 'sortyby' will be modified
+    const params = JSON.parse(JSON.stringify(getParams(resource)));
     const resourcesFromZenodeo = getResourcesFromSource('zenodeo');
 
     const schema = {
@@ -228,7 +235,10 @@ const getSchema = function(resource) {
     params.forEach(p => {
         if (p.name === 'sortby') {
             const resourceId = getResourceid(resource);
-            p.schema.default = p.schema.default.replace(/resourceId/, `${resource}.${resourceId}`);
+            p.schema.default = p.schema.default.replace(
+                /resourceId/, 
+                `${resource}.${resourceId}`
+            );
         }
 
         if (resourcesFromZenodeo.includes(resource)) {
@@ -254,11 +264,6 @@ const getSchema = function(resource) {
     })
 
     return schema
-}
-
-const getJoin = (resource, column, type) => {
-    const col = getParams(resource).filter(c => c.name === column)[0];
-    return col.joins ? col.joins[type] : '';
 }
 
 const getNotCols = () => commonparams.map(c => c.name);

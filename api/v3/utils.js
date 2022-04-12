@@ -46,10 +46,10 @@ const handlerFactory = (resource) => {
      * response: packaged result that is sent back
      */
     return async function(request, reply) {
-        log.info(`handler() -> fetching ${resource} from "${request.url}"`)
+        log.info(`handler() -> fetching ${resource} from "${request.url}"`);
 
-        const params = request.query
-        let response
+        const params = request.query;
+        let response;
 
         if (cacheOn) {
             log.info("handler() -> cache is on")
@@ -174,8 +174,6 @@ const formatDebug = (debug, queryType, sql, runparams, runtime) => {
 const getDataFromZenodeo = async function(resource, params) {
     log.info('getDataFromZenodeo() -> getting data from Zenodeo');
     const { queries, runparams } = zql({ resource, params });
-    log.info(queries);
-    log.info(runparams);
     const { res, runtime } = _sqlRunner(queries.main.count, runparams);
     const result = {}
     const debug = {}
