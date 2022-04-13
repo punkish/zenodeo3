@@ -31,10 +31,22 @@ const stats = {
 
 const calcStats = (treatment) => {
     stats.treatments++;
-    stats.treatmentCitations += treatment.treatmentCitations ? treatment.treatmentCitations.length : 0;
-    stats.materialsCitations += treatment.materialsCitations ? treatment.materialsCitations.length : 0;
-    stats.figureCitations    += treatment.figureCitations    ? treatment.figureCitations.length    : 0;
-    stats.bibRefCitations    += treatment.bibRefCitations    ? treatment.bibRefCitations.length    : 0;
+
+    stats.treatmentCitations += treatment.treatmentCitations ? 
+        treatment.treatmentCitations.length : 
+        0;
+
+    stats.materialsCitations += treatment.materialsCitations ? 
+        treatment.materialsCitations.length : 
+        0;
+
+    stats.figureCitations += treatment.figureCitations ? 
+        treatment.figureCitations.length : 
+        0;
+
+    stats.bibRefCitations += treatment.bibRefCitations ? 
+        treatment.bibRefCitations.length : 
+        0;
 }
 
 const parseTreatmentCitations = function($, treatmentId) {
