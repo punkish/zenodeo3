@@ -228,8 +228,19 @@ const storeMaxrowid = () => {
 }
 
 const getLastUpdate = (typeOfArchive) => {
-    const s = `SELECT Max(started) AS lastUpdate FROM etlstats WHERE process = 'etl' AND typeOfArchive = '${typeOfArchive}'`;
-    return db.stats.prepare(s).get().lastUpdate;
+    //const s = `SELECT Max(started) AS lastUpdate FROM etlstats WHERE process = 'etl' AND typeOfArchive = '${typeOfArchive}'`;
+    const s = `SELECT
+    datetime(Max(started)/1000, 'unixepoch') AS started, 
+    datetime(ended/1000, 'unixepoch') AS ended, 
+    (ended - started) AS duration,
+    datetime(timeOfArchive/1000, 'unixepoch') AS timeOfArchive, 
+    "result"
+FROM
+    etlstats
+WHERE
+    process = 'etl'
+    AND typeOfArchive = ?;`
+    return db.stats.prepare(s).get(typeOfArchive);
 }
 
 const insertStats = (stats) => {
@@ -245,6 +256,76 @@ const getDaysSinceLastEtl = () => {
     FROM etlstats 
     WHERE process = 'etl'`;
     return db.stats.prepare(s).get().daysSinceLastEtl
+}
+
+const getCounts = () => {
+    const tables = {
+        'treatments': 0,
+        'treatmentimages': 0,
+        'figurecitations': 0,
+        'materialscitations': 0,
+        'bibrefcitations': 0,
+        'treatmentcitations': 0,
+        'treatmentauthors': 0
+    };
+
+    Object.keys(tables).forEach(table => {
+        const s = `SELECT Count(*) AS c FROM ${table}`;
+        const count = db.treatments.prepare(s).get().c;
+        tables[table] = count;
+    })
+
+    console.table(tables);
+}
+
+const getArchiveUpdates = () => {
+    const typesOfArchives = { 
+        'full': 0,
+        'monthly': 0,
+        'weekly': 0,
+        'daily': 0
+    };
+    
+    // https://stackoverflow.com/a/9763769/183692
+    const msToTime = (s) => {
+    
+        // Pad to 2 or 3 digits, default is 2
+        function pad(n, z) {
+            z = z || 2;
+            return ('00' + n).slice(-z);
+        }
+    
+        const ms = s % 1000;
+    
+        s = (s - ms) / 1000;
+        const ss = s % 60;
+    
+        s = (s - ss) / 60;
+        const mm = s % 60;
+    
+        const hh = (s - mm) / 60;
+      
+        return `${pad(hh)}h ${pad(mm)}m ${pad(ss)}s ${pad(ms, 3)}ms`;
+    }
+    
+    
+    Object.keys(typesOfArchives).forEach(archive => {
+        const lastUpdate = getLastUpdate(archive);
+        lastUpdate.duration = msToTime(lastUpdate.duration);
+        const result = JSON.parse(lastUpdate.result);
+
+        log.info(`           archive: ${archive.toUpperCase()}`);
+        log.info(`           started: ${lastUpdate.started}`);
+        log.info(`             ended: ${lastUpdate.ended}`);
+        log.info(`          duration: ${lastUpdate.duration}`);
+        log.info(`   time of archive: ${lastUpdate.timeOfArchive}`);
+        log.info(`        treatments: ${result.treatments}`);
+        log.info(`treatmentCitations: ${result.treatmentCitations}`);
+        log.info(`materialsCitations: ${result.materialsCitations}`);
+        log.info(`   figureCitations: ${result.figureCitations}`);
+        log.info(`   bibRefCitations: ${result.bibRefCitations}`);
+        log.info(`------------------------------------------------`)
+    });
 }
 
 const updateIsOnLand = () => {
@@ -297,5 +378,7 @@ export {
     insertStats,
     getDaysSinceLastEtl,
     getLastUpdate,
-    updateIsOnLand
+    updateIsOnLand,
+    getCounts,
+    getArchiveUpdates
 }

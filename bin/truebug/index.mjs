@@ -75,7 +75,7 @@ const processFiles = (files) => {
     log.info(`${'~'.repeat(80)}\n`, 'end');
 }
 
-const process = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
+const etl = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
     log.info(`starting a ${typeOfArchive.toUpperCase()} process`);
 
     const stats = [];
@@ -151,11 +151,11 @@ const update = async (typeOfArchives) => {
     if (result.timeOfArchive) {
         const lastUpdate = database.getLastUpdate(typeOfArchive);
 
-        if (lastUpdate) {
+        if (lastUpdate.started) {
 
             // the remote archive's time is newer than the last update
-            if (result.timeOfArchive > lastUpdate) {
-                process(typeOfArchive, result.timeOfArchive, result.sizeOfArchive);
+            if (result.timeOfArchive > lastUpdate.started) {
+                etl(typeOfArchive, result.timeOfArchive, result.sizeOfArchive);
             }
             else {
                 log.info(`${typeOfArchive} archive is older than local update… moving on`);
@@ -163,7 +163,7 @@ const update = async (typeOfArchives) => {
         }
         else {
             log.info(`${typeOfArchive} archive has not been processed yet`);
-            process(typeOfArchive, result.timeOfArchive, result.sizeOfArchive);
+            etl(typeOfArchive, result.timeOfArchive, result.sizeOfArchive);
         }
 
         // check the next shorter timePeriod
@@ -179,30 +179,39 @@ const update = async (typeOfArchives) => {
 
 // `truebug` starts here
 const init = () => {
-    log.info('='.repeat(80));
-    log.info(`STARTING TRUEBUG (mode ${truebug.run})`);
-
-    if (truebug.source === 'single') {
-        preflight.copyXmlToDump(`${truebug.download.single}.xml`);
-        const treatment = parse.parseOne(truebug.download.single);
-        console.log(treatment);
+    const run = process.argv[2];
+    if (run === 'getCounts') {
+        database.getCounts();
     }
-    else {
-        preflight.checkDir('archive');
-        preflight.checkDir('dump');
-        preflight.backupOldDB();
-        database.prepareDatabases();
-        
-        const numOfTreatments = database.selCountOfTreatments();
-        log.info(`found ${numOfTreatments} treatments in the db`);
-        
-        // There are no treatments in the db so no ETL was ever done
-        if (numOfTreatments === 0) {
-            process('full', null, null);
+    else if (run === 'getArchiveUpdates') {
+        database.getArchiveUpdates();
+    }
+    else if (run === 'etl') {
+        log.info('='.repeat(80));
+        log.info(`STARTING TRUEBUG (mode ${truebug.run})`);
+    
+        if (truebug.source === 'single') {
+            preflight.copyXmlToDump(`${truebug.download.single}.xml`);
+            const treatment = parse.parseOne(truebug.download.single);
+            console.log(treatment);
         }
         else {
-            const typeOfArchives = [ 'monthly', 'weekly', 'daily' ];
-            update(typeOfArchives);
+            preflight.checkDir('archive');
+            preflight.checkDir('dump');
+            preflight.backupOldDB();
+            database.prepareDatabases();
+            
+            const numOfTreatments = database.selCountOfTreatments();
+            log.info(`found ${numOfTreatments} treatments in the db`);
+            
+            // There are no treatments in the db so no ETL was ever done
+            if (numOfTreatments === 0) {
+                etl('full', null, null);
+            }
+            else {
+                const typeOfArchives = [ 'monthly', 'weekly', 'daily' ];
+                update(typeOfArchives);
+            }
         }
     }
 }
