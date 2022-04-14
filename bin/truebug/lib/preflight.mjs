@@ -16,10 +16,10 @@ const checkDir = (dir) => {
 
     const exists = fs.existsSync(truebug.dirs[dir]);
     if (exists) {
-        log.info('yes, it does', 'end');
+        log.info('yes, it does\n', 'end');
     }
     else {
-        log.info("it doesn't exist… making it", 'end');
+        log.info("it doesn't exist… making it\n", 'end');
         
         if (truebug.run === 'real') {
             fs.mkdirSync(truebug.dirs[dir]);
