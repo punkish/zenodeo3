@@ -229,9 +229,10 @@ const storeMaxrowid = () => {
 
 const getLastUpdate = (typeOfArchive) => {
     //const s = `SELECT Max(started) AS lastUpdate FROM etlstats WHERE process = 'etl' AND typeOfArchive = '${typeOfArchive}'`;
-    const s = `SELECT
-    datetime(Max(started)/1000, 'unixepoch') AS started, 
-    datetime(ended/1000, 'unixepoch') AS ended, 
+    const s = `SELECT 
+    Max(started) AS started,
+    datetime(Max(started)/1000, 'unixepoch') AS start, 
+    datetime(ended/1000, 'unixepoch') AS end, 
     (ended - started) AS duration,
     datetime(timeOfArchive/1000, 'unixepoch') AS timeOfArchive, 
     "result"
@@ -315,8 +316,8 @@ const getArchiveUpdates = () => {
         const result = JSON.parse(lastUpdate.result);
 
         log.info(`           archive: ${archive.toUpperCase()}`);
-        log.info(`           started: ${lastUpdate.started}`);
-        log.info(`             ended: ${lastUpdate.ended}`);
+        log.info(`           started: ${lastUpdate.start}`);
+        log.info(`             ended: ${lastUpdate.end}`);
         log.info(`          duration: ${lastUpdate.duration}`);
         log.info(`   time of archive: ${lastUpdate.timeOfArchive}`);
         log.info(`        treatments: ${result.treatments}`);
