@@ -218,6 +218,74 @@ const getDataFromZenodeo = async function(resource, params) {
 
 const getDataFromZenodo = async (resource, params) => {
 
+    // add type by removing the last 's' from resource name
+    // images -> image
+    // publications -> publication
+    params.type = resource.slice(0, -1);
+
+    const communities = params.communities;
+    const subtypes = params.subtype;
+    
+    // remove the following params
+    const remove = [ 'refreshCache', 'facets', 'stats', 'sortby', 'communities', 'subtype' ];
+    remove.forEach(p => {
+        if (p in params) {
+            delete params[p];
+        }
+    })
+
+    const qs = new URLSearchParams(params);
+
+    // add communities and subtype with duplicate keys, if needed
+    communities.forEach(c => qs.append('communities', c));
+    subtypes.forEach(s => qs.append('subtype', s));
+
+    const uriRemote = qs ? `${uriZenodo}?${qs}` : uriZenodo
+
+    // uriRemote should be
+    // https://zenodo.org/api/records/?communities=biosyslit&communities=belgiumherbarium&page=1&size=30&type=image
+
+    // https://zenodo.org/api/records/?sort=mostrecent&subtype=figure&subtype=photo&subtype=drawing&subtype=diagram&subtype=plot&subtype=other&communities=biosyslit&communities=belgiumherbarium&type=image&page=1&size=30
+
+    log.info(`getDataFromZenodo() -> getting ${resource} from ${uriRemote}`)
+
+    const result = {}
+    const debug = {}
+
+    try {
+        let t = process.hrtime()
+        const res = await fetch(uriRemote)
+
+        // if HTTP-status is 200-299
+        if (res.ok) {
+            const payload = await res.text()
+            const json = JSON5.parse(payload)
+            t = process.hrtime(t)
+
+            result.count = json.hits.total
+            result.records = json.hits.hits
+
+            if (isDebug) {
+                const runtime = Math.round((t[0] * 1000) + (t[1] / 1000000))
+                debug.countQuery = '',
+                debug.fullQuery = { sql: params, runtime }
+            }
+        } 
+        else {
+            request.log.info("HTTP-Error: " + response.status)
+            return {}
+        }
+    }
+    catch (error) {
+        log.error(error)
+        return {}
+    }
+
+    return { result, debug }
+}
+
+const getDataFromZenodo_old = async (resource, params) => {
+    
     // clean up request.query
     const qp = JSON5.parse(JSON5.stringify(params));
 
