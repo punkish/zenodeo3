@@ -514,7 +514,8 @@ const treatments = [
         joins: {
             select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
             where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
-        }
+        },
+        notDefaultCol: true
     },
 
     {
@@ -531,7 +532,8 @@ const treatments = [
         joins: {
             select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
             where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
-        }
+        },
+        notDefaultCol: true
     },
 
     {
@@ -564,8 +566,8 @@ const treatments = [
         },
         notDefaultCol: true,
         joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            where : [ 'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
         }
     },
 
@@ -599,6 +601,7 @@ const treatments = [
 - \`collectionCode=starts_with(US)\`
     **Note:** queries involving inexact matches will be considerably slow`
         },
+        notDefaultCol: true,
         joins: {
             select: [
                 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
