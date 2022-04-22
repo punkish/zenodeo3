@@ -20,12 +20,15 @@ module.exports = [
     },
     {
         name: 'q',
+        alias: {
+            select: 'families.family',
+            where : 'families.family'
+        },
         schema: {
             type: 'string',
             description: 'The name of the family'
         },
         sqltype: 'TEXT',
-        selname: 'family',
         defaultOp: 'starts_with'
     }
 ]

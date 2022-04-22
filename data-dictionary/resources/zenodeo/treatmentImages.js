@@ -67,7 +67,6 @@ const treatmentImages = [
         defaultOp: 'starts_with'
     },
 
-    /*
     {
         name: 'treatmentDOI',
         alias: {
@@ -77,7 +76,7 @@ const treatmentImages = [
         schema: { 
             type: 'string',
             description: `DOI of the treatment (for example, "10.5281/zenodo.275008"):
-- \`doi=10.5281/zenodo.275008\``
+- \`treatmentDOI=10.5281/zenodo.275008\``
         },
         joins: {
             select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
@@ -87,7 +86,6 @@ const treatmentImages = [
         cheerio: '$("treatment").attr("ID-DOI")',
         notDefaultCol: true
     },
-    */
 
     {
         name: 'zenodoDep',

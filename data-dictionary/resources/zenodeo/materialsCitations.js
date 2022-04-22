@@ -396,6 +396,6 @@ module.exports = [
 - \`geolocation=containted_in({lowerLeft:{lat: -40.00, lng: -120},upperRight: {lat:23,lng:6.564}})\`
 `,
         },
-        zqltype: 'expression'
+        zqltype: 'geolocation'
     }
 ]

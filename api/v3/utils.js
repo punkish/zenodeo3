@@ -237,9 +237,14 @@ const getDataFromZenodo = async (resource, params) => {
     const qs = new URLSearchParams(params);
 
     // add communities and subtype with duplicate keys, if needed
-    communities.forEach(c => qs.append('communities', c));
-    subtypes.forEach(s => qs.append('subtype', s));
-
+    if (communities) {
+        communities.forEach(c => qs.append('communities', c));
+    }
+    
+    if (subtypes) {
+        subtypes.forEach(s => qs.append('subtype', s));
+    }
+    
     const uriRemote = qs ? `${uriZenodo}?${qs}` : uriZenodo
 
     // uriRemote should be

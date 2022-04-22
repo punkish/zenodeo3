@@ -512,8 +512,8 @@ const treatments = [
             description: `The geolocation of the treatment.`,
         },
         joins: {
-            select: [ 'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
         }
     },
 
@@ -529,8 +529,8 @@ const treatments = [
             description: `The geolocation of the treatment.`,
         },
         joins: {
-            select: [ 'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
         }
     },
 
@@ -544,7 +544,7 @@ const treatments = [
 - \`geolocation=contained_in({lower_left:{lat: -40.00, lng: -120},upper_right: {lat:23,lng:6.564}})\`
 `,
         },
-        zqltype: 'expression',
+        zqltype: 'geolocation',
         notDefaultCol: true,
         joins: {
             select: null,
@@ -601,13 +601,13 @@ const treatments = [
         },
         joins: {
             select: [
-                'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
+                'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
                 'LEFT JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
                 'LEFT JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
                 'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
             ],
             where : [
-                'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
+                'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
                 'LEFT JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
                 'LEFT JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
                 'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
