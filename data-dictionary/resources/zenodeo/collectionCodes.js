@@ -19,10 +19,14 @@ module.exports = [
             type: 'string',
             description: 'The name of the institution that houses the collection',
         },
+        alias: {
+            select: 'g.institution_name',
+            where : 'g.institution_name'
+        },
         sqltype: 'TEXT',
         joins: {
-            select: [ 'LEFT JOIN z3collections.institutions ON collectionCode = institution_code' ],
-            where : [ 'LEFT JOIN z3collections.institutions ON collectionCode = institution_code' ]
+            select: [ 'LEFT JOIN gbifcollections.institutions g ON collectionCodes.collectionCode = g.institution_code' ],
+            where : [ 'LEFT JOIN gbifcollections.institutions g ON collectionCodes.collectionCode = g.institution_code' ]
         }
     }
 ]
