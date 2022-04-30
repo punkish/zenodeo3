@@ -604,16 +604,16 @@ const treatments = [
         notDefaultCol: true,
         joins: {
             select: [
-                'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
-                'LEFT JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
-                'LEFT JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
+                'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
+                'JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
+                'JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
+                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = gbifcollections.institutions.institution_code'
             ],
             where : [
-                'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
-                'LEFT JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
-                'LEFT JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
+                'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
+                'JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
+                'JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
+                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = gbifcollections.institutions.institution_code'
             ]
         }
         //facet: 'count > 50'
