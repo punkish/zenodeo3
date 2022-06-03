@@ -28,7 +28,7 @@ const rootHandler = async function(request, reply) {
             'search-criteria': {},
             'num-of-records': records.length,
             _links: { _self: { href: `${url.zenodeo}/` }},
-            records: records
+            records
         },
         stored: null,
         ttl: null
@@ -72,6 +72,7 @@ const routes = async function(fastify, options) {
             schema: { 
                 summary: r.summary,
                 description: r.description,
+                tags: r.tags,
                 querystring: getSchema(r.name)
             },
 

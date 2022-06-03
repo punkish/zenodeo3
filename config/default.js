@@ -48,6 +48,10 @@ const config = {
                         url: 'https://swagger.io',
                         description: 'Find more info on Swagger here'
                     },
+                    tags: [
+                        { name: 'zenodeo', description: 'Zenodeo end-points' },
+                        { name: 'zenodo', description: 'Zenodo end-points' }
+                    ],
 
                     // make sure there is no scheme before the host
                     // that is, there should not be any 'http(s)://'

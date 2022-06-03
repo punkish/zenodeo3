@@ -9,52 +9,62 @@ const resources = [
     {
         name: 'treatments',
         summary: 'Fetch treatments',
-        description: './resources/zenodeo/treatments.js'
+        description: './resources/zenodeo/treatments.js',
+        tags: [ 'zenodeo' ]
     },
     {
         name: 'treatmentCitations',
         summary: 'Fetch treatmentCitations of the treatments',
-        description: './resources/zenodeo/treatmentCitations'
+        description: './resources/zenodeo/treatmentCitations',
+        tags: [ 'zenodeo' ]
     },
     {
         name: 'bibRefCitations',
         summary: 'Fetch bibRefCitations of the treatments',
-        description: './resources/zenodeo/bibRefCitations'
+        description: './resources/zenodeo/bibRefCitations',
+        tags: [ 'zenodeo' ]
     },
     {
         name: 'figureCitations',
         summary: 'Fetch figureCitations of the treatments',
-        description: './resources/zenodeo/figureCitations'
+        description: './resources/zenodeo/figureCitations',
+        tags: [ 'zenodeo' ]
     },
     {
         name: 'materialsCitations',
         summary: 'Fetch materialsCitations of the treatments',
-        description: './resources/zenodeo/materialsCitations'
+        description: './resources/zenodeo/materialsCitations',
+        tags: [ 'zenodeo' ]
     },
     {
         name: 'treatmentImages',
         summary: 'Fetch treatment images from Zenodeo',
-        description: './resources/zenodeo/treatmentImages'
+        description: './resources/zenodeo/treatmentImages',
+        tags: [ 'zenodeo' ]
     },
     {
         name: 'collectionCodes',
         summary: 'Fetch collectionCodes of the materialsCitations',
-        description: './resources/zenodeo/collectionCodes'
+        description: './resources/zenodeo/collectionCodes',
+        tags: [ 'zenodeo' ]
     },
     {
         name: 'images',
         summary: 'Fetch images from Zenodo',
-        description: './resources/zenodo/images'
+        description: './resources/zenodo/images',
+        tags: [ 'zenodo' ]
     },
     {
         name: 'publications',
         summary: 'Fetch publications from Zenodo',
-        description: './resources/zenodo/publications'
+        description: './resources/zenodo/publications',
+        tags: [ 'zenodo' ]
     },
     {
         name: 'families',
         summary: 'Fetch families',
-        description: './resources/zenodeo/families'
+        description: './resources/zenodeo/families',
+        tags: [ 'zenodeo' ]
     }
 ];
 
