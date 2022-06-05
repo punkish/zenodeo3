@@ -1,39 +1,30 @@
 'use strict'
 
-const config = require('config')
-const url = config.get('url')
-const { getSchema } = require('../../data-dictionary/dd-utils')
-const resources = require('../../data-dictionary/')
-const { handlerFactory } = require('./utils')
+const config = require('config');
+const url = config.get('url');
+const { getSchema } = require('../../data-dictionary/dd-utils');
+//const resources = require('../../data-dictionary/')
+const resources = require('./resources.js');
+const { handlerFactory } = require('./utils');
 
-const rootHandler = async function(request, reply) {
-    const records = [{
-        name: 'root',
-        url: url.zenodeo,
-        summary: 'root of the API',
-        description: 'This is where it starts'
-    }]
+/*
+ * The rootHandler returns the response when a user queries the 
+ * root route
+ */
+// const rootHandler = async function(request, reply) {
 
-    resources.forEach(r => {
-        records.push({
-            name: r.name,
-            url: `${url.zenodeo}/${r.name.toLowerCase()}`,
-            summary: r.summary,
-            description: r.description
-        })
-    })
-
-    return {
-        item: {
-            'search-criteria': {},
-            'num-of-records': records.length,
-            _links: { _self: { href: `${url.zenodeo}/` }},
-            records
-        },
-        stored: null,
-        ttl: null
-    }
-}
+    
+//     return {
+//         item: {
+//             'search-criteria': {},
+//             'num-of-records': records.length,
+//             _links: { _self: { href: `${url.zenodeo}/` }},
+//             resources
+//         },
+//         stored: null,
+//         ttl: null
+//     }
+// }
 
 /*
 * the following takes care of cols=col1,col2,col3
@@ -55,34 +46,30 @@ const coerceToArray = (request, param) => {
  * to create a JSON schema for validation
  */
 const routes = async function(fastify, options) {
-    fastify.route({
-        method: 'GET',
-        url: '/',
-        schema: { 
-            summary: 'root of the API',
-            description: 'This is where it starts'
-        },
-        handler: rootHandler
-    })
-
     resources.forEach(r => {
         const route = {
             method: 'GET',
             url: `/${r.name.toLowerCase()}`,
-            schema: { 
+            schema: {
                 summary: r.summary,
                 description: r.description,
-                tags: r.tags,
-                querystring: getSchema(r.name)
-            },
+                tags: r.tags
+            }
+        };
 
-            preValidation: function(request, reply, done) {
+        if (r.tags.indexOf('meta') > -1) {
+            route.handler = handlerFactory(`${r.name}Handler`);
+        }
+        else {
+            route.schema.querystring = getSchema(r.name);
+
+            route.preValidation = (request, reply, done) => {
                 coerceToArray(request, 'cols');
                 coerceToArray(request, 'communities');
                 done();
-            },
+            }
 
-            handler: handlerFactory(r.name)
+            route.handler = handlerFactory(r.name);
         }
 
         fastify.route(route);

@@ -5,15 +5,23 @@ const config = require('config');
 
 /* 
  * prepare and connect to the database
- *
+ */
+const Database = require('better-sqlite3');
+const db = new Database(config.get('db.treatments'));
+
+/* 
  * ATTACH external databases
  * https://github.com/JoshuaWise/better-sqlite3/issues/102#issuecomment-369468174
  * 
  */
-const Database = require('better-sqlite3');
-const db = new Database(config.get('db.treatments'));
-db.prepare(`ATTACH DATABASE '${config.get('db.gbifcollections')}' AS gbifcollections`).run();
-db.prepare(`ATTACH DATABASE '${config.get('db.facets')}' AS facets`).run();
+const gbifcollections = config.get('db.gbifcollections');
+db.prepare(`ATTACH DATABASE '${gbifcollections}' AS gbifcollections`).run();
+
+const facets = config.get('db.facets');
+db.prepare(`ATTACH DATABASE '${facets}' AS facets`).run();
+
+const stats = config.get('db.stats');
+db.prepare(`ATTACH DATABASE '${stats}' AS stats`).run();
 
 const { logger } = require('../../lib/utils');
 const log = logger('API:V3:UTILS');
@@ -22,7 +30,7 @@ const uriZenodo = config.get('url.zenodo');
 const uriZenodeo = config.get('url.zenodeo');
 
 const fetch = require('node-fetch');
-const {zql} = require('../../lib/zql/');
+const { zql } = require('../../lib/zql/');
 const crypto = require('crypto');
 
 const JSON5 = require('json5');
@@ -49,40 +57,70 @@ const handlerFactory = (resource) => {
         log.info(`handler() -> fetching ${resource} from "${request.url}"`);
 
         const params = request.query;
+
         let response;
 
-        if (cacheOn) {
-            log.info("handler() -> cache is on")
-            
-            // a reference to the cache
-            const cache = acf({
-                base: cacheBase,
-                segment: resource
-            })
-
-            const cacheKey = getCacheKey(request, resource)
-        
-            if ('refreshCache' in params && params.refreshCache) {
-                log.info("handler() -> forcing refresh cache");
-                removeFromCache(cacheKey, cache);
-                response = await queryDataStoreAndCacheResult(request, resource, params, cacheKey, cache);
-            }
-            else {
-                response = await checkCache(cacheKey, cache);
-                
-                if (response) {
-                    log.info("handler() -> found result in cache");
-                    response.cacheHit = true;
-                }
-                else {
-                    log.info("handler() -> no result in cache");
-                    response =  await queryDataStoreAndCacheResult(request, resource, params, cacheKey, cache);
-                }
+        if (resource === 'root') {
+            response = {
+                item: {
+                    'search-criteria': {},
+                    'num-of-records': records.length,
+                    _links: { _self: { href: `${url.zenodeo}/` }},
+                    resources
+                },
+                stored: null,
+                ttl: null
             }
         }
+        else if (resource === 'etlstats') {
+            response = getEtlStats(request, params);
+        }
         else {
-            log.info("handler() -> cache is off");
-            response = await queryDataStore(request, resource, params);
+            if (cacheOn) {
+                log.info("handler() -> cache is on")
+                
+                // a reference to the cache
+                const cache = acf({
+                    base: cacheBase,
+                    segment: resource
+                })
+
+                const cacheKey = getCacheKey(request, resource)
+            
+                if ('refreshCache' in params && params.refreshCache) {
+                    log.info("handler() -> forcing refresh cache");
+                    removeFromCache(cacheKey, cache);
+                    response = await queryDataStoreAndCacheResult(
+                        request, 
+                        resource, 
+                        params, 
+                        cacheKey, 
+                        cache
+                    );
+                }
+                else {
+                    response = await checkCache(cacheKey, cache);
+                    
+                    if (response) {
+                        log.info("handler() -> found result in cache");
+                        response.cacheHit = true;
+                    }
+                    else {
+                        log.info("handler() -> no result in cache");
+                        response =  await queryDataStoreAndCacheResult(
+                            request, 
+                            resource, 
+                            params, 
+                            cacheKey, 
+                            cache
+                        );
+                    }
+                }
+            }
+            else {
+                log.info("handler() -> cache is off");
+                response = await queryDataStore(request, resource, params);
+            }
         }
 
         return response;
@@ -171,7 +209,7 @@ const formatDebug = (debug, queryType, sql, runparams, runtime) => {
     }
 }
 
-const getDataFromZenodeo = async function(resource, params) {
+const getDataFromZenodeo = async (resource, params) => {
     log.info('getDataFromZenodeo() -> getting data from Zenodeo');
     const { queries, runparams } = zql({ resource, params });
     const { res, runtime } = _sqlRunner(queries.main.count, runparams);
@@ -289,6 +327,43 @@ const getDataFromZenodo = async (resource, params) => {
     return { result, debug }
 }
 
+const getEtlStats = (request, params) => {
+    log.info('getEtlStats() -> getting etl stats from Zenodeo');
+
+    let query = `SELECT
+    typeOfArchive,
+    datetime(timeOfArchive/1000, 'unixepoch') AS timeOfArchive, 
+    datetime(Max(started)/1000, 'unixepoch') AS started, 
+    datetime(ended/1000, 'unixepoch') AS ended, 
+    (ended - started)/1000 AS duration,
+    json_extract(result,'$.treatments') AS treatments,
+    json_extract(result,'$.materialsCitations') AS materialsCitations,
+    json_extract(result,'$.figureCitations') AS figureCitations,
+    json_extract(result,'$.treatmentCitations') AS treatmentCitations,
+    json_extract(result,'$.bibRefCitations') AS bibRefCitations
+FROM
+    etlstats
+WHERE
+    0=0`;
+
+    const runparams = {};
+
+    if (params.typeOfArchive) {
+        query += ` AND typeOfArchive = @typeOfArchive`;
+        runparams.typeOfArchive = params.typeOfArchive;
+    }
+    
+    const { res, runtime } = _sqlRunner(query, runparams);
+    const result = {}
+    const debug = {}
+
+    result.count = 1;
+    result.records = res;
+    formatDebug(debug, 'fullQuery', query, runparams, runtime);
+
+    return { result, debug }
+}
+
 const getDataFromZenodo_old = async (resource, params) => {
     
     // clean up request.query
@@ -370,20 +445,31 @@ const dispatch = {
 }
 
 const queryDataStore = async function(request, resource, params) {
-    log.info("queryDataStore() -> querying the data store")
+    log.info("queryDataStore() -> querying the data store");
 
-    const sourceOfResource = getSourceOfResource(resource)
-    const { result, debug } = await dispatch[ sourceOfResource ](resource, params)
-    const response = packageResult(request, result)
-    return { response, debug }
+    const sourceOfResource = getSourceOfResource(resource);
+    const {result, debug} = await dispatch[sourceOfResource](resource, params);
+    const response = packageResult(request, result);
+    return { response, debug };
 }
 
-const queryDataStoreAndCacheResult = async function(request, resource, params, cacheKey, cache) {
-    const { response, debug } =  await queryDataStore(request, resource, params)
+const queryDataStoreAndCacheResult = async function(
+    request, 
+    resource, 
+    params, 
+    cacheKey, 
+    cache
+) {
+    const { response, debug } =  await queryDataStore(
+        request, 
+        resource, 
+        params
+    );
+
     if (response) {
-        storeInCache(response, cacheKey, cache)
-        addDebug(response, debug)
-        return response
+        storeInCache(response, cacheKey, cache);
+        addDebug(response, debug);
+        return response;
     }
     
     return false;
