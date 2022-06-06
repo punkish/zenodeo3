@@ -3,7 +3,8 @@
 const util = require('util');
 const commonparams = require('./resources/commonparams');
 // const JSON5 = require('json5')
-const resources = require('./index');
+//const resources = require('./index');
+const resources = require('../api/v3/resources.js');
 
 /*
 elements are extracted from articles (-> 'cheerio')

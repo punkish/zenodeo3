@@ -1,6 +1,6 @@
 'use strict'
 
-const util = require('util');
+//const util = require('util');
 const config = require('config');
 
 /* 
@@ -173,7 +173,6 @@ const getSearch = function(request) {
 }
 
 const _sqlRunner = function(sql, runparams) {
-    console.log(sql, runparams)
     try {
         let t = process.hrtime()
         

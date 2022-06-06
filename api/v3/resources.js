@@ -11,6 +11,7 @@ const resources = [
         name: 'root',
         url: '',
         summary: 'root of the API',
+        dictionary: '',
         description: 'This is where it starts',
         tags: [ 'meta' ]
     },
