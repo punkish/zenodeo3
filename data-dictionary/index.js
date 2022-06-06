@@ -6,6 +6,13 @@
  */
 const resources = [
     {
+        name: 'etlstats',
+        summary: 'etl statistics',
+        dictionary: require(`./resources/metadata/etlstats.js`),
+        description: 'Information about the Extract-Transform-Load process',
+        tags: [ 'meta' ]
+    },
+    {
         name: 'treatments',
         summary: 'Fetch treatments',
         dictionary: require('./resources/zenodeo/treatments.js'),

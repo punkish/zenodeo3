@@ -1,30 +1,8 @@
 'use strict'
 
-const config = require('config');
-const url = config.get('url');
 const { getSchema } = require('../../data-dictionary/dd-utils');
-//const resources = require('../../data-dictionary/')
 const resources = require('./resources.js');
 const { handlerFactory } = require('./utils');
-
-/*
- * The rootHandler returns the response when a user queries the 
- * root route
- */
-// const rootHandler = async function(request, reply) {
-
-    
-//     return {
-//         item: {
-//             'search-criteria': {},
-//             'num-of-records': records.length,
-//             _links: { _self: { href: `${url.zenodeo}/` }},
-//             resources
-//         },
-//         stored: null,
-//         ttl: null
-//     }
-// }
 
 /*
 * the following takes care of cols=col1,col2,col3
@@ -40,7 +18,7 @@ const coerceToArray = (request, param) => {
 
 /*
  * This is the route factory that uses the routes configuration
- * defined in data-dictionary and generates a route. The route  
+ * defined in resources.js and generates the routes. The route  
  * definition uses a handlerFactory to create the handler for 
  * each route, and a schema generator that uses the data-dictionary
  * to create a JSON schema for validation
@@ -49,16 +27,21 @@ const routes = async function(fastify, options) {
     resources.forEach(r => {
         const route = {
             method: 'GET',
-            url: `/${r.name.toLowerCase()}`,
+            url: `/${r.url}`,
             schema: {
                 summary: r.summary,
                 description: r.description,
                 tags: r.tags
-            }
+            },
+            handler: handlerFactory(r.name)
         };
 
-        if (r.tags.indexOf('meta') > -1) {
-            route.handler = handlerFactory(`${r.name}Handler`);
+        if (r.name === 'root') {
+            //route.handler = handlerFactory(r.name);
+        }
+        else if (r.name === 'etlstats') {
+            route.schema.querystring = getSchema(r.name);
+            //route.handler = handlerFactory(r.name);
         }
         else {
             route.schema.querystring = getSchema(r.name);
@@ -69,7 +52,7 @@ const routes = async function(fastify, options) {
                 done();
             }
 
-            route.handler = handlerFactory(r.name);
+            //route.handler = handlerFactory(r.name);
         }
 
         fastify.route(route);

@@ -1,7 +1,4 @@
-'use strict'
-
-const config = require('config');
-const url = config.get('url');
+'use strict';
 
 /*
  * This is the only place where configuration for  
@@ -12,21 +9,22 @@ const ddpath = '../../data-dictionary/resources';
 const resources = [
     {
         name: 'root',
-        url: url.zenodeo,
+        url: '',
         summary: 'root of the API',
         description: 'This is where it starts',
         tags: [ 'meta' ]
     },
     {
         name: 'etlstats',
-        url: `${url.zenodeo}/etlstats`,
+        url: 'etlstats',
         summary: 'etl statistics',
+        dictionary: require(`${ddpath}/metadata/etlstats.js`),
         description: 'Information about the Extract-Transform-Load process',
         tags: [ 'meta' ]
     },
     {
         name: 'treatments',
-        url: `${url.zenodeo}/treatments`,
+        url: 'treatments',
         summary: 'Fetch treatments',
         dictionary: require(`${ddpath}/zenodeo/treatments.js`),
         description: 'treatments of species',
@@ -35,7 +33,7 @@ const resources = [
     },
     {
         name: 'treatmentCitations',
-        url: `${url.zenodeo}/treatmentcitations`,
+        url: 'treatmentcitations',
         summary: 'Fetch treatmentCitations of the treatments',
         dictionary: require(`${ddpath}/zenodeo/treatmentCitations.js`),
         description: 'treatment citations citing the treatment',
@@ -44,7 +42,7 @@ const resources = [
     },
     {
         name: 'bibRefCitations',
-        url: `${url.zenodeo}/bibrefcitations`,
+        url: 'bibrefcitations',
         summary: 'Fetch bibRefCitations of the treatments',
         dictionary: require(`${ddpath}/zenodeo/bibRefCitations.js`),
         description: 'bibliographic citations of treatments',
@@ -53,7 +51,7 @@ const resources = [
     },
     {
         name: 'figureCitations',
-        url: `${url.zenodeo}/figurecitations`,
+        url: 'figurecitations',
         summary: 'Fetch figureCitations of the treatments',
         dictionary: require(`${ddpath}/zenodeo/figureCitations.js`),
         description: 'figure citations of treatments',
@@ -62,7 +60,7 @@ const resources = [
     },
     {
         name: 'materialsCitations',
-        url: `${url.zenodeo}/materialscitations`,
+        url: 'materialscitations',
         summary: 'Fetch materialsCitations of the treatments',
         dictionary: require(`${ddpath}/zenodeo/materialsCitations.js`),
         description: 'material citations of treatments',
@@ -71,7 +69,7 @@ const resources = [
     },
     {
         name: 'treatmentImages',
-        url: `${url.zenodeo}/treatmentimages`,
+        url: 'treatmentimages',
         summary: 'Fetch treatment images from Zenodeo',
         dictionary: require(`${ddpath}/zenodeo/treatmentImages.js`),
         description: 'images related to treatments',
@@ -80,7 +78,7 @@ const resources = [
     },
     {
         name: 'collectionCodes',
-        url: `${url.zenodeo}/collectioncodes`,
+        url: 'collectioncodes',
         summary: 'Fetch collectionCodes of the materialsCitations',
         dictionary: require(`${ddpath}/zenodeo/collectionCodes.js`),
         description: 'collection codes of treatments',
@@ -89,7 +87,7 @@ const resources = [
     },
     {
         name: 'images',
-        url: `${url.zenodeo}/images`,
+        url: 'images',
         summary: 'Fetch images from Zenodo',
         dictionary: require(`${ddpath}/zenodo/images.js`),
         description: 'images extracted from scientific literature',
@@ -98,7 +96,7 @@ const resources = [
     },
     {
         name: 'publications',
-        url: `${url.zenodeo}/publications`,
+        url: 'publications',
         summary: 'Fetch publications from Zenodo',
         dictionary: require(`${ddpath}/zenodo/publications.js`),
         description: 'scientific publications',
@@ -107,7 +105,7 @@ const resources = [
     },
     {
         name: 'families',
-        url: `${url.zenodeo}/families`,
+        url: 'families',
         summary: 'Fetch families',
         dictionary: require(`${ddpath}/zenodeo/families.js`),
         description: 'families of species',

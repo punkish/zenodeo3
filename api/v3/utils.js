@@ -42,6 +42,7 @@ const ttl = config.get('v3.cache.ttl');
 const cacheBase = config.get('v3.cache.base');
 const acf = require('../../lib/abstract-cache-file');
 
+const resources = require('./resources.js');
 const { getSourceOfResource } = require('../../data-dictionary/dd-utils');
 
 // resource: the resource being requested; maps to a SQL table
@@ -64,9 +65,14 @@ const handlerFactory = (resource) => {
             response = {
                 item: {
                     'search-criteria': {},
-                    'num-of-records': records.length,
-                    _links: { _self: { href: `${url.zenodeo}/` }},
-                    resources
+                    'num-of-records': resources.length,
+                    _links: { _self: { href: `${uriZenodeo}/` }},
+                    records: resources
+                        .map(el => {return {
+                            name: el.name,
+                            description: el.description,
+                            url: `${uriZenodeo}/${el.url}`
+                        }})
                 },
                 stored: null,
                 ttl: null
@@ -167,6 +173,7 @@ const getSearch = function(request) {
 }
 
 const _sqlRunner = function(sql, runparams) {
+    console.log(sql, runparams)
     try {
         let t = process.hrtime()
         
