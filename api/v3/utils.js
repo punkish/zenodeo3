@@ -1,6 +1,5 @@
 'use strict'
 
-//const util = require('util');
 const config = require('config');
 
 /* 
@@ -58,25 +57,10 @@ const handlerFactory = (resource) => {
         log.info(`handler() -> fetching ${resource} from "${request.url}"`);
 
         const params = request.query;
-
         let response;
 
         if (resource === 'root') {
-            response = {
-                item: {
-                    'search-criteria': {},
-                    'num-of-records': resources.length,
-                    _links: { _self: { href: `${uriZenodeo}/` }},
-                    records: resources
-                        .map(el => {return {
-                            name: el.name,
-                            description: el.description,
-                            url: `${uriZenodeo}/${el.url}`
-                        }})
-                },
-                stored: null,
-                ttl: null
-            }
+            response = getRoot();
         }
         else if (resource === 'etlstats') {
             response = getEtlStats(request, params);
@@ -333,6 +317,26 @@ const getDataFromZenodo = async (resource, params) => {
     return { result, debug }
 }
 
+const getRoot = () => {
+    return {
+        item: {
+            'search-criteria': {},
+            'num-of-records': resources.length,
+            _links: { _self: { href: `${uriZenodeo}/` }},
+            records: resources
+                .map(el => {
+                    return {
+                        name: el.name,
+                        description: el.description,
+                        url: `${uriZenodeo}/${el.url}`
+                    }
+                })
+        },
+        stored: null,
+        ttl: null
+    }
+}
+
 const getEtlStats = (request, params) => {
     log.info('getEtlStats() -> getting etl stats from Zenodeo');
 
@@ -366,79 +370,6 @@ WHERE
     result.count = 1;
     result.records = res;
     formatDebug(debug, 'fullQuery', query, runparams, runtime);
-
-    return { result, debug }
-}
-
-const getDataFromZenodo_old = async (resource, params) => {
-    
-    // clean up request.query
-    const qp = JSON5.parse(JSON5.stringify(params));
-
-    // add type by removing the last 's' from resource name
-    // images -> image
-    // publications -> publication
-    qp.type = resource.slice(0, -1);
-    qp.communities = 'biosyslit';
-    
-    // remove the following params
-    const remove = [ 'refreshCache', 'facets', 'stats', 'sortby' ];
-    remove.forEach(p => {
-        if (p in qp) {
-            delete qp[p]
-        }
-    })
-
-    // remove '$' from the following params
-    // const remove$ = [ '$page', '$size' ]
-    // remove$.forEach(p => {
-    //     if (p in qp) {
-    //         qp[ p.substring(1) ] = qp[p]
-    //         delete qp[p]
-    //     }
-    // })
-
-    const qs = new URLSearchParams(qp)
-    const uriRemote = qs ? `${uriZenodo}?${qs}` : uriZenodo
-
-    // uriRemote should be
-    // https://zenodo.org/api/records/?communities=biosyslit&page=1&size=30&type=image&communities=belgiumherbarium
-
-    // https://zenodo.org/api/records/?sort=mostrecent&subtype=figure&subtype=photo&subtype=drawing&subtype=diagram&subtype=plot&subtype=other&communities=biosyslit&communities=belgiumherbarium&type=image&page=1&size=30
-
-    log.info(`getDataFromZenodo() -> getting ${resource} from ${uriRemote}`)
-
-    const result = {}
-    const debug = {}
-
-    try {
-        let t = process.hrtime()
-        const res = await fetch(uriRemote)
-
-        // if HTTP-status is 200-299
-        if (res.ok) {
-            const payload = await res.text()
-            const json = JSON5.parse(payload)
-            t = process.hrtime(t)
-
-            result.count = json.hits.total
-            result.records = json.hits.hits
-
-            if (isDebug) {
-                const runtime = Math.round((t[0] * 1000) + (t[1] / 1000000))
-                debug.countQuery = '',
-                debug.fullQuery = { sql: qp, runtime }
-            }
-        } 
-        else {
-            request.log.info("HTTP-Error: " + response.status)
-            return {}
-        }
-    }
-    catch (error) {
-        log.error(error)
-        return {}
-    }
 
     return { result, debug }
 }
@@ -556,31 +487,5 @@ const addDebug = function(response, debug) {
         response.debug = debug
     }
 }
-
-// const request = {
-//     context: {
-//         config: {
-//             url: '/v3/families'
-//         }
-//     },
-//     url: "/v3/families?q=for",
-//     query: {
-//         q: 'for',
-//         //'$refreshCache': true,
-//         //'$facets': false,
-//         // '$page': 2,
-//         // '$size': 30,
-//         //'$sortby': 'id:ASC',
-//         //'$cols': [ 'treatmentTitle' ]
-//     }
-// }
-
-// const reply = null
-// const handler = handlerFactory('families');
-// (async function () {
-//     const response = await handler(request, reply)
-//     console.log(util.inspect(response, {showHidden: false, depth: null, colors: true}))
-//     //console.log(response)
-// })()
 
 module.exports = { handlerFactory }
