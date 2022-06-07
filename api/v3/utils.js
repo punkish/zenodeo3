@@ -50,13 +50,14 @@ const handlerFactory = (resource) => {
     /*
      * request: the request object from a client
      * reply: a fastify object
-     * result: the output of querying the datastore
+     * result: the output from querying the datastore
      * response: packaged result that is sent back
      */
     return async function(request, reply) {
         log.info(`handler() -> fetching ${resource} from "${request.url}"`);
 
         const params = request.query;
+        const _links = makeLinks(request);
         let response;
 
         if (resource === 'root') {
@@ -66,6 +67,8 @@ const handlerFactory = (resource) => {
             response = getEtlStats(request, params);
         }
         else {
+            const obj = { request, resource, params, _links };
+
             if (cacheOn) {
                 log.info("handler() -> cache is on")
                 
@@ -75,18 +78,20 @@ const handlerFactory = (resource) => {
                     segment: resource
                 })
 
-                const cacheKey = getCacheKey(request, resource)
-            
+                
+                //const cacheKey = getCacheKey(obj);
+                const cacheKey = getCacheKey(_links._self);
+
                 if ('refreshCache' in params && params.refreshCache) {
                     log.info("handler() -> forcing refresh cache");
+
                     removeFromCache(cacheKey, cache);
-                    response = await queryDataStoreAndCacheResult(
-                        request, 
-                        resource, 
-                        params, 
-                        cacheKey, 
-                        cache
-                    );
+                    response = await queryDataStore(obj);
+
+                    if (response) {
+                        storeInCache(response, cacheKey, cache);
+                        addDebug(response, debug);
+                    }
                 }
                 else {
                     response = await checkCache(cacheKey, cache);
@@ -97,23 +102,45 @@ const handlerFactory = (resource) => {
                     }
                     else {
                         log.info("handler() -> no result in cache");
-                        response =  await queryDataStoreAndCacheResult(
-                            request, 
-                            resource, 
-                            params, 
-                            cacheKey, 
-                            cache
-                        );
+
+                        response = await queryDataStore(obj);
+
+                        if (response) {
+                            storeInCache(response, cacheKey, cache);
+                            addDebug(response, debug);
+                        }
                     }
                 }
             }
             else {
                 log.info("handler() -> cache is off");
-                response = await queryDataStore(request, resource, params);
+                response = await queryDataStore(obj);
             }
         }
 
+        //updateStats(obj);
+        updateStats(_links._self);
+
         return response;
+    }
+}
+
+// const updateStats = ({ request, resource, params }) => {
+//     const self = _pruneLink(request.query);
+//     self.sort();
+//     const _self = `${resource}?${self.toString()}`;
+const updateStats = (_self) => {
+    const sql = `INSERT INTO webqueries (q) 
+    VALUES (@q) 
+    ON CONFLICT(q) 
+    DO UPDATE SET count = count + 1`;
+
+    try {
+        db.prepare(sql).run({ q: _self });
+    }
+    catch(error) {
+        log.error(sql);
+        throw error;
     }
 }
 
@@ -128,11 +155,11 @@ const getOriginalSearchParams = function(request) {
     return originalSearchParams;
 }
 
-const getCacheKey = function(request, resource) {
-    const self = _pruneLink(request.query);
-    self.sort();
-    const _self = `${resource}/${self.toString()}`;
-
+// const getCacheKey = function({ request, resource, params }) {
+//     const self = _pruneLink(request.query);
+//     self.sort();
+//     const _self = `${resource}?${self.toString()}`;
+const getCacheKey = function(_self) {
     log.info(`getCacheKey() -> creating key for ${_self}`);
 
     const cacheKey = crypto
@@ -141,6 +168,7 @@ const getCacheKey = function(request, resource) {
         .digest('hex');
 
     log.info(`getCacheKey() -> generated key ${cacheKey}`);
+    
     return cacheKey;
 }
 
@@ -166,8 +194,10 @@ const _sqlRunner = function(sql, runparams) {
         return {
             res,
 
-            // 't' is an array of seconds and nanoseconds
-            // convert 't' into ms 
+            /* 
+             * 't' is an array of seconds and nanoseconds
+             * convert 't' into ms 
+             */
             runtime: Math.round((t[0] * 1000) + (t[1] / 1000000))
         }
 
@@ -215,7 +245,13 @@ const getDataFromZenodeo = async (resource, params) => {
             const { res, runtime } = _sqlRunner(queries.main.full, runparams);
             
             result.records = res;
-            formatDebug(debug, 'fullQuery', queries.main.full, runparams, runtime);
+            formatDebug(
+                debug, 
+                'fullQuery', 
+                queries.main.full, 
+                runparams, 
+                runtime
+            );
         }
 
         if (queries.related) {
@@ -225,7 +261,13 @@ const getDataFromZenodeo = async (resource, params) => {
             for (let [relatedRecord, sql] of Object.entries(queries.related)) {            
                 const { res, runtime } = _sqlRunner(sql.full, runparams);
                 result['related-records'][relatedRecord] = res;
-                formatDebug(debug['related-records'], relatedRecord, sql.full, runparams, runtime);
+                formatDebug(
+                    debug['related-records'], 
+                    relatedRecord, 
+                    sql.full, 
+                    runparams, 
+                    runtime
+                );
             }
         }
 
@@ -246,16 +288,26 @@ const getDataFromZenodeo = async (resource, params) => {
 
 const getDataFromZenodo = async (resource, params) => {
 
-    // add type by removing the last 's' from resource name
-    // images -> image
-    // publications -> publication
+    /*
+     * add type by removing the last 's' from resource name
+     * images -> image
+     * publications -> publication
+     */
     params.type = resource.slice(0, -1);
 
     const communities = params.communities;
     const subtypes = params.subtype;
     
     // remove the following params
-    const remove = [ 'refreshCache', 'facets', 'stats', 'sortby', 'communities', 'subtype' ];
+    const remove = [ 
+        'refreshCache', 
+        'facets', 
+        'stats', 
+        'sortby', 
+        'communities', 
+        'subtype' 
+    ];
+
     remove.forEach(p => {
         if (p in params) {
             delete params[p];
@@ -275,10 +327,13 @@ const getDataFromZenodo = async (resource, params) => {
     
     const uriRemote = qs ? `${uriZenodo}?${qs}` : uriZenodo
 
-    // uriRemote should be
-    // https://zenodo.org/api/records/?communities=biosyslit&communities=belgiumherbarium&page=1&size=30&type=image
-
-    // https://zenodo.org/api/records/?sort=mostrecent&subtype=figure&subtype=photo&subtype=drawing&subtype=diagram&subtype=plot&subtype=other&communities=biosyslit&communities=belgiumherbarium&type=image&page=1&size=30
+    /* 
+     * examples of uriRemote 
+     *
+     * https://zenodo.org/api/records/?communities=biosyslit&communities=belgiumherbarium&page=1&size=30&type=image
+     * https://zenodo.org/api/records/?sort=mostrecent&subtype=figure&subtype=photo&subtype=drawing&subtype=diagram&subtype=plot&subtype=other&communities=biosyslit&communities=belgiumherbarium&type=image&page=1&size=30
+     *
+     */
 
     log.info(`getDataFromZenodo() -> getting ${resource} from ${uriRemote}`)
 
@@ -292,7 +347,7 @@ const getDataFromZenodo = async (resource, params) => {
         // if HTTP-status is 200-299
         if (res.ok) {
             const payload = await res.text()
-            const json = JSON5.parse(payload)
+            const json = JSON.parse(payload)
             t = process.hrtime(t)
 
             result.count = json.hits.total
@@ -374,42 +429,23 @@ WHERE
     return { result, debug }
 }
 
-// A resource on Zenodo is queried differntly (using `fetch`)
-// as opposed to a resource on Zenodeo (using `SQL`)
+/*
+ * A resource on Zenodo is queried using `fetch`
+ * as opposed to a resource on Zenodeo that uses SQL
+ */
 const dispatch = {
     zenodeo: getDataFromZenodeo,
     zenodo: getDataFromZenodo
 }
 
-const queryDataStore = async function(request, resource, params) {
+const queryDataStore = async function({ request, resource, params, _links }) {
     log.info("queryDataStore() -> querying the data store");
 
     const sourceOfResource = getSourceOfResource(resource);
     const {result, debug} = await dispatch[sourceOfResource](resource, params);
-    const response = packageResult(request, result);
+    //const response = packageResult(request, result);
+    const response = packageResult(request, result, _links);
     return { response, debug };
-}
-
-const queryDataStoreAndCacheResult = async function(
-    request, 
-    resource, 
-    params, 
-    cacheKey, 
-    cache
-) {
-    const { response, debug } =  await queryDataStore(
-        request, 
-        resource, 
-        params
-    );
-
-    if (response) {
-        storeInCache(response, cacheKey, cache);
-        addDebug(response, debug);
-        return response;
-    }
-    
-    return false;
 }
 
 const checkCache = async function(cacheKey, cache) {
@@ -419,7 +455,7 @@ const checkCache = async function(cacheKey, cache) {
 
 const storeInCache = function(response, cacheKey, cache) {
     log.info(`storeInCache() -> storing result in cache under key ${cacheKey}`)
-    cache.set(cacheKey, response)
+    cache.set(cacheKey, response);
 }
 
 const removeFromCache = function(cacheKey, cache) {
@@ -447,29 +483,42 @@ const makeLinks = function(request) {
     self.sort();
     
     const prev = _pruneLink(request.query);
-    prev.set('page', prev.get('page') > 1 ? prev.get('page') - 1 : 1);
+    let newval = prev.get('page') > 1 ? prev.get('page') - 1 : 1;
+    prev.set('page', newval);
     prev.sort();
 
     const next = _pruneLink(request.query);
-    next.set('page', next.get('page') > 1 ? Number(next.get('page')) + 1 : 2);
+    newval = next.get('page') > 1 ? Number(next.get('page')) + 1 : 2;
+    next.set('page', newval);
     next.sort();
 
-    const host = `${request.protocol}://${request.hostname}${request.routerPath}`;
+    //const host = `${request.protocol}://${request.hostname}${request.routerPath}`;
+    // return {
+    //     "_self": `${host}?${self.toString()}`,
+    //     "_prev": `${host}?${prev.toString()}`,
+    //     "_next": `${host}?${next.toString()}`
+    // }
     return {
-        "_self": `${host}?${self.toString()}`,
-        "_prev": `${host}?${prev.toString()}`,
-        "_next": `${host}?${next.toString()}`
+        "_self": self.toString(),
+        "_prev": prev.toString(),
+        "_next": next.toString()
     }
 }
 
 // This is where the result becomes a response
-const packageResult = function(request, result) {
+const packageResult = function(request, result, _links) {
     log.info('packageResult() -> packaging results for delivery') 
+
+    const host = `${request.protocol}://${request.hostname}${request.routerPath}`;
+    _links._self = `${host}?${_links._self}`;
+    _links._prev = `${host}?${_links._prev}`;
+    _links._next = `${host}?${_links._next}`;
 
     const item = {
         search: getSearch(request),
         result,
-        _links: makeLinks(request)
+        //_links: makeLinks(request)
+        _links
     }
 
     const response = {
@@ -488,4 +537,4 @@ const addDebug = function(response, debug) {
     }
 }
 
-module.exports = { handlerFactory }
+module.exports = { handlerFactory };

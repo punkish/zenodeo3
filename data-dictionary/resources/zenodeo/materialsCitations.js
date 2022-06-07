@@ -67,11 +67,27 @@ module.exports = [
     },
     {
         name: 'institution_name',
+        alias: {
+            select: 'gbifcollections.institutions.institution_name',
+            where : 'gbifcollections.institutions.institution_name'
+        },
         schema: {
             type: 'string',
             description: 'The name of the institution that houses the collection',
         },
-        sqltype: 'TEXT'
+        sqltype: 'TEXT',
+        joins: {
+            select: [ 
+                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
+                'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
+                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
+            ],
+            where : [ 
+                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
+                'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
+                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
+            ]
+        }
     },
     {
         name: 'collectorName',
@@ -194,7 +210,7 @@ module.exports = [
         defaultOp: 'starts_with'
     },
     {
-        name: 'specimenCount-female',
+        name: 'specimenCountFemale',
         schema: {
             type: 'integer',
             description: 'The number of listed female specimens',
@@ -203,7 +219,7 @@ module.exports = [
         cheerio: '$("materialsCitation").attr("specimenCount-female")'
     },
     {
-        name: 'specimenCount-male',
+        name: 'specimenCountMale',
         schema: {
             type: 'integer',
             description: 'The number of listed male specimens',
@@ -225,7 +241,7 @@ module.exports = [
         schema: {
             type: 'string',
             description: `The code of the specimen. Can use the following syntax:
-- specimenCode='01 - SRNP- 4156'
+- specimenCode='01-SRNP-4156'
 - specimenCode=starts_with(01)
 - specimenCode=ends_with(4156)
 - specimenCode=contains(SRNP)
@@ -396,6 +412,7 @@ module.exports = [
 - \`geolocation=containted_in({lowerLeft:{lat: -40.00, lng: -120},upperRight: {lat:23,lng:6.564}})\`
 `,
         },
-        zqltype: 'geolocation'
+        zqltype: 'geolocation',
+        notDefaultCol: true
     }
 ]
