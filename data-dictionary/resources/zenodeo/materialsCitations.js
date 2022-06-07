@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 const utils = require('../../../lib/utils.js');
 
@@ -10,10 +10,8 @@ module.exports = [
             maxLength: 32, 
             minLength: 32,
             description: `The unique ID of the materialsCitation. Has to be a 32 character string like: '38C63CC3D744DE1FE88B8A56FB7EDD14'`,
-            // isResourceId: true
         },
         isResourceId: true,
-        //selname: 'materialsCitations.materialsCitationId',
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("materialsCitation").attr("id")'
     },
@@ -49,7 +47,6 @@ module.exports = [
             type: 'string',
             description: 'The collection code for a natural history collection'
         },
-        //selname: 'collectionCodes.collectionCode',
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectionCode")',
         joins: {
@@ -262,6 +259,7 @@ module.exports = [
         cheerio: '$("materialsCitation").attr("typeStatus")',
         defaultOp: 'starts_with'
     },
+    
     {
         name: 'determinerName',
         schema: {
@@ -277,6 +275,7 @@ module.exports = [
         cheerio: '$("materialsCitation").attr("determinerName")',
         defaultOp: 'starts_with'
     },
+
     {
         name: 'collectedFrom',
         schema: {
@@ -292,6 +291,7 @@ module.exports = [
         cheerio: '$("materialsCitation").attr("collectedFrom")',
         defaultOp: 'starts_with'
     },
+
     {
         name: 'collectingMethod',
         schema: {
