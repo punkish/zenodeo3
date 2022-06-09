@@ -62,14 +62,15 @@ const handlerFactory = (resource) => {
 
         const params = request.query;
         const _links = makeLinks(request);
-        let response;
-        let debug;
+        updateStats(_links._self);
 
         if (resource === 'root') {
-            response = getRoot();
+            const { response, debug } = getRoot();
+            return response;
         }
         else if (resource === 'etlstats') {
-            response = getEtlStats(request, params);
+            const { response, debug } = getEtlStats(request, params);
+            return response;
         }
         else {
             const obj = { request, resource, params, _links };
@@ -91,47 +92,45 @@ const handlerFactory = (resource) => {
                     log.info("handler() -> forcing refresh cache");
 
                     removeFromCache(cacheKey, cache);
-                    const res = await queryDataStore(obj);
-                    response = res.response;
-                    debug = res.debug;
+                    const { response, debug } = await queryDataStore(obj);
 
                     if (response) {
                         storeInCache(response, cacheKey, cache);
                         addDebug(response, debug);
                     }
+
+                    return response;
                 }
                 else {
-                    response = await checkCache(cacheKey, cache);
+                    const { response, debug } = await checkCache(cacheKey, cache);
                     
                     if (response) {
                         log.info("handler() -> found result in cache");
                         response.cacheHit = true;
+
+                        return response;
                     }
                     else {
                         log.info("handler() -> no result in cache");
 
-                        const res = await queryDataStore(obj);
-                        response = res.response;
-                        debug = res.debug;
+                        const { response, debug } = await queryDataStore(obj);
 
                         if (response) {
                             storeInCache(response, cacheKey, cache);
                             addDebug(response, debug);
                         }
+
+                        return response;
                     }
                 }
             }
             else {
                 log.info("handler() -> cache is off");
-                const res = await queryDataStore(obj);
-                response = res.response;
-                debug = res.debug;
+                const { response, debug } = await queryDataStore(obj);
+
+                return response;
             }
         }
-
-        updateStats(_links._self);
-
-        return response;
     }
 }
 
@@ -375,7 +374,7 @@ const getDataFromZenodo = async (resource, params) => {
 }
 
 const getRoot = () => {
-    return {
+    const response = {
         item: {
             'search-criteria': {},
             'num-of-records': resources.length,
@@ -391,7 +390,10 @@ const getRoot = () => {
         },
         stored: null,
         ttl: null
-    }
+    };
+
+    const debug = {};
+    return { response, debug };
 }
 
 const getEtlStats = (request, params) => {
@@ -428,7 +430,7 @@ WHERE
     result.records = res;
     formatDebug(debug, 'fullQuery', query, runparams, runtime);
 
-    return { result, debug }
+    return { response: result, debug }
 }
 
 /*
