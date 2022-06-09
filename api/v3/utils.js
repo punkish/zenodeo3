@@ -44,7 +44,11 @@ const acf = require('../../lib/abstract-cache-file');
 const resources = require('./resources.js');
 const { getSourceOfResource } = require('../../data-dictionary/dd-utils');
 
-// resource: the resource being requested; maps to a SQL table
+/*
+ * handlerFactory takes a resource and returns a handler
+ * function for that resource. This handler function is 
+ * used in the route to handle a request and send a response
+ */
 const handlerFactory = (resource) => {
 
     /*
@@ -72,14 +76,14 @@ const handlerFactory = (resource) => {
             if (cacheOn) {
                 log.info("handler() -> cache is on")
                 
-                // a reference to the cache
+                /* 
+                 * create a reference to the cache
+                 */
                 const cache = acf({
                     base: cacheBase,
                     segment: resource
                 })
-
-                
-                //const cacheKey = getCacheKey(obj);
+ 
                 const cacheKey = getCacheKey(_links._self);
 
                 if ('refreshCache' in params && params.refreshCache) {
@@ -118,17 +122,12 @@ const handlerFactory = (resource) => {
             }
         }
 
-        //updateStats(obj);
         updateStats(_links._self);
 
         return response;
     }
 }
 
-// const updateStats = ({ request, resource, params }) => {
-//     const self = _pruneLink(request.query);
-//     self.sort();
-//     const _self = `${resource}?${self.toString()}`;
 const updateStats = (_self) => {
     const sql = `INSERT INTO webqueries (q) 
     VALUES (@q) 
@@ -155,10 +154,6 @@ const getOriginalSearchParams = function(request) {
     return originalSearchParams;
 }
 
-// const getCacheKey = function({ request, resource, params }) {
-//     const self = _pruneLink(request.query);
-//     self.sort();
-//     const _self = `${resource}?${self.toString()}`;
 const getCacheKey = function(_self) {
     log.info(`getCacheKey() -> creating key for ${_self}`);
 
@@ -443,7 +438,6 @@ const queryDataStore = async function({ request, resource, params, _links }) {
 
     const sourceOfResource = getSourceOfResource(resource);
     const {result, debug} = await dispatch[sourceOfResource](resource, params);
-    //const response = packageResult(request, result);
     const response = packageResult(request, result, _links);
     return { response, debug };
 }
@@ -492,12 +486,6 @@ const makeLinks = function(request) {
     next.set('page', newval);
     next.sort();
 
-    //const host = `${request.protocol}://${request.hostname}${request.routerPath}`;
-    // return {
-    //     "_self": `${host}?${self.toString()}`,
-    //     "_prev": `${host}?${prev.toString()}`,
-    //     "_next": `${host}?${next.toString()}`
-    // }
     return {
         "_self": self.toString(),
         "_prev": prev.toString(),
@@ -517,7 +505,6 @@ const packageResult = function(request, result, _links) {
     const item = {
         search: getSearch(request),
         result,
-        //_links: makeLinks(request)
         _links
     }
 
