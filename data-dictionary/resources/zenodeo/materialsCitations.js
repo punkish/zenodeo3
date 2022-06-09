@@ -76,13 +76,13 @@ module.exports = [
         joins: {
             select: [ 
                 'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
-                'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
+                'JOIN collectionCodes cc ON mc.collectionCode = cc.collectionCode',
+                'LEFT JOIN gbifcollections.institutions g ON cc.collectionCode = g.institution_code'
             ],
             where : [ 
                 'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
-                'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
+                'JOIN collectionCodes cc ON mc.collectionCode = cc.collectionCode',
+                'LEFT JOIN gbifcollections.institutions g ON cc.collectionCode = g.institution_code'
             ]
         }
     },
@@ -259,7 +259,7 @@ module.exports = [
         cheerio: '$("materialsCitation").attr("typeStatus")',
         defaultOp: 'starts_with'
     },
-    
+
     {
         name: 'determinerName',
         schema: {
