@@ -63,6 +63,7 @@ const handlerFactory = (resource) => {
         const params = request.query;
         const _links = makeLinks(request);
         let response;
+        let debug;
 
         if (resource === 'root') {
             response = getRoot();
@@ -90,7 +91,9 @@ const handlerFactory = (resource) => {
                     log.info("handler() -> forcing refresh cache");
 
                     removeFromCache(cacheKey, cache);
-                    response = await queryDataStore(obj);
+                    const res = await queryDataStore(obj);
+                    response = res.response;
+                    debug = res.debug;
 
                     if (response) {
                         storeInCache(response, cacheKey, cache);
@@ -107,7 +110,9 @@ const handlerFactory = (resource) => {
                     else {
                         log.info("handler() -> no result in cache");
 
-                        response = await queryDataStore(obj);
+                        const res = await queryDataStore(obj);
+                        response = res.response;
+                        debug = res.debug;
 
                         if (response) {
                             storeInCache(response, cacheKey, cache);
@@ -118,7 +123,9 @@ const handlerFactory = (resource) => {
             }
             else {
                 log.info("handler() -> cache is off");
-                response = await queryDataStore(obj);
+                const res = await queryDataStore(obj);
+                response = res.response;
+                debug = res.debug;
             }
         }
 
