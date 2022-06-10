@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 const config = require('config');
 
@@ -76,7 +76,7 @@ const handlerFactory = (resource) => {
             const obj = { request, resource, params, _links };
 
             if (cacheOn) {
-                log.info("handler() -> cache is on")
+                log.info("handler() -> cache is on");
                 
                 /* 
                  * create a reference to the cache
@@ -84,7 +84,7 @@ const handlerFactory = (resource) => {
                 const cache = acf({
                     base: cacheBase,
                     segment: resource
-                })
+                });
  
                 const cacheKey = getCacheKey(_links._self);
 
@@ -96,7 +96,10 @@ const handlerFactory = (resource) => {
 
                     if (res.response) {
                         storeInCache(res.response, cacheKey, cache);
-                        addDebug(res.response, res.debug);
+
+                        if (isDebug) {
+                            res.response.debug = res.debug;
+                        }
                     }
                 }
                 else {
@@ -112,7 +115,10 @@ const handlerFactory = (resource) => {
 
                         if (res.response) {
                             storeInCache(res.response, cacheKey, cache);
-                            addDebug(res.response, res.debug);
+
+                            if (isDebug) {
+                                res.response.debug = res.debug;
+                            }
                         }
                     }
                 }
@@ -156,27 +162,26 @@ const getCacheKey = function(_self) {
 }
 
 const getSearch = function(request) {
-    log.info("getSearch() -> getting search criteria")
+    log.info("getSearch() -> getting search criteria");
 
-    const originalSearchParams = new URLSearchParams(request.url)
+    const originalSearchParams = new URLSearchParams(request.url);
     if (originalSearchParams.has('refreshCache')) {
         originalSearchParams.delete('refreshCache');
     }
 
-    const search = {}
+    const search = {};
     originalSearchParams.forEach((value, name) => {
-        search[name] = value
+        search[name] = value;
     })
 
-    return search
+    return search;
 }
 
 const _sqlRunner = function(sql, runparams) {
     try {
-        let t = process.hrtime()
-        
-        const res = db.prepare(sql).all(runparams)
-        t = process.hrtime(t)
+        let t = process.hrtime();
+        const res = db.prepare(sql).all(runparams);
+        t = process.hrtime(t);
 
         return {
             res,
@@ -197,7 +202,7 @@ const _sqlRunner = function(sql, runparams) {
 
 const formatDebug = (debug, queryType, sql, runparams, runtime) => {
     if (isDebug) {
-        const params = {}
+        const params = {};
         for (let [k, v] of Object.entries(runparams)) {
             if (typeof(v) === 'string') {
                 params[k] = "'" + v + "'";
@@ -212,7 +217,7 @@ const formatDebug = (debug, queryType, sql, runparams, runtime) => {
         debug[queryType] = { 
             query: formattedSql, 
             runtime
-        }
+        };
     }
 }
 
@@ -220,8 +225,8 @@ const getDataFromZenodeo = async (resource, params) => {
     log.info('getDataFromZenodeo() -> getting data from Zenodeo');
     const { queries, runparams } = zql({ resource, params });
     const { res, runtime } = _sqlRunner(queries.main.count, runparams);
-    const result = {}
-    const debug = {}
+    const result = {};
+    const debug = {};
 
     result.count = res[0].num_of_records;
     
@@ -242,8 +247,8 @@ const getDataFromZenodeo = async (resource, params) => {
         }
 
         if (queries.related) {
-            result['related-records'] = {}
-            debug['related-records'] = {}
+            result['related-records'] = {};
+            debug['related-records'] = {};
 
             for (let [relatedRecord, sql] of Object.entries(queries.related)) {            
                 const { res, runtime } = _sqlRunner(sql.full, runparams);
@@ -259,18 +264,18 @@ const getDataFromZenodeo = async (resource, params) => {
         }
 
         if (queries.facets) {
-            result.facets = {}
-            debug.facets = {}
+            result.facets = {};
+            debug.facets = {};
 
             for (let [facet, sql] of Object.entries(queries.facets)) {
-                const { res, runtime } = _sqlRunner(sql, runparams)
-                result.facets[facet] = res
+                const { res, runtime } = _sqlRunner(sql, runparams);
+                result.facets[facet] = res;
                 formatDebug(debug.facets, facet, sql, runparams, runtime);
             }
         }
     }
 
-    return { result, debug }
+    return { result, debug };
 }
 
 const getDataFromZenodo = async (resource, params) => {
@@ -311,7 +316,10 @@ const getDataFromZenodo = async (resource, params) => {
 
     const qs = new URLSearchParams(params);
 
-    // add duplicate keys, if needed
+    /* 
+     * add duplicate keys, as needed… see above for communities, 
+     * subtypes and keywords
+     */
     if (communities) {
         communities.forEach(v => qs.append('communities', v));
     }
@@ -336,39 +344,41 @@ const getDataFromZenodo = async (resource, params) => {
 
     log.info(`getDataFromZenodo() -> getting ${resource} from ${uriRemote}`)
 
-    const result = {}
-    const debug = {}
+    const result = {};
+    const debug = {};
 
     try {
-        let t = process.hrtime()
-        const res = await fetch(uriRemote)
+        let t = process.hrtime();
+        const res = await fetch(uriRemote);
 
-        // if HTTP-status is 200-299
+        /* 
+         * if HTTP-status is 200-299
+         */
         if (res.ok) {
-            const payload = await res.text()
-            const json = JSON.parse(payload)
-            t = process.hrtime(t)
+            const payload = await res.text();
+            const json = JSON.parse(payload);
+            t = process.hrtime(t);
 
-            result.count = json.hits.total
-            result.records = json.hits.hits
+            result.count = json.hits.total;
+            result.records = json.hits.hits;
 
             if (isDebug) {
-                const runtime = Math.round((t[0] * 1000) + (t[1] / 1000000))
-                debug.countQuery = '',
-                debug.fullQuery = { sql: params, runtime }
+                const runtime = Math.round((t[0] * 1000) + (t[1] / 1000000));
+                debug.countQuery = '';
+                debug.fullQuery = { sql: params, runtime };
             }
         } 
         else {
-            request.log.info("HTTP-Error: " + response.status)
-            return {}
+            request.log.info("HTTP-Error: " + response.status);
+            return {};
         }
     }
     catch (error) {
-        log.error(error)
-        return {}
+        log.error(error);
+        return {};
     }
 
-    return { result, debug }
+    return { result, debug };
 }
 
 const getRoot = () => {
@@ -421,14 +431,14 @@ WHERE
     }
     
     const { res, runtime } = _sqlRunner(query, runparams);
-    const result = {}
-    const debug = {}
+    const result = {};
+    const debug = {};
 
     result.count = 1;
     result.records = res;
     formatDebug(debug, 'fullQuery', query, runparams, runtime);
 
-    return { response: result, debug }
+    return { response: result, debug };
 }
 
 /*
@@ -514,22 +524,15 @@ const packageResult = function(request, result, _links) {
         search: getSearch(request),
         result,
         _links
-    }
+    };
 
     const response = {
         item,
         stored: Date.now(),
         ttl
-    }
+    };
 
-    return response
-}
-
-const addDebug = function(response, debug) {
-    if (isDebug && debug) {
-        log.info('addDebug() -> adding debug info') 
-        response.debug = debug
-    }
+    return response;
 }
 
 module.exports = { handlerFactory };
