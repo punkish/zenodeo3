@@ -142,17 +142,6 @@ DO UPDATE SET count = count + 1`;
     }
 }
 
-// const getOriginalSearchParams = function(request) {
-//     const p = request.context.config.url;
-//     const u = request.url;
-//     const originalSearchParams = new URLSearchParams(u.replace(`${p}?`, ''));
-//     if (originalSearchParams.has('refreshCache')) {
-//         originalSearchParams.delete('refreshCache');
-//     }
-
-//     return originalSearchParams;
-// }
-
 const getCacheKey = function(_self) {
     log.info(`getCacheKey() -> creating key for ${_self}`);
 
@@ -168,12 +157,7 @@ const getCacheKey = function(_self) {
 
 const getSearch = function(request) {
     log.info("getSearch() -> getting search criteria")
-    //const originalSearchParams = getOriginalSearchParams(request)
 
-    // const p = request.context.config.url;
-    // const u = request.url;
-    // console.log(p, u)
-    // const originalSearchParams = new URLSearchParams(u.replace(`${p}?`, ''));
     const originalSearchParams = new URLSearchParams(request.url)
     if (originalSearchParams.has('refreshCache')) {
         originalSearchParams.delete('refreshCache');
@@ -301,7 +285,8 @@ const getDataFromZenodo = async (resource, params) => {
     /*
      * the following params can have duplicate k,v pairs,
      * but come in as arrays in params. So we save them, 
-     * and later add them back as duplicated keys
+     * and later add them back as duplicated keys. These 
+     * vars will be created *only* if they exist in params
      */
     const communities = params.communities;
     const subtypes = params.subtype;
