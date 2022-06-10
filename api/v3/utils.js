@@ -444,7 +444,8 @@ const queryDataStore = async function({ request, resource, params, _links }) {
     log.info("queryDataStore() -> querying the data store");
 
     const sourceOfResource = getSourceOfResource(resource);
-    const {result, debug} = await dispatch[sourceOfResource](resource, params);
+    const fn = dispatch[sourceOfResource];
+    const { result, debug } = await fn(resource, params);
     const response = packageResult(request, result, _links);
     return { response, debug };
 }
