@@ -64,13 +64,13 @@ const handlerFactory = (resource) => {
         const _links = makeLinks(request);
         updateStats(_links._self);
 
+        let res;
+
         if (resource === 'root') {
-            const { response, debug } = getRoot();
-            return response;
+            res = getRoot();
         }
         else if (resource === 'etlstats') {
-            const { response, debug } = getEtlStats(request, params);
-            return response;
+            res = getEtlStats(request, params);
         }
         else {
             const obj = { request, resource, params, _links };
@@ -92,45 +92,39 @@ const handlerFactory = (resource) => {
                     log.info("handler() -> forcing refresh cache");
 
                     removeFromCache(cacheKey, cache);
-                    const { response, debug } = await queryDataStore(obj);
+                    res = await queryDataStore(obj);
 
-                    if (response) {
-                        storeInCache(response, cacheKey, cache);
-                        addDebug(response, debug);
+                    if (res.response) {
+                        storeInCache(res.response, cacheKey, cache);
+                        addDebug(res.response, res.debug);
                     }
-
-                    return response;
                 }
                 else {
-                    const { response, debug } = await checkCache(cacheKey, cache);
+                    res = await checkCache(cacheKey, cache);
                     
-                    if (response) {
+                    if (res.response) {
                         log.info("handler() -> found result in cache");
-                        response.cacheHit = true;
-
-                        return response;
+                        res.response.cacheHit = true;
                     }
                     else {
                         log.info("handler() -> no result in cache");
 
-                        const { response, debug } = await queryDataStore(obj);
+                        res = await queryDataStore(obj);
 
-                        if (response) {
-                            storeInCache(response, cacheKey, cache);
-                            addDebug(response, debug);
+                        if (res.response) {
+                            storeInCache(res.response, cacheKey, cache);
+                            addDebug(res.response, res.debug);
                         }
-
-                        return response;
                     }
                 }
             }
             else {
                 log.info("handler() -> cache is off");
-                const { response, debug } = await queryDataStore(obj);
-
-                return response;
+                res = await queryDataStore(obj);
             }
         }
+
+        return res.response;
     }
 }
 
