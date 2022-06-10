@@ -32,7 +32,7 @@ const fetch = require('node-fetch');
 const { zql } = require('../../lib/zql/');
 const crypto = require('crypto');
 
-const JSON5 = require('json5');
+//const JSON5 = require('json5');
 
 const isDebug = config.get('isDebug');
 const sqlFormatter = require('sql-formatter-plus');
@@ -108,7 +108,6 @@ const handlerFactory = (resource) => {
                     }
                     else {
                         log.info("handler() -> no result in cache");
-
                         res = await queryDataStore(obj);
 
                         if (res.response) {
@@ -130,9 +129,9 @@ const handlerFactory = (resource) => {
 
 const updateStats = (_self) => {
     const sql = `INSERT INTO webqueries (q) 
-    VALUES (@q) 
-    ON CONFLICT(q) 
-    DO UPDATE SET count = count + 1`;
+VALUES (@q) 
+ON CONFLICT(q) 
+DO UPDATE SET count = count + 1`;
 
     try {
         db.prepare(sql).run({ q: _self });
@@ -143,16 +142,16 @@ const updateStats = (_self) => {
     }
 }
 
-const getOriginalSearchParams = function(request) {
-    const p = request.context.config.url;
-    const u = request.url;
-    const originalSearchParams = new URLSearchParams(u.replace(`${p}?`, ''));
-    if (originalSearchParams.has('refreshCache')) {
-        originalSearchParams.delete('refreshCache');
-    }
+// const getOriginalSearchParams = function(request) {
+//     const p = request.context.config.url;
+//     const u = request.url;
+//     const originalSearchParams = new URLSearchParams(u.replace(`${p}?`, ''));
+//     if (originalSearchParams.has('refreshCache')) {
+//         originalSearchParams.delete('refreshCache');
+//     }
 
-    return originalSearchParams;
-}
+//     return originalSearchParams;
+// }
 
 const getCacheKey = function(_self) {
     log.info(`getCacheKey() -> creating key for ${_self}`);
@@ -169,7 +168,16 @@ const getCacheKey = function(_self) {
 
 const getSearch = function(request) {
     log.info("getSearch() -> getting search criteria")
-    const originalSearchParams = getOriginalSearchParams(request)
+    //const originalSearchParams = getOriginalSearchParams(request)
+
+    // const p = request.context.config.url;
+    // const u = request.url;
+    // console.log(p, u)
+    // const originalSearchParams = new URLSearchParams(u.replace(`${p}?`, ''));
+    const originalSearchParams = new URLSearchParams(request.url)
+    if (originalSearchParams.has('refreshCache')) {
+        originalSearchParams.delete('refreshCache');
+    }
 
     const search = {}
     originalSearchParams.forEach((value, name) => {
@@ -290,8 +298,14 @@ const getDataFromZenodo = async (resource, params) => {
      */
     params.type = resource.slice(0, -1);
 
+    /*
+     * the following params can have duplicate k,v pairs,
+     * but come in as arrays in params. So we save them, 
+     * and later add them back as duplicated keys
+     */
     const communities = params.communities;
     const subtypes = params.subtype;
+    const keywords = params.keywords;
     
     // remove the following params
     const remove = [ 
@@ -300,7 +314,8 @@ const getDataFromZenodo = async (resource, params) => {
         'stats', 
         'sortby', 
         'communities', 
-        'subtype' 
+        'subtype',
+        'keywords'
     ];
 
     remove.forEach(p => {
@@ -311,16 +326,20 @@ const getDataFromZenodo = async (resource, params) => {
 
     const qs = new URLSearchParams(params);
 
-    // add communities and subtype with duplicate keys, if needed
+    // add duplicate keys, if needed
     if (communities) {
-        communities.forEach(c => qs.append('communities', c));
+        communities.forEach(v => qs.append('communities', v));
     }
     
     if (subtypes) {
-        subtypes.forEach(s => qs.append('subtype', s));
+        subtypes.forEach(v => qs.append('subtype', v));
+    }
+
+    if (keywords) {
+        keywords.forEach(v => qs.append('keywords', v));
     }
     
-    const uriRemote = qs ? `${uriZenodo}?${qs}` : uriZenodo
+    const uriRemote = qs ? `${uriZenodo}?${qs}` : uriZenodo;
 
     /* 
      * examples of uriRemote 
