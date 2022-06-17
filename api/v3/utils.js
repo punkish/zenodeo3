@@ -164,7 +164,9 @@ const getCacheKey = function(_self) {
 const getSearch = function(request) {
     log.info("getSearch() -> getting search criteria");
 
-    const originalSearchParams = new URLSearchParams(request.url);
+    const myURL = new URL(`${request.hostname}/${request.url}`);
+    const originalSearchParams =new URLSearchParams(myURL.searchParams);
+    
     if (originalSearchParams.has('refreshCache')) {
         originalSearchParams.delete('refreshCache');
     }
@@ -187,7 +189,7 @@ const _sqlRunner = function(sql, runparams) {
             res,
 
             /* 
-             * 't' is an array of seconds and nanoseconds
+             * 't' is an array of seconds and nanoseconds.
              * convert 't' into ms 
              */
             runtime: Math.round((t[0] * 1000) + (t[1] / 1000000))
@@ -203,13 +205,9 @@ const _sqlRunner = function(sql, runparams) {
 const formatDebug = (debug, queryType, sql, runparams, runtime) => {
     if (isDebug) {
         const params = {};
+
         for (let [k, v] of Object.entries(runparams)) {
-            if (typeof(v) === 'string') {
-                params[k] = "'" + v + "'";
-            }
-            else {
-                params[k] = v;
-            }
+            params[k] = typeof(v) === 'string' ? `'${v}'` : v;
         }
 
         let formattedSql = sqlFormatter.format(sql, { params });
@@ -301,6 +299,7 @@ const getDataFromZenodo = async (resource, params) => {
     const remove = [ 
         'refreshCache', 
         'facets', 
+        'relatedRecords',
         'stats', 
         'sortby', 
         'communities', 
@@ -483,6 +482,10 @@ const _pruneLink = function(query) {
         searchParams.delete('facets');
     }
 
+    if (searchParams.get('relatedRecords') === 'false') {
+        searchParams.delete('relatedRecords');
+    }
+
     if (searchParams.has('refreshCache')) {
         searchParams.delete('refreshCache');
     }
@@ -515,10 +518,13 @@ const makeLinks = function(request) {
 const packageResult = function(request, result, _links) {
     log.info('packageResult() -> packaging results for delivery') 
 
-    const host = `${request.protocol}://${request.hostname}${request.routerPath}`;
-    _links._self = `${host}?${_links._self}`;
-    _links._prev = `${host}?${_links._prev}`;
-    _links._next = `${host}?${_links._next}`;
+    /*
+     *         http               ://test.zenodeo.org   /v3/treatments?id=<?>
+     */
+    const h = `${request.protocol}://${request.hostname}${request.routerPath}`;
+    _links._self = `${h}?${_links._self}`;
+    _links._prev = `${h}?${_links._prev}`;
+    _links._next = `${h}?${_links._next}`;
 
     const item = {
         search: getSearch(request),

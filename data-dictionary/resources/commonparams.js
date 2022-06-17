@@ -2,8 +2,10 @@
 
 module.exports = [
 
-    // parameters that affect the query but are  
-    // not a part of it
+    /* 
+     * parameters that affect the response but are  
+     * not part of any specific query
+     */
     {
         name: 'refreshCache',
         schema: {
@@ -40,14 +42,15 @@ module.exports = [
     //     }
     // },
 
-    //****************************************//
-    // parameters that are a part of the query 
-    //****************************************//
+    /*
+     * parameters that are a part of the query 
+     * Note: these params are not names of any columns
+     */
 
-    // parameters that are not columns
-
-    // maps --> OFFSET
-    // OFFSET = page - 1
+    /* 
+     * maps --> OFFSET
+     * OFFSET = page - 1
+     */
     {
         name: 'page',
         schema: {
@@ -59,7 +62,9 @@ module.exports = [
         notDefaultCol: true
     },
 
-    // maps --> LIMIT
+    /* 
+     * maps --> LIMIT
+     */
     {
         name: 'size',
         schema: {
@@ -71,7 +76,9 @@ module.exports = [
         notDefaultCol: true
     }, 
 
-    // maps --> ORDER BY
+    /*
+     * maps --> ORDER BY
+     */
     {
         name: 'sortby',
         schema: {
@@ -85,7 +92,9 @@ module.exports = [
         notDefaultCol: true
     },
 
-    // maps --> SELECT
+    /* 
+     * maps --> SELECT <columns>
+     */
     {
         name: 'cols',
         schema: { 
