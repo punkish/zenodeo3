@@ -164,8 +164,7 @@ const getCacheKey = function(_self) {
 const getSearch = function(request) {
     log.info("getSearch() -> getting search criteria");
 
-    const myURL = new URL(`${request.hostname}/${request.url}`);
-    const originalSearchParams =new URLSearchParams(myURL.searchParams);
+    const originalSearchParams =new URLSearchParams(request.url.split('?')[1]);
     
     if (originalSearchParams.has('refreshCache')) {
         originalSearchParams.delete('refreshCache');
