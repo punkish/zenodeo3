@@ -98,7 +98,7 @@ const config = {
 
         cache: {
             on: false,
-            base: cwd,
+            base: path.join(cwd, 'cache'),
 
             /* default cache ttl 7 days (24 hours) */
             ttl: 7 * 24 * 60 * 60 * 1000

@@ -32,16 +32,18 @@ const fetch = require('node-fetch');
 const { zql } = require('../../lib/zql/');
 const crypto = require('crypto');
 
-//const JSON5 = require('json5');
-
 const isDebug = config.get('isDebug');
 const sqlFormatter = require('sql-formatter-plus');
-const cacheOn = config.get('v3.cache.on');
-const ttl = config.get('v3.cache.ttl');
-const cacheBase = config.get('v3.cache.base');
-const acf = require('../../lib/abstract-cache-file');
+const importCache = async ({ dir, namespace, ttl, sync }) => {
+    const { Cache } = await import('@punkish/zcache');
+    return new Cache({ 
+        dir,
+        namespace, 
+        ttl,
+        sync 
+    });
+}
 
-const resources = require('./resources.js');
 const { getSourceOfResource } = require('../../data-dictionary/dd-utils');
 
 /*
@@ -60,87 +62,107 @@ const handlerFactory = (resource) => {
     return async function(request, reply) {
         log.info(`handler() -> fetching ${resource} from "${request.url}"`);
 
-        const params = request.query;
-        const _links = makeLinks(request);
-        updateStats(_links._self);
-
-        let res;
+        const reqres = { request, resource };
+        updateStats(reqres);
+        let response;
 
         if (resource === 'root') {
-            res = getRoot();
+            response = getRoot(reqres);
         }
         else if (resource === 'etlstats') {
-            res = getEtlStats(request, params);
+            response = getEtlStats(reqres);
         }
         else {
-            const obj = { request, resource, params, _links };
-
-            if (cacheOn) {
+            if (config.get('v3.cache.on')) {
                 log.info("handler() -> cache is on");
                 
                 /* 
                  * create a reference to the cache
                  */
-                const cache = acf({
-                    base: cacheBase,
-                    segment: resource
+                const cache = await importCache({ 
+                    dir: config.get('v3.cache.base'), 
+                    namespace: resource, 
+                    ttl: config.get('v3.cache.ttl'), 
+                    sync: false
                 });
  
-                const cacheKey = getCacheKey(_links._self);
+                const _links = makeLinks(reqres);
+                const cacheKey = crypto
+                    .createHash('md5')
+                    .update(_links._self)
+                    .digest('hex');
 
-                if ('refreshCache' in params && params.refreshCache) {
+                if (request.query.refreshCache) {
                     log.info("handler() -> forcing refresh cache");
 
-                    removeFromCache(cacheKey, cache);
-                    res = await queryDataStore(obj);
+                    await cache.delete(cacheKey);
+                    const { result, debug } = await queryDataStore(reqres);
 
-                    if (res.response) {
-                        storeInCache(res.response, cacheKey, cache);
+                    response = addLinksAndSearch(result);
+                    response = await cache.set(cacheKey, response);
 
-                        if (isDebug) {
-                            res.response.debug = res.debug;
-                        }
-                    }
+                    if (isDebug) response.debug = debug;
                 }
                 else {
-                    res = await checkCache(cacheKey, cache);
-                    
-                    if (res.response) {
+                    log.info("handler() -> checking cache")
+                    response = await cache.get(cacheKey);
+
+                    if (response) {
                         log.info("handler() -> found result in cache");
-                        res.response.cacheHit = true;
+                        response.cacheHit = true;
                     }
                     else {
                         log.info("handler() -> no result in cache");
-                        res = await queryDataStore(obj);
+                        const { result, debug } = await queryDataStore(reqres);
+                        response = addLinksAndSearch(result);
+                        response = await cache.set(cacheKey, response);
 
-                        if (res.response) {
-                            storeInCache(res.response, cacheKey, cache);
-
-                            if (isDebug) {
-                                res.response.debug = res.debug;
-                            }
-                        }
+                        if (isDebug) response.debug = debug;
                     }
                 }
             }
             else {
                 log.info("handler() -> cache is off");
-                res = await queryDataStore(obj);
+                const { result, debug } = await queryDataStore(reqres);
+                response = result;
+
+                if (isDebug) response.debug = debug;
             }
         }
 
-        return res.response;
+        return response;
     }
 }
 
-const updateStats = (_self) => {
+const addLinksAndSearch = (result) => {
+
+    /*
+     * add _links
+     */
+    const h = `${request.protocol}://${request.hostname}${request.routerPath}`;
+    _links._self = `${h}?${_links._self}`;
+    _links._prev = `${h}?${_links._prev}`;
+    _links._next = `${h}?${_links._next}`;
+
+    /*
+     * add search
+     */
+    const search = getSearch(request);
+
+    return { search, result, _links }
+}
+
+const updateStats = ({ request, resource }) => {
     const sql = `INSERT INTO webqueries (q) 
 VALUES (@q) 
 ON CONFLICT(q) 
 DO UPDATE SET count = count + 1`;
 
+    const _links = makeLinks({ request, resource });
+    const q = _links._self;
+
     try {
-        db.prepare(sql).run({ q: _self });
+        db.prepare(sql).run({ q });
     }
     catch(error) {
         log.error(sql);
@@ -148,23 +170,10 @@ DO UPDATE SET count = count + 1`;
     }
 }
 
-const getCacheKey = function(_self) {
-    log.info(`getCacheKey() -> creating key for ${_self}`);
-
-    const cacheKey = crypto
-        .createHash('md5')
-        .update(_self)
-        .digest('hex');
-
-    log.info(`getCacheKey() -> generated key ${cacheKey}`);
-    
-    return cacheKey;
-}
-
-const getSearch = function(request) {
+const getSearch = function({ request, resource }) {
     log.info("getSearch() -> getting search criteria");
 
-    const originalSearchParams =new URLSearchParams(request.url.split('?')[1]);
+    const originalSearchParams = new URLSearchParams(request.url.split('?')[1]);
     
     if (originalSearchParams.has('refreshCache')) {
         originalSearchParams.delete('refreshCache');
@@ -202,24 +211,22 @@ const _sqlRunner = function(sql, runparams) {
 }
 
 const formatDebug = (debug, queryType, sql, runparams, runtime) => {
-    if (isDebug) {
+    //if (isDebug) {
         const params = {};
 
         for (let [k, v] of Object.entries(runparams)) {
             params[k] = typeof(v) === 'string' ? `'${v}'` : v;
         }
 
-        let formattedSql = sqlFormatter.format(sql, { params });
-        formattedSql = formattedSql.replace(/\n\s*/g, ' ');
-        debug[queryType] = { 
-            query: formattedSql, 
-            runtime
-        };
-    }
+        let query = sqlFormatter.format(sql, { params });
+        query = query.replace(/\n\s*/g, ' ');
+        debug[queryType] = { query, runtime };
+    //}
 }
 
-const getDataFromZenodeo = async (resource, params) => {
+const getDataFromZenodeo = async ({ request, resource }) => {
     log.info('getDataFromZenodeo() -> getting data from Zenodeo');
+    const params = request.query;
     const { queries, runparams } = zql({ resource, params });
     const { res, runtime } = _sqlRunner(queries.main.count, runparams);
     const result = {};
@@ -275,7 +282,8 @@ const getDataFromZenodeo = async (resource, params) => {
     return { result, debug };
 }
 
-const getDataFromZenodo = async (resource, params) => {
+const getDataFromZenodo = async ({ request, resource }) => {
+    const params = request.query;
 
     /*
      * add type by removing the last 's' from resource name
@@ -379,7 +387,9 @@ const getDataFromZenodo = async (resource, params) => {
     return { result, debug };
 }
 
-const getRoot = () => {
+const getRoot = ({ request, resource }) => {
+    const resources = require('./resources.js');
+
     const response = {
         item: {
             'search-criteria': {},
@@ -402,7 +412,7 @@ const getRoot = () => {
     return { response, debug };
 }
 
-const getEtlStats = (request, params) => {
+const getEtlStats = ({ request, resource }) => {
     log.info('getEtlStats() -> getting etl stats from Zenodeo');
 
     let query = `SELECT
@@ -421,6 +431,7 @@ FROM
 WHERE
     0=0`;
 
+    const params = request.query;
     const runparams = {};
 
     if (params.typeOfArchive) {
@@ -429,51 +440,33 @@ WHERE
     }
     
     const { res, runtime } = _sqlRunner(query, runparams);
-    const result = {};
+    const response = {};
     const debug = {};
 
-    result.count = 1;
-    result.records = res;
+    response.count = 1;
+    response.records = res;
     formatDebug(debug, 'fullQuery', query, runparams, runtime);
 
-    return { response: result, debug };
-}
-
-/*
- * A resource on Zenodo is queried using `fetch`
- * as opposed to a resource on Zenodeo that uses SQL
- */
-const dispatch = {
-    zenodeo: getDataFromZenodeo,
-    zenodo: getDataFromZenodo
-}
-
-const queryDataStore = async function({ request, resource, params, _links }) {
-    log.info("queryDataStore() -> querying the data store");
-
-    const sourceOfResource = getSourceOfResource(resource);
-    const fn = dispatch[sourceOfResource];
-    const { result, debug } = await fn(resource, params);
-    const response = packageResult(request, result, _links);
     return { response, debug };
 }
 
-const checkCache = async function(cacheKey, cache) {
-    log.info(`checkCache() -> checking cache for key ${cacheKey}`);
-    return await cache.get(cacheKey);
+/*
+ * queries the datastore and returns { result, debug }
+ */
+const queryDataStore = async function({ request, resource }) {
+    log.info("queryDataStore() -> querying the data store");
+
+    /*
+     * A resource on Zenodo is queried using `fetch`
+     * as opposed to a resource on Zenodeo that uses SQL
+     */
+    const sourceOfResource = getSourceOfResource(resource);
+    return await sourceOfResource === 'zenodeo'
+        ? getDataFromZenodeo({ request, resource })
+        : getDataFromZenodo({ request, resource });
 }
 
-const storeInCache = function(response, cacheKey, cache) {
-    log.info(`storeInCache() -> storing result in cache under key ${cacheKey}`)
-    cache.set(cacheKey, response);
-}
-
-const removeFromCache = function(cacheKey, cache) {
-    log.info(`removeFromCache() -> removing key ${cacheKey} from cache`);
-    cache.delete(cacheKey);
-}
-
-const _pruneLink = function(query) {
+const pruneQuery = function(query) {
     const searchParams = new URLSearchParams(query);
     searchParams.delete('deleted');
 
@@ -492,16 +485,17 @@ const _pruneLink = function(query) {
     return searchParams;
 }
 
-const makeLinks = function(request) {
-    const self = _pruneLink(request.query);
+const makeLinks = function({ request, resource }) {
+    const originalRequest = new URLSearchParams(request.url.split('?')[1]);
+    const self = pruneQuery(originalRequest);
     self.sort();
     
-    const prev = _pruneLink(request.query);
+    const prev = pruneQuery(originalRequest);
     let newval = prev.get('page') > 1 ? prev.get('page') - 1 : 1;
     prev.set('page', newval);
     prev.sort();
 
-    const next = _pruneLink(request.query);
+    const next = pruneQuery(originalRequest);
     newval = next.get('page') > 1 ? Number(next.get('page')) + 1 : 2;
     next.set('page', newval);
     next.sort();
@@ -511,33 +505,6 @@ const makeLinks = function(request) {
         "_prev": prev.toString(),
         "_next": next.toString()
     }
-}
-
-// This is where the result becomes a response
-const packageResult = function(request, result, _links) {
-    log.info('packageResult() -> packaging results for delivery') 
-
-    /*
-     *         http               ://test.zenodeo.org   /v3/treatments?id=<?>
-     */
-    const h = `${request.protocol}://${request.hostname}${request.routerPath}`;
-    _links._self = `${h}?${_links._self}`;
-    _links._prev = `${h}?${_links._prev}`;
-    _links._next = `${h}?${_links._next}`;
-
-    const item = {
-        search: getSearch(request),
-        result,
-        _links
-    };
-
-    const response = {
-        item,
-        stored: Date.now(),
-        ttl
-    };
-
-    return response;
 }
 
 module.exports = { handlerFactory };
