@@ -1,6 +1,4 @@
-'use strict'
-
-module.exports = [
+export const commonparams = [
 
     /* 
      * parameters that affect the response but are  

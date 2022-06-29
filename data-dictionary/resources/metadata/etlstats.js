@@ -1,5 +1,3 @@
-'use strict';
-
 // see https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289 
 // for notes from @gsautter
 
@@ -11,7 +9,7 @@
  * Param 'selname' is used when 'name' is inappropriate for SQL
  */
 
-module.exports = [
+export const dict = [
     {
         name: 'id',
         schema: {

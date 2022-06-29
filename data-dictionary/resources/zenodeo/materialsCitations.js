@@ -1,8 +1,6 @@
-'use strict';
+import * as utils from '../../../lib/utils.js';
 
-const utils = require('../../../lib/utils.js');
-
-module.exports = [
+export const materialCitations = [
     {
         name: 'materialsCitationId',
         schema: { 

@@ -44,6 +44,10 @@ node_modules/
 ################
 cache/
 
+# old version #
+###############
+3.0/
+
 # test coverage #
 ################
 coverage/

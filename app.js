@@ -1,50 +1,32 @@
-'use strict'
+import Fastify from 'fastify';
 
-const config = require('config')
-const fastify = require('fastify')
-const JSON5 = require('json5')
-const path = require('path')
+import { plugin as favicon } from './plugins/favicon.js';
+import { plugin as sensible } from './plugins/sensible.js';
+import { plugin as swagger } from './plugins/swagger.js';
+import { plugin as routes } from './plugins/routes.js';
+import { plugin as view } from './plugins/view.js';
+import { plugin as fastifyStatic } from './plugins/static.js';
 
-// we need to make a deep clone of the swagger
-// options config settings otherwise config 
-// will not allow mod-ding the options object
-const swagger = JSON5.parse(JSON5.stringify(config.get('v3.swagger')))
+import { route as tos } from './routes/tos/index.js';
+import { route as docs } from './routes/docs/index.js';
+import * as api from './routes/api/index.js';
 
-const hbs = {
-    engine: {
-        handlebars: require('handlebars')
-    },
-    //root: path.join(__dirname, 'views'),
-    //layout: '/layouts/main.hbs',
+export async function server(opts={}) {
+    const fastify = Fastify(opts);
 
-    // this will add the extension to all the views
-    viewExt: 'hbs',
-    options: {
-        partials: {
-            meta: './views/partials/meta.hbs',
-            header: './views/partials/head.hbs',
-            footer: './views/partials/foot.hbs'
-        }
-    }
+    // plugins
+    fastify.register(favicon);
+    fastify.register(sensible);
+    fastify.register(routes);
+    fastify.register(swagger);
+    fastify.register(fastifyStatic);
+    fastify.register(view);
+
+    // routes to resources
+    //fastify.register(favicon);
+    fastify.register(tos);
+    fastify.register(docs);
+    api.routes.forEach(route => fastify.register(route, { prefix: 'v3' }));
+    
+    return fastify;
 }
-
-function build(opts={}) {
-    const app = fastify(opts);
-
-    app.register(require('fastify-blipp'));
-    app.register(require('fastify-favicon'));
-    app.register(require('point-of-view'), hbs);
-    app.register(require('./static/'));
-    app.register(require('fastify-swagger'), swagger.options);
-    app.register(require('fastify-compress'));
-    app.register(require('./api/v3/index'), { prefix: '/v3' });
-    app.register(require('fastify-cors'));
-    app.register(require('fastify-static'), {
-        root: path.join(__dirname, 'public'),
-        prefix: '/public/',
-    })
-
-    return app
-}
-
-module.exports = build;

@@ -1,18 +1,23 @@
-# zenodeo3
+# Getting Started with Fastify-CLI [Fastify-CLI](https://www.npmjs.com/package/fastify-cli)
+This project was bootstrapped with Fastify-CLI.
 
-A `nodejs` API to the [Zenodo API](https://zenodo.org/api).
+## Available Scripts
 
-## Technical notes
+In the project directory, you can run:
 
-Built with [Fastify](https://www.fastify.io/) and [SQLite](https://sqlite.org/). Requires [nodejs](https://nodejs.org) v. >= 12.x. To install:
+### `npm run dev`
 
-```
-~$ git clone git@github.com:punkish/zenodeo3.git
-~$ cd zenodeo3
-~/zenodeo3$ npm i
-~/zenodeo3$ node server
-```
+To start the app in dev mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-## Documentation
+### `npm start`
 
-Zenodeo3 follows the OpenAPI specs. Browse to the root to view the docs.
+For production mode
+
+### `npm run test`
+
+Run the test cases.
+
+## Learn More
+
+To learn Fastify, check out the [Fastify documentation](https://www.fastify.io/docs/latest/).

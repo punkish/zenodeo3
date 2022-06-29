@@ -1,6 +1,4 @@
-'use strict'
-
-const utils = require('../../../lib/utils.js');
+import * as utils from '../../../lib/utils.js';
 
 
 // see https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289 
@@ -31,7 +29,7 @@ or can be a sql expression
   
   
  */
-const treatments = [
+export const treatments = [
     {
         // the name used in the REST query
         name: 'treatmentId',
@@ -680,6 +678,4 @@ const treatments = [
         }
     }
  
-];
-
-module.exports = treatments;
+]
