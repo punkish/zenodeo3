@@ -1,6 +1,6 @@
-import { resources } from '../../../../data-dictionary/resources.js';
+import { resources } from '../../../data-dictionary/resources.js';
 
-const name = 'Material Citations';
+const name = 'Images';
 const resource = resources.filter(r => r.name === name)[0];
 
 const options = {
@@ -45,7 +45,7 @@ const options = {
     },
     handler: async (request, reply) => {
         return { 
-            materialscitationId: request.query.materialscitationId,
+            imageId: request.query.imageId,
             version: request.query.version,
             communities: request.query.communities
         }

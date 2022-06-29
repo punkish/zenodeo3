@@ -1,6 +1,6 @@
-import { resources } from '../../../../data-dictionary/resources.js';
+import { resources } from '../../../data-dictionary/resources.js';
 
-const name = 'Treatments';
+const name = 'Material Citations';
 const resource = resources.filter(r => r.name === name)[0];
 
 const options = {
@@ -45,7 +45,7 @@ const options = {
     },
     handler: async (request, reply) => {
         return { 
-            treatmentId: request.query.treatmentId,
+            materialscitationId: request.query.materialscitationId,
             version: request.query.version,
             communities: request.query.communities
         }
@@ -53,5 +53,5 @@ const options = {
 };
 
 export async function route(fastify, opts) {
-    fastify.route(options);
+    fastify.route(options)
 }

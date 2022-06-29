@@ -7,6 +7,12 @@ const start = async () => {
     let fastify;
 
     const opts = {
+
+        /*
+         * setting 'exposeHeadRoutes' to false ensures only
+         * 'GET' routes are created without their accompanying 
+         * 'HEAD' routes
+         */
         exposeHeadRoutes: false,
         logger: {
             transport: {
