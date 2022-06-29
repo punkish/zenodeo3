@@ -1,6 +1,6 @@
 {
-  "name": "zenodeo3.4",
-  "version": "1.0.0",
+  "name": "zenodeo3",
+  "version": "3.4.0",
   "description": "zenodeo 3 using fastify 4",
   "main": "server.js",
   "type": "module",

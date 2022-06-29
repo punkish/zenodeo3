@@ -5,7 +5,7 @@ const resource = resources.filter(r => r.name === name)[0];
 
 const options = {
     method: 'GET',
-    url: `/${name.replace(/ /g).toLowerCase()}`,
+    url: `/${name.replace(/ /g, '').toLowerCase()}`,
     schema: {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "https://example.com/product.schema.json",
