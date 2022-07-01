@@ -131,7 +131,7 @@ export const dictionary = [
         name: 'zenodoDep',
         schema: {
             type: 'string',
-            description: 'Zenodo record of journal article'
+            description: 'Zenodo record of the journal article'
         },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("ID-Zenodo-Dep")',
@@ -142,7 +142,7 @@ export const dictionary = [
         name: 'zoobankId',
         schema: {
             type: 'string',
-            description: 'ZooBank ID of journal article'
+            description: 'ZooBank ID of the journal article'
         },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("ID-ZooBank")',

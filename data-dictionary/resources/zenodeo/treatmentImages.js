@@ -1,8 +1,6 @@
-'use strict';
+import * as utils from '../../../lib/utils.js';
 
-const utils = require('../../../lib/utils.js');
-
-const treatmentImages = [
+export const dictionary = [
     {
         name: 'id',
         schema: {
@@ -273,5 +271,3 @@ const treatmentImages = [
         notDefaultCol: true
     }
 ]
-
-module.exports = treatmentImages;

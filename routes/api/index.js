@@ -1,8 +1,12 @@
+import { route as etlStats } from './metadata/etlStats.js';
 import { route as treatments } from './zenodeo/treatments.js';
 import { route as materialCitations } from './zenodeo/materialCitations.js';
-import { route as figureCitations } from './zenodeo/figureCitations.js';
-import { route as bibRefCitations } from './zenodeo/bibRefCitations.js';
 import { route as treatmentCitations } from './zenodeo/treatmentCitations.js';
+import { route as bibRefCitations } from './zenodeo/bibRefCitations.js';
+import { route as figureCitations } from './zenodeo/figureCitations.js';
+import { route as treatmentImages } from './zenodeo/treatmentImages.js';
+import { route as collectionCodes } from './zenodeo/collectionCodes.js';
+import { route as families } from './zenodeo/families.js';
 import { route as images } from './zenodo/images.js';
 import { route as publications } from './zenodo/publications.js';
 
@@ -52,11 +56,15 @@ const root = createRoot(resources);
 
 export const routes = [
     root, 
+    etlStats,
     treatments,
     materialCitations,
-    figureCitations,
-    bibRefCitations,
     treatmentCitations,
+    bibRefCitations,
+    figureCitations,
+    treatmentImages,
+    collectionCodes,
+    families,
     images,
     publications
 ];

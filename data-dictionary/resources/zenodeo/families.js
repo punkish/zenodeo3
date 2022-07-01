@@ -1,12 +1,4 @@
-'use strict';
-
-/***********************************************************************
- * 
- * Data dictionary for families (used for lookups) from Zenodeo
- * 
- **********************************************************************/
-
-module.exports = [
+export const dictionary = [
     {
         name: 'id',
         schema: { 

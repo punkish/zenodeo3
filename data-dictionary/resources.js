@@ -1,8 +1,12 @@
 import { dictionary as treatments } from './resources/zenodeo/treatments.js';
+import { dictionary as etlStats } from './resources/metadata/etlStats.js';
 import { dictionary as materialCitations } from './resources/zenodeo/materialCitations.js';
 import { dictionary as treatmentCitations } from './resources/zenodeo/treatmentCitations.js';
 import { dictionary as bibRefCitations } from './resources/zenodeo/bibRefCitations.js';
 import { dictionary as figureCitations } from './resources/zenodeo/figureCitations.js';
+import { dictionary as treatmentImages } from './resources/zenodeo/treatmentImages.js';
+import { dictionary as collectionCodes } from './resources/zenodeo/collectionCodes.js';
+import { dictionary as families } from './resources/zenodeo/families.js';
 import { dictionary as images } from './resources/zenodo/images.js';
 import { dictionary as publications } from './resources/zenodo/publications.js';
 
@@ -16,14 +20,17 @@ export const resources = [
         source: '',
         tags: [ 'meta' ]
     },
-    // {
-    //     name: 'etlstats',
-    //     url: 'etlstats',
-    //     summary: 'etl statistics',
-    //     dictionary: dictEtlstats,
-    //     description: 'Information about the Extract-Transform-Load process',
-    //     tags: [ 'meta' ]
-    // },
+
+    {
+        title: 'ETL Statistics',
+        name: 'etlStats',
+        summary: "Fetches extract-transform-load statistics",
+        description: "…",
+        dictionary: etlStats,
+        source: '',
+        tags: [ 'meta' ]
+    },
+
     {
         title: 'Treatments',
         name: 'treatments',
@@ -75,6 +82,36 @@ export const resources = [
     },
 
     {
+        title: 'Treatment Images',
+        name: 'treatmentImages',
+        summary: 'Fetches images from treatments',
+        description: "…",
+        dictionary: treatmentImages,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+
+    {
+        title: 'Collection Codes',
+        name: 'collectionCodes',
+        summary: 'Fetches collection codes',
+        description: "…",
+        dictionary: collectionCodes,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+
+    {
+        title: 'Families',
+        name: 'families',
+        summary: 'Fetches families',
+        description: "…",
+        dictionary: families,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+
+    {
         title: 'Images',
         name: 'images',
         summary: 'Fetches images from Zenodo',
@@ -92,39 +129,5 @@ export const resources = [
         dictionary: publications,
         source: 'zenodo',
         tags: [ 'zenodo' ]
-    },
-
-    /*
-
-    
-    {
-        name: 'treatmentImages',
-        url: 'treatmentimages',
-        summary: 'Fetch treatment images from Zenodeo',
-        dictionary: require(`${ddpath}/zenodeo/treatmentImages.js`),
-        description: 'images related to treatments',
-        source: 'zenodeo',
-        tags: [ 'zenodeo' ]
-    },
-    {
-        name: 'collectionCodes',
-        url: 'collectioncodes',
-        summary: 'Fetch collectionCodes of the materialsCitations',
-        dictionary: require(`${ddpath}/zenodeo/collectionCodes.js`),
-        description: 'collection codes of treatments',
-        source: 'zenodeo',
-        tags: [ 'zenodeo' ]
-    },
-    
-    
-    {
-        name: 'families',
-        url: 'families',
-        summary: 'Fetch families',
-        dictionary: require(`${ddpath}/zenodeo/families.js`),
-        description: 'families of species',
-        source: 'zenodeo',
-        tags: [ 'zenodeo' ]
     }
-    */
 ];

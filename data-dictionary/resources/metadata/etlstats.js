@@ -9,7 +9,7 @@
  * Param 'selname' is used when 'name' is inappropriate for SQL
  */
 
-export const dict = [
+export const dictionary = [
     {
         name: 'id',
         schema: {
@@ -24,7 +24,6 @@ export const dict = [
         schema: { 
             type: 'string', 
             enum: [ 'full', 'monthly', 'weekly', 'daily' ],
-            additionalItems: false,
             description: 'The type of archive'
         }
     }
