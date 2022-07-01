@@ -1,18 +1,9 @@
-'use strict';
-
-/***********************************************************************
- * 
- * Data dictionary for images from Zenodo
- * 
- **********************************************************************/
-
-module.exports = [
+export const dictionary = [
     {
         name: 'id',
         schema: {
             type:"integer",
             description: 'unique identifier of the record',
-            // isResourceId: true
         },
         isResourceId: true
     },
@@ -27,27 +18,27 @@ module.exports = [
             },
             minItems: 1,
             maxItems: 7,
-            additionalItems: false,
+            //additionalItems: false,
             default: [ "article", "report", "book", "thesis", "section", "workingpaper", "preprint" ],
             description: 'The publication subtype; defaults to all subtypes'
         }
     },
 
-    {
-      name: 'communities',
-      schema: { 
-          type: 'array', 
-          items: { 
-            type: 'string',
-            enum: [ 'biosyslit', 'belgiumherbarium' ]
-          },
-          minItems: 1,
-          maxItems: 2,
-          additionalItems: false,
-          default: [ 'biosyslit' ],
-          description: 'The community on Zenodo; defaults to <b>"biosyslit"</b>'
-      }
-  },
+    // {
+    //   name: 'communities',
+    //   schema: { 
+    //         type: 'array', 
+    //         items: { 
+    //             type: 'string',
+    //             enum: [ 'biosyslit', 'belgiumherbarium' ]
+    //         },
+    //         minItems: 1,
+    //         maxItems: 2,
+    //         additionalItems: false,
+    //         default: [ 'biosyslit' ],
+    //         description: 'The community on Zenodo; defaults to <b>"biosyslit"</b>'
+    //     }
+    // },
 
     {
         name: 'q',

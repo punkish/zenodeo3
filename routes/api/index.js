@@ -1,5 +1,8 @@
 import { route as treatments } from './zenodeo/treatments.js';
-import { route as materialcitations } from './zenodeo/materialcitations.js';
+import { route as materialCitations } from './zenodeo/materialCitations.js';
+import { route as figureCitations } from './zenodeo/figureCitations.js';
+import { route as bibRefCitations } from './zenodeo/bibRefCitations.js';
+import { route as treatmentCitations } from './zenodeo/treatmentCitations.js';
 import { route as images } from './zenodo/images.js';
 import { route as publications } from './zenodo/publications.js';
 
@@ -50,7 +53,10 @@ const root = createRoot(resources);
 export const routes = [
     root, 
     treatments,
-    materialcitations,
+    materialCitations,
+    figureCitations,
+    bibRefCitations,
+    treatmentCitations,
     images,
     publications
 ];

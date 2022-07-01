@@ -1,13 +1,14 @@
 import * as utils from '../../../lib/utils.js';
 
-export const materialCitations = [
+export const dictionary = [
     {
         name: 'materialsCitationId',
         schema: { 
             type: 'string', 
             maxLength: 32, 
             minLength: 32,
-            description: `The unique ID of the materialsCitation. Has to be a 32 character string like: '38C63CC3D744DE1FE88B8A56FB7EDD14'`,
+            description: `The unique ID of the materialsCitation. Has to be a 32 character string like: 
+- \`materialsCitationId=38C63CC3D744DE1FE88B8A56FB7EDD14\``,
         },
         isResourceId: true,
         sqltype: 'TEXT NOT NULL UNIQUE',
@@ -20,7 +21,8 @@ export const materialCitations = [
             type: 'string', 
             maxLength: 32, 
             minLength: 32,
-            description: `The unique ID of the parent treatment (FK). Has to be a 32 character string like: '00078788D744DE18E88B8B8BFE7FDBF9'`
+            description: `The unique ID of the parent treatment (FK). Has to be a 32 character string:
+            - \`treatmentId=00078788D744DE18E88B8B8BFE7FDBF9\``
         },
         sqltype: 'TEXT NOT NULL'
     },
@@ -364,7 +366,7 @@ export const materialCitations = [
             type: 'boolean',
             default: false,
             description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
-            isResourceId: false
+            //isResourceId: false
         },
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("materialsCitation").attr("deleted")',
@@ -406,8 +408,8 @@ export const materialCitations = [
             type: 'string',
             pattern: utils.getPattern('geolocation'),
             description: `The geolocation of the treatment. Can use the following syntax:
-- \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
-- \`geolocation=containted_in({lowerLeft:{lat: -40.00, lng: -120},upperRight: {lat:23,lng:6.564}})\`
+- \`geolocation=within(radius:10, units: 'kilometers', lat:40.00, lng: -120)\`
+- \`geolocation=contained_in({lower_left:{lat: -40.00, lng: -120},upper_right: {lat:23,lng:6.564})\`
 `,
         },
         zqltype: 'geolocation',

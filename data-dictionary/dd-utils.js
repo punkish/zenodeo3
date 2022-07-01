@@ -2,7 +2,7 @@
 
 import util from 'node:util';
 import { commonparams } from './resources/commonparams.js';
-import * as resources from './resources/index.js'
+import { resources } from './resources.js'
 
 /*
 elements are extracted from articles (-> 'cheerio')
@@ -71,40 +71,43 @@ where    :  ${key.alias.where} = ${val}
 
 // resources: REST resources that map 1 -> 1 to SQL tables
 // returns an array of resource names
-const getResources = () => Object.keys(resources);
+const getResources = () => resources
+    .map(r => r.name);
 
 // returns the source ('zenodeo' or 'zenodo') of a given resource
-const getSourceOfResource = (resource) => resources[resource];
+//const getSourceOfResource = (resource) => resources[resource];
 
 // // returns the resources from a given source ('zenodeo' or 'zenodo')
-// const getResourcesFromSource = (source) => resources
-//     .filter(r => r.source === source)
-//     .map(r => r.name);
+const getResourcesFromSource = (source) => resources
+    .filter(r => r.source === source)
+    .map(r => r.name);
 
-// // params: all entries in the data dictionary for a given resource
-// const getParams = (resource) => {
-//     const params = resources
-//         .filter(r => r.name === resource)[0].dictionary
-//         .concat(...commonparams);
+// params: all entries in the data dictionary for a given resource
+const getParams = (resource) => {
+    const params = resources
+        .filter(r => r.name === resource)[0]
+        .dictionary
+        .concat(...commonparams);
 
-//     params.forEach(p => {
-//         p.selname = p.sqltype ? `${resource}.${p.name}` : p.name;
-//     })
 
-//     return params;
-// }
+    params.forEach(p => {
+        p.selname = p.sqltype ? `${resource}.${p.name}` : p.name;
+    })
+
+    return params;
+}
 
 // // resourceId of a resource
-// const getResourceid = (resource) => {
-//     const resourceId = getParams(resource)
-//         .filter(p => p.isResourceId)[0];
+const getResourceid = (resource) => {
+    const resourceId = getParams(resource)
+        .filter(p => p.isResourceId)[0];
     
-//     // return {
-//     //     name: resourceId.name,
-//     //     selname: resourceId.selname
-//     // }
-//     return resourceId.name;
-// }
+    // return {
+    //     name: resourceId.name,
+    //     selname: resourceId.selname
+    // }
+    return resourceId.name;
+}
 
 // // const getSelname = (resource, param) => {
 // //     let selname = param.name;
@@ -148,26 +151,26 @@ const getSourceOfResource = (resource) => resources[resource];
 // // cols: columns suitable to make a SQL query. Columns in the 
 // // SELECT clause can be different from those in the JOIN or  
 // // the WHERE clauses
-// const getCols = (resource) => getParams(resource)
-//     .map(p => {
-//         return {
-//             name: p.name, 
-//             schema: p.schema,
-//             selname: getSelect(resource, p.name), 
-//             isResourceId: p.schema.isResourceId || false,
-//             wherename: getWhere(resource, p.name), 
-//             join: p.join || '',
-//             sqltype: p.sqltype,
-//             zqltype: p.zqltype || 'text',
-//             isDefaultCol: 'notDefaultCol' in p ? true : false,
-//             facet: p.facet || false
-//         }
-//     })
+const getCols = (resource) => getParams(resource)
+    .map(p => {
+        return {
+            name: p.name, 
+            schema: p.schema,
+            selname: getSelect(resource, p.name), 
+            isResourceId: p.schema.isResourceId || false,
+            wherename: getWhere(resource, p.name), 
+            join: p.join || '',
+            sqltype: p.sqltype,
+            zqltype: p.zqltype || 'text',
+            isDefaultCol: 'notDefaultCol' in p ? true : false,
+            facet: p.facet || false
+        }
+    })
 
 // // defaultCols: columns that are returned if no columns are 
 // // specified in a REST query via 'cols'
-// const getDefaultCols = (resource) => getParams(resource)
-//     .filter(p => !('notDefaultCol' in p))
+const getDefaultCols = (resource) => getParams(resource)
+    .filter(p => !('notDefaultCol' in p))
 
 // // facetCols: all cols that can be used in facet queries
 // const getFacetCols = (resource) => getCols(resource)
@@ -190,23 +193,23 @@ const getSourceOfResource = (resource) => resources[resource];
 //             `${p.name} ${p.sqltype}`
 //     })
 
-// const _getName = (resource, col, type) => {
-//     return col.alias && col.alias[type] ? 
-//         col.alias[type] : 
-//         `${resource}.${col.name}`
-// }
+const _getName = (resource, col, type) => {
+    return col.alias && col.alias[type] ? 
+        col.alias[type] : 
+        `${resource}.${col.name}`
+}
 
 // // getSelect: the column name or expression used in a SQL query
-// const getSelect = (resource, column) => {
-//     const col = getParams(resource).filter(p => p.name === column)[0];
-//     return _getName(resource, col, 'select');
-// }
+const getSelect = (resource, column) => {
+    const col = getParams(resource).filter(p => p.name === column)[0];
+    return _getName(resource, col, 'select');
+}
 
 // // where: the column name used in the WHERE clause of a SQL query
-// const getWhere = (resource, column) => {
-//     const col = getParams(resource).filter(p => p.name === column)[0];
-//     return _getName(resource, col, 'where');
-// }
+const getWhere = (resource, column) => {
+    const col = getParams(resource).filter(p => p.name === column)[0];
+    return _getName(resource, col, 'where');
+}
 
 // const getJoin = (resource, column, type) => {
 //     const col = getParams(resource).filter(c => c.name === column)[0];
@@ -217,52 +220,55 @@ const getSourceOfResource = (resource) => resources[resource];
 //     .filter(c => c.name === column)[0].zqltype;
 
 // // schema: we use the schema to validate the query params
-// const getSchema = function(resource) {
+const getSchema = function(resource) {
 
-//     // make a deep copy of params because they[*] will be modified
-//     // [*] specifically, 'sortyby' will be modified
-//     const params = JSON.parse(JSON.stringify(getParams(resource)));
-//     const resourcesFromZenodeo = getResourcesFromSource('zenodeo');
+    // make a deep copy of params because they[*] will be modified
+    // [*] specifically, 'sortby' will be modified
+    const params = JSON.parse(JSON.stringify(getParams(resource)));
+    const resourcesFromZenodeo = getResourcesFromSource('zenodeo');
 
-//     const schema = {
-//         type: 'object',
-//         properties: {},
-//         additionalProperties: false
-//     };
+    const schema = {
+        //type: 'object',
+        //properties: {},
+        //additionalProperties: false
+    };
     
-//     params.forEach(p => {
-//         if (p.name === 'sortby') {
-//             const resourceId = getResourceid(resource);
-//             p.schema.default = p.schema.default.replace(
-//                 /resourceId/, 
-//                 `${resource}.${resourceId}`
-//             );
-//         }
+    params.forEach(p => {
+        if (p.name === 'sortby') {
+            const resourceId = getResourceid(resource);
+            p.schema.default = p.schema.default.replace(
+                /resourceId/, 
+                `${resource}.${resourceId}`
+            );
+        }
 
-//         if (resourcesFromZenodeo.includes(resource)) {
-//             if (p.schema.type === 'array') {
-//                 if (p.name === 'cols') {
+        if (resourcesFromZenodeo.includes(resource)) {
+            if (p.schema.type === 'array') {
+                if (p.name === 'cols') {
                     
-//                     p.schema.items.enum = getCols(resource).map(c => c.name);
+                    p.schema.items.enum = getCols(resource).map(c => c.name);
 
-//                     // allow empty col as in "cols=''"
-//                     p.schema.items.enum.push('');
+                    // allow empty col as in "cols=''"
+                    p.schema.items.enum.push('');
 
-//                     p.schema.default = getDefaultCols(resource).map(c => c.name);
-//                     p.schema.errorMessage = {
-//                         properties: {
-//                             enum: 'should be one of: ' + p.schema.default.join(', ') + '. Provided value is ${/enum}'
-//                         }
-//                     }
-//                 }
-//             }
-//         }
+                    p.schema.default = getDefaultCols(resource)
+                        .map(c => c.name);
 
-//         schema.properties[p.name] = p.schema;
-//     })
+                    // p.schema.errorMessage = {
+                    //     properties: {
+                    //         enum: 'should be one of: ' + p.schema.default.join(', ') + '. Provided value is ${/enum}'
+                    //     }
+                    // }
+                }
+            }
+        }
 
-//     return schema
-// }
+        schema[p.name] = p.schema;
+    })
+
+    //console.log(schema)
+    return schema
+}
 
 // const getNotCols = () => commonparams.map(c => c.name);
 
@@ -277,7 +283,7 @@ const getSourceOfResource = (resource) => resources[resource];
 
 const dispatch = {
     getResources,
-    getSourceOfResource,
+    //getSourceOfResource,
     // getResourcesFromSource,
     // getParams,
     // getQueryableParams,
@@ -288,8 +294,8 @@ const dispatch = {
     // getSelect,
     // getWhere,
     // getZqltype,
-    // getSchema,
-    // getResourceid,
+    getSchema,
+    //getResourceid,
     // getJoin,
     // getNotCols,
     // getSqlDefs
@@ -322,5 +328,6 @@ const modulePath = path.resolve(fileURLToPath(import.meta.url)).split('/').pop()
 // console.log(`foo: ${isRunningDirectlyViaCLI}`)
 if (nodePath === modulePath) {
     test();
-    //console.log('foo')
 }
+
+export { dispatch }

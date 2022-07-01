@@ -1,5 +1,14 @@
+import { dictionary as treatments } from './resources/zenodeo/treatments.js';
+import { dictionary as materialCitations } from './resources/zenodeo/materialCitations.js';
+import { dictionary as treatmentCitations } from './resources/zenodeo/treatmentCitations.js';
+import { dictionary as bibRefCitations } from './resources/zenodeo/bibRefCitations.js';
+import { dictionary as figureCitations } from './resources/zenodeo/figureCitations.js';
+import { dictionary as images } from './resources/zenodo/images.js';
+import { dictionary as publications } from './resources/zenodo/publications.js';
+
 export const resources = [
     {
+        title: 'root',
         name: 'root',
         summary: "This is the root route",
         description: "All the routes to resources available via this API are listed below. This route is provided for information as well as a convenience to identify and program resource retrieval.",
@@ -16,68 +25,77 @@ export const resources = [
     //     tags: [ 'meta' ]
     // },
     {
-        name: 'Treatments',
+        title: 'Treatments',
+        name: 'treatments',
         summary: 'Fetches treatments',
         description: "Treatments are well-defined parts of articles that describe the particular usage of a scientific name by an author at the time of the publication. In other words, each scientific name has one or more treatments, depending on whether there exists only an original description of a species, or there are subsequent re-descriptions. Similar to bibliographic references, treatments can be cited, and subsequent usages of names cite earlier treatments.",
-        //dictionary: require(`${ddpath}/zenodeo/treatments.js`),        
-        source: 'zenodeo',
-        tags: [ 'zenodeo' ]
-    },
-    {
-        name: 'Material Citations',
-        summary: 'Fetches material citations of the treatments',
-        description: "A reference to or citation of one, a part of, or multiple specimens in scholarly publications. For example, a citation of a physical specimen from a scientific collection in a taxonomic treatment in a scientific publication; a citation of a group of physical specimens, such as paratypes in a taxonomic treatment in a scientific publication; or an occurrence mentioned in a field note book.",
-        //dictionary: require(`${ddpath}/zenodeo/materialsCitations.js`),
+        dictionary: treatments,
         source: 'zenodeo',
         tags: [ 'zenodeo' ]
     },
 
     {
-        name: 'Images',
-        summary: 'Fetch images from Zenodo',
+        title: 'Material Citations',
+        name: 'materialCitations',
+        summary: 'Fetches material citations of the treatments',
+        description: "A reference to or citation of one, a part of, or multiple specimens in scholarly publications. For example, a citation of a physical specimen from a scientific collection in a taxonomic treatment in a scientific publication; a citation of a group of physical specimens, such as paratypes in a taxonomic treatment in a scientific publication; or an occurrence mentioned in a field note book.",
+        dictionary: materialCitations,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+
+    {
+        title: 'Treatment Citations',
+        name: 'treatmentCitations',
+        summary: 'Fetches treatments citations of the treatments',
+        description: "…",
+        dictionary: treatmentCitations,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+
+    {
+        title: 'Bibliographic Reference Citations',
+        name: 'bibRefCitations',
+        summary: 'Fetches bibliographic reference citations of the treatments',
+        description: "…",
+        dictionary: bibRefCitations,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+
+    {
+        title: 'Figure Citations',
+        name: 'figureCitations',
+        summary: 'Fetches figure citations of the treatments',
+        description: "…",
+        dictionary: figureCitations,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+
+    {
+        title: 'Images',
+        name: 'images',
+        summary: 'Fetches images from Zenodo',
         description: "Images stored on Zenodo are made available under an extended collective license that authorizes Plazi to re-use all published photos and other images for the purpose of indexing and making available the worldwide biodiversity literature in the context of BLR. The re-use of these data by third persons is ruled by the copyright regulation applicable to the re-user.",
-        //dictionary: require(`${ddpath}/zenodo/images.js`),
+        dictionary: images,
         source: 'zenodo',
         tags: [ 'zenodo' ]
     },
 
     {
-        name: 'Publications',
-        summary: 'Fetch publications from Zenodo',
+        title: 'Publications',
+        name: 'publications',
+        summary: 'Fetches publications from Zenodo',
         description: "Open access publications on Zenodo are made available under the original license of those publications. Users are advised to consult laws applicable in their jurisdiction.",
-        //dictionary: require(`${ddpath}/zenodo/publications.js`),
+        dictionary: publications,
         source: 'zenodo',
         tags: [ 'zenodo' ]
     },
 
     /*
-    {
-        name: 'treatmentCitations',
-        url: 'treatmentcitations',
-        summary: 'Fetch treatmentCitations of the treatments',
-        dictionary: require(`${ddpath}/zenodeo/treatmentCitations.js`),
-        description: 'treatment citations citing the treatment',
-        source: 'zenodeo',
-        tags: [ 'zenodeo' ]
-    },
-    {
-        name: 'bibRefCitations',
-        url: 'bibrefcitations',
-        summary: 'Fetch bibRefCitations of the treatments',
-        dictionary: require(`${ddpath}/zenodeo/bibRefCitations.js`),
-        description: 'bibliographic citations of treatments',
-        source: 'zenodeo',
-        tags: [ 'zenodeo' ]
-    },
-    {
-        name: 'figureCitations',
-        url: 'figurecitations',
-        summary: 'Fetch figureCitations of the treatments',
-        dictionary: require(`${ddpath}/zenodeo/figureCitations.js`),
-        description: 'figure citations of treatments',
-        source: 'zenodeo',
-        tags: [ 'zenodeo' ]
-    },
+
     
     {
         name: 'treatmentImages',

@@ -1,9 +1,11 @@
 import { resources } from '../../../data-dictionary/resources.js';
 import * as utils from '../../../lib/utils.js';
+import { dispatch as ddutils } from '../../../data-dictionary/dd-utils.js';
 
-const name = 'Images';
+const name = 'images';
 const resource = resources.filter(r => r.name === name)[0];
 const options = utils.routeOptions(resource);
+options.schema.querystring = ddutils.getSchema(name);
 options.handler = async (request, reply) => {
     return { 
         materialscitationId: request.query.materialscitationId,

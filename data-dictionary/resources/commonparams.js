@@ -81,7 +81,7 @@ export const commonparams = [
         name: 'sortby',
         schema: {
             type: 'string',
-            minimum: 1,
+            //minimum: 1,
             description: `comma-separated list of &lt;column name&gt;.&lt;sort direction&gt;. Defaults to &lt;resourceId:ASC&gt;. Sorting is done in the order the columns appear in the list. For example:
 - \`sortby=treatmentTitle:ASC,rank:DESC\`
   **Note:** sort direction can be ASC or DESC`,

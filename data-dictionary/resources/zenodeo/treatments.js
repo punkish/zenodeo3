@@ -29,7 +29,7 @@ or can be a sql expression
   
   
  */
-export const treatments = [
+export const dictionary = [
     {
         // the name used in the REST query
         name: 'treatmentId',
@@ -50,7 +50,6 @@ export const treatments = [
             minLength: 32,
             description: `The unique ID of the treatment. Has to be a 32 character string:
 - \`treatmentId=388D179E0D564775C3925A5B93C1C407\``,
-            // isResourceId: true
         },
 
         isResourceId: true,
@@ -491,7 +490,7 @@ export const treatments = [
             type: 'boolean',
             default: false,
             description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
-            isResourceId: false
+            //isResourceId: false
         },
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("document").attr("deleted")',
@@ -505,7 +504,7 @@ export const treatments = [
             where : 'materialsCitations.latitude'
         },
         schema: {
-            type: 'number',
+            type: 'string',
             pattern: utils.re.real,
             description: `The geolocation of the treatment.`,
         },
@@ -523,7 +522,7 @@ export const treatments = [
             where : 'materialsCitations.longitude'
         },
         schema: {
-            type: 'number',
+            type: 'string',
             pattern: utils.re.real,
             description: `The geolocation of the treatment.`,
         },
@@ -540,8 +539,8 @@ export const treatments = [
             type: 'string',
             pattern: utils.getPattern('geolocation'),
             description: `The geolocation of the treatment. Can use the following syntax:
-- \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
-- \`geolocation=contained_in({lower_left:{lat: -40.00, lng: -120},upper_right: {lat:23,lng:6.564}})\`
+- \`geolocation=within(radius:10, units: 'kilometers', lat:40.00, lng: -120)\`
+- \`geolocation=contained_in({lower_left:{lat: -40.00, lng: -120},upper_right: {lat:23,lng:6.564})\`
 `,
         },
         zqltype: 'geolocation',

@@ -1,9 +1,12 @@
 import { resources } from '../../../data-dictionary/resources.js';
 import * as utils from '../../../lib/utils.js';
+import { dispatch as ddutils } from '../../../data-dictionary/dd-utils.js';
 
-const name = 'Treatments';
+const name = 'treatments';
 const resource = resources.filter(r => r.name === name)[0];
+
 const options = utils.routeOptions(resource);
+options.schema.querystring = ddutils.getSchema(name);
 options.handler = async (request, reply) => {
     return { 
         treatmentId: request.query.treatmentId,
