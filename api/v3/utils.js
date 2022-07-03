@@ -62,15 +62,14 @@ const handlerFactory = (resource) => {
     return async function(request, reply) {
         log.info(`handler() -> fetching ${resource} from "${request.url}"`);
 
-        const reqres = { request, resource };
-        updateStats(reqres);
+        updateStats({ request, resource });
         let response;
 
         if (resource === 'root') {
-            response = getRoot(reqres);
+            response = getRoot({ request, resource });
         }
         else if (resource === 'etlstats') {
-            response = getEtlStats(reqres);
+            response = getEtlStats({ request, resource });
         }
         else {
             if (config.get('v3.cache.on')) {
@@ -86,20 +85,21 @@ const handlerFactory = (resource) => {
                     sync: false
                 });
  
-                const _links = makeLinks(reqres);
+                const _self = self({ request, resource });
                 const cacheKey = crypto
                     .createHash('md5')
-                    .update(_links._self)
+                    .update(_self)
                     .digest('hex');
 
                 if (request.query.refreshCache) {
                     log.info("handler() -> forcing refresh cache");
-
                     await cache.delete(cacheKey);
-                    const { result, debug } = await queryDataStore(reqres);
+                    
+                    const search = getSearch({ request, resource });
+                    const { result, debug } = await queryDataStore({ request, resource });
+                    const _links = getLinks({ request, resource });
 
-                    response = addLinksAndSearch(result);
-                    response = await cache.set(cacheKey, response);
+                    response = await cache.set(cacheKey, { search, result, _links });
 
                     if (isDebug) response.debug = debug;
                 }
@@ -113,9 +113,12 @@ const handlerFactory = (resource) => {
                     }
                     else {
                         log.info("handler() -> no result in cache");
-                        const { result, debug } = await queryDataStore(reqres);
-                        response = addLinksAndSearch(result);
-                        response = await cache.set(cacheKey, response);
+
+                        const search = getSearch({ request, resource });
+                        const { result, debug } = await queryDataStore({ request, resource });
+                        const _links = getLinks({ request, resource });
+
+                        response = await cache.set(cacheKey, { search, result, _links });
 
                         if (isDebug) response.debug = debug;
                     }
@@ -123,8 +126,12 @@ const handlerFactory = (resource) => {
             }
             else {
                 log.info("handler() -> cache is off");
-                const { result, debug } = await queryDataStore(reqres);
-                response = result;
+
+                const search = getSearch({ request, resource });
+                const { result, debug } = await queryDataStore({ request, resource });
+                const _links = getLinks({ request, resource });
+
+                response = { search, result, _links };
 
                 if (isDebug) response.debug = debug;
             }
@@ -134,32 +141,13 @@ const handlerFactory = (resource) => {
     }
 }
 
-const addLinksAndSearch = (result) => {
-
-    /*
-     * add _links
-     */
-    const h = `${request.protocol}://${request.hostname}${request.routerPath}`;
-    _links._self = `${h}?${_links._self}`;
-    _links._prev = `${h}?${_links._prev}`;
-    _links._next = `${h}?${_links._next}`;
-
-    /*
-     * add search
-     */
-    const search = getSearch(request);
-
-    return { search, result, _links }
-}
-
 const updateStats = ({ request, resource }) => {
     const sql = `INSERT INTO webqueries (q) 
 VALUES (@q) 
 ON CONFLICT(q) 
 DO UPDATE SET count = count + 1`;
 
-    const _links = makeLinks({ request, resource });
-    const q = _links._self;
+    const q = self({ request, resource });
 
     try {
         db.prepare(sql).run({ q });
@@ -485,7 +473,14 @@ const pruneQuery = function(query) {
     return searchParams;
 }
 
-const makeLinks = function({ request, resource }) {
+const self = function({ request, resource }) {
+    const originalRequest = new URLSearchParams(request.url.split('?')[1]);
+    const self = pruneQuery(originalRequest);
+    self.sort();
+    return self.toString();
+}
+
+const bareLinks = function({ request, resource }) {
     const originalRequest = new URLSearchParams(request.url.split('?')[1]);
     const self = pruneQuery(originalRequest);
     self.sort();
@@ -500,11 +495,28 @@ const makeLinks = function({ request, resource }) {
     next.set('page', newval);
     next.sort();
 
+    /*
+     * _links
+     */
     return {
         "_self": self.toString(),
         "_prev": prev.toString(),
         "_next": next.toString()
     }
+}
+
+const getLinks = ({ request, resource }) => {
+    const h = `${request.protocol}://${request.hostname}${request.routerPath}`;
+
+    /*
+     * add _links
+     */
+    const _links = bareLinks({ request, resource });
+    _links._self = `${h}?${_links._self}`;
+    _links._prev = `${h}?${_links._prev}`;
+    _links._next = `${h}?${_links._next}`;
+
+    return _links;
 }
 
 module.exports = { handlerFactory };
