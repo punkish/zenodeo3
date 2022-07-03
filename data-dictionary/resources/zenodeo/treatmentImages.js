@@ -128,6 +128,24 @@ const treatmentImages = [
     },
 
     {
+        name: 'family',
+        alias: {
+            select: 'treatments.family',
+            where : 'treatments.family'
+        },
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("family")',
+        joins: {
+            select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
+            where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
+        }
+    },
+
+    {
         name: 'publicationDate',
         alias: {
             select: 'treatments.publicationDate',
