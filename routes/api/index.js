@@ -10,7 +10,7 @@ import { route as families } from './zenodeo/families.js';
 import { route as images } from './zenodo/images.js';
 import { route as publications } from './zenodo/publications.js';
 
-/*
+/**
  * create the root route
  */
 const createRoot = (resources) => {

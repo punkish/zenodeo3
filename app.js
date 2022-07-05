@@ -14,7 +14,9 @@ import * as api from './routes/api/index.js';
 export async function server(opts={}) {
     const fastify = Fastify(opts);
 
-    // plugins
+    /** 
+     * register plugins
+     */ 
     fastify.register(favicon);
     fastify.register(sensible);
     fastify.register(routes);
@@ -22,7 +24,9 @@ export async function server(opts={}) {
     fastify.register(fastifyStatic);
     fastify.register(view);
 
-    // routes to resources
+    /**
+     * register the routes to resources
+     */ 
     //fastify.register(favicon);
     fastify.register(tos);
     fastify.register(docs);

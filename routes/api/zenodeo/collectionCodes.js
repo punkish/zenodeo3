@@ -7,7 +7,6 @@ const resource = resources.filter(r => r.name === name)[0];
 
 const options = utils.routeOptions(resource);
 options.schema.querystring = ddutils.getSchema(name);
-console.log(options.schema.querystring)
 options.handler = async (request, reply) => {
     return { 
         bibRefCitationId: request.query.bibRefCitationId,
