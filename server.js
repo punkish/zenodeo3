@@ -22,19 +22,16 @@ const start = async () => {
          * 'HEAD' routes
          */
         exposeHeadRoutes: false,
-        logger: {
-            transport: {
-                target: 'pino-pretty',
-                options: {
-                    translateTime: 'HH:MM:ss Z',
-                    ignore: 'pid,hostname'
-                }
-            }
-        }
+        logger: config.pino.opts
     };
 
     try {
         fastify = await server(opts);
+
+        fastify.addHook('preValidation', async (request, reply) => {
+            request.origQuery = JSON.parse(JSON.stringify(request.query));
+        })
+
         await fastify.listen({ port: config.port });
     } 
     catch (err) {

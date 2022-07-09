@@ -1,19 +1,14 @@
 import { resources } from '../../../data-dictionary/resources.js';
-import * as utils from '../../../lib/utils.js';
 import { dispatch as ddutils } from '../../../data-dictionary/dd-utils.js';
 
-const name = 'families';
-const resource = resources.filter(r => r.name === name)[0];
+import * as utils from '../../../lib/routeUtils.js';
+
+const resourceName = 'families';
+const resource = resources.filter(r => r.name === resourceName)[0];
 
 const options = utils.routeOptions(resource);
-options.schema.querystring = ddutils.getSchema(name);
-options.handler = async (request, reply) => {
-    return { 
-        bibRefCitationId: request.query.bibRefCitationId,
-        version: request.query.version,
-        communities: request.query.communities
-    }
-}
+options.schema.querystring = ddutils.getSchema(resourceName);
+options.handler = utils.routeHandler(resourceName);
 
 export async function route(fastify, opts) {
     fastify.route(options)

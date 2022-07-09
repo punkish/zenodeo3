@@ -10,6 +10,8 @@ import { route as families } from './zenodeo/families.js';
 import { route as images } from './zenodo/images.js';
 import { route as publications } from './zenodo/publications.js';
 
+import { resources } from '../../data-dictionary/resources.js';
+
 /**
  * create the root route
  */
@@ -22,8 +24,8 @@ const createRoot = (resources) => {
         url: '/',
         schema: {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$id": "https://example.com/product.schema.json",
-            name,
+            "$id": "https://example.com/root.schema.json",
+            title: resource.title,
             summary: resource.summary,
             description: resource.description,
             response: {},
@@ -39,7 +41,7 @@ const createRoot = (resources) => {
                 .filter(a => a.schema.tags)
                 .map(a => {
                     return {
-                        name: a.schema.name,
+                        title: a.schema.title,
                         summary: a.schema.summary,
                         description: a.schema.description,
                         url: a.url
@@ -51,7 +53,6 @@ const createRoot = (resources) => {
     };
 }
 
-import { resources } from '../../data-dictionary/resources.js';
 const root = createRoot(resources);
 
 export const routes = [

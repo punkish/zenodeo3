@@ -34,21 +34,21 @@ export const dictionary = [
         }
     },
 
-    // {
-    //     name: 'communities',
-    //     schema: { 
-    //         type: 'array', 
-    //         items: { 
-    //           type: 'string',
-    //           //enum: [ 'biosyslit', 'belgiumherbarium' ]
-    //         },
-    //         minItems: 1,
-    //         maxItems: 2,
-    //         additionalItems: false,
-    //         default: [ 'biosyslit' ],
-    //         description: 'The community on Zenodo; defaults to <b>"biosyslit"</b>'
-    //     }
-    // },
+    {
+        name: 'communities',
+        schema: { 
+            type: 'array', 
+            items: { 
+              type: 'string',
+              enum: [ 'biosyslit', 'belgiumherbarium' ]
+            },
+            minItems: 1,
+            maxItems: 2,
+            //additionalItems: false,
+            default: [ 'biosyslit' ],
+            description: 'The community on Zenodo; defaults to <b>"biosyslit"</b>'
+        }
+    },
 
     {
         name: 'q',
