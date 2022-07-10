@@ -9,13 +9,13 @@ import Handlebars from 'handlebars';
  *
  * @see https://github.com/fastify/fastify-static
  */
- const options = {
+const options = {
     engine: {
         handlebars: Handlebars
     },
     root: path.join(cwd(), 'views'),
 
-    /*
+    /**
      * we don't declare 'layout' here because we set 
      * route-specific custom layout in the route source 
      * wherever applicable

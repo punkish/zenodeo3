@@ -220,7 +220,7 @@ const getWhere = (resource, column) => {
 //     .filter(c => c.name === column)[0].zqltype;
 
 // // schema: we use the schema to validate the query params
-const getSchema = function(resource) {
+const getQueryStringSchema = function(resource) {
 
     // make a deep copy of params because they[*] will be modified
     // [*] specifically, 'sortby' will be modified
@@ -294,7 +294,7 @@ const dispatch = {
     // getSelect,
     // getWhere,
     // getZqltype,
-    getSchema,
+    getQueryStringSchema,
     //getResourceid,
     // getJoin,
     // getNotCols,

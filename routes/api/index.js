@@ -11,6 +11,7 @@ import { route as images } from './zenodo/images.js';
 import { route as publications } from './zenodo/publications.js';
 
 import { resources } from '../../data-dictionary/resources.js';
+import { config } from '../../zconf/index.js';
 
 /**
  * create the root route
@@ -44,7 +45,7 @@ const createRoot = (resources) => {
                         title: a.schema.title,
                         summary: a.schema.summary,
                         description: a.schema.description,
-                        url: a.url
+                        url: `http://${config.address}:${config.port}${a.url}`
                     }
                 });
         };

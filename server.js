@@ -1,6 +1,5 @@
 /** 
- * import env variables from .env into 
- * process.env
+ * import env variables from .env into `process.env`
  */
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -28,11 +27,17 @@ const start = async () => {
     try {
         fastify = await server(opts);
 
+        /** 
+         * save the original request query params for use later
+         * because the query will get modified after schema 
+         * validation
+         */
         fastify.addHook('preValidation', async (request, reply) => {
             request.origQuery = JSON.parse(JSON.stringify(request.query));
         })
 
         await fastify.listen({ port: config.port });
+        fastify.log.info(`… in ${process.env.NODE_ENV.toUpperCase()} mode`);
     } 
     catch (err) {
         console.log(err);
