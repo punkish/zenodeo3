@@ -13,16 +13,20 @@ const options = {
     engine: {
         handlebars: Handlebars
     },
+
+    /** 
+     * all the layouts and templates are relative
+     * to the 'root' setting below
+     */
     root: path.join(cwd(), 'views'),
 
     /**
-     * we don't declare 'layout' here because we set 
+     * we don't set 'layout' here because we set 
      * route-specific custom layout in the route source 
      * wherever applicable
      */
     //layout: './layouts/main.hbs',
 
-    // this will add the extension to all the views
     viewExt: 'hbs',
     options: {
         partials: {

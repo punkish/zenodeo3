@@ -8,11 +8,9 @@ import { server } from './app.js';
 import { config } from './zconf/index.js';
 
 /**
- * Run the server!
+ * Function to initialize and start the server!
  */
 const start = async () => {
-    let fastify;
-
     const opts = {
 
         /**
@@ -21,11 +19,12 @@ const start = async () => {
          * 'HEAD' routes
          */
         exposeHeadRoutes: false,
-        logger: config.pino.opts
+        logger: config.pino.opts,
+        ajv: config.ajv.opts
     };
 
     try {
-        fastify = await server(opts);
+        const fastify = await server(opts);
 
         /** 
          * save the original request query params for use later
@@ -34,7 +33,7 @@ const start = async () => {
          */
         fastify.addHook('preValidation', async (request, reply) => {
             request.origQuery = JSON.parse(JSON.stringify(request.query));
-        })
+        });
 
         await fastify.listen({ port: config.port });
         fastify.log.info(`… in ${process.env.NODE_ENV.toUpperCase()} mode`);
@@ -45,4 +44,7 @@ const start = async () => {
     }
 };
 
+/**
+ * Start the server!
+ */
 start();

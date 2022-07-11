@@ -8,7 +8,9 @@ export const development = {
 
     "cacheOn": true,
 
-    // logger options
+    /**
+     * logger options 
+     */ 
     "pino": {
         "opts": {
             "transport": {
@@ -22,6 +24,24 @@ export const development = {
         }
     },
 
-    // add debug info to results
+    "ajv": {
+        "opts": {
+            "customOptions": {
+
+                /** 
+                 * removeAdditional -> false ensures the server croaks
+                 * when the user sends unspecific k,v pairs in the query
+                 */
+                "removeAdditional": false,
+                "useDefaults": true,
+                "coerceTypes": true,
+                "nullable": true,
+            }
+        }
+    },
+
+    /** 
+     * add debug info to results 
+     */ 
     "isDebug": true
 }

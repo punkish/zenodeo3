@@ -1,6 +1,16 @@
 export const production = {
+
+    /** 
+     * log only errors
+     */
     "pino": {
-        "level": "error"
+        "opts": {
+            "level": "error"
+        }
     },
+
+    /** 
+     * don't add debug info to results 
+     */
     "isDebug": false
 }

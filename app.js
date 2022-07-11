@@ -27,7 +27,6 @@ export async function server(opts={}) {
     /**
      * register the routes to resources
      */ 
-    //fastify.register(favicon);
     fastify.register(tos);
     fastify.register(docs);
     api.routes.forEach(route => fastify.register(route, { prefix: 'v3' }));
