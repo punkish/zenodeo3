@@ -1,6 +1,11 @@
 import * as utils from '../../../lib/utils.js';
+import { dictionary as dictCollectionCodes } from './collectionCodes.js';
 
-export const dictionary = [
+/** 
+ * first we define all the params corresponding to the columns in the 
+ * materialsCitation table
+ */
+ const dictionary = [
     {
         name: 'materialsCitationId',
         schema: { 
@@ -37,55 +42,7 @@ export const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectingDate")'
     },
-    {
-        name: 'collectionCode',
-        alias: {
-            select: 'collectionCodes.collectionCode',
-            where : null
-        },
-        schema: {
-            type: 'string',
-            description: 'The collection code for a natural history collection'
-        },
-        sqltype: 'TEXT',
-        cheerio: '$("materialsCitation").attr("collectionCode")',
-        joins: {
-            select: [ 
-                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
-                'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
-            ],
-            where : [ 
-                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
-                'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
-            ]
-        },
-    },
-    {
-        name: 'institution_name',
-        alias: {
-            select: 'gbifcollections.institutions.institution_name',
-            where : 'gbifcollections.institutions.institution_name'
-        },
-        schema: {
-            type: 'string',
-            description: 'The name of the institution that houses the collection',
-        },
-        sqltype: 'TEXT',
-        joins: {
-            select: [ 
-                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
-                'JOIN collectionCodes cc ON mc.collectionCode = cc.collectionCode',
-                'LEFT JOIN gbifcollections.institutions g ON cc.collectionCode = g.institution_code'
-            ],
-            where : [ 
-                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
-                'JOIN collectionCodes cc ON mc.collectionCode = cc.collectionCode',
-                'LEFT JOIN gbifcollections.institutions g ON cc.collectionCode = g.institution_code'
-            ]
-        }
-    },
+
     {
         name: 'collectorName',
         schema: {
@@ -366,7 +323,6 @@ export const dictionary = [
             type: 'boolean',
             default: false,
             description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
-            //isResourceId: false
         },
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("materialsCitation").attr("deleted")',
@@ -415,4 +371,56 @@ export const dictionary = [
         zqltype: 'geolocation',
         notDefaultCol: true
     }
-]
+];
+
+/** 
+ * then we add params that are in other tables but can be queried 
+ * via this REST endpoint
+ */
+ const externalParams = [
+    {
+        name: 'collectionCode',
+        dict: dictCollectionCodes,
+        alias: {
+            select: 'collectionCodes.collectionCode',
+            where : 'collectionCodes.collectionCode'
+        },
+        isResourceId: false,
+        joins: {
+            select: [ 
+                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
+                'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
+                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
+            ],
+            where : [ 
+                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
+                'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
+                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
+            ]
+        }
+    },
+    {
+        name: 'institution_name',
+        dict: dictCollectionCodes,
+        alias: {
+            select: 'gbifcollections.institutions.institution_name',
+            where : 'gbifcollections.institutions.institution_name'
+        },
+        joins: {
+            select: [ 
+                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
+                'JOIN collectionCodes cc ON mc.collectionCode = cc.collectionCode',
+                'LEFT JOIN gbifcollections.institutions g ON cc.collectionCode = g.institution_code'
+            ],
+            where : [ 
+                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
+                'JOIN collectionCodes cc ON mc.collectionCode = cc.collectionCode',
+                'LEFT JOIN gbifcollections.institutions g ON cc.collectionCode = g.institution_code'
+            ]
+        }
+    }
+];
+
+externalParams.forEach(param => utils.addExternalDef(param, dictionary));
+
+export { dictionary }

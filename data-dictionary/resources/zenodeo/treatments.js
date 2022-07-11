@@ -572,6 +572,6 @@ const externalParams = [
     }
 ];
 
-externalParams.forEach(param => utils.cloneExternalDef(param, dictionary));
+externalParams.forEach(param => utils.addExternalDef(param, dictionary));
 
 export { dictionary }
