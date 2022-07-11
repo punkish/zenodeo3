@@ -409,7 +409,7 @@ export const dictionary = [
             pattern: utils.getPattern('geolocation'),
             description: `The geolocation of the treatment. Can use the following syntax:
 - \`geolocation=within(radius:10, units: 'kilometers', lat:40.00, lng: -120)\`
-- \`geolocation=contained_in({lower_left:{lat: -40.00, lng: -120},upper_right: {lat:23,lng:6.564})\`
+- \`geolocation=contained_in(lower_left:{lat: -40.00, lng: -120},upper_right: {lat:23,lng:6.564})\`
 `,
         },
         zqltype: 'geolocation',

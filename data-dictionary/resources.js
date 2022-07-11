@@ -1,14 +1,14 @@
-import { dictionary as treatments } from './resources/zenodeo/treatments.js';
-import { dictionary as etlStats } from './resources/metadata/etlStats.js';
-import { dictionary as materialCitations } from './resources/zenodeo/materialCitations.js';
-import { dictionary as treatmentCitations } from './resources/zenodeo/treatmentCitations.js';
-import { dictionary as bibRefCitations } from './resources/zenodeo/bibRefCitations.js';
-import { dictionary as figureCitations } from './resources/zenodeo/figureCitations.js';
-import { dictionary as treatmentImages } from './resources/zenodeo/treatmentImages.js';
-import { dictionary as collectionCodes } from './resources/zenodeo/collectionCodes.js';
-import { dictionary as families } from './resources/zenodeo/families.js';
-import { dictionary as images } from './resources/zenodo/images.js';
-import { dictionary as publications } from './resources/zenodo/publications.js';
+import { dictionary as dictTreatments } from './resources/zenodeo/treatments.js';
+import { dictionary as dictEtlStats } from './resources/metadata/etlStats.js';
+import { dictionary as dictMaterialCitations } from './resources/zenodeo/materialCitations.js';
+import { dictionary as dictTreatmentCitations } from './resources/zenodeo/treatmentCitations.js';
+import { dictionary as dictBibRefCitations } from './resources/zenodeo/bibRefCitations.js';
+import { dictionary as dictFigureCitations } from './resources/zenodeo/figureCitations.js';
+import { dictionary as dictTreatmentImages } from './resources/zenodeo/treatmentImages.js';
+import { dictionary as dictCollectionCodes } from './resources/zenodeo/collectionCodes.js';
+import { dictionary as dictFamilies } from './resources/zenodeo/families.js';
+import { dictionary as dictImages } from './resources/zenodo/images.js';
+import { dictionary as dictPublications } from './resources/zenodo/publications.js';
 
 export const resources = [
     {
@@ -26,7 +26,7 @@ export const resources = [
         name: 'etlStats',
         summary: "Fetches extract-transform-load statistics",
         description: "…",
-        dictionary: etlStats,
+        dictionary: dictEtlStats,
         source: '',
         tags: [ 'meta' ]
     },
@@ -36,7 +36,7 @@ export const resources = [
         name: 'treatments',
         summary: 'Fetches treatments',
         description: "Treatments are well-defined parts of articles that describe the particular usage of a scientific name by an author at the time of the publication. In other words, each scientific name has one or more treatments, depending on whether there exists only an original description of a species, or there are subsequent re-descriptions. Similar to bibliographic references, treatments can be cited, and subsequent usages of names cite earlier treatments.",
-        dictionary: treatments,
+        dictionary: dictTreatments,
         source: 'zenodeo',
         tags: [ 'zenodeo' ]
     },
@@ -46,7 +46,7 @@ export const resources = [
         name: 'materialCitations',
         summary: 'Fetches material citations of the treatments',
         description: "A reference to or citation of one, a part of, or multiple specimens in scholarly publications. For example, a citation of a physical specimen from a scientific collection in a taxonomic treatment in a scientific publication; a citation of a group of physical specimens, such as paratypes in a taxonomic treatment in a scientific publication; or an occurrence mentioned in a field note book.",
-        dictionary: materialCitations,
+        dictionary: dictMaterialCitations,
         source: 'zenodeo',
         tags: [ 'zenodeo' ]
     },
@@ -56,7 +56,7 @@ export const resources = [
         name: 'treatmentCitations',
         summary: 'Fetches treatments citations of the treatments',
         description: "…",
-        dictionary: treatmentCitations,
+        dictionary: dictTreatmentCitations,
         source: 'zenodeo',
         tags: [ 'zenodeo' ]
     },
@@ -66,7 +66,7 @@ export const resources = [
         name: 'bibRefCitations',
         summary: 'Fetches bibliographic reference citations of the treatments',
         description: "…",
-        dictionary: bibRefCitations,
+        dictionary: dictBibRefCitations,
         source: 'zenodeo',
         tags: [ 'zenodeo' ]
     },
@@ -76,7 +76,7 @@ export const resources = [
         name: 'figureCitations',
         summary: 'Fetches figure citations of the treatments',
         description: "…",
-        dictionary: figureCitations,
+        dictionary: dictFigureCitations,
         source: 'zenodeo',
         tags: [ 'zenodeo' ]
     },
@@ -86,7 +86,7 @@ export const resources = [
         name: 'treatmentImages',
         summary: 'Fetches images from treatments',
         description: "…",
-        dictionary: treatmentImages,
+        dictionary: dictTreatmentImages,
         source: 'zenodeo',
         tags: [ 'zenodeo' ]
     },
@@ -96,7 +96,7 @@ export const resources = [
         name: 'collectionCodes',
         summary: 'Fetches collection codes',
         description: "…",
-        dictionary: collectionCodes,
+        dictionary: dictCollectionCodes,
         source: 'zenodeo',
         tags: [ 'zenodeo' ]
     },
@@ -106,7 +106,7 @@ export const resources = [
         name: 'families',
         summary: 'Fetches families',
         description: "…",
-        dictionary: families,
+        dictionary: dictFamilies,
         source: 'zenodeo',
         tags: [ 'zenodeo' ]
     },
@@ -116,7 +116,7 @@ export const resources = [
         name: 'images',
         summary: 'Fetches images from Zenodo',
         description: "Images stored on Zenodo are made available under an extended collective license that authorizes Plazi to re-use all published photos and other images for the purpose of indexing and making available the worldwide biodiversity literature in the context of BLR. The re-use of these data by third persons is ruled by the copyright regulation applicable to the re-user.",
-        dictionary: images,
+        dictionary: dictImages,
         source: 'zenodo',
         tags: [ 'zenodo' ]
     },
@@ -126,7 +126,7 @@ export const resources = [
         name: 'publications',
         summary: 'Fetches publications from Zenodo',
         description: "Open access publications on Zenodo are made available under the original license of those publications. Users are advised to consult laws applicable in their jurisdiction.",
-        dictionary: publications,
+        dictionary: dictPublications,
         source: 'zenodo',
         tags: [ 'zenodo' ]
     }

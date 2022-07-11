@@ -41,12 +41,13 @@ export const dictionary = [
         name: 'captionText',
         schema: {
             type: 'string',
-            description: `The full text of the figure cited by this treatment. Can use the following syntax: \`captionText=spiders\``
+            description: `The full text of the figure cited by this treatment. Can use the following syntax: 
+- \`captionText=spiders\``
         },
         sqltype: 'TEXT',
         cheerio: '$("figureCitation").attr("captionText")',
         defaultOp: 'match',
-        constraint: 'vfigurecitations MATCH @captionText',
+        //constraint: 'vfigurecitations MATCH @captionText',
         joins: {
             select: null,
             where : [ 'JOIN vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ]
@@ -57,11 +58,13 @@ export const dictionary = [
         name: 'httpUri',
         schema: {
             type: 'string',
-            description: 'The URI of the figure cited by this treatment'
+            description: `The URI of the image. Can use the following syntax: 
+- \`httpUri=eq(http://example.com)\`
+- \`httpUri=ne()\``
         },
         sqltype: 'TEXT',
-        cheerio: '$("figureCitation").attr("httpUri")',
-        notQueryable: true
+        zqltype: 'text',
+        cheerio: '$("figureCitation").attr("httpUri")'
     },
 
     // {
