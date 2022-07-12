@@ -34,7 +34,13 @@ export const development = {
                  */
                 "removeAdditional": false,
                 "useDefaults": true,
-                "coerceTypes": true,
+
+                /** 
+                 * coerceTypes -> "array" ensures the scalar values are 
+                 * coerced to their proper types, for example, strings to
+                 * numbers, and single values are coerced to arrays
+                 */
+                "coerceTypes": "array",
                 "allErrors": false
             }
         }

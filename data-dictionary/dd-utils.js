@@ -211,13 +211,13 @@ const getWhere = (resource, column) => {
     return _getName(resource, col, 'where');
 }
 
-// const getJoin = (resource, column, type) => {
-//     const col = getParams(resource).filter(c => c.name === column)[0];
-//     return col.joins ? col.joins[type] : '';
-// }
+const getJoin = (resource, column, type) => {
+    const col = getParams(resource).filter(c => c.name === column)[0];
+    return col.joins ? col.joins[type] : '';
+}
 
-// const getZqltype = (resource, column) => getCols(resource)
-//     .filter(c => c.name === column)[0].zqltype;
+const getZqltype = (resource, column) => getCols(resource)
+    .filter(c => c.name === column)[0].zqltype;
 
 // // schema: we use the schema to validate the query params
 const getQueryStringSchema = function(resource) {
@@ -270,7 +270,7 @@ const getQueryStringSchema = function(resource) {
     return schema
 }
 
-// const getNotCols = () => commonparams.map(c => c.name);
+const getNotCols = () => commonparams.map(c => c.name);
 
 // Finding the number of function parameters in JavaScript
 // https://stackoverflow.com/a/6293830/183692
@@ -291,13 +291,13 @@ const dispatch = {
     // getDefaultCols,
     // getFacetCols,
     // getSqlCols,
-    // getSelect,
+    getSelect,
     // getWhere,
-    // getZqltype,
+    getZqltype,
     getQueryStringSchema,
-    //getResourceid,
-    // getJoin,
-    // getNotCols,
+    getResourceid,
+    getJoin,
+    getNotCols,
     // getSqlDefs
 }
 
