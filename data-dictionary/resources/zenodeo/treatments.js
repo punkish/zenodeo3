@@ -1,84 +1,25 @@
-'use strict'
+import * as utils from '../../../lib/utils.js';
+import { dictionary as dictMaterialCitations } from './materialCitations.js';
+import { dictionary as dictFigureCitations } from './figureCitations.js';
+import { dictionary as dictCollectionCodes } from './collectionCodes.js';
 
-const utils = require('../../../lib/utils.js');
-
-
-// see https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289 
-// for notes from @gsautter
-
-/*
-elements are extracted from articles (-> cheerio expression)
-and stored in a db (-> sql column) table (-> resource).
-
-rest query is made of params that can be directly mapped to a sql column 
-or can be a sql expression
-*/
-
-/*
-
-
-  All params are queryable unless notqueryable is true
- 
-  Params with 'defaultCols' = true are SELECT-ed by default
-  
-  Param 'sqltype' is used to CREATE the db table
-  
-  Param 'selname' is used when 'name' is inappropriate for SQL. 
-  For example, when a column exists in two JOIN-ed tables, we 
-  can use 'selname' to prefix the column name with the table. Or,
-  if a column name is a reserved SQL word, we can double quote it 
-  as in the case of "order"
-  
-  
+/** 
+ * first we define all the params corresponding to the columns in the 
+ * treatments table
  */
-const treatments = [
+const dictionary = [
     {
-        // the name used in the REST query
         name: 'treatmentId',
-
-        // alternative name to use in the SELECT and 
-        // WHERE clauses of SQL
-        /*
-        alias: {
-            select: 'treatments.rank',
-            where : 'treatments.rank'
-        },
-        */
-        
-        // JSON schema that verifies the queries
         schema: { 
             type: 'string', 
             maxLength: 32, 
             minLength: 32,
             description: `The unique ID of the treatment. Has to be a 32 character string:
 - \`treatmentId=388D179E0D564775C3925A5B93C1C407\``,
-            // isResourceId: true
         },
-
         isResourceId: true,
-        
-        // SQL datatype
         sqltype: 'TEXT NOT NULL UNIQUE',
-
-        // zqltype is 'text' by default unless defined explicitly
-        /*
-        zqltype: 'date' | 'geolocation' | 'number'
-        */
-
-        // cheerio expression used to parse the value 
-        // from the XML
-        cheerio: '$("document").attr("docId")',
-
-        // all columns are included in the query results by 
-        // default unless notDefaultCol is true
-        /*
-        notDefaultCol: true
-        */
-
-        // all params are queryable unless notqueryable is true
-        /*
-        notQueryable: true
-        */
+        cheerio: '$("document").attr("docId")'
     },
 
     {
@@ -134,7 +75,7 @@ const treatments = [
         name: 'zenodoDep',
         schema: {
             type: 'string',
-            description: 'Zenodo record of journal article'
+            description: 'Zenodo record of the journal article'
         },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("ID-Zenodo-Dep")',
@@ -145,7 +86,7 @@ const treatments = [
         name: 'zoobankId',
         schema: {
             type: 'string',
-            description: 'ZooBank ID of journal article'
+            description: 'ZooBank ID of the journal article'
         },
         sqltype: 'TEXT',
         cheerio: '$("document").attr("ID-ZooBank")',
@@ -411,10 +352,10 @@ const treatments = [
 
     {
         name: 'rank',
-        // alias: {
-        //     select: 'treatments.rank',
-        //     where : 'treatments.rank'
-        // },
+        alias: {
+            select: 'treatments.rank',
+            where : 'treatments.rank'
+        },
         schema: {
             type: 'string',
             description: 'The taxonomic rank of the taxon, e.g. species, family',
@@ -493,130 +434,10 @@ const treatments = [
             type: 'boolean',
             default: false,
             description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
-            isResourceId: false
         },
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("document").attr("deleted")',
         notDefaultCol: true
-    },
-
-    {
-        name: 'latitude',
-        alias: {
-            select: 'materialsCitations.latitude',
-            where : 'materialsCitations.latitude'
-        },
-        schema: {
-            type: 'number',
-            pattern: utils.re.real,
-            description: `The geolocation of the treatment.`,
-        },
-        joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
-        },
-        notDefaultCol: true
-    },
-
-    {
-        name: 'longitude',
-        alias: {
-            select: 'materialsCitations.longitude',
-            where : 'materialsCitations.longitude'
-        },
-        schema: {
-            type: 'number',
-            pattern: utils.re.real,
-            description: `The geolocation of the treatment.`,
-        },
-        joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
-        },
-        notDefaultCol: true
-    },
-
-    {
-        name: 'geolocation',
-        schema: {
-            type: 'string',
-            pattern: utils.getPattern('geolocation'),
-            description: `The geolocation of the treatment. Can use the following syntax:
-- \`geolocation=within({radius:10, units: 'kilometers', lat:40.00, lng: -120})\`
-- \`geolocation=contained_in({lower_left:{lat: -40.00, lng: -120},upper_right: {lat:23,lng:6.564}})\`
-`,
-        },
-        zqltype: 'geolocation',
-        notDefaultCol: true,
-        joins: {
-            select: null,
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
-        }
-    },
-
-    {
-        name: 'isOnLand',
-        alias: {
-            select: 'materialsCitations.isOnLand',
-            where : 'materialsCitations.isOnLand'
-        },
-        schema: {
-            type: 'number',
-            description: `True if treatment is on land.`,
-        },
-        notDefaultCol: true,
-        joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
-        }
-    },
-
-    {
-        name: 'validGeo',
-        alias: {
-            select: 'materialsCitations.validGeo',
-            where : 'materialsCitations.validGeo'
-        },
-        schema: {
-            type: 'number',
-            description: `True if geolocation is valid.`,
-        },
-        notDefaultCol: true,
-        joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
-        }
-    },
-
-    {
-        name: 'collectionCode',
-        alias: {
-            select: 'collectionCodes.collectionCode',
-            where : 'collectionCodes.collectionCode'
-        },
-        schema: {
-            type: 'string',
-            description: `The collection code of the materialsCitations of the treatment. Can use the following syntax:
-- \`collectionCode=USNM\`
-- \`collectionCode=starts_with(US)\`
-    **Note:** queries involving inexact matches will be considerably slow`
-        },
-        notDefaultCol: true,
-        joins: {
-            select: [
-                'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
-                'JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
-                'JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = gbifcollections.institutions.institution_code'
-            ],
-            where : [
-                'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
-                'JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
-                'JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = gbifcollections.institutions.institution_code'
-            ]
-        }
-        //facet: 'count > 50'
     },
 
     {
@@ -638,48 +459,119 @@ const treatments = [
             select: null,
             where : [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
         },
-    },
+    }
+];
 
+/** 
+ * then we add params that are in other tables but can be queried 
+ * via this REST endpoint
+ */
+const externalParams = [
     {
         name: 'httpUri',
+        dict: dictFigureCitations,
         alias: {
             select: 'figureCitations.httpUri',
             where : 'figureCitations.httpUri'
         },
-        schema: {
-            type: 'string',
-            description: `The URI of the image. Can use the following syntax: 
-- \`httpUri=eq(http://example.com)\`
-- \`httpUri=ne()\``
-        },
-        sqltype: 'TEXT',
-        zqltype: 'text',
-        notDefaultCol: true,
         joins: {
             select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
             where : [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
         }
     },
-
     {
         name: 'captionText',
+        dict: dictFigureCitations,
         alias: {
             select: 'figureCitations.captionText',
             where : 'vfigurecitations'
         },
-        schema: {
-            type: 'string',
-            description: 'The full text of the figure cited by this treatment'
-        },
-        sqltype: 'TEXT',
-        notDefaultCol: true,
-        defaultOp: 'match',
         joins: {
             select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
             where : [ 'JOIN vfigurecitations ON treatments.treatmentId = vfigurecitations.treatmentId']
         }
+    },
+    {
+        name: 'collectionCode',
+        dict: dictCollectionCodes,
+        alias: {
+            select: 'collectionCodes.collectionCode',
+            where : 'collectionCodes.collectionCode'
+        },
+        isResourceId: false,
+        joins: {
+            select: [
+                'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
+                'JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
+                'JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
+                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = gbifcollections.institutions.institution_code'
+            ],
+            where : [
+                'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
+                'JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
+                'JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
+                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = gbifcollections.institutions.institution_code'
+            ]
+        }
+    },
+    {
+        name: 'latitude',
+        dict: dictMaterialCitations,
+        alias: {
+            select: 'materialsCitations.latitude',
+            where : 'materialsCitations.latitude'
+        },
+        joins: {
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+        }
+    },
+    {
+        name: 'longitude',
+        dict: dictMaterialCitations,
+        alias: {
+            select: 'materialsCitations.longitude',
+            where : 'materialsCitations.longitude'
+        },
+        joins: {
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+        }
+    },
+    {
+        name: 'geolocation',
+        dict: dictMaterialCitations,
+        joins: {
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+        }
+    },
+    {
+        name: 'isOnLand',
+        dict: dictMaterialCitations,
+        alias: {
+            select: 'materialsCitations.isOnLand',
+            where : 'materialsCitations.isOnLand'
+        },
+        joins: {
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+        }
+    },
+    {
+        name: 'validGeo',
+        dict: dictMaterialCitations,
+        alias: {
+            select: 'materialsCitations.validGeo',
+            where : 'materialsCitations.validGeo'
+        },
+        joins: {
+            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
+            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+        }
     }
- 
 ];
 
-module.exports = treatments;
+externalParams.forEach(param => utils.addExternalDef(param, dictionary));
+
+export { dictionary }

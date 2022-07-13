@@ -1,5 +1,3 @@
-'use strict';
-
 // see https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289 
 // for notes from @gsautter
 
@@ -10,13 +8,12 @@
  * Param 'sqltype' is used in CREATE-ing the db table
  * Param 'selname' is used when 'name' is inappropriate for SQL
  */
-module.exports = [
+export const dictionary = [
     {
         name: 'id',
         schema: {
             type:"integer",
             description: 'unique identifier of the record',
-            // isResourceId: true
         },
         isResourceId: true
     },
@@ -31,8 +28,8 @@ module.exports = [
             },
             minItems: 1,
             maxItems: 6,
-            additionalItems: false,
-            //default: [ 'figure', 'photo', 'drawing', 'diagram', 'plot', 'other' ],
+            //additionalItems: false,
+            default: [ 'figure', 'photo', 'drawing', 'diagram', 'plot', 'other' ],
             description: 'The image subtype; defaults to all subtypes'
         }
     },
@@ -43,11 +40,11 @@ module.exports = [
             type: 'array', 
             items: { 
               type: 'string',
-              //enum: [ 'biosyslit', 'belgiumherbarium' ]
+              enum: [ 'biosyslit', 'belgiumherbarium' ]
             },
             minItems: 1,
             maxItems: 2,
-            additionalItems: false,
+            //additionalItems: false,
             default: [ 'biosyslit' ],
             description: 'The community on Zenodo; defaults to <b>"biosyslit"</b>'
         }

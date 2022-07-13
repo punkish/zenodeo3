@@ -1,11 +1,12 @@
-'use strict'
-
-module.exports = [
+export const dictionary = [
     {
         name: 'collectionCode',
         schema: {
             type: 'string',
-            description: 'The collection code for a natural history collection',
+            description: `The collection code for a natural history collection. Can use the following syntax:
+- \`collectionCode=USNM\`
+- \`collectionCode=starts_with(US)\`
+**Note:** queries involving inexact matches will be considerably slow`,
         },
         isResourceId: true,
         sqltype: 'TEXT',

@@ -1,6 +1,4 @@
-'use strict'
-
-module.exports = [
+export const dictionary = [
     {
         name: 'treatmentCitationId',
         schema: { 

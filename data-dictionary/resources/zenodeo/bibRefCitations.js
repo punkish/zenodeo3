@@ -1,12 +1,10 @@
-'use strict'
-
-const utils = require('../../../lib/utils.js');
+import * as utils from '../../../lib/utils.js';
 
 // <bibRefCitation id="75ECFE935FC03D66BBD3D34DB28684E7" author="Hinojosa-Diaz, I A" journalOrPublisher="Journal of Hymenoptera Research" pageId="0" pageNumber="6733" pagination="69 - 77" title="The North American Invasion of the Giant Resin Bee (Hymenoptera: Megachilidae)" volume="14" year="2005">
 
 // <bibRefCitation id="EC3F4B6FD744DE1FEC5E890BFAA7DE58" pageId="3" pageNumber="128" refId="ref7020" refString="Crews, S. C. &amp; Gillespie, R. G. (2010) Molecular systematics of Selenops spiders (Araneae: Selenopidae) from North and Central America: Implications for Caribbean biogeography. Biological Journal of the Linnean Society, 101, 288 - 322. https: // doi. org / 10.1111 / j. 1095 - 8312.2010.01494. x" type="journal article">CrEws &amp; GIllEspIE 2010</bibRefCitation>
 
-module.exports = [
+export const dictionary = [
     {
         name: 'bibRefCitationId',
         schema: { 
@@ -72,7 +70,7 @@ module.exports = [
     },
 
     {
-        name: 'type',
+        name: 'bibRefType',
         schema: {
             type: 'string',
             description: 'The type of reference cited by the treatment'
@@ -124,5 +122,5 @@ module.exports = [
             select: null,
             where : [ 'JOIN vbibrefcitations ON bibRefCitations.bibRefCitationId = vbibrefcitations.bibRefCitationId' ]
         }
-    },
+    }
 ]

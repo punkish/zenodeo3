@@ -1,47 +1,50 @@
-'use strict'
+/** 
+ * import env variables from .env into `process.env`
+ */
+import * as dotenv from 'dotenv';
+dotenv.config();
 
-const config = require('config');
-const port = config.get('port');
-const address = config.get('address');
-const ajvOpts = config.get('v3.ajv.options');
-const log = require('./lib/utils').logger('SERVER');
-//const querystring = require('qs')
-//const querystring = require('querystring')
+import { server } from './app.js';
+import { config } from './zconf/index.js';
 
+/**
+ * Function to initialize and start the server!
+ */
+const start = async () => {
+    const opts = {
 
-const server = require('./app')({
-    // querystringParser: str => {
-    //     console.log(querystring.parse(str, { comma: true }))
-    //     querystring.parse(str, { comma: true })
-    // },
-    logger: log,
-    ajv: ajvOpts,
-    
-    schemaErrorFormatter: (errors, dataVar) => {
-        // const err = []
-        // errors.forEach(e => {
-        //     if (e.keyword === 'errorMessage') {
-        //         err.push(e.message)
-        //     }
-        // })
-        
-        // return new Error(JSON.stringify(err.join('; ')))
-        return new Error(JSON.stringify(errors))
-    }
-})
+        /**
+         * setting 'exposeHeadRoutes' to false ensures only
+         * 'GET' routes are created without their accompanying 
+         * 'HEAD' routes
+         */
+        exposeHeadRoutes: false,
+        logger: config.pino.opts,
+        ajv: config.ajv.opts
+    };
 
-server.listen(port, address, (error, address) => {
-    if (error) {
-        server.log.error(error);
+    try {
+        const fastify = await server(opts);
+
+        /** 
+         * save the original request query params for use later
+         * because the query will get modified after schema 
+         * validation
+         */
+        fastify.addHook('preValidation', async (request, reply) => {
+            request.origQuery = JSON.parse(JSON.stringify(request.query));
+        });
+
+        await fastify.listen({ port: config.port });
+        fastify.log.info(`… in ${process.env.NODE_ENV.toUpperCase()} mode`);
+    } 
+    catch (err) {
+        console.log(err);
         process.exit(1);
     }
+};
 
-    server.blipp();
-    server.swagger();
-    
-    server.log.info(
-        'Server running in %s mode on %s', 
-        process.env.NODE_ENV ? process.env.NODE_ENV.toUpperCase() : 'DEVELOPMENT', 
-        address
-    )
-})
+/**
+ * Start the server!
+ */
+start();
