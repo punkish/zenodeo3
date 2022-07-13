@@ -75,7 +75,8 @@ const getResources = () => resources
     .map(r => r.name);
 
 // returns the source ('zenodeo' or 'zenodo') of a given resource
-//const getSourceOfResource = (resource) => resources[resource];
+const getSourceOfResource = (resource) => resources
+    .filter(r => r.name === resource)[0].source;
 
 // // returns the resources from a given source ('zenodeo' or 'zenodo')
 const getResourcesFromSource = (source) => resources
@@ -283,7 +284,7 @@ const getNotCols = () => commonparams.map(c => c.name);
 
 const dispatch = {
     getResources,
-    //getSourceOfResource,
+    getSourceOfResource,
     // getResourcesFromSource,
     // getParams,
     // getQueryableParams,

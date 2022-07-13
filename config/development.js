@@ -1,3 +1,7 @@
+import * as path from 'path';
+const cwd = process.cwd();
+const dataDir = path.join(cwd, '..', 'data');
+
 export const development = {
     "port": 3010,
     "address": "0.0.0.0",
@@ -5,8 +9,6 @@ export const development = {
         "zenodeo": "http://127.0.0.1:3010",
         "zenodo": "https://zenodo.org/api/records"
     },
-
-    "cacheOn": true,
 
     /**
      * logger options 
@@ -49,5 +51,22 @@ export const development = {
     /** 
      * add debug info to results 
      */ 
-    "isDebug": true
+    "isDebug": true,
+
+    "db": {
+        "treatments": path.join(dataDir, 'z3-treatments.sqlite'),
+        "gbifcollections": path.join(dataDir, 'z3-gbifcollections.sqlite'),
+        "facets": path.join(dataDir, 'z3-facets.sqlite'),
+        "stats": path.join(dataDir, 'z3-stats.sqlite')
+    },
+
+    "cache": {
+        "on": false,
+        "base": path.join(cwd, 'cache'),
+
+        /** 
+         * set default cache duration to 7 days
+         */ 
+        "ttl": 7 * 24 * 60 * 60 * 1000 
+    }
 }
