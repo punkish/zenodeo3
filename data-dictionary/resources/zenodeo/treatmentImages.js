@@ -112,6 +112,7 @@ const dictionary = [
     },
     {
         name: 'family',
+        dict: dictTreatments,
         alias: {
             select: 'treatments.family',
             where : 'treatments.family'
