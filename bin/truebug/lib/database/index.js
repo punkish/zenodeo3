@@ -1,29 +1,21 @@
 'use strict';
 
-// The following two lines make "require" available
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-
-// const config = require('config');
-import config from 'config';
-const truebug = config.get('truebug');
-
-// const Logger = require('../../utils');
-// const log = new Logger(truebug.log);
+import { config } from '../../../../zconf/index.js';
+const truebug = config.truebug;
 import { Zlogger } from '@punkish/zlogger';
-const logOpts = JSON.parse(JSON.stringify(config.get('truebug.log')));
-logOpts.name  = 'TRUEBUG:DATABASE';
-const log     = new Zlogger(logOpts);
+const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
+logOpts.name = 'TRUEBUG:DATABASE';
+const log = new Zlogger(logOpts);
 
-const isSea = require('is-sea');
-const Database = require('better-sqlite3');
+import isSea from 'is-sea';
 
+import Database from 'better-sqlite3';
 const db = {
-    treatments: new Database(config.get('db.treatments')),
-    stats: new Database(config.get('db.stats')),
+    treatments: new Database(config.db.treatments),
+    stats: new Database(config.db.stats)
 }
 
-const dbs = require('./dbs');
+import { dbs } from './dbs/index.js';
 
 const setPragmas = () => {
     db.treatments.pragma('synchronous = OFF');

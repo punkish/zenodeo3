@@ -85,6 +85,12 @@ const getResourcesFromSource = (source) => resources
 
 // params: all entries in the data dictionary for a given resource
 const getParams = (resource) => {
+    const p = resources.filter(r => r.name === resource)[0];
+    if (!p) {
+        console.log('-'.repeat(50));
+        console.log(resource);
+        console.log('-'.repeat(50));
+    }
     const params = resources
         .filter(r => r.name === resource)[0]
         .dictionary
@@ -177,14 +183,14 @@ const getDefaultCols = (resource) => getParams(resource)
 // const getFacetCols = (resource) => getCols(resource)
 //     .filter(p => p.facet)
 
-// const getSqlCols = (resource) => getParams(resource)
-//     .map(p => {
-//         return {
-//             name: p.name, 
-//             isResourceId: p.schema.isResourceId || false,
-//             cheerio: p.cheerio
-//         }
-//     })
+const getSqlCols = (resource) => getParams(resource)
+    .map(p => {
+        return {
+            name: p.name, 
+            isResourceId: p.schema.isResourceId || false,
+            cheerio: p.cheerio
+        }
+    })
 
 // const getSqlDefs = (resource) => getParams(resource)
 //     .filter(p => p.sqltype)
@@ -291,7 +297,7 @@ const dispatch = {
     // getCols,
     // getDefaultCols,
     // getFacetCols,
-    // getSqlCols,
+    getSqlCols,
     getSelect,
     // getWhere,
     getZqltype,

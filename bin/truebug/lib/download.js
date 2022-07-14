@@ -1,25 +1,14 @@
 'use strict'
 
-// The following two lines make "require" available
-// import { createRequire } from "module";
-// const require = createRequire(import.meta.url);
-
-// const https = require('https');
-// const execSync = require('child_process').execSync;
-
 import https from 'https';
 import { execSync } from 'child_process';
-// const fs = require('fs');
 import fs from 'fs';
 
-// const config = require('config');
-import config from 'config';
-const truebug = config.get('truebug');
-
+import { config } from '../../../zconf/index.js';
 import { Zlogger } from '@punkish/zlogger';
-const logOpts = JSON.parse(JSON.stringify(config.get('truebug.log')));
-logOpts.name  = 'TRUEBUG:DOWNLOAD';
-const log     = new Zlogger(logOpts);
+const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
+logOpts.name = 'TRUEBUG:DOWNLOAD';
+const log = new Zlogger(logOpts);
 
 const checkRemote = (typeOfArchive = 'daily') => {
     const options = {
@@ -37,7 +26,7 @@ const checkRemote = (typeOfArchive = 'daily') => {
                 result.sizeOfArchive = res.headers['content-length'];
             }
 
-            resolve(result)
+            resolve(result);
         });
         
         req.on('error', (error) => console.error(error));
@@ -50,18 +39,19 @@ const checkRemote = (typeOfArchive = 'daily') => {
 const unzip = function(source) {    
     log.info(`unzipping ${source} archive`);
 
-    const archive = `${truebug.dirs.data}/${truebug.download[source]}`;
-    const cmd = `unzip -q -n ${archive} -d ${truebug.dirs.dump}`;
+    const archive = `${config.truebug.dirs.data}/${config.truebug.download[source]}`;
+    const cmd = `unzip -q -n ${archive} -d ${config.truebug.dirs.dump}`;
 
-    if (truebug.run === 'real') {
+    if (config.truebug.run === 'real') {
         execSync(cmd);
         let numOfFiles = Number(execSync(`unzip -Z -1 ${archive} | wc -l`).toString().trim());
 
-        // check if there is an index.xml included in the archive; 
-        // if yes, remove it
-        const idx = `${truebug.dirs.dump}/index.xml`
-        if (fs.existsSync(idx)) {
-            fs.rmSync(idx);
+        /**
+         * check if there is an index.xml included in the archive; 
+         * if yes, remove it
+         */
+        if (fs.existsSync(`${config.truebug.dirs.dump}/index.xml`)) {
+            fs.rmSync(`${config.truebug.dirs.dump}/index.xml`);
             numOfFiles--;
         }
 
@@ -72,10 +62,10 @@ const unzip = function(source) {
 }
 
 const download = (source) => {
-    const local = `${truebug.dirs.data}/${truebug.download[source]}`;
-    const remote = `${truebug.server}/${truebug.download[source]}`;
+    const local = `${config.truebug.dirs.data}/${config.truebug.download[source]}`;
+    const remote = `${config.truebug.server}/${config.truebug.download[source]}`;
     
-    if (truebug.run === 'real') {
+    if (config.truebug.run === 'real') {
         log.info(`downloading ${source} archive`);
         execSync(`curl -s -o ${local} '${remote}'`);
     }

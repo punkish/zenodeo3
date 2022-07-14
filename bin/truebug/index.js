@@ -1,36 +1,33 @@
 'use strict';
 
-import * as preflight from './lib/preflight.mjs';
-import * as postflight from './lib/preflight.mjs';
-import * as download from './lib/download.mjs';
-import * as database from './lib/database/index.mjs';
-import * as parse from './lib/parse.mjs';
+import * as preflight from './lib/preflight.js';
+import * as postflight from './lib/preflight.js';
+import * as download from './lib/download.js';
+import * as database from './lib/database/index.js';
+import * as parse from './lib/parse.js';
 import { config } from '../../zconf/index.js';
 
-const truebug    = config.get('truebug');
-
 import { Zlogger } from '@punkish/zlogger';
-// import { Zlogger } from '../../../../zlogger/index.js';
-const logOpts = JSON.parse(JSON.stringify(config.get('truebug.log')));
-logOpts.name  = 'TRUEBUG';
-const log     = new Zlogger(logOpts);
+const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
+logOpts.name = 'TRUEBUG';
+const log = new Zlogger(logOpts);
 
 const processFiles = (files) => {
 
-    /**************************************************************
+    /**
      * 
      * update the progress bar every x% of the total num of files
      * but x% of j should not be more than 5000 because we don't 
      * want to insert more than 5K records at a time.
      * 
-     **************************************************************/
+     */
     const totalFiles = files.length;
     const startingFile = 0;
     let i = startingFile;
     const batch = totalFiles < 5000 ? Math.floor(totalFiles / 10) : 5000;
     const dot = batch / 10;
 
-    log.info(`parsing, inserting in db and refiling ${totalFiles} treatments ${batch} at a time`);
+    log.info(`parsing, inserting, refiling ${totalFiles} treatments ${batch} at a time`);
 
     let transactions = 0;
     let done = 0;
@@ -54,10 +51,14 @@ const processFiles = (files) => {
                 else {
                     if (i === (totalFiles - 1)) {
 
-                        // the last remaining files
+                        /** 
+                         * the last remaining files 
+                         */ 
                         database.insertData();
         
-                        // the last transaction
+                        /** 
+                         * the last transaction 
+                         */ 
                         transactions++;
                         log.info(`${totalFiles} [done]\n`, 'end');
                     }
@@ -80,7 +81,9 @@ const etl = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
 
     const stats = [];
 
-    // start download
+    /** 
+     * start download
+     */
     const action = {
         started: new Date().getTime(),
         process: 'download',
@@ -101,7 +104,9 @@ const etl = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
     log.info('-'.repeat(80));
     log.info(`${action.process.toUpperCase()} took: ${action.ended - action.started} ms`);
 
-    // start ETL
+    /** 
+     * start ETL
+     */
     if (numOfFiles) {
         const files = preflight.filesExistInDump();
         log.info(`${files.length} files exist in dump… let's ETL them`);
@@ -153,7 +158,9 @@ const update = async (typeOfArchives) => {
 
         if (lastUpdate.started) {
 
-            // the remote archive's time is newer than the last update
+            /** 
+             * the remote archive's time is newer than the last update
+             */
             if (result.timeOfArchive > lastUpdate.started) {
                 etl(typeOfArchive, result.timeOfArchive, result.sizeOfArchive);
             }
@@ -166,7 +173,9 @@ const update = async (typeOfArchives) => {
             etl(typeOfArchive, result.timeOfArchive, result.sizeOfArchive);
         }
 
-        // check the next shorter timePeriod
+        /** 
+         * check the next shorter timePeriod
+         */
         if (typeOfArchives.length) {
             update(typeOfArchives);
         }
@@ -177,7 +186,9 @@ const update = async (typeOfArchives) => {
     }
 }
 
-// `truebug` starts here
+/** 
+ * `truebug` starts here
+ */
 const init = () => {
     const run = process.argv[2];
     if (run === 'getCounts') {
@@ -188,11 +199,11 @@ const init = () => {
     }
     else if (run === 'etl') {
         log.info('='.repeat(80));
-        log.info(`STARTING TRUEBUG (mode ${truebug.run})`);
+        log.info(`STARTING TRUEBUG (mode ${config.truebug.run})`);
     
-        if (truebug.source === 'single') {
-            preflight.copyXmlToDump(`${truebug.download.single}.xml`);
-            const treatment = parse.parseOne(truebug.download.single);
+        if (config.truebug.source === 'single') {
+            preflight.copyXmlToDump(`${config.truebug.download.single}.xml`);
+            const treatment = parse.parseOne(config.truebug.download.single);
             console.log(treatment);
         }
         else {
@@ -204,7 +215,9 @@ const init = () => {
             const numOfTreatments = database.selCountOfTreatments();
             log.info(`found ${numOfTreatments} treatments in the db`);
             
-            // There are no treatments in the db so no ETL was ever done
+            /** 
+             * There are no treatments in the db so no ETL was ever done
+             */
             if (numOfTreatments === 0) {
                 etl('full', null, null);
             }
@@ -224,5 +237,5 @@ init();
 HOME=/Users/punkish
 PATH=/Users/punkish/.nvm/versions/node/v16.14.0/bin:/opt/local/bin:/opt/local/sbin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/Little Snitch.app/Contents/Components:/opt/X11/bin:/Library/Apple/usr/bin
 NODE_ENV=cron
-0 0 * * * cd ~/Projects/zenodeo/zenodeo3 && node ~/Projects/zenodeo/zenodeo3/bin/truebug
+0 0 * * * cd ~/Projects/zenodeo/zenodeo3 && node ~/Projects/zenodeo/zenodeo3/bin/truebug/index.js etl
 */

@@ -42,4 +42,4 @@ const indexes = [
     `CREATE INDEX IF NOT EXISTS ix_treatmentAuthors_deleted           ON treatmentAuthors (deleted)`,
 ]
 
-module.exports = { tables, indexes }
+export { tables, indexes }

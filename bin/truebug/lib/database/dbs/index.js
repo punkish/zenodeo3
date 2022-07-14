@@ -1,23 +1,24 @@
-// const treatments = require('./treatments/treatments');
-// const treatmentcitations = require('./treatments/treatmentcitations');
-// const treatmentauthors = require('./treatments/treatmentauthors');
-// const bibrefcitations = require('./treatments/bibrefcitations');
-// const figurecitations = require('./treatments/figurecitations');
-// const materialscitations = require('./treatments/materialscitations');
-// const stats = require('./stats/stats');
+import * as treatments from './treatments/treatments.js';
+import * as treatmentcitations from './treatments/treatmentcitations.js';
+import * as treatmentauthors from './treatments/treatmentauthors.js';
+import * as bibrefcitations from './treatments/bibrefcitations.js';
+import * as figurecitations from './treatments/figurecitations.js';
+import * as materialcitations from './treatments/materialcitations.js';
+import * as treatmentimages from './treatments/treatmentimages.js';
+import * as stats from './stats/stats.js';
 
 const parts = {
     treatments: [
-        require('./treatments/treatments'),
-        require('./treatments/treatmentcitations'),
-        require('./treatments/treatmentauthors'),
-        require('./treatments/bibrefcitations'),
-        require('./treatments/figurecitations'),
-        require('./treatments/materialscitations'),
-        require('./treatments/treatmentimages')
+        treatments,
+        treatmentcitations,
+        treatmentauthors,
+        bibrefcitations,
+        figurecitations,
+        materialcitations,
+        treatmentimages
     ],
     stats: [
-        require('./stats/stats')
+        stats
     ]
 }
 
@@ -31,40 +32,4 @@ for (let [db, value] of Object.entries(parts)) {
     })
 }
 
-// const dbs = {
-//     treatments: {
-//         tables: [
-//             treatments.tables,
-//             treatmentcitations.tables,
-//             treatmentauthors.tables,
-//             bibrefcitations.tables,
-//             figurecitations.tables,
-//             materialscitations.tables,
-//         ],
-
-//         indexes: [
-//             treatments.indexes,
-//             treatmentcitations.indexes,
-//             treatmentauthors.indexes,
-//             bibrefcitations.indexes,
-//             figurecitations.indexes,
-//             materialscitations.indexes,
-//         ]
-//     },
-//     stats : {
-//         tables: [
-//             stats.tables
-//         ],
-//         indexes: stats.indexes
-//     },
-//     // facets: {
-//     //     tables: [],
-//     //     indexes: []
-//     // },
-//     // gbifcollections: {
-//     //     tables: [],
-//     //     indexes: []
-//     // }
-// }
-
-module.exports = dbs;
+export { dbs }

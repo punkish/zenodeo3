@@ -44,4 +44,4 @@ const indexes = [
     `CREATE INDEX IF NOT EXISTS ix_treatmentCitations_refString         ON treatmentCitations (deleted, Lower(refString)) WHERE deleted = 0`,
 ]
 
-module.exports = { tables, indexes }
+export { tables, indexes }

@@ -79,4 +79,4 @@ const indexes = [
     `CREATE INDEX IF NOT EXISTS ix_bibRefCitations_deleted          ON bibRefCitations (deleted)`,
 ]
 
-module.exports = { tables, indexes }
+export { tables, indexes }

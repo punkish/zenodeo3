@@ -73,4 +73,4 @@ const tables = [
 
 const indexes = []
 
-module.exports = { tables, indexes }
+export { tables, indexes }

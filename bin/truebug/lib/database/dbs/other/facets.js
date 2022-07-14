@@ -3,4 +3,4 @@ const db = {
     alias: 'fa'
 }
 
-module.exports = db
+export { db }

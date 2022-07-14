@@ -70,4 +70,4 @@ const indexes = [
     `CREATE INDEX IF NOT EXISTS ix_figureCitations_httpUri                                ON figureCitations (deleted, httpUri)`
 ]
 
-module.exports = { tables, indexes }
+export { tables, indexes }

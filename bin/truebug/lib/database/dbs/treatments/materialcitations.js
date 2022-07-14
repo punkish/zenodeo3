@@ -260,4 +260,4 @@ const indexes = [
     `CREATE INDEX IF NOT EXISTS ix_collectionCodes_collectionCode         ON collectionCodes (collectionCode)`,
 ]
 
-module.exports = { tables, indexes }
+export { tables, indexes }

@@ -1,25 +1,18 @@
-'use strict'
+'use strict';
 
-// The following two lines make "require" available
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
+import fs from 'fs';
+import path from 'path';
+import isSea from 'is-sea';
+import cheerio from 'cheerio';
+import Chance from 'chance';
+const chance = Chance();
 
-const fs = require('fs')
-const path = require('path')
-const cheerio = require('cheerio')
-const chance = require('chance').Chance()
-
-const config = require('config');
-const truebug = config.get('truebug');
-
+import { config } from '../../../zconf/index.js';
+import { dispatch as ddutils } from '../../../data-dictionary/dd-utils.js';
 import { Zlogger } from '@punkish/zlogger';
-const logOpts = JSON.parse(JSON.stringify(config.get('truebug.log')));
-logOpts.name  = 'TRUEBUG:PARSE';
-const log     = new Zlogger(logOpts);
-
-const isSea = require('is-sea');
-
-const { getSqlCols } = require('../../../data-dictionary/dd-utils')
+const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
+logOpts.name = 'TRUEBUG:PARSE';
+const log = new Zlogger(logOpts);
 
 const stats = {
     treatments: 0,
@@ -32,21 +25,21 @@ const stats = {
 const calcStats = (treatment) => {
     stats.treatments++;
 
-    stats.treatmentCitations += treatment.treatmentCitations ? 
-        treatment.treatmentCitations.length : 
-        0;
+    stats.treatmentCitations += treatment.treatmentCitations 
+        ? treatment.treatmentCitations.length 
+        : 0;
 
-    stats.materialsCitations += treatment.materialsCitations ? 
-        treatment.materialsCitations.length : 
-        0;
+    stats.materialsCitations += treatment.materialsCitations 
+        ? treatment.materialsCitations.length 
+        : 0;
 
-    stats.figureCitations += treatment.figureCitations ? 
-        treatment.figureCitations.length : 
-        0;
+    stats.figureCitations += treatment.figureCitations 
+        ? treatment.figureCitations.length 
+        : 0;
 
-    stats.bibRefCitations += treatment.bibRefCitations ? 
-        treatment.bibRefCitations.length : 
-        0;
+    stats.bibRefCitations += treatment.bibRefCitations 
+        ? treatment.bibRefCitations.length 
+        : 0;
 }
 
 const parseTreatmentCitations = function($, treatmentId) {
@@ -73,10 +66,9 @@ const parseTreatmentCitations = function($, treatmentId) {
             const treatmentCitations = $('treatmentCitation', trecitgroup);
 
             let treatmentCitation;
-            const l = treatmentCitations.length;
-            if (l) {
-
-                for (let k = 0; k < l; k++) {
+            const tlen = treatmentCitations.length;
+            if (tlen) {
+                for (let k = 0; k < tlen; k++) {
                     treatmentCitation = tcPrefix;
 
                     const bib = $('bibRefCitation', treatmentCitations[k]);
@@ -138,17 +130,16 @@ const parseTreatmentAuthors = function($, treatmentId) {
             const role = $('mods\\:role mods\\:roleTerm', treaut[i]).text();
             
             if (role === 'Author') {
-                let deleted = 0;
-                if ($('mods\\:namePart', treaut[i]).attr('deleted') && ($('mods\\:namePart', treaut[i]).attr('deleted') === 'true')) {
-                    deleted = 1;
-                }
+                const delExists = $('mods\\:namePart', treaut[i]).attr('deleted');
+                const isDel = ($('mods\\:namePart', treaut[i]).attr('deleted') === 'true');
+                const deleted = delExists && isDel ? 1 : 0;
 
                 ta.push({
                     treatmentAuthorId: $('mods\\:namePart', treaut[i]).attr('id') || chance.guid(),
-                    treatmentId: treatmentId,
+                    treatmentId,
                     treatmentAuthor: $('mods\\:namePart', treaut[i]).text() || '',
                     updateVersion: $('mods\\:namePart', treaut[i]).attr('updateVersion'),
-                    deleted: deleted
+                    deleted
                 })
             }
         }
@@ -162,7 +153,7 @@ const _parse = function($, part, parts, partId, treatmentId) {
     const num = elements.length;
     let entries = [];
 
-    const allCols = getSqlCols(parts)
+    const allCols = ddutils.getSqlCols(parts)
 
     if (num) {
         for (let i = 0; i < num; i++) {
@@ -216,7 +207,7 @@ const parseFigureCitations = function($, treatmentId) {
     if (num) {
 
 
-        const allCols = getSqlCols('figureCitations')
+        const allCols = ddutils.getSqlCols('figureCitations')
         
         for (let i = 0; i < num; i++) {
             if (elements[i].parent.name !== 'updateHistory') {
@@ -312,7 +303,7 @@ const parseMaterialsCitations = function($, treatmentId) {
     const entries = [];
     const mc = [];
 
-    const allCols = getSqlCols('materialsCitations')
+    const allCols = ddutils.getSqlCols('materialCitations')
 
     if (num) {
         for (let i = 0; i < num; i++) {
@@ -379,7 +370,7 @@ const parseMaterialsCitations = function($, treatmentId) {
 const parseTreatment = function($, treatmentId) {
     let treatment = {};
     
-    const allCols = getSqlCols('treatments')
+    const allCols = ddutils.getSqlCols('treatments')
     allCols.forEach(el => {
         if (el.cheerio) {
             let val
@@ -448,7 +439,9 @@ const parseOne = (xml) => {
     const treatmentId = path.basename(xml, '.xml');
 
     if (treatmentId.length != 32 || !treatmentIdRegex.test(treatmentId)) {
-        const treatment = cheerioparse(fs.readFileSync(`${truebug.dirs.dump}/${xml}`, 'utf8'), treatmentId);
+        const treatmentXml = `${config.truebug.dirs.dump}/${xml}`;
+        const xmlContent = fs.readFileSync(treatmentXml, 'utf8');
+        const treatment = cheerioparse(xmlContent, treatmentId);
         return treatment;
     }
     else {
