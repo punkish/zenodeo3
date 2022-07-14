@@ -1,7 +1,7 @@
 // see https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289 
 // for notes from @gsautter
 
-/*
+/**
  * All params are queryable unless notqueryable is true
  * Params with 'defaultCols' = true are SELECT-ed by default
  * Param 'type' is looked up in ../definitions.js to create the schema

@@ -268,8 +268,9 @@ import { dictionary as dictCollectionCodes } from './collectionCodes.js';
     {
         name: 'latitude',
         schema: {
-            type: 'number',
-            pattern: utils.re.real,
+            type: "number",
+            minimum: -90,
+            maximum: 90,
             description: `The geolocation of the treatment.`,
         },
         sqltype: 'TEXT',
@@ -280,8 +281,9 @@ import { dictionary as dictCollectionCodes } from './collectionCodes.js';
     {
         name: 'longitude',
         schema: {
-            type: 'number',
-            pattern: utils.re.real,
+            type: "number",
+            minimum: -180,
+            maximum: 180,
             description: 'The geolocation of the treatment.',
         },
         sqltype: 'TEXT',
@@ -343,7 +345,7 @@ import { dictionary as dictCollectionCodes } from './collectionCodes.js';
     {
         name: 'validGeo',
         schema: {
-            type: 'number',
+            type: 'boolean',
             description: 'True if treatment has a valid geolocation.',
         },
         sqltype: 'INTEGER'
@@ -352,7 +354,7 @@ import { dictionary as dictCollectionCodes } from './collectionCodes.js';
     {
         name: 'isOnLand',
         schema: {
-            type: 'number',
+            type: 'boolean',
             description: 'True if treatment is on land.',
         },
         sqltype: 'INTEGER DEFAULT NULL'

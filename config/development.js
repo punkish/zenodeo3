@@ -28,23 +28,21 @@ export const development = {
 
     "ajv": {
         "opts": {
-            "customOptions": {
 
-                /** 
-                 * removeAdditional -> false ensures the server croaks
-                 * when the user sends unspecific k,v pairs in the query
-                 */
-                "removeAdditional": false,
-                "useDefaults": true,
+            /** 
+             * removeAdditional -> false ensures the server croaks
+             * when the user sends unspecific k,v pairs in the query
+             */
+            "removeAdditional": false,
+            "useDefaults": true,
 
-                /** 
-                 * coerceTypes -> "array" ensures the scalar values are 
-                 * coerced to their proper types, for example, strings to
-                 * numbers, and single values are coerced to arrays
-                 */
-                "coerceTypes": "array",
-                "allErrors": false
-            }
+            /** 
+             * coerceTypes -> "array" ensures the scalar values are 
+             * coerced to their proper types, for example, strings to
+             * numbers, and single values are coerced to arrays
+             */
+            "coerceTypes": "array",
+            "allErrors": true
         }
     },
 
@@ -90,18 +88,18 @@ export const development = {
         "source": 'daily',
         //source: 'single',
 
-        /*
-        by default, download the daily dump, and then go to
-        the larger ones if a smaller one doesn't exist:
-         - if plazi.zenodeo.daily.zip exists => use it
-         - else if plazi.zenodeo.weekly.zip exists => use it
-         - else if plazi.zenodeo.monthly.zip exists => use it
-         - else use plazi.zenodeo.zip
-
-        The full dump is packed once a year now
-        The monthly dump is packed on the first Sunday of the month
-        The weekly dump is packed every Sunday
-        The daily dump is packed every day
+        /**
+         * by default, download the daily dump, and then go to
+         * the larger ones if a smaller one doesn't exist:
+         *  - if plazi.zenodeo.daily.zip exists => use it
+         *  - else if plazi.zenodeo.weekly.zip exists => use it
+         *  - else if plazi.zenodeo.monthly.zip exists => use it
+         *  - else use plazi.zenodeo.zip
+         * 
+         * The full dump is packed once a year now
+         * The monthly dump is packed on the first Sunday of the month
+         * The weekly dump is packed every Sunday
+         * The daily dump is packed every day
         */
         "download": {
 
