@@ -13,8 +13,7 @@ import Database from 'better-sqlite3';
 const db = {
     treatments: new Database(config.db.treatments),
     stats: new Database(config.db.stats)
-}
-
+};
 import { dbs } from './dbs/index.js';
 
 const setPragmas = () => {
@@ -27,15 +26,17 @@ const prepareDatabases = () => {
 
     for (let [database, dbdesc] of Object.entries(dbs)) {
 
-        /*
-            'database' is either 'treatments' or 'stats' and 
-            'dbdesc' is an object of 'tables' and 'indexes' 
-        */
+        /**
+         *   'database' is either 'treatments' or 'stats' and 
+         *   'dbdesc' is an object of 'tables' and 'indexes' 
+         */
         log.info(`preparing database ${database}`);
 
         for (let [k, v] of Object.entries(dbdesc)) {
 
-            //'k' is an array of either 'tables' or 'indexes'
+            /**
+             * 'k' is an array of either 'tables' or 'indexes'
+             */
             if (k === 'tables') {
                 log.info('creating tables and preparing insert statements')
 
@@ -56,17 +57,19 @@ const prepareDatabases = () => {
     }
 }
 
-/*
-    Convert an array of single treatments into 
-    flattened array of arrays of treatment parts 
-    suitable for transaction insert in the db
+/**
+*   Convert an array of single treatments into a
+*   flattened array of arrays of treatment parts 
+*   suitable for transaction insert in the db
 */
 const repackageTreatment = (treatment) => {
     dbs.treatments.tables.forEach(t => {
         if (truebug.run === 'real') {
             if (t.type === 'normal') {
 
-                // note the name of the table is 'treatments' (plural)
+                /**
+                 * note the name of the table is 'treatments' (plural) 
+                 */ 
                 if (t.name === 'treatments') {
                     t.data.push(treatment.treatment);
                 }
@@ -84,11 +87,11 @@ const repackageTreatment = (treatment) => {
     })
 }
 
-/*
-    Resets the data structure by emptrying it.
-    This is very important as without this step,
-    nodejs will run out of memory and crash.
-*/
+/**
+ *   Resets the data structure by emptrying it.
+ *   This is very important as without this step,
+ *   nodejs will run out of memory and crash.
+ */
 const resetData = () => {
     dbs.treatments.tables.forEach(t => {
         if (truebug.run === 'real') {
@@ -104,11 +107,11 @@ const insertData = () => {
         if (truebug.run === 'real') {
             if (t.type === 'normal') {
 
-                /*
-                    Create a transaction function that takes an 
-                    array of rows and inserts them in the db 
-                    row by row.
-                */
+                /**
+                 *   Create a transaction function that takes an 
+                 *   array of rows and inserts them in the db 
+                 *   row by row.
+                 */
                 const insertMany = db.treatments.transaction((rows) => {
                     for (const row of rows) {  
                         try {

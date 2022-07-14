@@ -296,6 +296,10 @@ const isOnLand = (latitude, longitude) => {
 }
 
 const parseMaterialsCitations = function($, treatmentId) {
+
+    /** 
+     * see note below on naming
+     */
     const elements = $('materialsCitation');
 
     const num = elements.length;
@@ -303,6 +307,14 @@ const parseMaterialsCitations = function($, treatmentId) {
     const entries = [];
     const mc = [];
 
+    /**
+     * Note on name
+     * ------------------------------------------------------------
+     * we now use 'materialCitations' instead of 'materialsCitation'
+     * because that is what TDWG has accepted as a name. However, 
+     * for historical reasons, the xml tag is 'materialsCitation', 
+     * hence the db table definitions use 'materialsCitation'
+     */
     const allCols = ddutils.getSqlCols('materialCitations')
 
     if (num) {
