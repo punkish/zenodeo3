@@ -2,77 +2,21 @@
 
 import util from 'node:util';
 import { commonparams } from './resources/commonparams.js';
-import { resources } from './resources.js'
+import { resources } from './resources.js';
 
-/*
-elements are extracted from articles (-> 'cheerio')
-and stored in a db (-> 'sqltype' ) table (-> 'resource').
+const tableFromResource = (resource) => {
+    let table = resource;
 
-A REST query is made of params that can be directly mapped to 
-a sql column (-> 'name') or a sql expression (-> 'selname').
-In some cases, the sql expression has to be calculated 
-based on the values of the param submitted in the query.
+    if (resource === 'materialCitations') {
+        table = 'materialsCitations';
+    }
 
-Every param has an entry in the data-dictionary. The entry 
-includes a schema (-> 'schema') that describes the data type 
-of the param
-
-
-query string pattern
-`<resource>/?<key> =<val>&<key> =<val>`
-
-## Case 1
-
-condition:  query key maps directly to a resource column
-example  :  `treatments/?treatmentTitle=some text`
-dd       :  {
-                name: 'treatmentTitle'
-            }
-select   :  ${resource}.${key.name}
-            treatments.treatmentTitle
-operator :  =
-where    :  ${resource}.${key.name} ${operator} ${val} 
-            treatments.treatmentTitle = 'some text'
-
-## Case 2
-
-condition:  query param maps to an expression
-example  :  `treatments/?q=some text`
-dd       :  {
-                name: 'q'
-                alias: {
-                    select: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
-                    where : 'vtreatments'
-                }
-            }
-select   :  ${key.alias.select}
-            snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet
-operator :  MATCH
-where    :  ${key.alias.where} = ${val}
-            vtreatments MATCH 'some text'
-
-## Case 3
-
-condition:  query param maps to a column from a different resource
-example  :  `treatments/?httpUri=ne('')`
-dd       :  {
-                name: 'httpUri'
-                alias: {
-                    select: 'figureCitations.httpUri',
-                    where : 'figureCitations.httpUri'
-                }
-            }
-operator :  !=
-select   :  ${key.alias.select}
-            figureCitations.httpUri
-where    :  ${key.alias.where} = ${val}
-            figureCitations.httpUri != ''
-*/
+    return table;
+}
 
 // resources: REST resources that map 1 -> 1 to SQL tables
 // returns an array of resource names
-const getResources = () => resources
-    .map(r => r.name);
+const getResources = () => resources.map(r => r.name);
 
 // returns the source ('zenodeo' or 'zenodo') of a given resource
 const getSourceOfResource = (resource) => resources
@@ -85,35 +29,35 @@ const getResourcesFromSource = (source) => resources
 
 // params: all entries in the data dictionary for a given resource
 const getParams = (resource) => {
-    const p = resources.filter(r => r.name === resource)[0];
-    if (!p) {
-        console.log('-'.repeat(50));
-        console.log(resource);
-        console.log('-'.repeat(50));
-    }
+    // const p = resources.filter(r => r.name === resource)[0];
+    // if (!p) {
+    //     console.log('-'.repeat(50));
+    //     console.log(resource);
+    //     console.log('-'.repeat(50));
+    // }
     const params = resources
         .filter(r => r.name === resource)[0]
         .dictionary
         .concat(...commonparams);
 
+    const table = tableFromResource(resource);
 
     params.forEach(p => {
-        p.selname = p.sqltype ? `${resource}.${p.name}` : p.name;
+        p.selname = p.sqltype ? `${table}.${p.name}` : p.name;
     })
 
     return params;
 }
 
-// // resourceId of a resource
+// resourceId of a resource
 const getResourceid = (resource) => {
-    const resourceId = getParams(resource)
-        .filter(p => p.isResourceId)[0];
-    
-    // return {
-    //     name: resourceId.name,
-    //     selname: resourceId.selname
-    // }
-    return resourceId.name;
+    const table = tableFromResource(resource);
+
+    let resourceIdName = getParams(resource)
+        .filter(p => p.isResourceId)[0]
+        .name;
+
+    return `${table}.${resourceIdName}`;
 }
 
 // // const getSelname = (resource, param) => {
@@ -134,8 +78,8 @@ const getResourceid = (resource) => {
 // //     })
 
 // // queryableParams: dd entries that are allowed in a REST query
-// const getQueryableParams = (resource) => getParams(resource)
-//     .filter(p => !('notQueryable' in p));
+const getQueryableParams = (resource) => getParams(resource)
+    .filter(p => !('notQueryable' in p));
 
 // // All queryable params of a resource with default values
 // // const getQueryableParamsWithDefaul`ts = function(resource) {
@@ -201,9 +145,11 @@ const getSqlCols = (resource) => getParams(resource)
 //     })
 
 const _getName = (resource, col, type) => {
-    return col.alias && col.alias[type] ? 
-        col.alias[type] : 
-        `${resource}.${col.name}`
+    const table = tableFromResource(resource);
+
+    return col.alias && col.alias[type] 
+        ? col.alias[type] 
+        : `${table}.${col.name}`
 }
 
 // // getSelect: the column name or expression used in a SQL query
@@ -234,18 +180,14 @@ const getQueryStringSchema = function(resource) {
     const params = JSON.parse(JSON.stringify(getParams(resource)));
     const resourcesFromZenodeo = getResourcesFromSource('zenodeo');
 
-    const schema = {
-        //type: 'object',
-        //properties: {},
-        //additionalProperties: false
-    };
+    const schema = {};
     
     params.forEach(p => {
         if (p.name === 'sortby') {
             const resourceId = getResourceid(resource);
             p.schema.default = p.schema.default.replace(
                 /resourceId/, 
-                `${resource}.${resourceId}`
+                resourceId
             );
         }
 
@@ -271,10 +213,9 @@ const getQueryStringSchema = function(resource) {
         }
 
         schema[p.name] = p.schema;
-    })
+    });
 
-    //console.log(schema)
-    return schema
+    return schema;
 }
 
 const getNotCols = () => commonparams.map(c => c.name);
@@ -293,19 +234,20 @@ const dispatch = {
     getSourceOfResource,
     // getResourcesFromSource,
     // getParams,
-    // getQueryableParams,
+    getQueryableParams,
     // getCols,
     // getDefaultCols,
     // getFacetCols,
     getSqlCols,
     getSelect,
-    // getWhere,
+    getWhere,
     getZqltype,
     getQueryStringSchema,
     getResourceid,
     getJoin,
     getNotCols,
     // getSqlDefs
+    tableFromResource
 }
 
 const test = () => {

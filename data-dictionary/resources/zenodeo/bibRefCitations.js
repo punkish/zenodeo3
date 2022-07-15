@@ -70,7 +70,11 @@ export const dictionary = [
     },
 
     {
-        name: 'bibRefType',
+        name: 'type',
+        alias: {
+            select: 'type AS bibRefType',
+            where: 'type AS bibRefType'
+        },
         schema: {
             type: 'string',
             description: 'The type of reference cited by the treatment'

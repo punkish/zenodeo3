@@ -20,7 +20,15 @@ const start = async () => {
          */
         exposeHeadRoutes: false,
         logger: config.pino.opts,
-        ajv: config.ajv.opts
+
+        /** 
+         * ajv options are provided in the key 'customOptions'.
+         * This is different from when ajv is called in a 
+         * stand-alone script (see `validate()` in lib/zql/z-utils.js)
+         */
+        ajv: {
+            customOptions: config.ajv.opts
+        }
     };
 
     try {

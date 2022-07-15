@@ -27,7 +27,7 @@ import { dictionary as dictCollectionCodes } from './collectionCodes.js';
             maxLength: 32, 
             minLength: 32,
             description: `The unique ID of the parent treatment (FK). Has to be a 32 character string:
-            - \`treatmentId=00078788D744DE18E88B8B8BFE7FDBF9\``
+- \`treatmentId=00078788D744DE18E88B8B8BFE7FDBF9\``
         },
         sqltype: 'TEXT NOT NULL'
     },
@@ -36,7 +36,7 @@ import { dictionary as dictCollectionCodes } from './collectionCodes.js';
         name: 'collectingDate',
         schema: {
             type: 'string',
-            format: 'date',
+            pattern: utils.re.date,
             description: 'The date when the specimen was collected',
         },
         sqltype: 'TEXT',
@@ -311,7 +311,6 @@ import { dictionary as dictCollectionCodes } from './collectionCodes.js';
         name: 'httpUri',
         schema: {
             type: 'string',
-            format: 'uri',
             description: 'The persistent identifier of the specimen'
         },
         sqltype: 'TEXT',

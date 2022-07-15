@@ -1,11 +1,17 @@
 see [notes from @gsautter](https://github.com/plazi/Plazi-Communications/issues/1044#issuecomment-661246289)
 
 
-elements are extracted from articles (-> cheerio expression)
-and stored in a db (-> sql column) table (-> resource).
+Elements are extracted from articles (-> 'cheerio')
+and stored in a db (-> 'sqltype' ) table (-> 'resource').
 
-rest query is made of params that can be directly mapped to a sql column 
-or can be a sql expression
+A REST query is made of params that can be directly mapped to 
+a sql column (-> 'name') or a sql expression (-> 'selname').
+In some cases, the sql expression has to be calculated 
+based on the values of the param submitted in the query.
+
+Every param has an entry in the data-dictionary. The entry 
+includes a schema (-> 'schema') that describes the data type 
+of the param
 
 All params are queryable unless notqueryable is true
 
@@ -66,3 +72,53 @@ The dictionary defines each param that can be used in a REST query. As such, it 
         notQueryable: true
     }
 ```
+
+query string pattern
+`<resource>/?<key> =<val>&<key> =<val>`
+
+## Case 1
+
+condition:  query key maps directly to a resource column
+example  :  `treatments/?treatmentTitle=some text`
+dd       :  {
+                name: 'treatmentTitle'
+            }
+select   :  ${resource}.${key.name}
+            treatments.treatmentTitle
+operator :  =
+where    :  ${resource}.${key.name} ${operator} ${val} 
+            treatments.treatmentTitle = 'some text'
+
+## Case 2
+
+condition:  query param maps to an expression
+example  :  `treatments/?q=some text`
+dd       :  {
+                name: 'q'
+                alias: {
+                    select: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
+                    where : 'vtreatments'
+                }
+            }
+select   :  ${key.alias.select}
+            snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet
+operator :  MATCH
+where    :  ${key.alias.where} = ${val}
+            vtreatments MATCH 'some text'
+
+## Case 3
+
+condition:  query param maps to a column from a different resource
+example  :  `treatments/?httpUri=ne('')`
+dd       :  {
+                name: 'httpUri'
+                alias: {
+                    select: 'figureCitations.httpUri',
+                    where : 'figureCitations.httpUri'
+                }
+            }
+operator :  !=
+select   :  ${key.alias.select}
+            figureCitations.httpUri
+where    :  ${key.alias.where} = ${val}
+            figureCitations.httpUri != ''
