@@ -124,8 +124,11 @@ const getDefaultCols = (resource) => getParams(resource)
     .filter(p => !('notDefaultCol' in p))
 
 // // facetCols: all cols that can be used in facet queries
-// const getFacetCols = (resource) => getCols(resource)
-//     .filter(p => p.facet)
+const getFacetCols = (resource) => getCols(resource)
+    .filter(p => p.facet)
+    .map(p => {
+        return { name: p.name, facet: p.facet }
+    });
 
 const getSqlCols = (resource) => getParams(resource)
     .map(p => {
@@ -237,7 +240,7 @@ const dispatch = {
     getQueryableParams,
     // getCols,
     // getDefaultCols,
-    // getFacetCols,
+    getFacetCols,
     getSqlCols,
     getSelect,
     getWhere,

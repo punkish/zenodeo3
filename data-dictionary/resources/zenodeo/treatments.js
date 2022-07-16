@@ -452,7 +452,7 @@ const dictionary = [
 - \`q=spiders\``
         },
         sqltype: 'TEXT',
-        zqltype: 'expression',
+        //zqltype: 'expression',
         notDefaultCol: true,
         defaultOp: 'match',
         joins: {
