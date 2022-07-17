@@ -58,7 +58,6 @@ const root = createRoot(resources);
 
 export const routes = [
     root, 
-    etlStats,
     treatments,
     materialCitations,
     treatmentCitations,
@@ -68,5 +67,6 @@ export const routes = [
     collectionCodes,
     families,
     images,
-    publications
+    publications,
+    etlStats
 ];
