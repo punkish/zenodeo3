@@ -17,6 +17,7 @@
   "author": "Puneet Kishor",
   "license": "CC0-1.0",
   "dependencies": {
+    "@fastify/cors": "^8.0.0",
     "@fastify/routes": "^5.0.0",
     "@fastify/sensible": "^5.1.0",
     "@fastify/static": "^6.4.0",

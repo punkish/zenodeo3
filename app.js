@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 
 import { plugin as favicon } from './plugins/favicon.js';
+import { plugin as cors } from './plugins/cors.js';
 import { plugin as sensible } from './plugins/sensible.js';
 import { plugin as swagger } from './plugins/swagger.js';
 import { plugin as routes } from './plugins/routes.js';
@@ -18,6 +19,7 @@ export async function server(opts={}) {
      * register plugins
      */ 
     fastify.register(favicon);
+    fastify.register(cors);
     fastify.register(sensible);
     fastify.register(routes);
     fastify.register(swagger);
