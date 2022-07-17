@@ -29,16 +29,14 @@ const getResourcesFromSource = (source) => resources
 
 // params: all entries in the data dictionary for a given resource
 const getParams = (resource) => {
-    // const p = resources.filter(r => r.name === resource)[0];
-    // if (!p) {
-    //     console.log('-'.repeat(50));
-    //     console.log(resource);
-    //     console.log('-'.repeat(50));
-    // }
-    const params = resources
+    let params = resources
         .filter(r => r.name === resource)[0]
-        .dictionary
-        .concat(...commonparams);
+        .dictionary;
+
+    const sourceOfResource = getSourceOfResource(resource);
+    if (sourceOfResource === 'zenodo' || sourceOfResource === 'zenodeo') {
+        params = params.concat(...commonparams);
+    }
 
     const table = tableFromResource(resource);
 
