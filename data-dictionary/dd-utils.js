@@ -270,12 +270,10 @@ const test = () => {
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const nodePath = path.resolve(process.argv[1]).split('/').pop().split('.')[0];
-const modulePath = path.resolve(fileURLToPath(import.meta.url)).split('/').pop().split('.')[0];
-//const calledViaCLI = nodePath === modulePath;
-// console.log(`foo: ${nodePath}`)
-// console.log(`foo: ${modulePath}`)
-// console.log(`foo: ${isRunningDirectlyViaCLI}`)
+const path1 = path.resolve(process.argv[1]);
+const path2 = path.resolve(fileURLToPath(import.meta.url));
+const nodePath = path1.split('/').pop().split('.')[0];
+const modulePath = path2.split('/').pop().split('.')[0];
 
 if (nodePath === modulePath) {
     test();

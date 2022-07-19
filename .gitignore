@@ -51,7 +51,10 @@ coverage/
 # special files #
 #################
 local.js
+config.js
 
 # hidden files #
 ################
 .nyc_output
+.env
+
