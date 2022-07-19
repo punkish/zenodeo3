@@ -1,6 +1,5 @@
 'use strict'
 
-import util from 'node:util';
 import { commonparams } from './resources/commonparams.js';
 import { resources } from './resources.js';
 
