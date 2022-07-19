@@ -45,7 +45,7 @@ const createRoot = (resources) => {
                         title: a.schema.title,
                         summary: a.schema.summary,
                         description: a.schema.description,
-                        url: `http://${config.url.zenodeo}/${a.url}`
+                        url: `${config.url.zenodeo}${a.url}`
                     }
                 });
         };
