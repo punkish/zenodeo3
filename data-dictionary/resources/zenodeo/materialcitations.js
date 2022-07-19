@@ -1,5 +1,5 @@
 import * as utils from '../../../lib/utils.js';
-import { dictionary as dictCollectionCodes } from './collectionCodes.js';
+import { dictionary as dictCollectionCodes } from './collectioncodes.js';
 
 /** 
  * first we define all the params corresponding to the columns in the 

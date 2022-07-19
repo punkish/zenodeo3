@@ -1,7 +1,7 @@
 import * as utils from '../../../lib/utils.js';
-import { dictionary as dictMaterialCitations } from './materialCitations.js';
-import { dictionary as dictFigureCitations } from './figureCitations.js';
-import { dictionary as dictCollectionCodes } from './collectionCodes.js';
+import { dictionary as dictMaterialCitations } from './materialcitations.js';
+import { dictionary as dictFigureCitations } from './figurecitations.js';
+import { dictionary as dictCollectionCodes } from './collectioncodes.js';
 
 /** 
  * first we define all the params corresponding to the columns in the 

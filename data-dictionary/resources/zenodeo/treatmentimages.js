@@ -1,6 +1,6 @@
 import * as utils from '../../../lib/utils.js';
 import { dictionary as dictTreatments } from './treatments.js';
-import { dictionary as dictMaterialCitations } from './materialCitations.js';
+import { dictionary as dictMaterialCitations } from './materialcitations.js';
 
 /** 
  * first we define all the params corresponding to the columns in the 
