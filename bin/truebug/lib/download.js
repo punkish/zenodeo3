@@ -14,7 +14,9 @@ const checkRemote = (typeOfArchive = 'daily') => {
     const options = {
         hostname: 'tb.plazi.org',
         port: 443,
-        path: typeOfArchive === 'full' ? '/dumps/plazi.zenodeo.zip' : `/dumps/plazi.zenodeo.${typeOfArchive}.zip`,
+        path: typeOfArchive === 'full' 
+            ? '/dumps/plazi.zenodeo.zip' 
+            : `/dumps/plazi.zenodeo.${typeOfArchive}.zip`,
         method: 'HEAD'
     };
     
@@ -22,7 +24,8 @@ const checkRemote = (typeOfArchive = 'daily') => {
         const req = https.request(options, (res) => {
             const result = { timeOfArchive: false, sizeOfArchive: 0 };
             if (res.statusCode == 200) {
-                result.timeOfArchive  = new Date(res.headers['last-modified']).getTime();
+                const d = new Date(res.headers['last-modified']);
+                result.timeOfArchive  = d.getTime();
                 result.sizeOfArchive = res.headers['content-length'];
             }
 
@@ -39,17 +42,20 @@ const checkRemote = (typeOfArchive = 'daily') => {
 const unzip = function(source) {    
     log.info(`unzipping ${source} archive`);
 
-    const archive = `${config.truebug.dirs.data}/${config.truebug.download[source]}`;
-    const cmd = `unzip -q -n ${archive} -d ${config.truebug.dirs.dump}`;
+    const archive = config.truebug.download[source];
+    const local = `${config.truebug.dirs.data}/${archive}`;
+    let cmd = `unzip -q -n ${local} -d ${config.truebug.dirs.dump}`;
 
     if (config.truebug.run === 'real') {
         execSync(cmd);
-        let numOfFiles = Number(execSync(`unzip -Z -1 ${archive} | wc -l`).toString().trim());
+
+        cmd = `unzip -Z -1 ${local} | wc -l`;
+        let numOfFiles = Number(execSync(cmd).toString().trim());
 
         /**
          * check if there is an index.xml included in the archive; 
          * if yes, remove it
-         */
+        **/
         if (fs.existsSync(`${config.truebug.dirs.dump}/index.xml`)) {
             fs.rmSync(`${config.truebug.dirs.dump}/index.xml`);
             numOfFiles--;
@@ -62,8 +68,13 @@ const unzip = function(source) {
 }
 
 const download = (source) => {
-    const local = `${config.truebug.dirs.data}/${config.truebug.download[source]}`;
-    const remote = `${config.truebug.server}/${config.truebug.download[source]}`;
+
+    /** 
+     * source is one of 'daily', 'weekly', 'monthly' or 'full' 
+    **/
+    const archive = config.truebug.download[source];
+    const local = `${config.truebug.dirs.data}/${archive}`;
+    const remote = `${config.truebug.server}/${archive}`;
     
     if (config.truebug.run === 'real') {
         log.info(`downloading ${source} archive`);

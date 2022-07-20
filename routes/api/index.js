@@ -45,6 +45,14 @@ const createRoot = (resources) => {
                         title: a.schema.title,
                         summary: a.schema.summary,
                         description: a.schema.description,
+
+                        /**
+                         * usually no url fragments in config have either 
+                         * leading or trailing slashes EXCEPT those returned 
+                         * by `fastify.routes`. That is why there is no 
+                         * slash in the setting below because `a.url` already 
+                         * contains a leading slash
+                        **/
                         url: `${config.url.zenodeo}${a.url}`
                     }
                 });
