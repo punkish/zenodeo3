@@ -7,7 +7,11 @@ import cheerio from 'cheerio';
 import Chance from 'chance';
 const chance = Chance();
 
-import { config } from '../../../zconf/index.js';
+// import { config } from '../../../zconf/index.js';
+import * as dotenv from 'dotenv';
+dotenv.config();
+import { config } from '@punkish/zconfig';
+
 import { dispatch as ddutils } from '../../../data-dictionary/dd-utils.js';
 import { Zlogger } from '@punkish/zlogger';
 const logOpts = JSON.parse(JSON.stringify(config.truebug.log));

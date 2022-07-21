@@ -11,7 +11,9 @@ import { route as images } from './zenodo/images.js';
 import { route as publications } from './zenodo/publications.js';
 
 import { resources } from '../../data-dictionary/resources.js';
-import { config } from '../../zconf/index.js';
+
+import { Config } from '@punkish/zconfig';
+const config = new Config().settings;
 
 /**
  * create the root route

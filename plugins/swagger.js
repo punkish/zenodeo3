@@ -1,6 +1,5 @@
 import fp from 'fastify-plugin';
 import swagger from '@fastify/swagger';
-import { config } from '../zconf/index.js';
 
 /**
  * A Fastify plugin for serving a Swagger UI, using Swagger (OpenAPI v2) or 
@@ -9,6 +8,10 @@ import { config } from '../zconf/index.js';
  *
  * @see https://github.com/fastify/fastify-swagger
  */
+
+import { Config } from '@punkish/zconfig';
+const config = new Config().settings;
+
 const options = {
 
     //routePrefix: '/',
@@ -42,6 +45,7 @@ const options = {
          * that is, there should not be any 'http(s)://' 
          */ 
         host: `${config.address}:${config.port}`,
+        test: config.url.zenodeo,
         schemes: [ 'http' ],
         consumes: [ 'application/json' ],
         produces: [ 'application/json' ]

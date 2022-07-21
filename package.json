@@ -24,6 +24,7 @@
     "@fastify/swagger": "^7.4.1",
     "@fastify/view": "^7.0.0",
     "@punkish/zcache": "^1.0.1",
+    "@punkish/zconfig": "^1.0.4",
     "@punkish/zlogger": "^1.0.6",
     "@turf/turf": "^6.5.0",
     "better-sqlite3": "^7.6.0",

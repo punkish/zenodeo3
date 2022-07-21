@@ -1,4 +1,4 @@
-export const test = {
+module.exports = {
 
     /**
      * the 'port' and the 'address' are where this 

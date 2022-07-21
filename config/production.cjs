@@ -1,4 +1,4 @@
-export const production = {
+module.exports = {
 
     /** 
      * log only errors

@@ -1,11 +1,13 @@
-/** 
- * import env variables from .env into `process.env`
- */
-import * as dotenv from 'dotenv';
-dotenv.config();
+/** see
+ * https://github.com/motdotla/dotenv/issues/133#issuecomment-255298822
+ * 
+ * running 'env.js' first, before anything else, ensures the env 
+ * variables are loaded
+**/
+import './env.js';import { Config } from '@punkish/zconfig';
+const config = new Config().settings;
 
 import { server } from './app.js';
-import { config } from './zconf/index.js';
 
 /**
  * Function to initialize and start the server!

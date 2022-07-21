@@ -1,6 +1,10 @@
 'use strict';
 
-import { config } from '../../../../zconf/index.js';
+// import { config } from '../../../../zconf/index.js';
+import * as dotenv from 'dotenv';
+dotenv.config();
+import { config } from '@punkish/zconfig';
+
 const truebug = config.truebug;
 import { Zlogger } from '@punkish/zlogger';
 const logOpts = JSON.parse(JSON.stringify(config.truebug.log));

@@ -1,8 +1,8 @@
-import * as path from 'path';
+const path = require('path');
 const cwd = process.cwd();
 const dataDir = path.join(cwd, '..', 'data');
 
-export const development = {
+module.exports = {
 
     /**
      * the 'port' and the 'address' are where this 

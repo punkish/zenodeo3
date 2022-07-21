@@ -4,7 +4,11 @@ import https from 'https';
 import { execSync } from 'child_process';
 import fs from 'fs';
 
-import { config } from '../../../zconf/index.js';
+// import { config } from '../../../zconf/index.js';
+import * as dotenv from 'dotenv';
+dotenv.config();
+import { config } from '@punkish/zconfig';
+
 import { Zlogger } from '@punkish/zlogger';
 const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
 logOpts.name = 'TRUEBUG:DOWNLOAD';
