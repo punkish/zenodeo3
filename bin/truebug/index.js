@@ -1,14 +1,5 @@
 'use strict';
 
-/*
- * # this crontab entry runs truebug etl every midnight
- * # set environment variables
- * HOME=/Users/punkish
- * PATH=/Users/punkish/.nvm/versions/node/v16.15.1/bin:/opt/local/bin:/opt/local/ * sbin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/ * sbin:/Applications/Little Snitch.app/Contents/Components:/opt/X11/bin:/Library/ * Apple/usr/bin
- * NODE_ENV=cron
- * 0 0 * * * cd ~/Projects/zenodeo/zenodeo3 && node ~/Projects/zenodeo/zenodeo3/ * bin/truebug/index.js etl
-**/
-
 import * as preflight from './lib/preflight.js';
 import * as postflight from './lib/preflight.js';
 import * as download from './lib/download.js';
