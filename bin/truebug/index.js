@@ -1,15 +1,22 @@
 'use strict';
 
+/*
+ * # this crontab entry runs truebug etl every midnight
+ * # set environment variables
+ * HOME=/Users/punkish
+ * PATH=/Users/punkish/.nvm/versions/node/v16.15.1/bin:/opt/local/bin:/opt/local/ * sbin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/ * sbin:/Applications/Little Snitch.app/Contents/Components:/opt/X11/bin:/Library/ * Apple/usr/bin
+ * NODE_ENV=cron
+ * 0 0 * * * cd ~/Projects/zenodeo/zenodeo3 && node ~/Projects/zenodeo/zenodeo3/ * bin/truebug/index.js etl
+**/
+
 import * as preflight from './lib/preflight.js';
 import * as postflight from './lib/preflight.js';
 import * as download from './lib/download.js';
 import * as database from './lib/database/index.js';
 import * as parse from './lib/parse.js';
-// import { config } from '../../zconf/index.js';
 
-import * as dotenv from 'dotenv';
-dotenv.config();
-import { config } from '@punkish/zconfig';
+import { Config } from '@punkish/zconfig';
+const config = new Config().settings;
 
 import { Zlogger } from '@punkish/zlogger';
 const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
@@ -234,12 +241,3 @@ const init = () => {
 }
 
 init();
-
-/*
-# this crontab entry runs truebug etl every midnight
-# set environment variables
-HOME=/Users/punkish
-PATH=/Users/punkish/.nvm/versions/node/v16.14.0/bin:/opt/local/bin:/opt/local/sbin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/Little Snitch.app/Contents/Components:/opt/X11/bin:/Library/Apple/usr/bin
-NODE_ENV=cron
-0 0 * * * cd ~/Projects/zenodeo/zenodeo3 && node ~/Projects/zenodeo/zenodeo3/bin/truebug/index.js etl
-*/

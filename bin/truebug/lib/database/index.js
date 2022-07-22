@@ -1,9 +1,7 @@
 'use strict';
 
-// import { config } from '../../../../zconf/index.js';
-import * as dotenv from 'dotenv';
-dotenv.config();
-import { config } from '@punkish/zconfig';
+import { Config } from '@punkish/zconfig';
+const config = new Config().settings;
 
 const truebug = config.truebug;
 import { Zlogger } from '@punkish/zlogger';
