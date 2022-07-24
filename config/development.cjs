@@ -56,6 +56,7 @@ module.exports = {
      * add debug info to results 
     **/ 
     "isDebug": true,
+    "useGot": false,
 
     "db": {
         "treatments": path.join(dataDir, 'z3-treatments.sqlite'),

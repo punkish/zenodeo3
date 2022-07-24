@@ -34,7 +34,6 @@
     "fastify": "^4.2.1",
     "fastify-favicon": "^4.0.0",
     "fastify-plugin": "^4.0.0",
-    "got": "^12.1.0",
     "handlebars": "^4.7.7",
     "is-sea": "^0.3.1",
     "sql-formatter": "^8.2.0"
