@@ -7,5 +7,9 @@ module.exports = {
     **/
     "url": {
         "zenodeo": "https://test.zenodeo.org"
-    }
+    },
+
+    "cache": {
+        "on": true
+    },
 }
