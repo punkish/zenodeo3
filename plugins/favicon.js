@@ -2,9 +2,10 @@ import fp from 'fastify-plugin';
 import favicon from 'fastify-favicon';
 
 /**
- * This plugins adds some utilities to handle http errors
+ * With this plugin, Fastify will have a route 
+ * configured for /favicon.ico requests.
  *
- * @see https://github.com/fastify/fastify-sensible
+ * @see https://github.com/smartiniOnGitHub/fastify-favicon
  */
 const options = {};
 
