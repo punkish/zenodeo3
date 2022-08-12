@@ -66,7 +66,7 @@ module.exports = {
     },
 
     "cache": {
-        "on": false,
+        "on": true,
         "base": path.join(cwd, 'cache'),
 
         /** 
@@ -119,13 +119,12 @@ module.exports = {
             "weekly": 'plazi.zenodeo.weekly.zip',
             "daily": 'plazi.zenodeo.daily.zip',
 
-            // '03FC87E61268FFD6D3E36CD2FE12DF29'
-            // 'BF8A576EC3F6661E96B5590C108213BA'
-            // '0247B450A734FFD280E97BD0FA9FFA55',
-            // BF83FD94E0CDA346729786FC4E1CBDB9
-            // BF87E6B3C70B5DA7BFE7958FCE167A46
-            // 00078788D744DE18E88B8B8BFE7FDBF9
-            "single": '00078788D744DE18E88B8B8BFE7FDBF9',  
+            // "single": "03FC87E61268FFD6D3E36CD2FE12DF29",
+            // "single": "BF8A576EC3F6661E96B5590C108213BA",
+            // "single": "0247B450A734FFD280E97BD0FA9FFA55",
+            // "single": "BF83FD94E0CDA346729786FC4E1CBDB9",
+            // "single": "BF87E6B3C70B5DA7BFE7958FCE167A46",
+            "single": "00078788D744DE18E88B8B8BFE7FDBF9",
         },
 
         "dirs": {
