@@ -31,14 +31,15 @@ export const commonparams = [
         },
         notDefaultCol: true
     },
-    // {
-    //     name: 'stats',
-    //     schema: {
-    //         type: 'boolean',
-    //         description: 'Calculate statistics (true | false)',
-    //         default: false
-    //     }
-    // },
+    {
+        name: 'stats',
+        schema: {
+            type: 'boolean',
+            description: 'Calculate statistics for dashboard (true | false)',
+            default: false
+        },
+        notDefaultCol: true
+    },
 
     /*
      * parameters that are a part of the query 
