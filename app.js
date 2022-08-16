@@ -7,6 +7,7 @@ import { plugin as routes } from './plugins/routes.js';
 import { plugin as swagger } from './plugins/swagger.js';
 import { plugin as fastifyStatic } from './plugins/static.js';
 import { plugin as view } from './plugins/view.js';
+import { plugin as cron } from './plugins/cron.js';
 
 import { route as tos } from './routes/tos/index.js';
 import { route as docs } from './routes/docs/index.js';
@@ -25,6 +26,7 @@ export async function server(opts={}) {
     fastify.register(swagger);
     fastify.register(fastifyStatic);
     fastify.register(view);
+    fastify.register(cron)
 
     /**
      * register the routes to resources

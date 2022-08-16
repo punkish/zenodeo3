@@ -46,6 +46,7 @@ const start = async () => {
         });
 
         await fastify.listen({ port: config.port });
+
         fastify.log.info(`… in ${process.env.NODE_ENV.toUpperCase()} mode`);
     } 
     catch (err) {
