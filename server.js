@@ -5,6 +5,7 @@
  * variables are loaded
 **/
 import './env.js';import { Config } from '@punkish/zconfig';
+import process from 'node:process';
 const config = new Config().settings;
 
 import { server } from './app.js';
