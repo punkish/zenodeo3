@@ -59,6 +59,7 @@ module.exports = {
     "useGot": false,
 
     "db": {
+        "treatments-testing": path.join(dataDir, 'treatments-testing.sqlite'),
         "treatments": path.join(dataDir, 'z3-treatments.sqlite'),
         "gbifcollections": path.join(dataDir, 'z3-gbifcollections.sqlite'),
         "facets": path.join(dataDir, 'z3-facets.sqlite'),

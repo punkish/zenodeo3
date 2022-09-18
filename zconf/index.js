@@ -4,7 +4,7 @@ dotenv.config();
 import { development } from '../config/development.js';
 import { test } from '../config/test.js';
 import { production } from '../config/production.js';
-
+import process from 'node:process';
 let config = development;
 
 // https://thewebdev.info/2021/03/06/how-to-deep-merge-javascript-objects/

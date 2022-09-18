@@ -12,10 +12,10 @@ const options = {
             cronTime: '0 0 * * *',
             onTick: async server => {
                 try {
-                    const response = await server.inject('/v3/treatments?cols=&stats=true&refreshCache=true')
+                    await server.inject('/v3/treatments?cols=&stats=true&refreshCache=true');
                 } 
                 catch (err) { 
-                    console.error(err) 
+                    console.error(err);
                 }
             },
             start: true
@@ -23,6 +23,6 @@ const options = {
     ]
 };
 
-export const plugin = fp(async function(fastify, opts) {
+export const plugin = fp(async function(fastify) {
     fastify.register(fastifyCron, options);
 })

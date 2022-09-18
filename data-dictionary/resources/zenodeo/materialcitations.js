@@ -322,7 +322,7 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         name: 'deleted',
         schema: { 
             type: 'boolean',
-            default: false,
+            //default: false,
             description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
         },
         sqltype: 'INTEGER DEFAULT 0',

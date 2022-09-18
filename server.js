@@ -5,6 +5,7 @@
  * variables are loaded
 **/
 import './env.js';import { Config } from '@punkish/zconfig';
+import process from 'node:process';
 const config = new Config().settings;
 
 import { server } from './app.js';
@@ -41,7 +42,7 @@ const start = async () => {
          * because the query will get modified after schema 
          * validation
          */
-        fastify.addHook('preValidation', async (request, reply) => {
+        fastify.addHook('preValidation', async (request) => {
             request.origQuery = JSON.parse(JSON.stringify(request.query));
         });
 
