@@ -42,7 +42,7 @@ const start = async () => {
          * because the query will get modified after schema 
          * validation
          */
-        fastify.addHook('preValidation', async (request, reply) => {
+        fastify.addHook('preValidation', async (request) => {
             request.origQuery = JSON.parse(JSON.stringify(request.query));
         });
 
