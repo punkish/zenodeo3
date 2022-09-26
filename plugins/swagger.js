@@ -11,7 +11,7 @@ import swagger from '@fastify/swagger';
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
-const host = config.port ? `${config.address}:${config.port}` : config.address;
+//const host = config.port ? `${config.address}:${config.port}` : config.address;
 const options = {
 
     //routePrefix: '/',
@@ -44,10 +44,8 @@ const options = {
          * make sure there is no scheme before the host
          * that is, there should not be any 'http(s)://' 
          */ 
-        host,
-        //host: 'test.zenodeo.org',
-        test: config.url.zenodeo,
-        //test: 'test.zenodeo.org',
+        host: config.url.swagger,
+        test: config.url.swagger,
         schemes: config.schemes,
         consumes: [ 'application/json' ],
         produces: [ 'application/json' ]
@@ -66,6 +64,6 @@ const options = {
     hideUntagged: true
 };
 
-export const plugin = fp(async (fastify, opts) => {
+export const plugin = fp(async (fastify) => {
     fastify.register(swagger, options);
 })
