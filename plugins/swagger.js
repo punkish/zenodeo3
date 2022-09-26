@@ -44,8 +44,10 @@ const options = {
          * make sure there is no scheme before the host
          * that is, there should not be any 'http(s)://' 
          */ 
-        host: `${config.address}:${config.port}`,
-        test: config.url.zenodeo,
+        //host: `${config.address}:${config.port}`,
+        host: 'https://test.zenodeo.org',
+        //test: config.url.zenodeo,
+        test: 'https://test.zenodeo.org',
         schemes: [ 'http' ],
         consumes: [ 'application/json' ],
         produces: [ 'application/json' ]
