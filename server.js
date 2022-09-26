@@ -10,6 +10,13 @@ const config = new Config().settings;
 
 import { server } from './app.js';
 
+const coerceToArray = (request, param) => {
+    if (typeof request.query[param] === 'string') {
+        const arr = request.query[param].split(',');
+        request.query[param] = arr;
+    }
+}
+
 /**
  * Function to initialize and start the server!
  */
@@ -41,9 +48,20 @@ const start = async () => {
          * save the original request query params for use later
          * because the query will get modified after schema 
          * validation
-         */
+        **/
         fastify.addHook('preValidation', async (request) => {
             request.origQuery = JSON.parse(JSON.stringify(request.query));
+        });
+
+        /*
+         * the following takes care of cols=col1,col2,col3
+         * as sent by the swagger interface to be validated 
+         * correctly by ajv as an array. See `coerceToArray()`
+         * above.
+        **/
+        fastify.addHook('preValidation', async (request) => {
+            coerceToArray(request, 'cols');
+            coerceToArray(request, 'communities');
         });
 
         await fastify.listen({ port: config.port });
@@ -58,5 +76,5 @@ const start = async () => {
 
 /**
  * Start the server!
- */
+**/
 start();
