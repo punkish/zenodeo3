@@ -48,7 +48,7 @@ const options = {
         host: 'test.zenodeo.org',
         //test: config.url.zenodeo,
         test: 'test.zenodeo.org',
-        schemes: [ 'http' ],
+        schemes: [ 'https' ],
         consumes: [ 'application/json' ],
         produces: [ 'application/json' ]
     },
