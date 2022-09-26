@@ -5,7 +5,9 @@ module.exports = {
      * service runs, and the 'url' is where this 
      * service is available from outside
     **/
-    "address": "https://test.zenodeo.org",
+    "port": "",
+    "address": "test.zenodeo.org",
+    "schemes": [ "https" ],
     "url": {
         "zenodeo": "https://test.zenodeo.org"
     },

@@ -10,7 +10,8 @@ module.exports = {
      * service is available from outside
     **/
     "port": 3010,
-    "address": "0.0.0.0",
+    "address": "127.0.0.1",
+    "schemes": [ "http" ],
     "url": {
         "zenodeo": "http://127.0.0.1:3010",
         "zenodo": "https://zenodo.org/api/records"

@@ -11,7 +11,7 @@ import swagger from '@fastify/swagger';
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
-
+const host = config.port ? `${config.address}:${config.port}` : config.address;
 const options = {
 
     //routePrefix: '/',
@@ -44,11 +44,11 @@ const options = {
          * make sure there is no scheme before the host
          * that is, there should not be any 'http(s)://' 
          */ 
-        //host: `${config.address}:${config.port}`,
-        host: 'test.zenodeo.org',
-        //test: config.url.zenodeo,
-        test: 'test.zenodeo.org',
-        schemes: [ 'https' ],
+        host,
+        //host: 'test.zenodeo.org',
+        test: config.url.zenodeo,
+        //test: 'test.zenodeo.org',
+        schemes: config.schemes,
         consumes: [ 'application/json' ],
         produces: [ 'application/json' ]
     },
