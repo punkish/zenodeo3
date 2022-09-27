@@ -4,7 +4,8 @@
  * running 'env.js' first, before anything else, ensures the env 
  * variables are loaded
 **/
-import './env.js';import { Config } from '@punkish/zconfig';
+import './env.js';
+import { Config } from '@punkish/zconfig';
 import process from 'node:process';
 const config = new Config().settings;
 
