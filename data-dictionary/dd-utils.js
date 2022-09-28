@@ -172,6 +172,9 @@ const getJoin = (resource, column, type) => {
 const getZqltype = (resource, column) => getCols(resource)
     .filter(c => c.name === column)[0].zqltype;
 
+const getSqltype = (resource, column) => getCols(resource)
+    .filter(c => c.name === column)[0].sqltype;
+
 // // schema: we use the schema to validate the query params
 const getQueryStringSchema = function(resource) {
 
@@ -242,6 +245,7 @@ const dispatch = {
     getSelect,
     getWhere,
     getZqltype,
+    getSqltype,
     getQueryStringSchema,
     getResourceid,
     getJoin,
