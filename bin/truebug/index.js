@@ -79,7 +79,8 @@ const processFiles = (files) => {
     log.info(`${'~'.repeat(80)}\n`, 'end');
 }
 
-const etl = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
+//sizeOfArchive
+const etl = (typeOfArchive, timeOfArchive) => {
     log.info(`starting a ${typeOfArchive.toUpperCase()} process`);
 
     const stats = [];
