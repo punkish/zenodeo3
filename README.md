@@ -15,7 +15,7 @@ Built with [Fastify](https://www.fastify.io/) and [SQLite](https://sqlite.org/).
 
 ## Objective
 
-Zenodeo is a node-based, REST API with its own data source built from treatment XMLs downloaded periodically from [TreatmentBank](treatmentbank.org). It allows querying treatment data granularly against almost all its uniquely tagged information that has been parsed and extracted out of XMLs and stored in a relational database. Zenodeo is particularly fast at full-text search and spatial search against an R*Tree index of `lat-lng` values of **material citations**.
+Zenodeo is a node-based, REST API with its own data source built from treatment XMLs downloaded periodically from [TreatmentBank](https://plazi.org/treatmentbank/). It allows querying treatment data granularly against almost all its uniquely tagged information that has been parsed and extracted out of XMLs and stored in a relational database. Zenodeo is particularly fast at full-text search and spatial search against an R*Tree index of `lat-lng` values of **material citations**.
 
 Zenodeo is queried via `http`, either via the browser or, preferably, via any REST client. All the queries are `GET` requests and all the responses are JSON. The base URI is `test.zenodeo.org/v3`. The term after the base query specifies the resource that is being retrieved. So, to retrieve 'treatments', go to `test.zenodeo.org/v3/treatments` or to retrieve 'materialCitations', go to `test.zenodeo.org/v3/materialcitations`
 
@@ -38,4 +38,4 @@ finds records within the specified radius from the provided `lat-lng` pair.
 
 ## Documentation
 
-Zenodeo3 follows the OpenAPI specs. Browse to the root to view the docs with syntax examples.
+Zenodeo3 follows the OpenAPI specs. Browse to the root to view the docs with details on ZQL and syntax examples along with a simple interface to try out queries.
