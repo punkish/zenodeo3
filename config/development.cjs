@@ -14,8 +14,8 @@ module.exports = {
     "schemes": [ "http" ],
     "url": {
         "zenodeo": "http://127.0.0.1:3010",
-        "zenodo": "https://zenodo.org/api/records",
-        "swagger": "127.0.0.1:3010"
+        "swagger": "127.0.0.1:3010",
+        "zenodo": "https://zenodo.org/api/records"
     },
 
     /**

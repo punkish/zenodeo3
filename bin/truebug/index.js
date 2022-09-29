@@ -196,6 +196,12 @@ const update = async (typeOfArchives) => {
 const init = () => {
     const run = process.argv[2];
 
+    if (!run) {
+        console.log('truebug USAGE:');
+        console.log('index.js --run=[ getCounts | getArchiveUpdates | etl ]');
+        return;
+    }
+
     /**
      * query the tables and return current counts
     **/
