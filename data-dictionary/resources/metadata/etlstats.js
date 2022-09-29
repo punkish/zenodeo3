@@ -16,15 +16,50 @@ export const dictionary = [
             type:"integer",
             description: 'unique identifier of the record',
         },
-        isResourceId: true
+        isResourceId: true,
+        sqltype: 'INTEGER',
     },
-
+    {
+        name: 'started',
+        schema: { 
+            type: 'string', 
+            description: 'Time ETL process started'
+        },
+        sqltype: 'INTEGER',
+        zqltype: 'date'
+    },
+    {
+        name: 'ended',
+        schema: { 
+            type: 'integer', 
+            description: 'Time ETL process ended'
+        },
+        sqltype: 'INTEGER'
+    },
     {
         name: 'typeOfArchive',
         schema: { 
             type: 'string', 
             enum: [ 'full', 'monthly', 'weekly', 'daily' ],
             description: 'The type of archive'
-        }
+        },
+        sqltype: 'TEXT'
+    },
+    {
+        name: 'timeOfArchive',
+        schema: { 
+            type: 'integer', 
+            description: 'Time when the archive was created'
+        },
+        sqltype: 'INTEGER'
+    },
+    {
+        name: 'result',
+        schema: { 
+            type: 'string', 
+            enum: [ 'full', 'monthly', 'weekly', 'daily' ],
+            description: 'Result of the process (in JSON format)'
+        },
+        sqltype: 'TEXT'
     }
 ]

@@ -257,20 +257,30 @@ const getDaysSinceLastEtl = () => {
 }
 
 const getCounts = () => {
-    const tables = {
-        'treatments': 0,
-        'treatmentimages': 0,
-        'figurecitations': 0,
-        'materialscitations': 0,
-        'bibrefcitations': 0,
-        'treatmentcitations': 0,
-        'treatmentauthors': 0
-    };
+    // const tables = {
+    //     'treatments': 0,
+    //     'treatmentimages': 0,
+    //     'figurecitations': 0,
+    //     'materialscitations': 0,
+    //     'bibrefcitations': 0,
+    //     'treatmentcitations': 0,
+    //     'treatmentauthors': 0
+    // };
+    const tables = [
+        { table: 'treatments', count: 0 },
+        { table: 'treatmentimages', count: 0 },
+        { table: 'figurecitations', count: 0 },
+        { table: 'materialscitations', count: 0 },
+        { table: 'bibrefcitations', count: 0 },
+        { table: 'treatmentcitations', count: 0 },
+        { table: 'treatmentauthors', count: 0 }
+    ]
 
-    Object.keys(tables).forEach(table => {
-        const s = `SELECT Count(*) AS c FROM ${table}`;
+    tables.forEach(t => {
+        const s = `SELECT Count(*) AS c FROM ${t.table}`;
         const count = db.treatments.prepare(s).get().c;
-        tables[table] = count;
+        //tables[table] = count;
+        t.count = count;
     })
 
     console.table(tables);

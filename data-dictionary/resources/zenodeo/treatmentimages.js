@@ -64,8 +64,7 @@ const dictionary = [
         joins: {
             select: null,
             where : [ 'JOIN vtreatments ON treatmentImages.treatmentId = vtreatments.treatmentId' ]
-        },
-        notDefaultCol: true
+        }
     }
 ];
 
@@ -111,6 +110,24 @@ const dictionary = [
         }
     },
     {
+        name: 'phylum',
+        dict: dictTreatments,
+        alias: {
+            select: 'treatments.phylum',
+            where : 'treatments.phylum'
+        },
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("phylum")',
+        joins: {
+            select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
+            where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
+        }
+    },
+    {
         name: 'family',
         dict: dictTreatments,
         alias: {
@@ -128,7 +145,24 @@ const dictionary = [
             where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
         }
     },
-
+    {
+        name: 'order',
+        dict: dictTreatments,
+        alias: {
+            select: 'treatments."order"',
+            where : 'treatments."order"'
+        },
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("family")',
+        joins: {
+            select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
+            where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
+        }
+    },
     {
         name: 'publicationDate',
         dict: dictTreatments,

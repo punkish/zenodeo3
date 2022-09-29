@@ -341,8 +341,8 @@ const parseMaterialsCitations = function($, treatmentId) {
                         entry[key] = attr;
 
                         if (col.name === 'collectionCode') {
-                            const cc = attr.split(', ')
-                            collectionCodes.push( ...cc )
+                            const cc = attr.split(', ');
+                            collectionCodes.push( ...cc );
 
                             cc.forEach(collectionCode => {
                                 mc.push({ 
@@ -362,7 +362,8 @@ const parseMaterialsCitations = function($, treatmentId) {
             entry.materialsCitationId = materialsCitationId || chance.guid();
             entry.treatmentId = treatmentId;
             entry.updateVersion = $(e).attr('updateVersion') || '';
-            entry.deleted = $(e).attr('deleted') && $(e).attr('deleted') === 'true' ? 1 : 0;
+            const deleted = $(e).attr('deleted');
+            entry.deleted = deleted && deleted === 'true' ? 1 : 0;
             entry.fulltext = $(e).text();
             
             entries.push(entry);
@@ -386,38 +387,41 @@ const parseTreatment = function($, treatmentId) {
     
     const allCols = ddutils.getSqlCols('treatments')
     allCols.forEach(el => {
+        
         if (el.cheerio) {
-            let val
+            let val;
+
             try {
                 val = eval(el.cheerio) || '';
             } 
             catch(error) {
                 log.error(error);
                 log.info(`el.cheerio: ${el.cheerio}`);
-                log.info(`treatmentId: ${treatmentId}`)
+                log.info(`treatmentId: ${treatmentId}`);
             }
 
             if (val) {
                 if (el.name === 'treatmentId') {
-                    val = treatmentId
+                    val = treatmentId;
                 }
                 else if (el.name === 'deleted') {
-                    val = val && val === 'true' ? 1 : 0
+                    val = val && val === 'true' ? 1 : 0;
                 }
                 
-                treatment[el.name] = typeof val === 'string' ? val.trim() : val
+                treatment[el.name] = typeof val === 'string' ? val.trim() : val;
             }
             else {
                 if (el.name === 'deleted') {
-                    val = 0
+                    val = 0;
                 }
                 
-                treatment[el.name] = val
+                treatment[el.name] = val;
             }
         }
+        
     })
 
-    return treatment
+    return treatment;
 }
 
 const cheerioparse = function(xml, treatmentId) {

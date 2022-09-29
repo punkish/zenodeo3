@@ -27,7 +27,7 @@ export const resources = [
         summary: "Fetches extract-transform-load statistics",
         description: "…",
         dictionary: dictEtlStats,
-        source: '',
+        source: 'metadata',
         tags: [ 'meta' ]
     },
 

@@ -33,9 +33,10 @@ const getParams = (resource) => {
         .dictionary;
 
     const sourceOfResource = getSourceOfResource(resource);
-    if (sourceOfResource === 'zenodo' || sourceOfResource === 'zenodeo') {
+
+    //if (sourceOfResource === 'zenodo' || sourceOfResource === 'zenodeo') {
         params = params.concat(...commonparams);
-    }
+    //}
 
     const table = tableFromResource(resource);
 
@@ -182,6 +183,8 @@ const getQueryStringSchema = function(resource) {
     // [*] specifically, 'sortby' will be modified
     const params = JSON.parse(JSON.stringify(getParams(resource)));
     const resourcesFromZenodeo = getResourcesFromSource('zenodeo');
+    const resourcesMetadata = getResourcesFromSource('metadata');
+    const validResources = [ ...resourcesFromZenodeo, ...resourcesMetadata ];
 
     const schema = {};
     
@@ -194,10 +197,9 @@ const getQueryStringSchema = function(resource) {
             );
         }
 
-        if (resourcesFromZenodeo.includes(resource)) {
+        if (validResources.includes(resource)) {
             if (p.schema.type === 'array') {
                 if (p.name === 'cols') {
-                    
                     p.schema.items.enum = getCols(resource).map(c => c.name);
 
                     // allow empty col as in "cols=''"

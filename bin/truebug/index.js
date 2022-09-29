@@ -1,5 +1,6 @@
 'use strict';
 
+import process from 'node:process';
 import * as preflight from './lib/preflight.js';
 import * as postflight from './lib/preflight.js';
 import * as download from './lib/download.js';
@@ -85,7 +86,7 @@ const etl = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
 
     /** 
      * start download
-     */
+    **/
     const action = {
         started: new Date().getTime(),
         process: 'download',
@@ -108,7 +109,7 @@ const etl = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
 
     /** 
      * start ETL
-     */
+    **/
     if (numOfFiles) {
         const files = preflight.filesExistInDump();
         log.info(`${files.length} files exist in dump… let's ETL them`);
@@ -162,7 +163,7 @@ const update = async (typeOfArchives) => {
 
             /** 
              * the remote archive's time is newer than the last update
-             */
+            **/
             if (result.timeOfArchive > lastUpdate.started) {
                 etl(typeOfArchive, result.timeOfArchive, result.sizeOfArchive);
             }
@@ -177,7 +178,7 @@ const update = async (typeOfArchives) => {
 
         /** 
          * check the next shorter timePeriod
-         */
+        **/
         if (typeOfArchives.length) {
             update(typeOfArchives);
         }
@@ -190,9 +191,13 @@ const update = async (typeOfArchives) => {
 
 /** 
  * `truebug` starts here
- */
+**/
 const init = () => {
     const run = process.argv[2];
+
+    /**
+     * query the tables and return current counts
+    **/
     if (run === 'getCounts') {
         database.getCounts();
     }
@@ -219,7 +224,7 @@ const init = () => {
             
             /** 
              * There are no treatments in the db so no ETL was ever done
-             */
+            **/
             if (numOfTreatments === 0) {
                 etl('full', null, null);
             }
