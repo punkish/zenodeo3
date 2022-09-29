@@ -23,7 +23,7 @@
 # Logs, databases and scratch files #
 ######################
 *.log
-*.sql
+# *.sql
 *.sqlite
 *.xml
 data/
