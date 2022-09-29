@@ -198,14 +198,14 @@ const init = () => {
 
     if (!run) {
         console.log('truebug USAGE:');
-        console.log('index.js --run=[ getCounts | getArchiveUpdates | etl ]');
+        console.log('index.js --run=[ counts | archiveUpdates | etl ]');
         return;
     }
 
     /**
      * query the tables and return current counts
     **/
-    if (run === 'getCounts') {
+    if (run === 'counts') {
         database.getCounts();
     }
 
@@ -213,7 +213,7 @@ const init = () => {
      * query the tables and return the details of each 
      * kind of archive update
     **/
-    else if (run === 'getArchiveUpdates') {
+    else if (run === 'archiveUpdates') {
         database.getArchiveUpdates();
     }
 
