@@ -256,16 +256,11 @@ const getDaysSinceLastEtl = () => {
     return db.stats.prepare(s).get().daysSinceLastEtl
 }
 
+/**
+ * queries each table in the db and prints out the 
+ * count of rows
+**/
 const getCounts = () => {
-    // const tables = {
-    //     'treatments': 0,
-    //     'treatmentimages': 0,
-    //     'figurecitations': 0,
-    //     'materialscitations': 0,
-    //     'bibrefcitations': 0,
-    //     'treatmentcitations': 0,
-    //     'treatmentauthors': 0
-    // };
     const tables = [
         { table: 'treatments', count: 0 },
         { table: 'treatmentimages', count: 0 },
@@ -279,7 +274,6 @@ const getCounts = () => {
     tables.forEach(t => {
         const s = `SELECT Count(*) AS c FROM ${t.table}`;
         const count = db.treatments.prepare(s).get().c;
-        //tables[table] = count;
         t.count = count;
     })
 
