@@ -280,6 +280,9 @@ const getCounts = () => {
     console.table(tables);
 }
 
+/**
+ * prints out updates for full, monthly, weekly and daily archives
+**/
 const getArchiveUpdates = () => {
     const typesOfArchives = { 
         'full': 0,
@@ -310,23 +313,25 @@ const getArchiveUpdates = () => {
         return `${pad(hh)}h ${pad(mm)}m ${pad(ss)}s ${pad(ms, 3)}ms`;
     }
     
-    
     Object.keys(typesOfArchives).forEach(archive => {
         const lastUpdate = getLastUpdate(archive);
         lastUpdate.duration = msToTime(lastUpdate.duration);
         const result = JSON.parse(lastUpdate.result);
 
-        log.info(`           archive: ${archive.toUpperCase()}`);
-        log.info(`           started: ${lastUpdate.start}`);
-        log.info(`             ended: ${lastUpdate.end}`);
-        log.info(`          duration: ${lastUpdate.duration}`);
-        log.info(`   time of archive: ${lastUpdate.timeOfArchive}`);
-        log.info(`        treatments: ${result.treatments}`);
-        log.info(`treatmentCitations: ${result.treatmentCitations}`);
-        log.info(`materialsCitations: ${result.materialsCitations}`);
-        log.info(`   figureCitations: ${result.figureCitations}`);
-        log.info(`   bibRefCitations: ${result.bibRefCitations}`);
-        log.info(`------------------------------------------------`)
+        const table = [
+            { item: "started",            value: lastUpdate.start},
+            { item: "ended",              value: lastUpdate.end},
+            { item: "duration",           value: lastUpdate.duration},
+            { item: "time of archive",    value: lastUpdate.timeOfArchive},
+            { item: "treatments",         value: result.treatments},
+            { item: "treatmentCitations", value: result.treatmentCitations},
+            { item: "materialsCitations", value: result.materialsCitations},
+            { item: "figureCitations",    value: result.figureCitations},
+            { item: "bibRefCitations",    value: result.bibRefCitations}
+        ]
+
+        console.log(`archive: ${archive.toUpperCase()}`);
+        console.table(table);
     });
 }
 

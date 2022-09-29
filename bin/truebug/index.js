@@ -201,16 +201,26 @@ const init = () => {
     if (run === 'getCounts') {
         database.getCounts();
     }
+
+    /**
+     * query the tables and return the details of each 
+     * kind of archive update
+    **/
     else if (run === 'getArchiveUpdates') {
         database.getArchiveUpdates();
     }
+
+    /** 
+     * actually run the etl service
+    **/
     else if (run === 'etl') {
         log.info('='.repeat(80));
         log.info(`STARTING TRUEBUG (mode ${config.truebug.run})`);
     
         if (config.truebug.source === 'single') {
-            preflight.copyXmlToDump(`${config.truebug.download.single}.xml`);
-            const treatment = parse.parseOne(config.truebug.download.single);
+            const xml = `${config.truebug.download.single}.xml`;
+            preflight.copyXmlToDump(xml);
+            const treatment = parse.parseOne(xml);
             console.log(treatment);
         }
         else {

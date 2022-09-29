@@ -280,6 +280,16 @@ const dictionary = [
     },
 
     {
+        name: 'class',
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("class")',
+    },
+
+    {
         name: 'order',
         alias: {
             select: 'treatments."order"',

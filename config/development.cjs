@@ -98,8 +98,8 @@ module.exports = {
         //source: 'full',
         //source: 'monthly',
         // source: 'weekly',
-        "source": 'daily',
-        //source: 'single',
+        //"source": 'daily',
+        source: 'single',
 
         /**
          * by default, download the daily dump, and then go to
