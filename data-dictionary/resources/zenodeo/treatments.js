@@ -280,15 +280,15 @@ const dictionary = [
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("phylum")',
     },
 
-    {
-        name: 'class',
-        schema: {
-            type: 'string',
-            description: 'The higher category of the taxonomicName',
-        },
-        sqltype: 'TEXT',
-        cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("class")',
-    },
+    // {
+    //     name: 'class',
+    //     schema: {
+    //         type: 'string',
+    //         description: 'The higher category of the taxonomicName',
+    //     },
+    //     sqltype: 'TEXT',
+    //     cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("class")',
+    // },
 
     {
         name: 'order',
