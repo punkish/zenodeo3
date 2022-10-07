@@ -180,6 +180,7 @@ const dictionary = [
 - \`journalTitle=starts_with(Biodiversity)\`
 - \`journalTitle=ends_with(Journal 4)\`
 - \`journalTitle=contains(Data Journal)\`
+- \`journalTitle=not_like(Data Journal)\`
   **Note:** queries involving inexact matches will be considerably slow`,
         },
         sqltype: 'TEXT',
