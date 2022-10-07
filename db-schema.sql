@@ -34,8 +34,8 @@ CREATE TABLE treatments (
     checkinTime INTEGER DEFAULT NULL,
     deleted INTEGER DEFAULT 0,
     created INTEGER DEFAULT (strftime('%s','now') * 1000),
-    updated INTEGER
-, checkInYear INTEGER GENERATED ALWAYS AS (strftime('%Y', datetime(checkinTime/1000, 'unixepoch'))) VIRTUAL);
+    updated INTEGER, 
+    checkInYear INTEGER GENERATED ALWAYS AS (strftime('%Y', datetime(checkinTime/1000, 'unixepoch'))) VIRTUAL);
 CREATE TABLE IF NOT EXISTS 'vtreatments_data'(id INTEGER PRIMARY KEY, block BLOB);
 CREATE TABLE IF NOT EXISTS 'vtreatments_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
 CREATE TABLE IF NOT EXISTS 'vtreatments_content'(id INTEGER PRIMARY KEY, c0, c1);
@@ -278,4 +278,3 @@ CREATE INDEX ix_materialsCitations_materialsCitationId ON materialsCitations (de
 CREATE INDEX ix_materialsCitations_specimenCountFemale ON materialsCitations (deleted, specimenCountFemale COLLATE NOCASE);
 CREATE INDEX ix_materialsCitations_specimenCountMale   ON materialsCitations (deleted, specimenCountMale COLLATE NOCASE);
 CREATE INDEX ix_treatmentImages_treatmentId ON treatmentImages (treatmentId);
-sqlite>

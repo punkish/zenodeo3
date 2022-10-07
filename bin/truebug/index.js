@@ -1,6 +1,7 @@
 'use strict';
 
 import process from 'node:process';
+import minimist from 'minimist';
 import * as preflight from './lib/preflight.js';
 import * as postflight from './lib/preflight.js';
 import * as download from './lib/download.js';
@@ -79,8 +80,7 @@ const processFiles = (files) => {
     log.info(`${'~'.repeat(80)}\n`, 'end');
 }
 
-//sizeOfArchive
-const etl = (typeOfArchive, timeOfArchive) => {
+const etl = (typeOfArchive, timeOfArchive, sizeOfArchive) => {
     log.info(`starting a ${typeOfArchive.toUpperCase()} process`);
 
     const stats = [];
@@ -190,22 +190,42 @@ const update = async (typeOfArchives) => {
     }
 }
 
+const consoleMsg = (prompt, msg) => {
+    console.log(`${prompt} (${msg})`);
+    console.log('-'.repeat(50), '\n');
+}
+
 /** 
  * `truebug` starts here
 **/
 const init = () => {
-    const run = process.argv[2];
+    const argv = minimist(process.argv.slice(2));
 
-    if (!run) {
+    if (argv.help) {
         console.log('truebug USAGE:');
-        console.log('index.js --run=[ counts | archiveUpdates | etl ]');
+        console.log('*'.repeat(50));
+        console.log('index.js');
+        console.log('    <');
+        console.log('        --run=[ counts | archiveUpdates | etl ]')
+        console.log('      < --runMode=[ dry-run | real ] >');
+        console.log('      < --source=[ full | monthly | weekly | daily | single ] >');
+        console.log('    >');
+        console.log('notes: - <options> are optional. If not provided, they are picked up from config.');
+        console.log('       - As indicated, *all* options are optional.');
+        console.log('       - [options] are choose-one-from-the-list.\n');
+        console.log('EXAMPLES');
+        console.log('*'.repeat(50), '\n');
+        consoleMsg('index.js --run=counts', 'get count of rows in each table in the db');
+        consoleMsg('index.js --run=archiveUpdates', 'get updates for each kind of archive');
+        consoleMsg('index.js --run=etl --runMode=dry-run', 'run etl but do not load the db');
+        consoleMsg('index.js --run=etl --runMode=real', 'run etl and load the db');
         return;
     }
-
+    
     /**
      * query the tables and return current counts
     **/
-    if (run === 'counts') {
+    if (argv.run === 'counts') {
         database.getCounts();
     }
 
@@ -213,22 +233,72 @@ const init = () => {
      * query the tables and return the details of each 
      * kind of archive update
     **/
-    else if (run === 'archiveUpdates') {
+    else if (argv.run === 'archiveUpdates') {
         database.getArchiveUpdates();
     }
-
+    
     /** 
      * actually run the etl service
     **/
-    else if (run === 'etl') {
+    else if (argv.run === 'etl') {
+        const runMode = argv.runMode || config.truebug.runMode;
+        const source = argv.source || config.truebug.source;
+
         log.info('='.repeat(80));
-        log.info(`STARTING TRUEBUG (mode ${config.truebug.run})`);
-    
-        if (config.truebug.source === 'single') {
-            const xml = `${config.truebug.download.single}.xml`;
+        log.info(`STARTING TRUEBUG (runMode ${runMode})`);
+
+        if (source === 'single') {
+            const single = argv.single || config.truebug.download.single;
+            const xml = `${single}.xml`;
             preflight.copyXmlToDump(xml);
             const treatment = parse.parseOne(xml);
-            console.log(treatment);
+
+            if (runMode === 'dry-run') {
+                console.log(treatment);
+            }
+        }
+        else {
+            preflight.checkDir('archive');
+            preflight.checkDir('dump');
+            preflight.backupOldDB();
+            database.prepareDatabases();
+            
+            const numOfTreatments = database.selCountOfTreatments();
+            log.info(`found ${numOfTreatments} treatments in the db`);
+            
+            /** 
+             * There are no treatments in the db so no ETL was ever done
+            **/
+            if (numOfTreatments === 0) {
+                etl('full', null, null);
+            }
+            else {
+                const typeOfArchives = [ 'monthly', 'weekly', 'daily' ];
+                update(typeOfArchives);
+            }
+        }
+    }
+
+    /**
+     * --run is not defined, so assume the program will be 
+     * run using config values, for example, as a cronjob
+    **/
+    else {
+        const runMode = config.truebug.runMode;
+        const source = config.truebug.source;
+
+        log.info('='.repeat(80));
+        log.info(`STARTING TRUEBUG (runMode ${runMode})`);
+    
+        if (source === 'single') {
+            const single = argv.single || config.truebug.download.single;
+            const xml = `${single}.xml`;
+            preflight.copyXmlToDump(xml);
+            const treatment = parse.parseOne(xml);
+            
+            if (runMode === 'dry-run') {
+                console.log(treatment);
+            }
         }
         else {
             preflight.checkDir('archive');

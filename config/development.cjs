@@ -85,9 +85,9 @@ module.exports = {
             "dir": path.join(cwd, 'bin/truebug/logs')
         },
 
-        // run: 'test', // test data (small sample ~10K records)
-        "run": 'real', // real data
-        //run: 'dry',     // simulated run, no commands executed
+        //"runMode": 'test', // test data (small sample ~10K records)
+        //"runMode": 'real', // real data
+        "runMode": "dry-run",     // simulated run, no data changed
 
         /**
          * server where the data are stored 
@@ -95,11 +95,11 @@ module.exports = {
         // "server": 'http://127.0.0.1/plazi/data',
         "server": "https://tb.plazi.org/dumps",
 
-        //source: 'full',
-        //source: 'monthly',
-        // source: 'weekly',
-        //"source": 'daily',
-        source: 'single',
+        //"source": "full",
+        //"source": "monthly",
+        //"source": "weekly",
+        //"source": "daily",
+        "source": "single",
 
         /**
          * by default, download the daily dump, and then go to

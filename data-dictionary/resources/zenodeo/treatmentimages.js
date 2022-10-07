@@ -110,6 +110,18 @@ const dictionary = [
         }
     },
     {
+        name: 'journalTitle',
+        dict: dictTreatments,
+        alias: {
+            select: 'treatments.journalTitle',
+            where : 'treatments.journalTitle'
+        },
+        joins: {
+            select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
+            where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
+        }
+    },
+    {
         name: 'phylum',
         dict: dictTreatments,
         alias: {
