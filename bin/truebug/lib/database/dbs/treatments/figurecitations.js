@@ -5,13 +5,18 @@ const tables = [
         create: `CREATE TABLE IF NOT EXISTS figureCitations ( 
     id INTEGER PRIMARY KEY,
     figureNum INTEGER DEFAULT 0,
-    figureCitationId TEXT NOT NULL,
-    treatmentId TEXT NOT NULL,
-    captionText TEXT,
-    httpUri TEXT,
-    thumbnailUri TEXT,
+    figureCitationId TEXT NOT NULL COLLATE NOCASE,
+    treatmentId TEXT NOT NULL COLLATE NOCASE,
+    captionText TEXT COLLATE NOCASE,
+    httpUri TEXT COLLATE NOCASE,
     deleted INTEGER DEFAULT 0,
-    created INTEGER DEFAULT (strftime('%s','now') * 1000),
+    
+    -- ms since epoch record created in zenodeo
+    created INTEGER DEFAULT (
+        strftime('%s','now') * 1000
+    ),  
+
+    -- ms since epoch record updated in zenodeo
     updated INTEGER,
     UNIQUE (figureCitationId, figureNum)
 )`,
@@ -21,7 +26,6 @@ const tables = [
     treatmentId,
     captionText,
     httpUri,
-    --thumbnailUri,
     deleted
 )
 VALUES (
@@ -30,7 +34,6 @@ VALUES (
     @treatmentId,
     @captionText,
     @httpUri,
-    --@thumbnailUri,
     @deleted
 )
 ON CONFLICT (figureNum, figureCitationId)
@@ -40,7 +43,6 @@ DO UPDATE SET
     treatmentId=excluded.treatmentId,
     captionText=excluded.captionText,
     httpUri=excluded.httpUri,
-    --thumbnailUri=excluded.thumbnailUri,
     deleted=excluded.deleted,
     updated=strftime('%s','now') * 1000`,
         preparedinsert: '',
@@ -58,16 +60,16 @@ DO UPDATE SET
         insert: `INSERT INTO vfigurecitations 
 SELECT figureCitationId, figureNum, treatmentId, captionText 
 FROM figureCitations 
-WHERE rowid > @maxrowid AND deleted = 0`,
+WHERE rowid > @maxrowid`,
         preparedinsert: '',
         maxrowid: 0
     },
 ]
 
 const indexes = [
-    `CREATE INDEX IF NOT EXISTS ix_figureCitations_treatmentId                            ON figureCitations (deleted, treatmentId)`,
-    `CREATE INDEX IF NOT EXISTS ix_figureCitations_figureCitationId_treatmentId_figureNum ON figureCitations (deleted, figureCitationId, treatmentId, figureNum)`,
-    `CREATE INDEX IF NOT EXISTS ix_figureCitations_httpUri                                ON figureCitations (deleted, httpUri)`
+    `CREATE INDEX IF NOT EXISTS ix_figureCitations_treatmentId                            ON figureCitations (treatmentId)`,
+    `CREATE INDEX IF NOT EXISTS ix_figureCitations_figureCitationId_treatmentId_figureNum ON figureCitations (figureCitationId, treatmentId, figureNum)`,
+    `CREATE INDEX IF NOT EXISTS ix_figureCitations_httpUri                                ON figureCitations (httpUri)`
 ]
 
 export { tables, indexes }

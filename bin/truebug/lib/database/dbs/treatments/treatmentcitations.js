@@ -4,12 +4,18 @@ const tables = [
         type: 'normal',
         create: `CREATE TABLE IF NOT EXISTS treatmentCitations ( 
     id INTEGER PRIMARY KEY,
-    treatmentCitationId TEXT NOT NULL,
-    treatmentId TEXT NOT NULL,
-    treatmentCitation TEXT,
-    refString TEXT,
+    treatmentCitationId TEXT NOT NULL COLLATE NOCASE,
+    treatmentId TEXT NOT NULL COLLATE NOCASE,
+    treatmentCitation TEXT COLLATE NOCASE,
+    refString TEXT COLLATE NOCASE,
     deleted INTEGER DEFAULT 0,
-    created INTEGER DEFAULT (strftime('%s','now') * 1000),
+    
+    -- ms since epoch record created in zenodeo
+    created INTEGER DEFAULT (
+        strftime('%s','now') * 1000
+    ),  
+
+    -- ms since epoch record updated in zenodeo
     updated INTEGER,
     UNIQUE (treatmentCitationId, treatmentId)
 )`,
@@ -40,8 +46,8 @@ DO UPDATE SET
 ]
 
 const indexes = [
-    `CREATE INDEX IF NOT EXISTS ix_treatmentCitations_treatmentCitation ON treatmentCitations (deleted, Lower(treatmentCitation)) WHERE deleted = 0`,
-    `CREATE INDEX IF NOT EXISTS ix_treatmentCitations_refString         ON treatmentCitations (deleted, Lower(refString)) WHERE deleted = 0`,
+    `CREATE INDEX IF NOT EXISTS ix_treatmentCitations_treatmentCitation ON treatmentCitations (treatmentCitation)`,
+    `CREATE INDEX IF NOT EXISTS ix_treatmentCitations_refString         ON treatmentCitations (refString)`,
 ]
 
 export { tables, indexes }

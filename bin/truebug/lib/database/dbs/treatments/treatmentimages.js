@@ -5,9 +5,9 @@ const tables = [
         create: `CREATE TABLE IF NOT EXISTS treatmentImages ( 
     id INTEGER PRIMARY KEY,
     figureCitationRowid INTEGER,
-    httpUri TEXT UNIQUE, 
-    captionText TEXT, 
-    treatmentId TEXT
+    httpUri TEXT UNIQUE COLLATE NOCASE, 
+    captionText TEXT COLLATE NOCASE, 
+    treatmentId TEXT COLLATE NOCASE
 )`,
         // Select first row in each group using group by in sqlite
         // https://stackoverflow.com/a/35490165/183692

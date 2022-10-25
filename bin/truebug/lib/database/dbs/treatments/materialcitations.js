@@ -4,31 +4,31 @@ const tables = [
         type: 'normal',
         create: `CREATE TABLE IF NOT EXISTS materialsCitations ( 
     id INTEGER PRIMARY KEY,
-    materialsCitationId TEXT NOT NULL,
-    treatmentId TEXT NOT NULL,
-    collectingDate TEXT,
-    collectionCode TEXT,  -- csv string as in the text
-    collectorName TEXT,
-    country TEXT,
-    collectingRegion TEXT,
-    municipality TEXT,
-    county TEXT,
-    stateProvince TEXT,
-    location TEXT,
-    locationDeviation TEXT,
-    specimenCountFemale TEXT,
-    specimenCountMale TEXT,
-    specimenCount TEXT,
-    specimenCode TEXT,
-    typeStatus TEXT,
-    determinerName TEXT,
-    collectedFrom TEXT,
-    collectingMethod TEXT,
+    materialsCitationId TEXT NOT NULL COLLATE NOCASE,
+    treatmentId TEXT NOT NULL COLLATE NOCASE,
+    collectingDate TEXT COLLATE NOCASE,
+    collectionCode TEXT COLLATE NOCASE,  -- csv string as in the text
+    collectorName TEXT COLLATE NOCASE,
+    country TEXT COLLATE NOCASE,
+    collectingRegion TEXT COLLATE NOCASE,
+    municipality TEXT COLLATE NOCASE,
+    county TEXT COLLATE NOCASE,
+    stateProvince TEXT COLLATE NOCASE,
+    location TEXT COLLATE NOCASE,
+    locationDeviation TEXT COLLATE NOCASE,
+    specimenCountFemale TEXT COLLATE NOCASE,
+    specimenCountMale TEXT COLLATE NOCASE,
+    specimenCount TEXT COLLATE NOCASE,
+    specimenCode TEXT COLLATE NOCASE,
+    typeStatus TEXT COLLATE NOCASE,
+    determinerName TEXT COLLATE NOCASE,
+    collectedFrom TEXT COLLATE NOCASE,
+    collectingMethod TEXT COLLATE NOCASE,
     latitude REAL,
     longitude REAL,
     elevation REAL,
-    httpUri TEXT,
-    innerText TEXT,
+    httpUri TEXT COLLATE NOCASE,
+    innerText TEXT COLLATE NOCASE,
     deleted INTEGER DEFAULT 0,
     validGeo INTEGER AS (
         CASE 
@@ -42,8 +42,14 @@ const tables = [
         END
     ) STORED,
     isOnLand INTEGER DEFAULT NULL,
-    created INTEGER DEFAULT (strftime('%s','now') * 1000),
-    updated INTEGER,
+
+    -- ms since epoch record created in zenodeo
+    created INTEGER DEFAULT (
+        strftime('%s','now') * 1000
+    ),  
+
+    -- ms since epoch record updated in zenodeo
+    updated INTEGER 
     UNIQUE (materialsCitationId, treatmentId)
 )`,
     insert: `INSERT INTO materialsCitations (
@@ -137,9 +143,15 @@ DO UPDATE SET
         type: 'normal',
         create: `CREATE TABLE IF NOT EXISTS materialsCitations_x_collectionCodes ( 
     id INTEGER PRIMARY KEY,
-    materialsCitationId TEXT,
-    collectionCode TEXT,
-    created INTEGER DEFAULT (strftime('%s','now') * 1000),
+    materialsCitationId TEXT COLLATE NOCASE,
+    collectionCode TEXT COLLATE NOCASE,
+    
+    -- ms since epoch record created in zenodeo
+    created INTEGER DEFAULT (
+        strftime('%s','now') * 1000
+    ),  
+
+    -- ms since epoch record updated in zenodeo
     updated INTEGER,
     UNIQUE (collectionCode, materialsCitationId)
 )`,
@@ -201,9 +213,15 @@ FROM points`,
         name: 'vloc_rtree',
         type: 'virtual',
         create: `CREATE VIRTUAL TABLE IF NOT EXISts vloc_rtree USING rtree(
-    id,                         -- primary key
-    minX, maxX,                 -- X coordinate
-    minY, maxY,                 -- Y coordinate
+    
+    -- primary key
+    id,
+
+    -- X coordinate
+    minX, maxX,
+
+    -- Y coordinate
+    minY, maxY,
     +materialsCitationId TEXT,
     +treatmentId TEXT
 )`,
@@ -230,33 +248,33 @@ WHERE rowid > @maxrowid AND validGeo = 1`,
 ]
 
 const indexes = [
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_materialsCitationId ON materialsCitations (deleted, materialsCitationId)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_treatmentId         ON materialsCitations (deleted, treatmentId)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingDate      ON materialsCitations (deleted, collectingDate COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectionCode      ON materialsCitations (deleted, collectionCode COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectorName       ON materialsCitations (deleted, collectorName COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_country             ON materialsCitations (deleted, country COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingRegion    ON materialsCitations (deleted, collectingRegion COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_municipality        ON materialsCitations (deleted, municipality COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_county              ON materialsCitations (deleted, county COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_stateProvince       ON materialsCitations (deleted, stateProvince COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_location            ON materialsCitations (deleted, location COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_locationDeviation   ON materialsCitations (deleted, locationDeviation COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCountFemale ON materialsCitations (deleted, specimenCountFemale COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCountMale   ON materialsCitations (deleted, specimenCountMale COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCount       ON materialsCitations (deleted, specimenCount COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCode        ON materialsCitations (deleted, specimenCode COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_typeStatus          ON materialsCitations (deleted, typeStatus COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_determinerName      ON materialsCitations (deleted, determinerName COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectedFrom       ON materialsCitations (deleted, collectedFrom COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingMethod    ON materialsCitations (deleted, collectingMethod COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_latitude            ON materialsCitations (deleted, latitude)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_longitude           ON materialsCitations (deleted, longitude)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_elevation           ON materialsCitations (deleted, elevation)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_validGeo            ON materialsCitations (deleted, validGeo)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_isOnLand            ON materialsCitations (deleted, isOnLand)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_validGeo_isOnLand   ON materialsCitations (deleted, validGeo, isOnLand)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_deleted             ON materialsCitations (deleted)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_materialsCitationId ON materialsCitations (materialsCitationId)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_treatmentId         ON materialsCitations (treatmentId)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingDate      ON materialsCitations (collectingDate COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectionCode      ON materialsCitations (collectionCode COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectorName       ON materialsCitations (collectorName COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_country             ON materialsCitations (country COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingRegion    ON materialsCitations (collectingRegion COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_municipality        ON materialsCitations (municipality COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_county              ON materialsCitations (county COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_stateProvince       ON materialsCitations (stateProvince COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_location            ON materialsCitations (location COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_locationDeviation   ON materialsCitations (locationDeviation COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCountFemale ON materialsCitations (specimenCountFemale COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCountMale   ON materialsCitations (specimenCountMale COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCount       ON materialsCitations (specimenCount COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCode        ON materialsCitations (specimenCode COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_typeStatus          ON materialsCitations (typeStatus COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_determinerName      ON materialsCitations (determinerName COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectedFrom       ON materialsCitations (collectedFrom COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingMethod    ON materialsCitations (collectingMethod COLLATE NOCASE)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_latitude            ON materialsCitations (latitude)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_longitude           ON materialsCitations (longitude)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_elevation           ON materialsCitations (elevation)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_validGeo            ON materialsCitations (validGeo)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_isOnLand            ON materialsCitations (isOnLand)`,
+    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_validGeo_isOnLand   ON materialsCitations (validGeo, isOnLand)`,
+    //`CREATE INDEX IF NOT EXISTS ix_materialsCitations_deleted             ON materialsCitations (deleted)`,
     `CREATE INDEX IF NOT EXISTS ix_collectionCodes_collectionCode         ON collectionCodes (collectionCode)`,
 ]
 

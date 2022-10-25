@@ -62,11 +62,37 @@ module.exports = {
 
     "db": {
         "treatments-testing": path.join(dataDir, 'treatments-testing.sqlite'),
+
+        /**
+         * consolidaed database with all the tables within
+        **/
         "treatments": path.join(dataDir, 'z3-treatments.sqlite'),
+
+        /**
+         * separate databases, one for each table, all stored within 
+         * a single 'z3' directory. The databases are ATTACHed before use
+        **/
+        "tr": path.join(dataDir, 'z3', 'treatments.sqlite'),
+        "ti": path.join(dataDir, 'z3', 'treatmentimages.sqlite'),
+        "tc": path.join(dataDir, 'z3', 'treatmentcitations.sqlite'),
+        "mc": path.join(dataDir, 'z3', 'materialcitations.sqlite'),
+        "fc": path.join(dataDir, 'z3', 'figurecitations.sqlite'),
+        "bc": path.join(dataDir, 'z3', 'bibrefcitations.sqlite'),
+
+        /**
+         * supporting databases
+        **/
         "gbifcollections": path.join(dataDir, 'z3-gbifcollections.sqlite'),
         "facets": path.join(dataDir, 'z3-facets.sqlite'),
         "stats": path.join(dataDir, 'z3-stats.sqlite')
     },
+
+    /**
+     * consolidated or separate or both types of databases
+    **/
+    // "dbType": "consolidated", 
+    // "dbType": "separate", 
+    "dbType": "both", 
 
     "cache": {
         "on": true,

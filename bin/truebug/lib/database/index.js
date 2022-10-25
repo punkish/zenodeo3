@@ -13,7 +13,23 @@ import isSea from 'is-sea';
 
 import Database from 'better-sqlite3';
 const db = {
+
+    /** 
+     * consolidated database with all the tables within
+    **/
     treatments: new Database(config.db.treatments),
+
+    /** 
+     * single database of treatments only and the other tables
+     * in their own respective databases attached to it
+    **/
+    // tr: new Database(config.db.tr),
+    // ti: new Database(config.db.ti),
+    // tc: new Database(config.db.tc),
+    // mc: new Database(config.db.mc),
+    // fc: new Database(config.db.fc),
+    // bc: new Database(config.db.bc),
+    
     stats: new Database(config.db.stats)
 };
 import { dbs } from './dbs/index.js';
@@ -22,6 +38,9 @@ const setPragmas = () => {
     db.treatments.pragma('synchronous = OFF');
     db.treatments.pragma('journal_mode = MEMORY');
 }
+
+// const gbifcollections = config.db.gbifcollections;
+// db.prepare(`ATTACH DATABASE '${gbifcollections}' AS gbifcollections`).run();
 
 const prepareDatabases = () => {
     setPragmas();
@@ -60,10 +79,10 @@ const prepareDatabases = () => {
 }
 
 /**
-*   Convert an array of single treatments into a
-*   flattened array of arrays of treatment parts 
-*   suitable for transaction insert in the db
-*/
+ *   Convert an array of single treatments into a
+ *   flattened array of arrays of treatment parts 
+ *   suitable for transaction insert in the db
+**/
 const repackageTreatment = (treatment) => {
     dbs.treatments.tables.forEach(t => {
         if (truebug.run === 'real') {
