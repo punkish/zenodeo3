@@ -1,29 +1,30 @@
+import { resources } from '../../../../../../data-dictionary/resources.js';
+const alias = resources.filter(r => r.name === 'bibRefCitations')[0].alias;
+
 const tables = [
     {
         name: 'bibRefCitations',
         type: 'normal',
         create: `CREATE TABLE IF NOT EXISTS bibRefCitations ( 
     id INTEGER PRIMARY KEY,
-    bibRefCitationId TEXT NOT NULL UNIQUE COLLATE NOCASE,
-    treatmentId TEXT NOT NULL COLLATE NOCASE,
-    author TEXT COLLATE NOCASE,
-    journalOrPublisher TEXT COLLATE NOCASE,
-    title TEXT COLLATE NOCASE, 
-    refString TEXT COLLATE NOCASE,
-    type TEXT COLLATE NOCASE,
-    year TEXT COLLATE NOCASE,
-    innerText TEXT COLLATE NOCASE,
+    bibRefCitationId TEXT NOT NULL UNIQUE,
+    treatmentId TEXT NOT NULL,
+    author TEXT,
+    journalOrPublisher TEXT,
+    title TEXT, 
+    refString TEXT,
+    type TEXT,
+    year TEXT,
+    fulltext TEXT,
     deleted INTEGER DEFAULT 0, 
 
     -- ms since epoch record created in zenodeo
-    created INTEGER DEFAULT (
-        strftime('%s','now') * 1000
-    ),  
+    created INTEGER DEFAULT (strftime('%s','now') * 1000),  
 
     -- ms since epoch record updated in zenodeo
     updated INTEGER 
 )`,
-        insert: `INSERT INTO bibRefCitations (
+        insert: `INSERT INTO ${alias}.bibRefCitations (
     bibRefCitationId,
     treatmentId,
     author,
@@ -32,7 +33,7 @@ const tables = [
     refString,
     type,
     year,
-    innerText,
+    fulltext,
     deleted
 )
 VALUES ( 
@@ -44,7 +45,7 @@ VALUES (
     @refString,
     @type,
     @year,
-    @innerText,
+    @fulltext,
     @deleted
 )
 ON CONFLICT (bibRefCitationId)
@@ -56,33 +57,79 @@ DO UPDATE SET
     refString=excluded.refString,
     type=excluded.type,
     year=excluded.year,
-    innerText=excluded.innerText,
+    fulltext=excluded.fulltext,
     deleted=excluded.deleted,
     updated=strftime('%s','now') * 1000`,
         preparedinsert: '',
         data: []
     },
     {
-        name: 'vbibrefcitations',
+        name: 'ftsBibrefcitations',
         type: 'virtual',
-        create: `CREATE VIRTUAL TABLE IF NOT EXISTS vbibrefcitations USING FTS5(
-    bibRefCitationId, 
-    refString
+        create: `CREATE VIRTUAL TABLE IF NOT EXISTS ftsBibrefcitations USING FTS5(
+    fulltext,
+    content=''
 )`,
-        insert: `INSERT INTO vbibrefcitations 
-SELECT bibRefCitationId, refString 
-FROM bibRefCitations 
-WHERE rowid > @maxrowid`,
+        insert: `INSERT INTO ${alias}.ftsBibrefcitations 
+SELECT fulltext 
+FROM bibRefCitations`,
         preparedinsert: '',
-        maxrowid: 0
+//         maxrowid: 0
     },
 ]
 
 const indexes = [
-    `CREATE INDEX IF NOT EXISTS ix_bibRefCitations_bibRefCitationId ON bibRefCitations (bibRefCitationId)`,
-    `CREATE INDEX IF NOT EXISTS ix_bibRefCitations_treatmentId      ON bibRefCitations (treatmentId)`,
-    `CREATE INDEX IF NOT EXISTS ix_bibRefCitations_year             ON bibRefCitations (year)`,
-    //`CREATE INDEX IF NOT EXISTS ix_bibRefCitations_deleted          ON bibRefCitations (deleted)`,
+    {
+        name: 'ix_bibRefCitations_bibRefCitationId',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_bibRefCitations_bibRefCitationId ON bibRefCitations (bibRefCitationId)`
+    },
+    {
+        name: 'ix_bibRefCitations_treatmentId',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_bibRefCitations_treatmentId ON bibRefCitations (treatmentId)`
+    },
+    {
+        name: 'ix_bibRefCitations_year',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_bibRefCitations_year ON bibRefCitations (year)`
+    },
+    {
+        name: 'ix_bibRefCitations_deleted',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_bibRefCitations_deleted ON bibRefCitations (deleted)`
+    }
 ]
 
-export { tables, indexes }
+// Triggers to keep the FTS index up to date.
+// modeled after the triggers on https://sqlite.org/fts5.html
+const triggers = [
+    {
+        name: 'bibRefCitations_afterInsert',
+        create: `CREATE TRIGGER IF NOT EXISTS ${alias}.bibRefCitations_afterInsert 
+        AFTER INSERT ON bibRefCitations 
+        BEGIN
+            INSERT INTO ftsBibRefCitations(rowid, fulltext) 
+            VALUES (new.id, new.fulltext);
+        END;`
+    },
+    {
+        name: 'bibRefCitations_afterDelete',
+        create: `CREATE TRIGGER IF NOT EXISTS ${alias}.bibRefCitations_afterDelete 
+        AFTER DELETE ON bibRefCitations 
+        BEGIN
+            INSERT INTO ftsBibRefCitations(ftsBibRefCitations, rowid, fulltext) 
+            VALUES('delete', old.id, old.fulltext);
+        END;`
+    },
+    {
+        name: 'bibRefCitations_afterUpdate',
+        create: `CREATE TRIGGER IF NOT EXISTS ${alias}.bibRefCitations_afterUpdate 
+        AFTER UPDATE ON bibRefCitations 
+        BEGIN
+            INSERT INTO ftsBibRefCitations(ftsBibRefCitations, rowid, fulltext) 
+            VALUES('delete', old.id, old.fulltext);
+
+            INSERT INTO ftsBibRefCitations(rowid, fulltext) 
+            VALUES (new.id, new.fulltext);
+        END;`
+    }
+]
+
+export { tables, indexes, triggers }

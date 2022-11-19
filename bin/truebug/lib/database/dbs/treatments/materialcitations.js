@@ -1,34 +1,37 @@
+import { resources } from '../../../../../../data-dictionary/resources.js';
+const alias = resources.filter(r => r.name === 'materialCitations')[0].alias;
+
 const tables = [
     {
         name: 'materialsCitations',
         type: 'normal',
         create: `CREATE TABLE IF NOT EXISTS materialsCitations ( 
     id INTEGER PRIMARY KEY,
-    materialsCitationId TEXT NOT NULL COLLATE NOCASE,
-    treatmentId TEXT NOT NULL COLLATE NOCASE,
-    collectingDate TEXT COLLATE NOCASE,
-    collectionCode TEXT COLLATE NOCASE,  -- csv string as in the text
-    collectorName TEXT COLLATE NOCASE,
-    country TEXT COLLATE NOCASE,
-    collectingRegion TEXT COLLATE NOCASE,
-    municipality TEXT COLLATE NOCASE,
-    county TEXT COLLATE NOCASE,
-    stateProvince TEXT COLLATE NOCASE,
-    location TEXT COLLATE NOCASE,
-    locationDeviation TEXT COLLATE NOCASE,
-    specimenCountFemale TEXT COLLATE NOCASE,
-    specimenCountMale TEXT COLLATE NOCASE,
-    specimenCount TEXT COLLATE NOCASE,
-    specimenCode TEXT COLLATE NOCASE,
-    typeStatus TEXT COLLATE NOCASE,
-    determinerName TEXT COLLATE NOCASE,
-    collectedFrom TEXT COLLATE NOCASE,
-    collectingMethod TEXT COLLATE NOCASE,
+    materialsCitationId TEXT NOT NULL,
+    treatmentId TEXT NOT NULL,
+    collectingDate TEXT,
+    collectionCode TEXT,  -- csv string as in the text
+    collectorName TEXT,
+    country TEXT,
+    collectingRegion TEXT,
+    municipality TEXT,
+    county TEXT,
+    stateProvince TEXT,
+    location TEXT,
+    locationDeviation TEXT,
+    specimenCountFemale TEXT,
+    specimenCountMale TEXT,
+    specimenCount TEXT,
+    specimenCode TEXT,
+    typeStatus TEXT,
+    determinerName TEXT,
+    collectedFrom TEXT,
+    collectingMethod TEXT,
     latitude REAL,
     longitude REAL,
     elevation REAL,
-    httpUri TEXT COLLATE NOCASE,
-    innerText TEXT COLLATE NOCASE,
+    httpUri TEXT,
+    fulltext TEXT,
     deleted INTEGER DEFAULT 0,
     validGeo INTEGER AS (
         CASE 
@@ -44,15 +47,13 @@ const tables = [
     isOnLand INTEGER DEFAULT NULL,
 
     -- ms since epoch record created in zenodeo
-    created INTEGER DEFAULT (
-        strftime('%s','now') * 1000
-    ),  
+    created INTEGER DEFAULT (strftime('%s','now') * 1000),  
 
     -- ms since epoch record updated in zenodeo
-    updated INTEGER 
+    updated INTEGER,
     UNIQUE (materialsCitationId, treatmentId)
 )`,
-    insert: `INSERT INTO materialsCitations (
+    insert: `INSERT INTO ${alias}.materialsCitations (
     materialsCitationId,
     treatmentId,
     collectingDate,
@@ -77,7 +78,7 @@ const tables = [
     longitude,
     elevation,
     httpUri,
-    innerText,
+    fulltext,
     deleted
 )
 VALUES ( 
@@ -105,7 +106,7 @@ VALUES (
     @longitude,
     @elevation,
     @httpUri,
-    @innerText,
+    @fulltext,
     @deleted
 )
 ON CONFLICT (materialsCitationId, treatmentId)
@@ -132,7 +133,7 @@ DO UPDATE SET
     longitude=excluded.longitude,
     elevation=excluded.elevation,
     httpUri=excluded.httpUri,
-    innerText=excluded.innerText,
+    fulltext=excluded.fulltext,
     deleted=excluded.deleted,
     updated=strftime('%s','now') * 1000`,
         preparedinsert: '',
@@ -143,19 +144,17 @@ DO UPDATE SET
         type: 'normal',
         create: `CREATE TABLE IF NOT EXISTS materialsCitations_x_collectionCodes ( 
     id INTEGER PRIMARY KEY,
-    materialsCitationId TEXT COLLATE NOCASE,
-    collectionCode TEXT COLLATE NOCASE,
+    materialsCitationId TEXT,
+    collectionCode TEXT,
     
     -- ms since epoch record created in zenodeo
-    created INTEGER DEFAULT (
-        strftime('%s','now') * 1000
-    ),  
+    created INTEGER DEFAULT (strftime('%s','now') * 1000),  
 
     -- ms since epoch record updated in zenodeo
     updated INTEGER,
     UNIQUE (collectionCode, materialsCitationId)
 )`,
-        insert: `INSERT INTO materialsCitations_x_collectionCodes (
+        insert: `INSERT INTO ${alias}.materialsCitations_x_collectionCodes (
     materialsCitationId,
     collectionCode
 )
@@ -180,7 +179,7 @@ DO UPDATE SET
     created INTEGER DEFAULT (strftime('%s','now') * 1000),
     updated INTEGER
 )`,
-        insert: `INSERT INTO collectionCodes (collectionCode)
+        insert: `INSERT INTO ${alias}.collectionCodes (collectionCode)
 VALUES (@collectionCode)
 ON CONFLICT (collectionCode)
 DO UPDATE SET 
@@ -190,29 +189,50 @@ DO UPDATE SET
         data: []
     },
     {
-        name: 'vloc_geopoly',
+        name: 'ftsMaterialsCitations',
         type: 'virtual',
-        create: `CREATE VIRTUAL TABLE IF NOT EXISTS vloc_geopoly USING geopoly(
+        create: `CREATE VIRTUAL TABLE IF NOT EXISTS ftsMaterialsCitations USING FTS5(
+    fulltext,
+    content=''
+)`,
+        insert: `INSERT INTO ${alias}.ftsMaterialsCitations 
+SELECT fulltext 
+FROM materialsCitations`,
+        preparedinsert: ''
+    },
+    {
+        name: 'geopolyLocations',
+        type: 'virtual',
+        create: `CREATE VIRTUAL TABLE IF NOT EXISTS geopolyLocations USING geopoly(
     treatmentId, 
     materialsCitationId
 )`,
-        insert: `INSERT INTO vloc_geopoly (treatmentId, materialsCitationId, _shape) 
+        insert: `INSERT INTO ${alias}.geopolyLocations (
+            treatmentId, 
+            materialsCitationId, 
+            _shape
+        ) 
 WITH points AS (
-    SELECT materialsCitationId, treatmentId, '[' || longitude || ',' || latitude || ']' AS p 
-    FROM materialsCitations 
-    WHERE rowid > @maxrowid AND validGeo = 1
+    SELECT 
+        materialsCitationId, 
+        treatmentId, 
+        '[' || longitude || ',' || latitude || ']' AS p 
+    FROM 
+        ${alias}.materialsCitations 
+    WHERE 
+        validGeo = 1
 ) SELECT 
     points.treatmentId,
     points.materialsCitationId,
     '[' || points.p || ',' || points.p || ',' || points.p || ',' || points.p || ']' AS _shape
 FROM points`,
         preparedinsert: '',
-        maxrowid: 0
+//         maxrowid: 0
     },
     {
-        name: 'vloc_rtree',
+        name: 'rtreeLocations',
         type: 'virtual',
-        create: `CREATE VIRTUAL TABLE IF NOT EXISts vloc_rtree USING rtree(
+        create: `CREATE VIRTUAL TABLE IF NOT EXISTS rtreeLocations USING rtree(
     
     -- primary key
     id,
@@ -225,7 +245,7 @@ FROM points`,
     +materialsCitationId TEXT,
     +treatmentId TEXT
 )`,
-        insert: `INSERT INTO vloc_rtree (
+        insert: `INSERT INTO ${alias}.rtreeLocations (
     minX,
     maxX,
     minY,
@@ -240,42 +260,240 @@ SELECT
     latitude,
     materialsCitationId,
     treatmentId
-FROM materialsCitations 
-WHERE rowid > @maxrowid AND validGeo = 1`,
+FROM ${alias}.materialsCitations 
+WHERE validGeo = 1`,
         preparedinsert: '',
-        maxrowid: 0
+//         maxrowid: 0
     }
 ]
 
 const indexes = [
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_materialsCitationId ON materialsCitations (materialsCitationId)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_treatmentId         ON materialsCitations (treatmentId)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingDate      ON materialsCitations (collectingDate COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectionCode      ON materialsCitations (collectionCode COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectorName       ON materialsCitations (collectorName COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_country             ON materialsCitations (country COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingRegion    ON materialsCitations (collectingRegion COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_municipality        ON materialsCitations (municipality COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_county              ON materialsCitations (county COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_stateProvince       ON materialsCitations (stateProvince COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_location            ON materialsCitations (location COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_locationDeviation   ON materialsCitations (locationDeviation COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCountFemale ON materialsCitations (specimenCountFemale COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCountMale   ON materialsCitations (specimenCountMale COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCount       ON materialsCitations (specimenCount COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_specimenCode        ON materialsCitations (specimenCode COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_typeStatus          ON materialsCitations (typeStatus COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_determinerName      ON materialsCitations (determinerName COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectedFrom       ON materialsCitations (collectedFrom COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_collectingMethod    ON materialsCitations (collectingMethod COLLATE NOCASE)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_latitude            ON materialsCitations (latitude)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_longitude           ON materialsCitations (longitude)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_elevation           ON materialsCitations (elevation)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_validGeo            ON materialsCitations (validGeo)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_isOnLand            ON materialsCitations (isOnLand)`,
-    `CREATE INDEX IF NOT EXISTS ix_materialsCitations_validGeo_isOnLand   ON materialsCitations (validGeo, isOnLand)`,
-    //`CREATE INDEX IF NOT EXISTS ix_materialsCitations_deleted             ON materialsCitations (deleted)`,
-    `CREATE INDEX IF NOT EXISTS ix_collectionCodes_collectionCode         ON collectionCodes (collectionCode)`,
-]
+    {
+        name: 'ix_materialsCitations_materialsCitationId',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_materialsCitationId ON materialsCitations (materialsCitationId)`
+    },
+    {
+        name: 'ix_materialsCitations_treatmentId',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_treatmentId ON materialsCitations (treatmentId)`
+    },
+    {
+        name: 'ix_materialsCitations_collectingDate',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_collectingDate ON materialsCitations (collectingDate)`
+    },
+    {
+        name: 'ix_materialsCitations_collectionCode',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_collectionCode ON materialsCitations (collectionCode)`
+    },
+    {
+        name: 'ix_materialsCitations_collectorName',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_collectorName ON materialsCitations (collectorName)`
+    },
+    {
+        name: 'ix_materialsCitations_country',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_country ON materialsCitations (country)`
+    },
+    {
+        name: 'ix_materialsCitations_collectingRegion',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_collectingRegion ON materialsCitations (collectingRegion)`
+    },
+    {
+        name: 'ix_materialsCitations_municipality',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_municipality ON materialsCitations (municipality)`
+    },
+    {
+        name: 'ix_materialsCitations_county',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_county ON materialsCitations (county)`
+    },
+    {
+        name: 'ix_materialsCitations_stateProvince',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_stateProvince ON materialsCitations (stateProvince)`
+    },
+    {
+        name: 'ix_materialsCitations_location',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_location ON materialsCitations (location)`
+    },
+    {
+        name: 'ix_materialsCitations_locationDeviation',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_locationDeviation ON materialsCitations (locationDeviation)`
+    },
+    {
+        name: 'ix_materialsCitations_specimenCountFemale',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_specimenCountFemale ON materialsCitations (specimenCountFemale)`
+    },
+    {
+        name: 'ix_materialsCitations_specimenCountMale',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_specimenCountMale ON materialsCitations (specimenCountMale)`
+    },
+    {
+        name: 'ix_materialsCitations_specimenCount',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_specimenCount ON materialsCitations (specimenCount)`
+    },
+    {
+        name: 'ix_materialsCitations_specimenCode',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_specimenCode ON materialsCitations (specimenCode)`
+    },
+    {
+        name: 'ix_materialsCitations_typeStatus',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_typeStatus ON materialsCitations (typeStatus)`
+    },
+    {
+        name: 'ix_materialsCitations_determinerName',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_determinerName ON materialsCitations (determinerName)`
+    },
+    {
+        name: 'ix_materialsCitations_collectedFrom',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_collectedFrom ON materialsCitations (collectedFrom)`
+    },
+    {
+        name: 'ix_materialsCitations_collectingMethod',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_collectingMethod ON materialsCitations (collectingMethod)`
+    },
+    {
+        name: 'ix_materialsCitations_latitude',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_latitude ON materialsCitations (latitude)`
+    },
+    {
+        name: 'ix_materialsCitations_longitude',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_longitude ON materialsCitations (longitude)`
+    },
+    {
+        name: 'ix_materialsCitations_elevation',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_elevation ON materialsCitations (elevation)`
+    },
+    {
+        name: 'ix_materialsCitations_validGeo',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_validGeo ON materialsCitations (validGeo)`
+    },
+    {
+        name: 'ix_materialsCitations_isOnLand',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_isOnLand ON materialsCitations (isOnLand)`
+    },
+    {
+        name: 'ix_materialsCitations_validGeo_isOnLand',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_validGeo_isOnLand ON materialsCitations (validGeo, isOnLand)`
+    },
+    {
+        name: 'ix_materialsCitations_deleted',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_materialsCitations_deleted ON materialsCitations (deleted)`
+    },
+    {
+        name: 'ix_collectionCodes_collectionCode',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_collectionCodes_collectionCode ON collectionCodes (collectionCode)`
+    }
+];
 
-export { tables, indexes }
+// Triggers to keep the FTS index up to date.
+// modeled after the triggers on https://sqlite.org/fts5.html
+const getShape = () => {
+    const point = `'[' || new.longitude || ',' || new.latitude || ']'`;
+    const _shape = `'[' || ${point} || ',' || ${point} || ',' || ${point} || ',' || ${point} || ']'`;
+    return _shape;
+}
+
+const triggers = [
+    {
+        name: 'Locations_afterInsert',
+        create: `CREATE TRIGGER IF NOT EXISTS ${alias}.Locations_afterInsert 
+        AFTER INSERT ON materialsCitations 
+        WHEN new.validGeo = 1
+        BEGIN
+            INSERT INTO geopolyLocations (
+                rowid, 
+                treatmentId, 
+                materialsCitationId, 
+                _shape
+            ) 
+            VALUES (
+                new.id, 
+                new.treatmentId, 
+                new.materialsCitationId, 
+                ${getShape()}
+            );
+
+            INSERT INTO rtreeLocations (
+                minX,
+                maxX,
+                minY,
+                maxY,
+                materialsCitationId,
+                treatmentId
+            )
+            VALUES (
+                new.longitude,
+                new.longitude,
+                new.latitude,
+                new.latitude,
+                new.materialsCitationId,
+                new.treatmentId
+            );
+        END;`
+    },
+    {
+        name: 'Locations_afterUpdate',
+        create: `CREATE TRIGGER IF NOT EXISTS ${alias}.Locations_afterUpdate 
+        AFTER UPDATE ON materialsCitations 
+        WHEN new.validGeo = 1
+        BEGIN
+            UPDATE geopolyLocations 
+            SET _shape = ${getShape()}
+            WHERE rowid = old.id;
+
+            UPDATE rtreeLocations 
+            SET 
+                minX = new.longitude,
+                maxX = new.longitude,
+                minY = new.latitude,
+                maxY = new.latitude
+            WHERE rowid = old.id;
+        END;`
+    },
+    {
+        name: 'Locations_afterDelete',
+        create: `CREATE TRIGGER IF NOT EXISTS ${alias}.Locations_afterDelete 
+        AFTER DELETE ON materialsCitations 
+        BEGIN
+            DELETE FROM geopolyLocations WHERE rowid = old.id;
+            DELETE FROM rtreeLocations WHERE rowid = old.id;
+        END;`
+    },
+    {
+        name: 'Fulltext_afterInsert',
+        create: `CREATE TRIGGER IF NOT EXISTS ${alias}.Fulltext_afterInsert 
+        AFTER INSERT ON materialsCitations 
+        BEGIN
+            INSERT INTO ftsMaterialsCitations(rowid, fulltext) 
+            VALUES (new.id, new.fulltext);
+        END;`
+    },
+    {
+        name: 'Fulltext_afterDelete',
+        create: `CREATE TRIGGER IF NOT EXISTS ${alias}.Fulltext_afterDelete 
+        AFTER DELETE ON materialsCitations 
+        BEGIN
+            INSERT INTO ftsMaterialsCitations(
+                ftsMaterialsCitations, 
+                rowid, 
+                fulltext
+            ) 
+            VALUES('delete', old.id, old.fulltext);
+        END;`
+    },
+    {
+        name: 'Fulltext_afterUpdate',
+        create: `CREATE TRIGGER IF NOT EXISTS ${alias}.Fulltext_afterUpdate 
+        AFTER UPDATE ON materialsCitations 
+        BEGIN
+            INSERT INTO ftsMaterialsCitations(
+                ftsMaterialsCitations, 
+                rowid, 
+                fulltext
+            ) 
+            VALUES('delete', old.id, old.fulltext);
+
+            INSERT INTO ftsMaterialsCitations(rowid, fulltext) 
+            VALUES (new.id, new.fulltext);
+        END;`
+    }
+];
+
+export { tables, indexes, triggers }

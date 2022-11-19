@@ -1,4 +1,4 @@
-export const dictionary = [
+export const dictFamilies = [
     {
         name: 'id',
         schema: { 
@@ -12,8 +12,8 @@ export const dictionary = [
     {
         name: 'q',
         alias: {
-            select: 'families.family',
-            where : 'families.family'
+            select: 'fa.families.family',
+            where : 'fa.families.family'
         },
         schema: {
             type: 'string',

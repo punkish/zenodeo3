@@ -1,23 +1,38 @@
+import { resources } from '../../../../../../data-dictionary/resources.js';
+const alias = resources.filter(r => r.name === 'etlStats')[0].alias;
+
 const tables = [
     {
         name: 'etlstats',
         type: 'normal',
         create: `CREATE TABLE IF NOT EXISTS etlstats ( 
             id INTEGER PRIMARY KEY,
-            started INTEGER,
-            ended INTEGER,
-            process TEXT,
-            timeOfArchive INTEGER,
-            typeOfArchive TEXT,
-            result TEXT
+            started INTEGER,            -- UTC ms since epoch
+            ended INTEGER,              -- UTC ms since epoch
+            process TEXT,               -- 'download' or 'etl'
+            timeOfArchive INTEGER,      -- UTC ms since epoch
+            typeOfArchive TEXT,         -- full | monthly | weekly | daily
+            sizeOfArchive INTEGER,      -- kilobytes
+            numOfFiles INTEGER,         -- files downloaded in archive
+            treatments INTEGER,
+            treatmentCitations INTEGER,
+            materialsCitations INTEGER,
+            figureCitations INTEGER,
+            bibRefCitations INTEGER
         )`,
-        insert: `INSERT INTO etlstats (
+        insert: `INSERT INTO ${alias}.etlstats (
                 started, 
                 ended, 
                 process,
                 timeOfArchive,
                 typeOfArchive,
-                result
+                sizeOfArchive,
+                numOfFiles,
+                treatments,
+                treatmentCitations,
+                materialsCitations,
+                figureCitations,
+                bibRefCitations
             ) 
             VALUES (
                 @started, 
@@ -25,7 +40,13 @@ const tables = [
                 @process,
                 @timeOfArchive,
                 @typeOfArchive,
-                @result
+                @sizeOfArchive,
+                @numOfFiles,
+                @treatments,
+                @treatmentCitations,
+                @materialsCitations,
+                @figureCitations,
+                @bibRefCitations
             )`,
         preparedinsert: ''
     },
@@ -34,9 +55,7 @@ const tables = [
         type: 'normal',
         create: `CREATE TABLE IF NOT EXISTS webqueries (
             id INTEGER PRIMARY KEY,
-            -- stringified queryObject
             q TEXT NOT NULL UNIQUE,
-            -- counter tracking queries
             count INTEGER DEFAULT 1
         )`,
         insert: '',
@@ -47,7 +66,6 @@ const tables = [
         type: 'normal',
         create: `CREATE TABLE IF NOT EXISTS sqlqueries (
             id INTEGER PRIMARY KEY,
-            -- SQL query
             sql TEXT NOT NULL UNIQUE
         )`,
         insert: '',
@@ -58,19 +76,29 @@ const tables = [
         type: 'normal',
         create: `CREATE TABLE IF NOT EXISTS querystats (
             id INTEGER PRIMARY KEY,
+
             -- Foreign Keys
             webqueries_id INTEGER,
             sqlqueries_id INTEGER,
+
             -- query performance time in ms
             timeTaken INTEGER,
+            
             -- timestamp of query
             created INTEGER DEFAULT (strftime('%s','now'))
         )`,
         insert: '',
         preparedinsert: ''
     }
-]
+];
 
-const indexes = []
+const indexes = [
+    {
+        name: 'ix_bibRefCitations_bibRefCitationId',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_etlstats_typeOfArchive ON etlstats (typeOfArchive)`
+    }
+];
 
-export { tables, indexes }
+const triggers = [];
+
+export { tables, indexes, triggers }

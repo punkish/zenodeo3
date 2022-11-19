@@ -8,7 +8,7 @@
  * Param 'sqltype' is used in CREATE-ing the db table
  * Param 'selname' is used when 'name' is inappropriate for SQL
  */
-export const dictionary = [
+export const dictImages = [
     {
         name: 'id',
         schema: {
@@ -17,7 +17,6 @@ export const dictionary = [
         },
         isResourceId: true
     },
-
     {
         name: 'subtype',
         schema: { 
@@ -33,7 +32,6 @@ export const dictionary = [
             description: 'The image subtype; defaults to all subtypes'
         }
     },
-
     {
         name: 'communities',
         schema: { 
@@ -49,15 +47,13 @@ export const dictionary = [
             description: 'The community on Zenodo; defaults to <b>"biosyslit"</b>'
         }
     },
-
     {
         name: 'q',
         schema: { 
             type: 'string', 
-            description: 'The term for full-text search. Can use the following syntax: \`q=spiders\`'
+            description: 'The term for full-text search. Can use the following syntax: `q=spiders`'
         },
     },
-
     {
         name: 'creator',
         schema: { 
@@ -76,7 +72,6 @@ export const dictionary = [
   will find all records containing both Agosti and Donat in any order`
         }
     },
-
     {
         name: 'title',
         schema: { 
@@ -95,7 +90,6 @@ export const dictionary = [
   will find all records containing both spider and peacock in any order`
         }
     },
-
     {
         name: 'keywords',
         schema: { 

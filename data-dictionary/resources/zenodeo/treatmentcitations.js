@@ -1,4 +1,4 @@
-export const dictionary = [
+export const dictTreatmentCitations = [
     {
         name: 'treatmentCitationId',
         schema: { 
@@ -11,7 +11,6 @@ export const dictionary = [
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("treatmentCitation").attr("id")'
     },
-
     {
         name: 'treatmentId',
         schema: { 
@@ -22,7 +21,6 @@ export const dictionary = [
         },
         sqltype: 'TEXT NOT NULL'
     },
-
     {
         name: 'treatmentCitation',
         schema: { 
@@ -38,7 +36,6 @@ export const dictionary = [
         cheerio: '$("subSubSection[type=reference_group] treatmentCitationGroup taxonomicName").text() + " " + $("subSubSection[type=reference_Group] treatmentCitationGroup taxonomicName").attr("authority") + " sec. " + $("subSubSection[type=reference_Group] treatmentCitationGroup bibRefCitation").text()',
         defaultOp: 'starts_with'
     },
-
     {
         name: 'refString',
         schema: { 

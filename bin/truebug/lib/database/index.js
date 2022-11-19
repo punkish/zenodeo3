@@ -1,111 +1,58 @@
 'use strict';
 
+import * as utils from '../utils.js';
+
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
-
+const dbType = config.dbType;
 const truebug = config.truebug;
-import { Zlogger } from '@punkish/zlogger';
+const ts = truebug.steps.database;
+
 const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
 logOpts.name = 'TRUEBUG:DATABASE';
+import { Zlogger } from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
 
 import isSea from 'is-sea';
 
-import Database from 'better-sqlite3';
-const db = {
-
-    /** 
-     * consolidated database with all the tables within
-    **/
-    treatments: new Database(config.db.treatments),
-
-    /** 
-     * single database of treatments only and the other tables
-     * in their own respective databases attached to it
-    **/
-    // tr: new Database(config.db.tr),
-    // ti: new Database(config.db.ti),
-    // tc: new Database(config.db.tc),
-    // mc: new Database(config.db.mc),
-    // fc: new Database(config.db.fc),
-    // bc: new Database(config.db.bc),
-    
-    stats: new Database(config.db.stats)
-};
+/** 
+ * connect to the database
+ */
+import { db, createTriggers } from '../../../../lib/dbConnect.js';
 import { dbs } from './dbs/index.js';
-
-const setPragmas = () => {
-    db.treatments.pragma('synchronous = OFF');
-    db.treatments.pragma('journal_mode = MEMORY');
-}
-
-// const gbifcollections = config.db.gbifcollections;
-// db.prepare(`ATTACH DATABASE '${gbifcollections}' AS gbifcollections`).run();
-
-const prepareDatabases = () => {
-    setPragmas();
-
-    for (let [database, dbdesc] of Object.entries(dbs)) {
-
-        /**
-         *   'database' is either 'treatments' or 'stats' and 
-         *   'dbdesc' is an object of 'tables' and 'indexes' 
-         */
-        log.info(`preparing database ${database}`);
-
-        for (let [k, v] of Object.entries(dbdesc)) {
-
-            /**
-             * 'k' is an array of either 'tables' or 'indexes'
-             */
-            if (k === 'tables') {
-                log.info('creating tables and preparing insert statements')
-
-                v.forEach(t => {
-                    log.info(`  - ${database}.${t.name}`);
-
-                    if (truebug.run === 'real') {
-                        db[database].prepare(t.create).run();
-    
-                        if (t.insert) {
-                            t.preparedinsert = db[database].prepare(t.insert);
-                        }
-                    }
-                    
-                })
-            }
-        }
-    }
-}
 
 /**
  *   Convert an array of single treatments into a
  *   flattened array of arrays of treatment parts 
  *   suitable for transaction insert in the db
-**/
+ */
 const repackageTreatment = (treatment) => {
-    dbs.treatments.tables.forEach(t => {
-        if (truebug.run === 'real') {
-            if (t.type === 'normal') {
+    const fn = 'repackageTreatment';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
 
-                /**
-                 * note the name of the table is 'treatments' (plural) 
-                 */ 
-                if (t.name === 'treatments') {
-                    t.data.push(treatment.treatment);
-                }
-                else {
-                    try {
-                        t.data.push(...treatment[t.name]);
+    for (const [database, schema] of Object.entries(dbs)) {
+        if (database !== 'stats') {
+            schema.tables.forEach(t => {
+                if (truebug.runMode === 'real') {
+                    if (t.type === 'normal') {
+
+                        /**
+                         * note the name of the table is 'treatments' (plural) 
+                         */ 
+                        if (t.name === 'treatments') {
+                            t.data.push(treatment.treatment);
+                        }
+                        else {
+                            if (treatment[t.name].length) {
+                                t.data.push(...treatment[t.name]);
+                            }
+                        }
                     }
-                    catch (error) {
-                        log.error(error);
-                        log.error(treatment);
-                    }
                 }
-            }
+            })
         }
-    })
+    }
 }
 
 /**
@@ -114,121 +61,190 @@ const repackageTreatment = (treatment) => {
  *   nodejs will run out of memory and crash.
  */
 const resetData = () => {
-    dbs.treatments.tables.forEach(t => {
-        if (truebug.run === 'real') {
-            if (t.type === 'normal') {
-                t.data.length = 0;
-            }
+    const fn = 'resetData';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+
+    for (const [database, schema] of Object.entries(dbs)) {
+        if (database !== 'stats') {
+            schema.tables.forEach(t => {
+                if (truebug.runMode === 'real') {
+                    if (t.type === 'normal') {
+                        t.data.length = 0;
+                    }
+                }
+            })
         }
-    })
+    }
 }
 
 const insertData = () => {
-    dbs.treatments.tables.forEach(t => {
-        if (truebug.run === 'real') {
-            if (t.type === 'normal') {
+    const fn = 'insertData';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
 
-                /**
-                 *   Create a transaction function that takes an 
-                 *   array of rows and inserts them in the db 
-                 *   row by row.
-                 */
-                const insertMany = db.treatments.transaction((rows) => {
-                    for (const row of rows) {  
-                        try {
-                            t.preparedinsert.run(row);
-                        }
-                        catch(error) {
-                            log.error(error);
-                            log.info(`table ${t.name}`);
-                            log.info(`row: ${JSON.stringify(row)}`);
-                        }
+    for (const [database, schema] of Object.entries(dbs)) {
+        if (database !== 'stats') {
+            schema.tables.forEach(t => {
+                if (truebug.runMode === 'real') {
+                    if (t.type === 'normal') {
+
+                        /**
+                         *   Create a transaction function that takes an 
+                         *   array of rows and inserts them in the db 
+                         *   row by row.
+                         */
+                        const insertMany = db.transaction((rows) => {
+                            for (const row of rows) {  
+                                try {
+                                    t.preparedinsert.run(row);
+                                }
+                                catch(error) {
+                                    log.error('TABLE');
+                                    log.error('-'.repeat(50));
+                                    log.error(t);
+                                    log.error(t.preparedinsert);
+                                    log.error(error);
+                                }
+                            }
+                        })
+                        
+                        insertMany(t.data);
                     }
-                })
-                
-                insertMany(t.data);
-            }
+                }
+            })
         }
-    })
-
-    resetData();
+    }
 }
 
 const insertFTS = () => {
-    dbs.treatments.tables.forEach(t => {
-        if (truebug.run === 'real') {
-            if (t.type === 'virtual') {
-                log.info(`inserting data in virtual table ${t.name}`);
+    const fn = 'insertFTS';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
 
-                try {
-                    t.preparedinsert.run({maxrowid: t.maxrowid});
+    for (const [database, schema] of Object.entries(dbs)) {
+        if (database !== 'stats') {
+            schema.tables.forEach(t => {
+                if (truebug.runMode === 'real') {
+                    if (t.type === 'virtual') {
+                        log.info(`inserting data in virtual table ${t.name}`);
+        
+                        try {
+                            t.preparedinsert.run({maxrowid: t.maxrowid});
+                        }
+                        catch(error) {
+                            log.error(error);
+                        }
+                    }
                 }
-                catch(error) {
-                    log.error(error);
-                }
-            }
+            })
         }
-    })
+    }
 }
 
 const insertDerived = () => {
-    dbs.treatments.tables.forEach(t => {
-        if (truebug.run === 'real') {
-            if (t.type === 'derived') {
-                log.info(`inserting data in derived table ${t.name}`);
+    const fn = 'insertDerived';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
 
-                try {
-                    //t.preparedinsert.run({maxrowid: t.maxrowid});
-                    t.preparedinsert.run();
+    for (const [database, schema] of Object.entries(dbs)) {
+        if (database !== 'stats') {
+            schema.tables.forEach(t => {
+                if (truebug.runMode === 'real') {
+                    if (t.type === 'derived') {
+                        log.info(`inserting data in derived table ${t.name}`);
+
+                        try {
+                            //t.preparedinsert.run({maxrowid: t.maxrowid});
+                            t.preparedinsert.run();
+                        }
+                        catch(error) {
+                            log.error(error);
+                        }
+                    }
                 }
-                catch(error) {
-                    log.error(error);
-                }
-            }
+            })
         }
-    })
+    }
 }
 
 const dropIndexes = () => {
-    log.info('dropping indexes');
+    const fn = 'dropIndexes';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
 
-    dbs.treatments.indexes.forEach(i => {
-        if (truebug.run === 'real') {
-            const ix = i.match(/\w+\.ix_\w+/);
-            let idx;
-            if (ix) idx = ix[0];
-            db.treatments.prepare(`DROP INDEX IF EXISTS ${idx}`).run();
+    log.info('dropping indexes');
+    for (const [database, schema] of Object.entries(dbs)) {
+        if (database !== 'stats') {
+            schema.indexes.forEach(i => {
+                if (truebug.runMode === 'real') {
+                    const ix = i.name.match(/\w+\.ix_\w+/);
+                        
+                    if (ix) {
+                        const idx = ix[0];
+                        db.prepare(`DROP INDEX IF EXISTS ${idx}`).run();
+                    }
+                }
+            })
         }
-    })
+    }
 }
 
 const buildIndexes = () => {
-    log.info('building indexes');
+    const fn = 'buildIndexes';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
 
-    dbs.treatments.indexes.forEach(i => {
-        if (truebug.run === 'real') {
-            try {
-                db.treatments.prepare(i).run();
-            }
-            catch(error) {
-                log.error(error);
-                log.error(i);
-            }
+    for (const [database, schema] of Object.entries(dbs)) {
+        if (database !== 'stats') {
+            schema.indexes.forEach(i => {
+                if (truebug.runMode === 'real') {
+                    log.info(`building index ${i.name}`);
+                    try {
+                        db.prepare(i.create).run();
+                    }
+                    catch(error) {
+                        console.log(error);
+                        console.log(error.stack);
+                    }
+                }
+            })
         }
-    })
+    }
 }
 
-const selCountOfTreatments = () => db.treatments.prepare('SELECT Count(*) AS c FROM treatments').get().c;
+const selCountOfTreatments = () => {
+    const fn = 'selCountOfTreatments';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
 
-const selMaxrowidVirtualTable = (table) => db.treatments.prepare(`SELECT Max(rowid) AS c FROM ${table}`).get().c;
+    const sql = dbType === 'consolidated'
+        ? 'SELECT Count(*) AS c FROM treatments'
+        : 'SELECT Count(*) AS c FROM tr.treatments';
 
-//const selMaxrowidDerivedTable = (table) => db.treatments.prepare(`SELECT Max(figureCitationRowid) AS c FROM ${table}`).get().c;
+    return db.prepare(sql).get().c;
+}
+
+const _selMaxrowidVirtualTable = (table, alias) => {
+    const fn = '_selMaxrowidVirtualTable';
+    utils.incrementStack(logOpts.name, fn);
+
+    const sql = dbType === 'consolidated'
+        ? `SELECT Max(rowid) AS c FROM ${table}`
+        : `SELECT Max(rowid) AS c FROM ${alias}.${table}`;
+
+    return db.prepare(sql).get().c;
+}
 
 const storeMaxrowid = () => {
+    const fn = 'storeMaxrowid';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+
     dbs.treatments.tables.forEach(t => {
-        if (truebug.run === 'real') {
+        if (truebug.runMode === 'real') {
             if (t.type === 'virtual') {
-                const maxrowid = selMaxrowidVirtualTable(t.name) || 0;
+                const maxrowid = _selMaxrowidVirtualTable(t.name, t.alias) || 0;
                 log.info(`storing maxrowid ${maxrowid} of the virtual table ${t.name}`);
 
                 t.maxrowid = maxrowid;
@@ -244,56 +260,86 @@ const storeMaxrowid = () => {
 }
 
 const getLastUpdate = (typeOfArchive) => {
-    //const s = `SELECT Max(started) AS lastUpdate FROM etlstats WHERE process = 'etl' AND typeOfArchive = '${typeOfArchive}'`;
-    const s = `SELECT 
+    const fn = 'getLastUpdate';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+
+    const sql = `SELECT 
     Max(started) AS started,
     datetime(Max(started)/1000, 'unixepoch') AS start, 
     datetime(ended/1000, 'unixepoch') AS end, 
     (ended - started) AS duration,
-    datetime(timeOfArchive/1000, 'unixepoch') AS timeOfArchive, 
-    "result"
+    datetime(timeOfArchive/1000, 'unixepoch') AS timeOfArchive,
+    treatments,
+    treatmentCitations,
+    materialsCitations,
+    figureCitations,
+    bibRefCitations
 FROM
-    etlstats
+    st.etlstats
 WHERE
     process = 'etl'
-    AND typeOfArchive = ?;`
-    return db.stats.prepare(s).get(typeOfArchive);
+    AND typeOfArchive = ?`;
+    return db.prepare(sql).get(typeOfArchive);
 }
 
 const insertStats = (stats) => {
+    const fn = 'insertStats';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+
     log.info(`inserting ${stats.process} stats`);
 
-    if (truebug.run === 'real') {
-        db.stats.prepare(dbs.stats.tables[0].insert).run(stats);
+    if (truebug.runMode === 'real') {
+        db.prepare(dbs.stats.tables[0].insert).run(stats);
     }
 }
 
 const getDaysSinceLastEtl = () => {
+    const fn = 'getDaysSinceLastEtl';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+
     const s = `SELECT ((strftime('%s','now') - Max(ended)/1000)/3600/24) AS daysSinceLastEtl
-    FROM etlstats 
+    FROM st.etlstats 
     WHERE process = 'etl'`;
-    return db.stats.prepare(s).get().daysSinceLastEtl
+    return db.prepare(s).get().daysSinceLastEtl
 }
 
 /**
  * queries each table in the db and prints out the 
  * count of rows
-**/
+ */
 const getCounts = () => {
+    const fn = 'getCounts';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+
     const tables = [
-        { table: 'treatments', count: 0 },
-        { table: 'treatmentimages', count: 0 },
-        { table: 'figurecitations', count: 0 },
-        { table: 'materialscitations', count: 0 },
-        { table: 'bibrefcitations', count: 0 },
-        { table: 'treatmentcitations', count: 0 },
-        { table: 'treatmentauthors', count: 0 }
+        { alias: 'tr', table: 'treatments', count: 0 },
+        { alias: 'tr', table: 'ftsTreatments', count: 0 },
+        { alias: 'ti', table: 'treatmentimages', count: 0 },
+        { alias: 'fc', table: 'figurecitations', count: 0 },
+        { alias: 'fc', table: 'ftsFigurecitations', count: 0 },
+        { alias: 'mc', table: 'materialscitations', count: 0 },
+        { alias: 'mc', table: 'ftsMaterialscitations', count: 0 },
+        { alias: 'mc', table: 'rtreeLocations', count: 0 },
+        { alias: 'mc', table: 'geopolyLocations', count: 0 },
+        { alias: 'bc', table: 'bibrefcitations', count: 0 },
+        { alias: 'bc', table: 'ftsBibrefcitations', count: 0 },
+        { alias: 'tc', table: 'treatmentcitations', count: 0 },
+        { alias: 'ta', table: 'treatmentauthors', count: 0 }
     ]
 
     tables.forEach(t => {
-        const s = `SELECT Count(*) AS c FROM ${t.table}`;
-        const count = db.treatments.prepare(s).get().c;
-        t.count = count;
+        try {
+            const s = `SELECT Count(*) AS c FROM ${t.alias}.${t.table}`;
+            const count = db.prepare(s).get().c;
+            t.count = count;
+        }
+        catch (error) {
+            console.log(error);
+        }
     })
 
     console.table(tables);
@@ -301,8 +347,12 @@ const getCounts = () => {
 
 /**
  * prints out updates for full, monthly, weekly and daily archives
-**/
+ */
 const getArchiveUpdates = () => {
+    const fn = 'getArchiveUpdates';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+
     const typesOfArchives = { 
         'full': 0,
         'monthly': 0,
@@ -335,18 +385,17 @@ const getArchiveUpdates = () => {
     Object.keys(typesOfArchives).forEach(archive => {
         const lastUpdate = getLastUpdate(archive);
         lastUpdate.duration = msToTime(lastUpdate.duration);
-        const result = JSON.parse(lastUpdate.result);
 
         const table = [
-            { item: "started",            value: lastUpdate.start},
-            { item: "ended",              value: lastUpdate.end},
-            { item: "duration",           value: lastUpdate.duration},
-            { item: "time of archive",    value: lastUpdate.timeOfArchive},
-            { item: "treatments",         value: result.treatments},
-            { item: "treatmentCitations", value: result.treatmentCitations},
-            { item: "materialsCitations", value: result.materialsCitations},
-            { item: "figureCitations",    value: result.figureCitations},
-            { item: "bibRefCitations",    value: result.bibRefCitations}
+            { item: "started",            value: lastUpdate.start },
+            { item: "ended",              value: lastUpdate.end },
+            { item: "duration",           value: lastUpdate.duration },
+            { item: "time of archive",    value: lastUpdate.timeOfArchive },
+            { item: "treatments",         value: lastUpdate.treatments },
+            { item: "treatmentCitations", value: lastUpdate.treatmentCitations },
+            { item: "materialsCitations", value: lastUpdate.materialsCitations },
+            { item: "figureCitations",    value: lastUpdate.figureCitations },
+            { item: "bibRefCitations",    value: lastUpdate.bibRefCitations }
         ]
 
         console.log(`archive: ${archive.toUpperCase()}`);
@@ -355,6 +404,10 @@ const getArchiveUpdates = () => {
 }
 
 const updateIsOnLand = () => {
+    const fn = 'updateIsOnLand';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+
     log.info(`updating column isOnLand in table materialsCitations`);
 
     /*
@@ -365,8 +418,20 @@ const updateIsOnLand = () => {
     | lat/lng are correct | 1        | 1 or 0   | <- were updated previously
     | lat/lng are correct | 1        | NULL     | <- need to be updated
     */
-    const select = db.treatments.prepare('SELECT id, latitude, longitude, isOnLand FROM materialsCitations WHERE deleted = 0 AND validGeo = 1 AND isOnLand IS NULL').all();
-    const update = db.treatments.prepare('UPDATE materialsCitations SET isOnLand = @isOnLand WHERE id = @id');
+    const select = db.prepare(`SELECT 
+        id, latitude, longitude, isOnLand 
+    FROM 
+        mc.materialsCitations 
+    WHERE 
+        deleted = 0 AND 
+        validGeo = 1 AND 
+        isOnLand IS NULL`).all();
+
+    const update = db.prepare(`UPDATE 
+        mc.materialsCitations 
+    SET 
+        isOnLand = @isOnLand 
+    WHERE id = @id`);
 
     let count = 0;
 
@@ -392,19 +457,20 @@ const updateIsOnLand = () => {
 }
 
 export {
-    prepareDatabases,
-    selCountOfTreatments,
-    storeMaxrowid,
     repackageTreatment,
-    dropIndexes,
-    buildIndexes,
     insertData,
+    resetData,
     insertFTS,
     insertDerived,
+    dropIndexes,
+    buildIndexes,
+    selCountOfTreatments,
+    storeMaxrowid,
+    getLastUpdate,
     insertStats,
     getDaysSinceLastEtl,
-    getLastUpdate,
-    updateIsOnLand,
     getCounts,
-    getArchiveUpdates
+    getArchiveUpdates,
+    updateIsOnLand,
+    createTriggers
 }

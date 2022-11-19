@@ -9,7 +9,7 @@
  * Param 'selname' is used when 'name' is inappropriate for SQL
  */
 
-export const dictionary = [
+export const dictEtlStats = [
     {
         name: 'id',
         schema: {

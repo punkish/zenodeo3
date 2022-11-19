@@ -1,19 +1,24 @@
 'use strict';
 
+import * as utils from './utils.js';
+
 import fs from 'fs';
 import path from 'path';
-import isSea from 'is-sea';
-import cheerio from 'cheerio';
+//import isSea from 'is-sea';
+import * as cheerio from 'cheerio';
 import Chance from 'chance';
 const chance = Chance();
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
+const truebug = config.truebug;
+const ts = truebug.steps.parse;
 
 import { dispatch as ddutils } from '../../../data-dictionary/dd-utils.js';
-import { Zlogger } from '@punkish/zlogger';
+
 const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
 logOpts.name = 'TRUEBUG:PARSE';
+import { Zlogger } from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
 
 const stats = {
@@ -25,6 +30,10 @@ const stats = {
 }
 
 const calcStats = (treatment) => {
+    const fn = 'calcStats';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+
     stats.treatments++;
 
     stats.treatmentCitations += treatment.treatmentCitations 
@@ -44,7 +53,10 @@ const calcStats = (treatment) => {
         : 0;
 }
 
-const parseTreatmentCitations = function($, treatmentId) {
+const _parseTreatmentCitations = function($, treatmentId) {
+    const fn = '_parseTreatmentCitations';
+    utils.incrementStack(logOpts.name, fn);
+
     let tc = [];
     const trecitgroups = $('treatmentCitationGroup', 'subSubSection[type=reference_group]');
     
@@ -122,7 +134,10 @@ const parseTreatmentCitations = function($, treatmentId) {
     return tc;
 }
 
-const parseTreatmentAuthors = function($, treatmentId) {
+const _parseTreatmentAuthors = function($, treatmentId) {
+    const fn = '_parseTreatmentAuthors';
+    utils.incrementStack(logOpts.name, fn);
+
     const treaut = $('mods\\:mods mods\\:name[type=personal]');
     
     let ta = [];
@@ -151,6 +166,9 @@ const parseTreatmentAuthors = function($, treatmentId) {
 };
 
 const _parse = function($, part, parts, partId, treatmentId) {
+    const fn = '_parse';
+    utils.incrementStack(logOpts.name, fn);
+
     const elements = $(part)
     const num = elements.length;
     let entries = [];
@@ -196,19 +214,23 @@ const _parse = function($, part, parts, partId, treatmentId) {
     return entries
 };
 
-const parseBibRefCitations = function($, treatmentId) {
+const _parseBibRefCitations = function($, treatmentId) {
+    const fn = '_parseBibRefCitations';
+    utils.incrementStack(logOpts.name, fn);
+
     //const elements = $('bibRefCitation');
     return _parse($, 'bibRefCitation', 'bibRefCitations', 'bibRefCitationId', treatmentId);  
 }
 
-const parseFigureCitations = function($, treatmentId) {
+const _parseFigureCitations = function($, treatmentId) {
+    const fn = '_parseFigureCitations';
+    utils.incrementStack(logOpts.name, fn);
+
     const entries = []
     const elements = $('figureCitation')
     const num = elements.length
 
     if (num) {
-
-
         const allCols = ddutils.getSqlCols('figureCitations')
         
         for (let i = 0; i < num; i++) {
@@ -285,19 +307,21 @@ const parseFigureCitations = function($, treatmentId) {
     return entries
 }
 
-const isValidGeo = (latitude, longitude) => {
-    const latIsGood = isFinite(latitude) && Math.abs(latitude) <= 90;
-    const lngIsGood = isFinite(longitude) && Math.abs(longitude) <= 180;
-    return latIsGood && lngIsGood ? 1 : 0;
-}
+// const isValidGeo = (latitude, longitude) => {
+//     const latIsGood = isFinite(latitude) && Math.abs(latitude) <= 90;
+//     const lngIsGood = isFinite(longitude) && Math.abs(longitude) <= 180;
+//     return latIsGood && lngIsGood ? 1 : 0;
+// }
 
-const isOnLand = (latitude, longitude) => {
-    if (isValidGeo(latitude, longitude)) {
-        return isSea(latitude, longitude) ? 0 : 1;
-    }
-}
+// const isOnLand = (latitude, longitude) => {
+//     if (isValidGeo(latitude, longitude)) {
+//         return isSea(latitude, longitude) ? 0 : 1;
+//     }
+// }
 
-const parseMaterialsCitations = function($, treatmentId) {
+const _parseMaterialsCitations = function($, treatmentId) {
+    const fn = '_parseMaterialsCitations';
+    utils.incrementStack(logOpts.name, fn);
 
     /** 
      * see note below on naming
@@ -382,7 +406,10 @@ const parseMaterialsCitations = function($, treatmentId) {
     return [entries, mc, ccs]
 };
 
-const parseTreatment = function($, treatmentId) {
+const _parseTreatment = function($, treatmentId) {
+    const fn = '_parseTreatment';
+    utils.incrementStack(logOpts.name, fn);
+
     let treatment = {};
     
     const allCols = ddutils.getSqlCols('treatments')
@@ -424,42 +451,57 @@ const parseTreatment = function($, treatmentId) {
     return treatment;
 }
 
-const cheerioparse = function(xml, treatmentId) {
-    const $ = cheerio.load(xml, { normalizeWhitespace: true, xmlMode: true }, false);
+const _cheerioparse = function(xml, treatmentId) {
+    const fn = '_cheerioparse';
+    utils.incrementStack(logOpts.name, fn);
 
-    //const report = {};
-    const treatment = {};
-    treatment.treatment = parseTreatment($, treatmentId);
+    const cheerioOpts = { normalizeWhitespace: true, xmlMode: true };
+    const $ = cheerio.load(xml, cheerioOpts, false);
+
+    const [
+        materialsCitations, 
+        materialsCitations_x_collectionCodes, 
+        collectionCodes
+    ] = _parseMaterialsCitations($, treatmentId);
+
+    // return a complete treatment
+    return {
+        treatment: _parseTreatment($, treatmentId),
+        treatmentAuthors: _parseTreatmentAuthors($, treatmentId),
+        treatmentCitations: _parseTreatmentCitations($, treatmentId),
+        bibRefCitations: _parseBibRefCitations($, treatmentId),
+        figureCitations: _parseFigureCitations($, treatmentId),
+        materialsCitations,
+        materialsCitations_x_collectionCodes,
+        collectionCodes
+    };
 
     // The following two functions are used to filter out any 
     // empty objects returned from parsing, and to add the 
     // 'treatmentId' to each remaining object so it can be 
     // used as a foreign key to connect the object to the 
     // parent treatment
-    const emptyObjs = (el) => Object.keys(el).length > 0;
-    const addTreatmentId = (el) => el.treatmentId = treatmentId;
-
-    treatment.treatmentAuthors = parseTreatmentAuthors($, treatmentId)
-    treatment.treatmentCitations = parseTreatmentCitations($, treatmentId)
-    treatment.bibRefCitations = parseBibRefCitations($, treatmentId)
-    treatment.figureCitations = parseFigureCitations($, treatmentId)
-    const arr = parseMaterialsCitations($, treatmentId)
-    treatment.materialsCitations = arr[0]
-    treatment.materialsCitations_x_collectionCodes = arr[1]
-    treatment.collectionCodes = arr[2]
-    
-    return treatment
+    // const emptyObjs = (el) => Object.keys(el).length > 0;
+    // const addTreatmentId = (el) => el.treatmentId = treatmentId;
 }
 
-const treatmentIdRegex = RegExp(/[^a-zA-Z0-9]/, 'g');
+const _treatmentIdRegex = RegExp(/[^a-zA-Z0-9]/, 'g');
 
-const parseOne = (xml) => {
+const parseOne = (typeOfArchive, xml) => {
+    const fn = 'parseOne';
+    if (!ts[fn]) return true;
+    utils.incrementStack(logOpts.name, fn);
+
     const treatmentId = path.basename(xml, '.xml');
 
-    if (treatmentId.length != 32 || !treatmentIdRegex.test(treatmentId)) {
-        const treatmentXml = `${config.truebug.dirs.dump}/${xml}`;
-        const xmlContent = fs.readFileSync(treatmentXml, 'utf8');
-        const treatment = cheerioparse(xmlContent, treatmentId);
+    if (treatmentId.length != 32 || !_treatmentIdRegex.test(treatmentId)) {
+        const treatmentXml = `${truebug.dirs.dumps}/${typeOfArchive}/${xml}`;
+        
+        const treatment = _cheerioparse(
+            fs.readFileSync(treatmentXml, 'utf8'), 
+            treatmentId
+        );
+        
         return treatment;
     }
     else {

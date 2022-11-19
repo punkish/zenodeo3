@@ -1,6 +1,6 @@
 const db = {
     name: 'gbifcollections',
-    alias: 'gc'
+    alias: 'gb'
 }
 
 export { db }

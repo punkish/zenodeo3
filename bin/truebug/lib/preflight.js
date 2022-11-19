@@ -1,83 +1,130 @@
-'use strict'
+'use strict';
 
-import { pathToXml } from './utils.js';
+import * as utils from './utils.js';
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
+const truebug = config.truebug;
+const ts = truebug.steps.preflight;
 
-import { Zlogger } from '@punkish/zlogger';
-const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
+const logOpts = JSON.parse(JSON.stringify(truebug.log));
 logOpts.name = 'TRUEBUG:PREFLIGHT';
+import { Zlogger } from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
+
+const dbType = config.dbType;
 
 import fs from 'fs';
 import path from 'path';
+import tar from 'tar';
 
 const checkDir = (dir) => {
-    log.info(`checking if ${dir} exists… `, 'start');
+    const fn = 'checkDir';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
 
-    const exists = fs.existsSync(config.truebug.dirs[dir]);
+    log.info(`checking if ${dir} directory exists… `, 'start');
+
+    const tgt = truebug.dirs[dir];
+    const exists = fs.existsSync(tgt);
+
     if (exists) {
         log.info('yes, it does\n', 'end');
     }
     else {
         log.info("it doesn't exist… making it\n", 'end');
         
-        if (config.truebug.run === 'real') {
-            fs.mkdirSync(config.truebug.dirs[dir]);
+        if (truebug.runMode === 'real') {
+            fs.mkdirSync(tgt);
         }
     }
 }
 
-const copyXmlToDump = (xml) => {
-    const srcPath = pathToXml(xml);
+const copyXmlToDump = (typeOfArchive, xml) => {
+    const fn = 'copyXmlToDump';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+
+    const srcPath = utils.pathToXml(xml);
     const src = `${srcPath}/${xml}`;
-    const tgt = `${config.truebug.dirs.dump}/${xml}`;
-    fs.copyFileSync(src, tgt);
-}
+    const tgt = `${truebug.dirs.dumps}/${typeOfArchive}/${xml}`;
 
-const fileaway = (xml) => {        
-    const src = `${config.truebug.dirs.dump}/${xml}`;
-    
-    if (config.truebug.run === 'real') {
-        if (config.truebug.savexmls) {
-            const tgt = pathToXml(xml);
-            fs.mkdirSync(dst, { recursive: true });
-            fs.copyFileSync(src, tgt);
-        }
-
-        fs.rmSync(src);
+    if (truebug.runMode === 'real') {
+        fs.copyFileSync(src, tgt);
     }
 }
 
-const backup = (db) => {
+const _backup = (db) => {
+    const fn = '_backup';
+    utils.incrementStack(logOpts.name, fn);
+
     const d = config.db[db];
     const bak_d = `${d.split('.')[0]}.bak.sqlite`;
+    const bak_d_tmp = `${bak_d}.tmp`;
+
+    log.info(`backing up old db ${db}… `, 'start');
 
     if (fs.existsSync(bak_d)) {
-        log.info(`backing up old db ${db}… `, 'start');
-        if (config.truebug.run === 'real') {
-            fs.rmSync(bak_d);
+        if (config.truebug.runMode === 'real') {
+            fs.renameSync(bak_d, bak_d_tmp);
+            fs.copyFileSync(d, bak_d);
+            fs.rmSync(bak_d_tmp);
         }
     }
 
-    if (config.truebug.run === 'real') {
-        fs.copyFileSync(d, bak_d);
-    }
     log.info(`done\n`, 'end');
 }
 
 const backupOldDB = () => {
-    backup('treatments');
-    backup('stats');
+    const fn = 'backupOldDB';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+
+    log.info(`backing up old ${dbType} db… `, 'start');
+
+    if (dbType === 'single' || dbType === 'both') {
+        _backup('treatments');
+        _backup('stats');
+    }
+    else if (dbType === 'exploded' || dbType === 'both') {
+        const dataDir = path.join('.', '..', 'data');
+        const dbDir = path.join(dataDir, 'z3');
+        const backupDir = path.join(dataDir, 'z3-bak');
+        const d = new Date().toDateString().split(' ').join('-');
+        const r = Math.random().toString(36).slice(2);
+        const backupName = `z3-${d}-${r}.tgz`;
+        
+        const tarOpts = {
+            gzip: true,
+            file: path.join(dataDir, backupDir, backupName),
+            sync: true
+        }
+        
+        try {
+            tar.create(tarOpts, [ dbDir ]);
+        }
+        catch(error) {
+            log.error(error);
+        }
+    }
+
+    log.info('done\n', 'end');
 }
 
-const filesExistInDump = () => fs.readdirSync(config.truebug.dirs.dump).filter(f => path.extname(f) === '.xml')
+const filesExistInDump = (typeOfArchive) => {
+    const fn = 'filesExistInDump';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+
+    const archive = path.join(truebug.dirs.dumps, typeOfArchive);
+
+    return fs.readdirSync(archive)
+        .filter(f => path.extname(f) === '.xml');
+}
 
 export { 
     checkDir, 
     copyXmlToDump,
     filesExistInDump, 
-    fileaway, 
     backupOldDB 
 }

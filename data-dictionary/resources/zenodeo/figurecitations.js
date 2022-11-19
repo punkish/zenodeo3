@@ -1,4 +1,4 @@
-export const dictionary = [
+export const dictFigureCitations = [
     {
         name: 'figureCitationId',
         schema: { 
@@ -11,22 +11,20 @@ export const dictionary = [
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("figureCitation").attr("id")'
     },
-
     {
         name: 'treatmentId',
         alias: {
-            select: 'figureCitations.treatmentId',
-            where : 'figureCitations.treatmentId'
+            select: 'fc.figureCitations.treatmentId',
+            where : 'fc.figureCitations.treatmentId'
         },
         schema: { 
             type: 'string', 
             maxLength: 32, 
             minLength: 32,
-            description: `The unique ID of the parent treatment (FK). Has to be a 32 character string like:  '000087F6E320FF95FF7EFDC1FAE4FA7B'`
+            description: `The unique ID of the parent treatment (FK). Has to be a 32 character string like: '000087F6E320FF95FF7EFDC1FAE4FA7B'`
         },
         sqltype: 'TEXT NOT NULL'
     },
-
     {
         name: 'figureNum',
         schema: { 
@@ -36,7 +34,6 @@ export const dictionary = [
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("figureCitation").attr("figureNum")'
     },
-
     {
         name: 'captionText',
         schema: {
@@ -50,10 +47,9 @@ export const dictionary = [
         //constraint: 'vfigurecitations MATCH @captionText',
         joins: {
             select: null,
-            where : [ 'JOIN vfigurecitations ON figureCitations.figureCitationId = vfigurecitations.figureCitationId' ]
+            where : [ 'JOIN fc.ftsFigureCitations ON fc.figureCitations.id = fc.ftsFigureCitations.rowid' ]
         }
     },
-
     {
         name: 'httpUri',
         schema: {
@@ -65,18 +61,5 @@ export const dictionary = [
         sqltype: 'TEXT',
         zqltype: 'text',
         cheerio: '$("figureCitation").attr("httpUri")'
-    },
-
-    // {
-    //     name: 'hasImage',
-    //     alias: {
-    //         select: "Iif(httpUri = '', 0, 1) AS hasImage",
-    //         where : null
-    //     },
-    //     schema: {
-    //         type: 'number',
-    //         description: 'true if the record has a valid image'
-    //     },
-    //     defaultCols: false
-    // }
+    }
 ]

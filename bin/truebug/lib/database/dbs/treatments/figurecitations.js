@@ -1,3 +1,6 @@
+import { resources } from '../../../../../../data-dictionary/resources.js';
+const alias = resources.filter(r => r.name === 'figureCitations')[0].alias;
+
 const tables = [
     {
         name: 'figureCitations',
@@ -5,22 +8,20 @@ const tables = [
         create: `CREATE TABLE IF NOT EXISTS figureCitations ( 
     id INTEGER PRIMARY KEY,
     figureNum INTEGER DEFAULT 0,
-    figureCitationId TEXT NOT NULL COLLATE NOCASE,
-    treatmentId TEXT NOT NULL COLLATE NOCASE,
-    captionText TEXT COLLATE NOCASE,
-    httpUri TEXT COLLATE NOCASE,
+    figureCitationId TEXT NOT NULL,
+    treatmentId TEXT NOT NULL,
+    captionText TEXT,
+    httpUri TEXT,
     deleted INTEGER DEFAULT 0,
     
     -- ms since epoch record created in zenodeo
-    created INTEGER DEFAULT (
-        strftime('%s','now') * 1000
-    ),  
+    created INTEGER DEFAULT (strftime('%s','now') * 1000),  
 
     -- ms since epoch record updated in zenodeo
     updated INTEGER,
     UNIQUE (figureCitationId, figureNum)
 )`,
-        insert: `INSERT INTO figureCitations (
+        insert: `INSERT INTO ${alias}.figureCitations (
     figureNum,
     figureCitationId,
     treatmentId,
@@ -49,27 +50,72 @@ DO UPDATE SET
         data: []
     },
     {
-        name: 'vfigurecitations',
+        name: 'ftsFigurecitations',
         type: 'virtual',
-        create: `CREATE VIRTUAL TABLE IF NOT EXISTS vfigurecitations USING FTS5(
-    figureCitationId, 
-    figureNum,
-    treatmentId,
-    captionText
+        create: `CREATE VIRTUAL TABLE IF NOT EXISTS ftsFigurecitations USING FTS5(
+    captionText,
+    content=''
 )`,
-        insert: `INSERT INTO vfigurecitations 
-SELECT figureCitationId, figureNum, treatmentId, captionText 
-FROM figureCitations 
-WHERE rowid > @maxrowid`,
+        insert: `INSERT INTO ${alias}.ftsFigurecitations 
+SELECT captionText 
+FROM figureCitations`,
         preparedinsert: '',
-        maxrowid: 0
+//         maxrowid: 0
     },
 ]
 
 const indexes = [
-    `CREATE INDEX IF NOT EXISTS ix_figureCitations_treatmentId                            ON figureCitations (treatmentId)`,
-    `CREATE INDEX IF NOT EXISTS ix_figureCitations_figureCitationId_treatmentId_figureNum ON figureCitations (figureCitationId, treatmentId, figureNum)`,
-    `CREATE INDEX IF NOT EXISTS ix_figureCitations_httpUri                                ON figureCitations (httpUri)`
+    {
+        name: 'ix_figureCitations_treatmentId',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_figureCitations_treatmentId ON figureCitations (treatmentId)`
+    },
+    {
+        name: 'ix_figureCitations_figureCitationId_treatmentId_figureNum',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_figureCitations_figureCitationId_treatmentId_figureNum ON figureCitations (figureCitationId, treatmentId, figureNum)`
+    },
+    {
+        name: 'ix_figureCitations_httpUri',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_figureCitations_httpUri ON figureCitations (httpUri)`
+    },
+    {
+        name: 'ix_figureCitations_deleted',
+        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_figureCitations_deleted ON figureCitations (deleted)`
+    }
 ]
 
-export { tables, indexes }
+// Triggers to keep the FTS index up to date.
+// modeled after the triggers on https://sqlite.org/fts5.html
+const triggers = [
+    {
+        name: 'figureCitations_afterInsert',
+        create: `CREATE TRIGGER IF NOT EXISTS ${alias}.figureCitations_afterInsert 
+        AFTER INSERT ON figureCitations 
+        BEGIN
+            INSERT INTO ftsFigurecitations(rowid, captionText) 
+            VALUES (new.id, new.captionText);
+        END;`
+    },
+    {
+        name: 'figureCitations_afterDelete',
+        create: `CREATE TRIGGER IF NOT EXISTS ${alias}.figureCitations_afterDelete 
+        AFTER DELETE ON figureCitations 
+        BEGIN
+            INSERT INTO ftsFigurecitations(ftsFigurecitations, rowid, captionText) 
+            VALUES('delete', old.id, old.captionText);
+        END;`
+    },
+    {
+        name: 'figureCitations_afterUpdate',
+        create: `CREATE TRIGGER IF NOT EXISTS ${alias}.figureCitations_afterUpdate 
+        AFTER UPDATE ON figureCitations 
+        BEGIN
+            INSERT INTO ftsFigurecitations(ftsFigurecitations, rowid, captionText) 
+            VALUES('delete', old.id, old.captionText);
+
+            INSERT INTO ftsFigurecitations(rowid, captionText) 
+            VALUES (new.id, new.captionText);
+        END;`
+    }
+]
+
+export { tables, indexes, triggers }

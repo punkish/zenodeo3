@@ -1,53 +1,86 @@
 'use strict'
 
+import process from 'node:process';
+import minimist from 'minimist';
+
 import { commonparams } from './resources/commonparams.js';
 import { resources } from './resources.js';
 
+/**
+ * Detect if this program is called as a module or 
+ * directly from the command line
+ * 
+ * https://stackoverflow.com/a/66309132/183692
+**/
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+/**
+ * @function tableFromResource
+ * @returns {array} fully qualified table name
+ */
 const tableFromResource = (resource) => {
-    let table = resource;
+    const table = resource === 'materialCitations'
+        ? 'materialsCitations'
+        : resource;
 
-    if (resource === 'materialCitations') {
-        table = 'materialsCitations';
-    }
-
-    return table;
+    const alias = resources.filter(r => r.name === resource)[0].alias;
+    return `${alias}.${table}`;
 }
 
-// resources: REST resources that map 1 -> 1 to SQL tables
-// returns an array of resource names
+/**
+ * @function getResources
+ * @returns {array} resource names
+ */
 const getResources = () => resources.map(r => r.name);
 
-// returns the source ('zenodeo' or 'zenodo') of a given resource
+/**
+ * @function getSourceOfResource 
+ * @returns {string} source ('zenodeo' or 'zenodo') of a given resource
+ */
 const getSourceOfResource = (resource) => resources
     .filter(r => r.name === resource)[0].source;
 
-// // returns the resources from a given source ('zenodeo' or 'zenodo')
+/**
+ * @function getResourcesFromSource 
+ * @returns {array} resources from a given source ('zenodeo' or 'zenodo')
+ */
 const getResourcesFromSource = (source) => resources
     .filter(r => r.source === source)
     .map(r => r.name);
 
-// params: all entries in the data dictionary for a given resource
+/**
+ * @function getParams  
+ * @returns {array} all paramaters for a given resource
+ */
 const getParams = (resource) => {
-    let params = resources
+    const params = resources
         .filter(r => r.name === resource)[0]
         .dictionary;
 
-    const sourceOfResource = getSourceOfResource(resource);
+    //const sourceOfResource = getSourceOfResource(resource);
 
     //if (sourceOfResource === 'zenodo' || sourceOfResource === 'zenodeo') {
-        params = params.concat(...commonparams);
+        params.push(...commonparams);
     //}
 
-    const table = tableFromResource(resource);
+    //const table = tableFromResource(resource);
+    const alias = resources.filter(r => r.name === resource)[0].alias;
 
     params.forEach(p => {
-        p.selname = p.sqltype ? `${table}.${p.name}` : p.name;
+        p.selname = p.sqltype 
+            ? `${alias}.${p.name}` 
+            : p.name;
     })
 
     return params;
 }
 
-// resourceId of a resource
+
+/**
+ * @function getResourceid  
+ * @returns {string} name of resourceId of a resource
+ */
 const getResourceid = (resource) => {
     const table = tableFromResource(resource);
 
@@ -104,22 +137,22 @@ const getCols = (resource) => getParams(resource)
     .map(p => {
         return {
             name: p.name, 
-            schema: p.schema,
-            selname: getSelect(resource, p.name), 
-            isResourceId: p.schema.isResourceId || false,
-            wherename: getWhere(resource, p.name), 
-            join: p.join || '',
+            // schema: p.schema,
+            // selname: getSelect(resource, p.name), 
+            // isResourceId: p.schema.isResourceId || false,
+            // wherename: getWhere(resource, p.name), 
+            // join: p.join || '',
             sqltype: p.sqltype,
             zqltype: p.zqltype || 'text',
-            isDefaultCol: 'notDefaultCol' in p ? true : false,
+            // isDefaultCol: 'notDefaultCol' in p ? true : false,
             facet: p.facet || false
         }
-    })
+    });
 
 // // defaultCols: columns that are returned if no columns are 
 // // specified in a REST query via 'cols'
 const getDefaultCols = (resource) => getParams(resource)
-    .filter(p => !('notDefaultCol' in p))
+    .filter(p => !('notDefaultCol' in p));
 
 // // facetCols: all cols that can be used in facet queries
 const getFacetCols = (resource) => getCols(resource)
@@ -136,6 +169,7 @@ const getSqlCols = (resource) => getParams(resource)
             cheerio: p.cheerio
         }
     })
+    
 
 // const getSqlDefs = (resource) => getParams(resource)
 //     .filter(p => p.sqltype)
@@ -172,7 +206,7 @@ const getJoin = (resource, column, type) => {
 
 const getZqltype = (resource, column) => getCols(resource)
     .filter(c => c.name === column)[0].zqltype;
-
+    
 const getSqltype = (resource, column) => getCols(resource)
     .filter(c => c.name === column)[0].sqltype;
 
@@ -182,6 +216,11 @@ const getQueryStringSchema = function(resource) {
     // make a deep copy of params because they[*] will be modified
     // [*] specifically, 'sortby' will be modified
     const params = JSON.parse(JSON.stringify(getParams(resource)));
+    const enumvals = params.map(p => p.name);
+
+    // allow empty col as in "cols=''"
+    enumvals.push('');
+
     const resourcesFromZenodeo = getResourcesFromSource('zenodeo');
     const resourcesMetadata = getResourcesFromSource('metadata');
     const validResources = [ ...resourcesFromZenodeo, ...resourcesMetadata ];
@@ -189,6 +228,7 @@ const getQueryStringSchema = function(resource) {
     const schema = {};
     
     params.forEach(p => {
+        
         if (p.name === 'sortby') {
             const resourceId = getResourceid(resource);
             p.schema.default = p.schema.default.replace(
@@ -196,24 +236,10 @@ const getQueryStringSchema = function(resource) {
                 resourceId
             );
         }
-
-        if (validResources.includes(resource)) {
-            if (p.schema.type === 'array') {
-                if (p.name === 'cols') {
-                    p.schema.items.enum = getCols(resource).map(c => c.name);
-
-                    // allow empty col as in "cols=''"
-                    p.schema.items.enum.push('');
-
-                    p.schema.default = getDefaultCols(resource)
-                        .map(c => c.name);
-
-                    // p.schema.errorMessage = {
-                    //     properties: {
-                    //         enum: 'should be one of: ' + p.schema.default.join(', ') + '. Provided value is ${/enum}'
-                    //     }
-                    // }
-                }
+        else if (p.name === 'cols') {
+            if (validResources.includes(resource) && p.schema.type === 'array') {
+                p.schema.items.enum = enumvals;
+                p.schema.default = getDefaultCols(resource).map(c => c.name);
             }
         }
 
@@ -234,54 +260,68 @@ const getNotCols = () => commonparams.map(c => c.name);
 //     return args
 // }
 
-const dispatch = {
-    getResources,
-    getSourceOfResource,
-    // getResourcesFromSource,
-    // getParams,
-    getQueryableParams,
-    // getCols,
-    // getDefaultCols,
-    getFacetCols,
-    getSqlCols,
-    getSelect,
-    getWhere,
-    getZqltype,
-    getSqltype,
-    getQueryStringSchema,
-    getResourceid,
-    getJoin,
-    getNotCols,
-    // getSqlDefs
-    tableFromResource
-}
+const functions = [
+    { getResources          , args: ""         },
+    { getNotCols            , args: ""         },
+    { getSourceOfResource   , args: "resource" },
+    { getResourcesFromSource, args: "source"   },
+    { getParams             , args: "resource" },
+    { getResourceid         , args: "resource" },
+    { getQueryableParams    , args: "resource" },
+    { getCols               , args: "resource" },
+    { getDefaultCols        , args: "resource" },
+    { getFacetCols          , args: "resource" },
+    { getSqlCols            , args: "resource" },
+    { getQueryStringSchema  , args: "resource" },
+    { tableFromResource     , args: "resource" },
+    { getSelect             , args: "resource, column" },
+    { getWhere              , args: "resource, column" },
+    { getZqltype            , args: "resource, column" },
+    { getSqltype            , args: "resource, column" },
+    { getJoin               , args: "resource, column, type" }
+]
 
-const test = () => {
-    if (process.argv.length <= 2) {
-        console.log('available functions are:');
-        console.log('- ' + Object.keys(dispatch).join('\n- '));
+const dispatch = {};
+functions.forEach(f => dispatch[Object.keys(f)[0]] = Object.values(f)[0]);
+
+const init = () => {
+    const path1 = path.resolve(process.argv[1]);
+    const path2 = path.resolve(fileURLToPath(import.meta.url));
+    const nodePath = path1.split('/').pop().split('.')[0];
+    const modulePath = path2.split('/').pop().split('.')[0];
+
+    if (nodePath === modulePath) {
+        const argv = minimist(process.argv.slice(2));
+        
+        if (argv.help) {
+            console.log(`
+ddUtils USAGE:
+${'*'.repeat(79)}
+
+node data-dictionary/dd-utils.js --fn=<fn> args
+node data-dictionary/dd-utils.js --list=true
+                `);
+                return;
+        }
+        
+        if (argv.list) {
+            console.log('ddUtils');
+            console.log('*'.repeat(79));
+            console.log('available functions are:\n');
+            functions.forEach(f => {
+                const func = Object.keys(f)[0];
+                const args = Object.values(f)[1]
+                console.log(`- ${func}(${args})`);
+            });
+        }
+        else {
+            console.log(`function: ${argv.fn}("${argv._.join(',')}")\n`);
+            const result = dispatch[argv.fn](...argv._);
+            console.log(JSON.stringify(result, null, 4));
+        }
     }
-    else {
-        const [one, two, fn, ...args] = process.argv;
-        console.log(fn, ...args);
-        console.log('-'.repeat(50));
-        console.log(dispatch[fn](...args));
-        //console.log(util.inspect(dispatch[fn](...args), false, 4, true));
-        //console.log('bar')
-    }
 }
 
-// https://stackoverflow.com/a/66309132/183692
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const path1 = path.resolve(process.argv[1]);
-const path2 = path.resolve(fileURLToPath(import.meta.url));
-const nodePath = path1.split('/').pop().split('.')[0];
-const modulePath = path2.split('/').pop().split('.')[0];
-
-if (nodePath === modulePath) {
-    test();
-}
+init();
 
 export { dispatch }

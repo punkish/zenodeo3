@@ -1,29 +1,43 @@
 'use strict'
 
-import { pathToXml } from './utils.js';
+import * as utils from './utils.js';
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
+const truebug = config.truebug;
+const ts = truebug.steps.postflight;
 
-import { Zlogger } from '@punkish/zlogger';
-const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
+const logOpts = JSON.parse(JSON.stringify(truebug.log));
 logOpts.name = 'TRUEBUG:POSTFLIGHT';
-const log = new Zlogger(logOpts);
 
 import fs from 'fs';
 
-const fileaway = (xml) => {        
-    const src = `${config.truebug.dirs.dump}/${xml}`;
+const cpFile = (typeOfArchive, xml) => {
+    const fn = 'cpFile';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+    
+    if (truebug.runMode === 'real') {
+        const tgt = utils.pathToXml(xml);
 
-    if (config.truebug.run === 'real') {
-        if (config.truebug.savexmls) {
-            const tgt = pathToXml(xml);
-            fs.mkdirSync(dst, { recursive: true });
+        if (!fs.existsSync(tgt)) {
+            fs.mkdirSync(tgt, { recursive: true });
+
+            const src = `${truebug.dirs.dumps}/${typeOfArchive}/${xml}`;
             fs.copyFileSync(src, tgt);
         }
+    }
+}
 
+const rmFile = (typeOfArchive, xml) => {
+    const fn = 'rmFile';
+    if (!ts[fn]) return;
+    utils.incrementStack(logOpts.name, fn);
+
+    if (truebug.runMode === 'real') {
+        const src = `${truebug.dirs.dumps}/${typeOfArchive}/${xml}`;
         fs.rmSync(src);
     }
 }
 
-export { fileaway }
+export { cpFile, rmFile }

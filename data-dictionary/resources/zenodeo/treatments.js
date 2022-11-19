@@ -1,7 +1,7 @@
 import * as utils from '../../../lib/utils.js';
-import { dictionary as dictMaterialCitations } from './materialcitations.js';
-import { dictionary as dictFigureCitations } from './figurecitations.js';
-import { dictionary as dictCollectionCodes } from './collectioncodes.js';
+import { dictMaterialCitations } from './materialcitations.js';
+import { dictFigureCitations } from './figurecitations.js';
+import { dictCollectionCodes } from './collectioncodes.js';
 
 /** 
  * first we define all the params corresponding to the columns in the 
@@ -21,7 +21,6 @@ const dictionary = [
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("document").attr("docId")'
     },
-
     {
         name: 'treatmentTitle',
         schema: { 
@@ -37,7 +36,6 @@ const dictionary = [
         cheerio: '$("document").attr("docTitle")',
         defaultOp: 'starts_with'
     },
-    
     {
         name: 'treatmentVersion',
         schema: { 
@@ -48,7 +46,6 @@ const dictionary = [
         cheerio: '$("document").attr("docVersion")',
         notDefaultCol: true
     },
-
     {
         name: 'treatmentDOI',
         schema: { 
@@ -59,7 +56,6 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("treatment").attr("ID-DOI")',
     },
-
     {
         name: 'treatmentLSID',
         schema: { 
@@ -70,7 +66,6 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("treatment").attr("LSID")',
     },
-
     {
         name: 'zenodoDep',
         schema: {
@@ -81,7 +76,6 @@ const dictionary = [
         cheerio: '$("document").attr("ID-Zenodo-Dep")',
         notQueryable: true
     },
-
     {
         name: 'zoobankId',
         schema: {
@@ -92,7 +86,6 @@ const dictionary = [
         cheerio: '$("document").attr("ID-ZooBank")',
         notQueryable: true
     },
-
     {
         name: 'articleId',
         schema: { 
@@ -105,7 +98,6 @@ const dictionary = [
         sqltype: 'TEXT NOT NULL',
         cheerio: '$("document").attr("masterDocId")',
     },
-
     {
         name: 'articleTitle',
         schema: { 
@@ -121,7 +113,6 @@ const dictionary = [
         cheerio: '$("document").attr("masterDocTitle")',
         defaultOp: 'starts_with'
     },
-
     {
         name: 'articleAuthor',
         schema: { 
@@ -137,7 +128,6 @@ const dictionary = [
         cheerio: '$("document").attr("docAuthor")',
         defaultOp: 'starts_with'
     },
-
     {
         name: 'articleDOI',
         schema: { 
@@ -148,7 +138,6 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:identifier[type=DOI]").text()',
     },
-
     {
         name: 'publicationDate',
         schema: {
@@ -170,7 +159,6 @@ const dictionary = [
         cheerio: '$("mods\\\\:detail[type=pubDate] mods\\\\:number").text()',
         defaultOp: 'eq'
     },
-
     {
         name: 'journalTitle',
         schema: {
@@ -188,7 +176,6 @@ const dictionary = [
         defaultOp: 'starts_with',
         facet: 'count > 100'
     },
-
     {
         name: 'journalYear',
         schema: {
@@ -200,7 +187,6 @@ const dictionary = [
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:date").text()',
         facet: 'count > 1'
     },
-
     {
         name: 'journalVolume',
         schema: {
@@ -210,7 +196,6 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:detail[type=volume] mods\\\\:number").text()'
     },
-
     {
         name: 'journalIssue',
         schema: {
@@ -220,7 +205,6 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:detail[type=issue] mods\\\\:number").text()',
     },
-
     {
         name: 'pages',
         schema: {
@@ -231,7 +215,6 @@ const dictionary = [
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:extent[unit=page] mods\\\\:start").text() + "–" + $("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:extent[unit=page] mods\\\\:end").text()',
         notQueryable: true
     },
-
     {
         name: 'authorityName',
         schema: {
@@ -247,7 +230,6 @@ const dictionary = [
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("authorityName")',
         defaultOp: 'starts_with'
     },
-
     {
         name: 'authorityYear',
         schema: {
@@ -259,7 +241,6 @@ const dictionary = [
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("authorityYear")',
         defaultOp: 'eq'
     },
-
     {
         name: 'kingdom',
         schema: {
@@ -269,7 +250,6 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("kingdom")',
     },
-
     {
         name: 'phylum',
         schema: {
@@ -279,22 +259,20 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("phylum")',
     },
-
-    // {
-    //     name: 'class',
-    //     schema: {
-    //         type: 'string',
-    //         description: 'The higher category of the taxonomicName',
-    //     },
-    //     sqltype: 'TEXT',
-    //     cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("class")',
-    // },
-
+    {
+        name: 'class',
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("class")',
+    },
     {
         name: 'order',
         alias: {
-            select: 'treatments."order"',
-            where : 'treatments."order"'
+            select: 'tr.treatments."order"',
+            where : 'tr.treatments."order"'
         },
         schema: {
             type: 'string',
@@ -303,7 +281,6 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("order")',
     },
-
     {
         name: 'family',
         schema: {
@@ -313,7 +290,6 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("family")',
     },
-
     {
         name: 'genus',
         schema: {
@@ -323,7 +299,6 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("genus")',
     },
-
     {
         name: 'species',
         schema: {
@@ -333,7 +308,6 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("species")',
     },
-
     {
         name: 'status',
         schema: {
@@ -344,7 +318,6 @@ const dictionary = [
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("status")',
         facet: 'count > 1'
     },
-
     {
         name: 'taxonomicNameLabel',
         schema: {
@@ -360,13 +333,8 @@ const dictionary = [
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").text()',
         defaultOp: 'starts_with'
     },
-
     {
         name: 'rank',
-        alias: {
-            select: 'treatments.rank',
-            where : 'treatments.rank'
-        },
         schema: {
             type: 'string',
             description: 'The taxonomic rank of the taxon, e.g. species, family',
@@ -376,7 +344,6 @@ const dictionary = [
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("rank")',
         facet: 'count > 1'
     },
-
     {
         name: 'updateTime',
         schema: {
@@ -399,7 +366,6 @@ const dictionary = [
         zqltype: 'date',
         cheerio: '$("document").attr("updateTime")'
     },
-
     {
         name: 'checkinTime',
         schema: {
@@ -422,7 +388,6 @@ const dictionary = [
         zqltype: 'date',
         cheerio: '$("document").attr("checkinTime")'
     },
-
     {
         name: 'fulltext',
         schema: {
@@ -434,7 +399,6 @@ const dictionary = [
         notDefaultCol: true,
         notQueryable: true
     },
-
     {
         name: 'deleted',
         alias: {
@@ -450,12 +414,11 @@ const dictionary = [
         cheerio: '$("document").attr("deleted")',
         notDefaultCol: true
     },
-
     {
         name: 'q',
         alias: {
-            select: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
-            where : 'vtreatments'
+            select: "snippet(tr.ftsTreatments, 1, '<b>', '</b>', '…', 25) snippet",
+            where : 'tr.ftsTreatments.ftsTreatments'
         },
         schema: {
             type: 'string',
@@ -468,7 +431,7 @@ const dictionary = [
         defaultOp: 'match',
         joins: {
             select: null,
-            where : [ 'JOIN vtreatments ON treatments.treatmentId = vtreatments.treatmentId' ]
+            where : [ 'JOIN tr.ftsTreatments ON tr.treatments.id = tr.ftsTreatments.rowid' ]
         },
     }
 ];
@@ -486,8 +449,8 @@ const externalParams = [
             where : 'figureCitations.httpUri'
         },
         joins: {
-            select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
-            where : [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ]
+            select: [ 'JOIN fc.figureCitations ON tr.treatments.treatmentId = fc.figureCitations.treatmentId' ],
+            where : [ 'JOIN fc.figureCitations ON tr.treatments.treatmentId = fc.figureCitations.treatmentId' ]
         }
     },
     {
@@ -498,30 +461,30 @@ const externalParams = [
             where : 'vfigurecitations'
         },
         joins: {
-            select: [ 'JOIN figureCitations ON treatments.treatmentId = figureCitations.treatmentId' ],
-            where : [ 'JOIN vfigurecitations ON treatments.treatmentId = vfigurecitations.treatmentId']
+            select: [ 'JOIN fc.figureCitations ON tr.treatments.treatmentId = fc.figureCitations.treatmentId' ],
+            where : [ 'JOIN tr.ftsTreatments ON tr.treatments.id = tr.ftsTreatments.rowid']
         }
     },
     {
         name: 'collectionCode',
         dict: dictCollectionCodes,
         alias: {
-            select: 'collectionCodes.collectionCode',
-            where : 'collectionCodes.collectionCode'
+            select: 'mc.collectionCodes.collectionCode',
+            where : 'mc.collectionCodes.collectionCode'
         },
         isResourceId: false,
         joins: {
             select: [
-                'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
-                'JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
-                'JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = gbifcollections.institutions.institution_code'
+                'LEFT JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId',
+                'JOIN mc.materialsCitations_x_collectionCodes ON mc.materialsCitations.materialsCitationId = mc.materialsCitations_x_collectionCodes.materialsCitationId',
+                'JOIN mc.collectionCodes ON mc.materialsCitations_x_collectionCodes.collectionCode = mc.collectionCodes.collectionCode',
+                'LEFT JOIN gb.institutions ON mc.collectionCodes.collectionCode = gb.institutions.institution_code'
             ],
             where : [
-                'LEFT JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId',
-                'JOIN materialsCitations_x_collectionCodes ON materialsCitations.materialsCitationId = materialsCitations_x_collectionCodes.materialsCitationId',
-                'JOIN collectionCodes ON materialsCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = gbifcollections.institutions.institution_code'
+                'LEFT JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId',
+                'JOIN mc.materialsCitations_x_collectionCodes ON mc.materialsCitations.materialsCitationId = mc.materialsCitations_x_collectionCodes.materialsCitationId',
+                'JOIN mc.collectionCodes ON mc.materialsCitations_x_collectionCodes.collectionCode = mc.collectionCodes.collectionCode',
+                'LEFT JOIN gb.institutions ON mc.collectionCodes.collectionCode = gb.institutions.institution_code'
             ]
         }
     },
@@ -529,60 +492,60 @@ const externalParams = [
         name: 'latitude',
         dict: dictMaterialCitations,
         alias: {
-            select: 'materialsCitations.latitude',
-            where : 'materialsCitations.latitude'
+            select: 'mc.materialsCitations.latitude',
+            where : 'mc.materialsCitations.latitude'
         },
         joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ],
+            where : [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ]
         }
     },
     {
         name: 'longitude',
         dict: dictMaterialCitations,
         alias: {
-            select: 'materialsCitations.longitude',
-            where : 'materialsCitations.longitude'
+            select: 'mc.materialsCitations.longitude',
+            where : 'mc.materialsCitations.longitude'
         },
         joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ],
+            where : [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ]
         }
     },
     {
         name: 'geolocation',
         dict: dictMaterialCitations,
         joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ],
+            where : [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ]
         }
     },
     {
         name: 'isOnLand',
         dict: dictMaterialCitations,
         alias: {
-            select: 'materialsCitations.isOnLand',
-            where : 'materialsCitations.isOnLand'
+            select: 'mc.materialsCitations.isOnLand',
+            where : 'mc.materialsCitations.isOnLand'
         },
         joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ],
+            where : [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ]
         }
     },
     {
         name: 'validGeo',
         dict: dictMaterialCitations,
         alias: {
-            select: 'materialsCitations.validGeo',
-            where : 'materialsCitations.validGeo'
+            select: 'mc.materialsCitations.validGeo',
+            where : 'mc.materialsCitations.validGeo'
         },
         joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ],
+            where : [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ]
         }
     }
 ];
 
 externalParams.forEach(param => utils.addExternalDef(param, dictionary));
 
-export { dictionary }
+export { dictionary as dictTreatments }

@@ -1,4 +1,4 @@
-export const dictionary = [
+export const dictPublications = [
     {
         name: 'id',
         schema: {
@@ -7,7 +7,6 @@ export const dictionary = [
         },
         isResourceId: true
     },
-
     {
         name: 'subtype',
             schema: { 
@@ -23,31 +22,13 @@ export const dictionary = [
             description: 'The publication subtype; defaults to all subtypes'
         }
     },
-
-    // {
-    //   name: 'communities',
-    //   schema: { 
-    //         type: 'array', 
-    //         items: { 
-    //             type: 'string',
-    //             enum: [ 'biosyslit', 'belgiumherbarium' ]
-    //         },
-    //         minItems: 1,
-    //         maxItems: 2,
-    //         additionalItems: false,
-    //         default: [ 'biosyslit' ],
-    //         description: 'The community on Zenodo; defaults to <b>"biosyslit"</b>'
-    //     }
-    // },
-
     {
         name: 'q',
         schema: { 
             type: 'string', 
-            description: 'The term for full-text search. Can use the following syntax: \`q=spiders\`'
+            description: 'The term for full-text search. Can use the following syntax: `q=spiders`'
         }
     },
-
     {
         name: 'creator',
         schema: { 
@@ -66,7 +47,6 @@ export const dictionary = [
   will find all records containing both Agosti and Donat in any order`
         }
     },
-
     {
         name: 'title',
         schema: { 
@@ -85,7 +65,6 @@ export const dictionary = [
   will find all records containing both spider and peacock in any order`
         }
     },
-
     {
         name: 'keywords',
         schema: { 

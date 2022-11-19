@@ -1,6 +1,6 @@
 import * as utils from '../../../lib/utils.js';
-import { dictionary as dictTreatments } from './treatments.js';
-import { dictionary as dictMaterialCitations } from './materialcitations.js';
+import { dictTreatments } from './treatments.js';
+import { dictMaterialCitations } from './materialcitations.js';
 
 /** 
  * first we define all the params corresponding to the columns in the 
@@ -16,7 +16,6 @@ const dictionary = [
         isResourceId: true,
         sqltype: 'INTEGER PRIMARY KEY',
     },
-
     {
         name: 'httpUri',
         schema: { 
@@ -25,7 +24,6 @@ const dictionary = [
         },
         sqltype: 'TEXT NOT NULL UNIQUE'
     },
-
     {
         name: 'captionText',
         schema: { 
@@ -35,7 +33,6 @@ const dictionary = [
         },
         sqltype: 'TEXT',
     },
-
     {
         name: 'treatmentId',
         schema: { 
@@ -46,7 +43,6 @@ const dictionary = [
         },
         sqltype: 'TEXT',
     },
-
     {
         name: 'q',
         alias: {
@@ -77,56 +73,56 @@ const dictionary = [
         name: 'treatmentTitle',
         dict: dictTreatments,
         alias: {
-            select: 'treatments.treatmentTitle',
-            where : 'treatments.treatmentTitle'
+            select: 'tr.treatments.treatmentTitle',
+            where : 'tr.treatments.treatmentTitle'
         },
         joins: {
-            select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
-            where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
         name: 'treatmentDOI',
         dict: dictTreatments,
         alias: {
-            select: 'treatments.treatmentDOI',
-            where : 'treatments.treatmentDOI'
+            select: 'tr.treatments.treatmentDOI',
+            where : 'tr.treatments.treatmentDOI'
         },
         joins: {
-            select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
-            where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
         name: 'zenodoDep',
         dict: dictTreatments,
         alias: {
-            select: 'treatments.zenodoDep',
-            where : 'treatments.zenodoDep'
+            select: 'tr.treatments.zenodoDep',
+            where : 'tr.treatments.zenodoDep'
         },
         joins: {
-            select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
-            where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
         name: 'journalTitle',
         dict: dictTreatments,
         alias: {
-            select: 'treatments.journalTitle',
-            where : 'treatments.journalTitle'
+            select: 'tr.treatments.journalTitle',
+            where : 'tr.treatments.journalTitle'
         },
         joins: {
-            select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
-            where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
         name: 'phylum',
         dict: dictTreatments,
         alias: {
-            select: 'treatments.phylum',
-            where : 'treatments.phylum'
+            select: 'tr.treatments.phylum',
+            where : 'tr.treatments.phylum'
         },
         schema: {
             type: 'string',
@@ -135,16 +131,16 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("phylum")',
         joins: {
-            select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
-            where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
         name: 'family',
         dict: dictTreatments,
         alias: {
-            select: 'treatments.family',
-            where : 'treatments.family'
+            select: 'tr.treatments.family',
+            where : 'tr.treatments.family'
         },
         schema: {
             type: 'string',
@@ -153,16 +149,16 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("family")',
         joins: {
-            select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
-            where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
         name: 'order',
         dict: dictTreatments,
         alias: {
-            select: 'treatments."order"',
-            where : 'treatments."order"'
+            select: 'tr.treatments."order"',
+            where : 'tr.treatments."order"'
         },
         schema: {
             type: 'string',
@@ -171,92 +167,92 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("family")',
         joins: {
-            select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
-            where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
         name: 'publicationDate',
         dict: dictTreatments,
         alias: {
-            select: 'treatments.publicationDate',
-            where : 'treatments.publicationDate'
+            select: 'tr.treatments.publicationDate',
+            where : 'tr.treatments.publicationDate'
         },
         joins: {
-            select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
-            where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
         name: 'checkinTime',
         dict: dictTreatments,
         alias: {
-            select: 'treatments.checkinTime',
-            where : 'treatments.checkinTime'
+            select: 'tr.treatments.checkinTime',
+            where : 'tr.treatments.checkinTime'
         },
         joins: {
-            select: [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ],
-            where : [ 'JOIN treatments ON treatmentImages.treatmentId = treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
         name: 'latitude',
         dict: dictMaterialCitations,
         alias: {
-            select: 'materialsCitations.latitude',
-            where : 'materialsCitations.latitude'
+            select: 'mc.materialsCitations.latitude',
+            where : 'mc.materialsCitations.latitude'
         },
         joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ],
+            where : [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ]
         }
     },
     {
         name: 'longitude',
         dict: dictMaterialCitations,
         alias: {
-            select: 'materialsCitations.longitude',
-            where : 'materialsCitations.longitude'
+            select: 'mc.materialsCitations.longitude',
+            where : 'mc.materialsCitations.longitude'
         },
         joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ],
+            where : [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ]
         }
     },
     {
         name: 'geolocation',
         dict: dictMaterialCitations,
         joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ],
+            where : [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ]
         }
     },
     {
         name: 'isOnLand',
         dict: dictMaterialCitations,
         alias: {
-            select: 'materialsCitations.isOnLand',
-            where : 'materialsCitations.isOnLand'
+            select: 'mc.materialsCitations.isOnLand',
+            where : 'mc.materialsCitations.isOnLand'
         },
         joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ],
+            where : [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ]
         }
     },
     {
         name: 'validGeo',
         dict: dictMaterialCitations,
         alias: {
-            select: 'materialsCitations.validGeo',
-            where : 'materialsCitations.validGeo'
+            select: 'mc.materialsCitations.validGeo',
+            where : 'mc.materialsCitations.validGeo'
         },
         joins: {
-            select: [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ],
-            where : [ 'JOIN materialsCitations ON treatments.treatmentId = materialsCitations.treatmentId' ]
+            select: [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ],
+            where : [ 'JOIN mc.materialsCitations ON tr.treatments.treatmentId = mc.materialsCitations.treatmentId' ]
         }
     }
 ];
 
 externalParams.forEach(param => utils.addExternalDef(param, dictionary));
 
-export { dictionary }
+export { dictionary as dictTreatmentImages }

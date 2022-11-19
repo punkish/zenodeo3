@@ -1,5 +1,6 @@
 import fp from 'fastify-plugin';
-import swagger from '@fastify/swagger';
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUi from '@fastify/swagger-ui'
 
 /**
  * A Fastify plugin for serving a Swagger UI, using Swagger (OpenAPI v2) or 
@@ -16,54 +17,60 @@ const options = {
 
     //routePrefix: '/',
     swagger: {
-        info: {
-            title: 'Zenodeo API documentation',
-            description: 'A `nodejs` interface to treatments from [TreatmentBank](http://treatmentbank.org) and resources on [Zenodo](https://zenodo.org)',
-            version: '3.4.0',
-            termsOfService: '/tos',
-            contact: {
-                name: 'API Support',
-                email: 'support@plazi.org'
+        openapi: {
+            info: {
+                title: 'Zenodeo API documentation',
+                description: 'A `nodejs` interface to treatments from [TreatmentBank](http://treatmentbank.org) and resources on [Zenodo](https://zenodo.org)',
+                version: '3.4.0',
+                termsOfService: '/tos',
+                contact: {
+                    name: 'API Support',
+                    email: 'support@plazi.org'
+                },
+                license: {
+                    name: 'CC0 Public Domain Dedication',
+                    url: 'https://creativecommons.org/publicdomain/zero/1.0/legalcode'
+                }
             },
-            license: {
-                name: 'CC0 Public Domain Dedication',
-                url: 'https://creativecommons.org/publicdomain/zero/1.0/legalcode'
-            }
-        },
-        externalDocs: {
-            url: 'https://swagger.io',
-            description: 'Find more info on Swagger here'
-        },
-        tags: [
-            { name: 'meta', description: 'Resources metadata' },
-            { name: 'zenodeo', description: 'Zenodeo end-points' },
-            { name: 'zenodo', description: 'Zenodo end-points' }
-        ],
+            externalDocs: {
+                url: 'https://swagger.io',
+                description: 'Find more info on Swagger here'
+            },
+            tags: [
+                { name: 'meta', description: 'Resources metadata' },
+                { name: 'zenodeo', description: 'Zenodeo end-points' },
+                { name: 'zenodo', description: 'Zenodo end-points' }
+            ],
 
-        /**
-         * make sure there is no scheme before the host
-         * that is, there should not be any 'http(s)://' 
-         */ 
-        host: config.url.swagger,
-        test: config.url.swagger,
-        schemes: config.schemes,
-        consumes: [ 'application/json' ],
-        produces: [ 'application/json' ]
+            /**
+             * make sure there is no scheme before the host
+             * that is, there should not be any 'http(s)://' 
+             */ 
+            host: config.url.swagger,
+            test: config.url.swagger,
+            schemes: config.schemes,
+            consumes: [ 'application/json' ],
+            produces: [ 'application/json' ]
+        }
     },
-    uiConfig: {
-        docExpansion: 'none',
-        deepLinking: false
-    },
-    uiHooks: {
-        onRequest: (request, reply, next) => { next() },
-        preHandler: (request, reply, next) => { next() }
-    },
-    staticCSP: true,
-    transformStaticCSP: (header) => header,
-    exposeRoute: true,
-    hideUntagged: true
+
+    swaggerUi: {
+        uiConfig: {
+            docExpansion: 'none',
+            deepLinking: false
+        },
+        uiHooks: {
+            onRequest: (request, reply, next) => { next() },
+            preHandler: (request, reply, next) => { next() }
+        },
+        staticCSP: true,
+        transformStaticCSP: (header) => header,
+        //exposeRoute: true,
+        hideUntagged: true
+    }
 };
 
 export const plugin = fp(async (fastify) => {
-    fastify.register(swagger, options);
+    await fastify.register(fastifySwagger, options.swagger);
+    await fastify.register(fastifySwaggerUi, options.swaggerUi);
 })

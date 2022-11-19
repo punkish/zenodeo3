@@ -1,5 +1,5 @@
 import * as utils from '../../../lib/utils.js';
-import { dictionary as dictCollectionCodes } from './collectioncodes.js';
+import { dictCollectionCodes } from './collectioncodes.js';
 
 /** 
  * first we define all the params corresponding to the columns in the 
@@ -19,7 +19,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("materialsCitation").attr("id")'
     },
-
     {
         name: 'treatmentId',
         schema: { 
@@ -31,7 +30,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         },
         sqltype: 'TEXT NOT NULL'
     },
-
     {
         name: 'collectingDate',
         schema: {
@@ -42,7 +40,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectingDate")'
     },
-
     {
         name: 'collectorName',
         schema: {
@@ -205,7 +202,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         cheerio: '$("materialsCitation").attr("specimenCode")',
         defaultOp: 'starts_with'
     },
-
     {
         name: 'typeStatus',
         schema: {
@@ -216,7 +212,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         cheerio: '$("materialsCitation").attr("typeStatus")',
         defaultOp: 'starts_with'
     },
-
     {
         name: 'determinerName',
         schema: {
@@ -232,7 +227,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         cheerio: '$("materialsCitation").attr("determinerName")',
         defaultOp: 'starts_with'
     },
-
     {
         name: 'collectedFrom',
         schema: {
@@ -248,7 +242,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         cheerio: '$("materialsCitation").attr("collectedFrom")',
         defaultOp: 'starts_with'
     },
-
     {
         name: 'collectingMethod',
         schema: {
@@ -264,7 +257,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         cheerio: '$("materialsCitation").attr("collectingMethod")',
         defaultOp: 'starts_with'
     },
-
     {
         name: 'latitude',
         schema: {
@@ -277,7 +269,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         cheerio: '$("materialsCitation").attr("latitude")',
         notDefaultCol: true
     },
-
     {
         name: 'longitude',
         schema: {
@@ -290,7 +281,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         cheerio: '$("materialsCitation").attr("longitude")',
         notDefaultCol: true
     },
-
     {
         name: 'elevation',
         schema: {
@@ -306,7 +296,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("elevation")'
     },
-
     {
         name: 'httpUri',
         schema: {
@@ -317,7 +306,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         cheerio: '$("materialsCitation").attr("httpUri")',
         notQueryable: true
     },
-
     {
         name: 'deleted',
         schema: { 
@@ -329,18 +317,16 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         cheerio: '$("materialsCitation").attr("deleted")',
         notDefaultCol: true
     },
-
     {
-        name: 'innerText',
+        name: 'fulltext',
         schema: {
             type: 'string',
-            description: 'xml'
+            description: 'The full text of the material citation'
         },
         sqltype: 'TEXT',
-        cheerio: '$("materialsCitation")',
+        cheerio: '$("materialsCitation").text()',
         notQueryable: true
     },
-
     {
         name: 'validGeo',
         schema: {
@@ -349,7 +335,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         },
         sqltype: 'INTEGER'
     },
-
     {
         name: 'isOnLand',
         schema: {
@@ -358,7 +343,6 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         },
         sqltype: 'INTEGER DEFAULT NULL'
     },
-
     {
         name: 'geolocation',
         schema: {
@@ -383,20 +367,20 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         name: 'collectionCode',
         dict: dictCollectionCodes,
         alias: {
-            select: 'collectionCodes.collectionCode',
-            where : 'collectionCodes.collectionCode'
+            select: 'mc.collectionCodes.collectionCode',
+            where : 'mc.collectionCodes.collectionCode'
         },
         isResourceId: false,
         joins: {
             select: [ 
-                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
-                'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
+                'JOIN mc.materialsCitations_x_collectionCodes ON mc.materialsCitations.materialsCitationId = mc.materialsCitations_x_collectionCodes.materialsCitationId',
+                'JOIN mc.collectionCodes ON mc.materialsCitations_x_collectionCodes.collectionCode = mc.collectionCodes.collectionCode',
+                'LEFT JOIN gb.institutions ON mc.collectionCodes.collectionCode = gb.institutions.institution_code'
             ],
             where : [ 
-                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
-                'JOIN collectionCodes ON mc.collectionCode = collectionCodes.collectionCode',
-                'LEFT JOIN gbifcollections.institutions ON collectionCodes.collectionCode = institution_code'
+                'JOIN mc.materialsCitations_x_collectionCodes ON mc.materialsCitations.materialsCitationId = mc.materialsCitations_x_collectionCodes.materialsCitationId',
+                'JOIN mc.collectionCodes ON mc.materialsCitations_x_collectionCodes.collectionCode = mc.collectionCodes.collectionCode',
+                'LEFT JOIN gb.institutions ON mc.collectionCodes.collectionCode = gb.institutions.institution_code'
             ]
         }
     },
@@ -404,19 +388,19 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
         name: 'institution_name',
         dict: dictCollectionCodes,
         alias: {
-            select: 'gbifcollections.institutions.institution_name',
-            where : 'gbifcollections.institutions.institution_name'
+            select: 'gb.institutions.institution_name',
+            where : 'gb.institutions.institution_name'
         },
         joins: {
             select: [ 
-                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
-                'JOIN collectionCodes cc ON mc.collectionCode = cc.collectionCode',
-                'LEFT JOIN gbifcollections.institutions g ON cc.collectionCode = g.institution_code'
+                'JOIN mc.materialsCitations_x_collectionCodes ON mc.materialsCitations.materialsCitationId = mc.materialsCitations_x_collectionCodes.materialsCitationId',
+                'JOIN mc.collectionCodes ON mc.materialsCitations_x_collectionCodes.collectionCode = mc.collectionCodes.collectionCode',
+                'LEFT JOIN gb.institutions ON mc.collectionCodes.collectionCode = gb.institutions.institution_code'
             ],
             where : [ 
-                'JOIN materialsCitations_x_collectionCodes mc ON materialsCitations.materialsCitationId = mc.materialsCitationId',
-                'JOIN collectionCodes cc ON mc.collectionCode = cc.collectionCode',
-                'LEFT JOIN gbifcollections.institutions g ON cc.collectionCode = g.institution_code'
+                'JOIN mc.materialsCitations_x_collectionCodes ON mc.materialsCitations.materialsCitationId = mc.materialsCitations_x_collectionCodes.materialsCitationId',
+                'JOIN mc.collectionCodes ON mc.materialsCitations_x_collectionCodes.collectionCode = mc.collectionCodes.collectionCode',
+                'LEFT JOIN gb.institutions ON mc.collectionCodes.collectionCode = gb.institutions.institution_code'
             ]
         }
     }
@@ -424,4 +408,4 @@ import { dictionary as dictCollectionCodes } from './collectioncodes.js';
 
 externalParams.forEach(param => utils.addExternalDef(param, dictionary));
 
-export { dictionary }
+export { dictionary as dictMaterialCitations }

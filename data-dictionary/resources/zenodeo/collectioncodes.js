@@ -1,4 +1,4 @@
-export const dictionary = [
+export const dictCollectionCodes = [
     {
         name: 'collectionCode',
         schema: {
@@ -12,7 +12,6 @@ export const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("materialsCitation").attr("collectionCode")',
     },
-
     {
         name: 'institution_name',
         schema: {
@@ -20,16 +19,16 @@ export const dictionary = [
             description: 'The name of the institution that houses the collection',
         },
         alias: {
-            select: 'g.institution_name',
-            where : 'g.institution_name'
+            select: 'gb.institutions.institution_name',
+            where : 'gb.institutions.institution_name'
         },
         sqltype: 'TEXT',
         joins: {
             select: [ 
-                'LEFT JOIN gbifcollections.institutions g ON collectionCodes.collectionCode = g.institution_code' 
+                'LEFT JOIN gb.institutions ON mc.collectionCodes.collectionCode = gb.institutions.institution_code' 
             ],
             where : [ 
-                'LEFT JOIN gbifcollections.institutions g ON collectionCodes.collectionCode = g.institution_code' 
+                'LEFT JOIN gb.institutions ON mc.collectionCodes.collectionCode = gb.institutions.institution_code' 
             ]
         }
     }

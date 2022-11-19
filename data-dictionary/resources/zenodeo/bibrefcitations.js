@@ -4,7 +4,7 @@ import * as utils from '../../../lib/utils.js';
 
 // <bibRefCitation id="EC3F4B6FD744DE1FEC5E890BFAA7DE58" pageId="3" pageNumber="128" refId="ref7020" refString="Crews, S. C. &amp; Gillespie, R. G. (2010) Molecular systematics of Selenops spiders (Araneae: Selenopidae) from North and Central America: Implications for Caribbean biogeography. Biological Journal of the Linnean Society, 101, 288 - 322. https: // doi. org / 10.1111 / j. 1095 - 8312.2010.01494. x" type="journal article">CrEws &amp; GIllEspIE 2010</bibRefCitation>
 
-export const dictionary = [
+export const dictBibRefCitations = [
     {
         name: 'bibRefCitationId',
         schema: { 
@@ -17,7 +17,6 @@ export const dictionary = [
         sqltype: 'TEXT NOT NULL UNIQUE',
         cheerio: '$("bibRefCitation").attr("id")'
     },
-
     {
         name: 'treatmentId',
         schema: { 
@@ -28,7 +27,6 @@ export const dictionary = [
         },
         sqltype: 'TEXT NOT NULL'
     },
-
     {
         name: 'author',
         schema: {
@@ -38,7 +36,6 @@ export const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("author")'
     },
-
     {
         name: 'journalOrPublisher',
         schema: {
@@ -48,7 +45,6 @@ export const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("journalOrPublisher")'
     },
-
     {
         name: 'title',
         schema: {
@@ -58,7 +54,6 @@ export const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("title")'
     },
-
     {
         name: 'refString',
         schema: {
@@ -68,7 +63,6 @@ export const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("bibRefCitation").attr("refString")'
     },
-
     {
         name: 'type',
         alias: {
@@ -83,7 +77,6 @@ export const dictionary = [
         cheerio: '$("bibRefCitation").attr("type")',
         facets: true
     },
-
     {
         name: 'year',
         schema: {
@@ -95,23 +88,21 @@ export const dictionary = [
         cheerio: '$("bibRefCitation").attr("year")',
         facets: true
     },
-
     {
-        name: 'innerText',
+        name: 'fulltext',
         schema: {
             type: 'string',
-            description: 'xml'
+            description: 'The full text of the bibRefCitation'
         },
         sqltype: 'TEXT',
-        cheerio: '$("bibRefCitation")',
+        cheerio: '$("bibRefCitation").text()',
         notQueryable: true
     },
-
-        {
+    {
         name: 'q',
         alias: {
-            select: "snippet(vbibrefcitations, 1, '<b>', '</b>', '…', 25) snippet",
-            where : 'vbibrefcitations'
+            select: "snippet(bc.ftsBibRefCitations.ftsBibRefCitations, 1, '<b>', '</b>', '…', 25) snippet",
+            where : 'bc.ftsBibRefCitations.ftsBibRefCitations'
         },
         schema: {
             type: 'string',
@@ -124,7 +115,7 @@ export const dictionary = [
         defaultOp: 'match',
         joins: {
             select: null,
-            where : [ 'JOIN vbibrefcitations ON bibRefCitations.bibRefCitationId = vbibrefcitations.bibRefCitationId' ]
+            where : [ 'JOIN bc.ftsBibRefCitations ON bc.bibRefCitations.id = bc.ftsBibRefCitations.rowid' ]
         }
     }
 ]
