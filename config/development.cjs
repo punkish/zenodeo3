@@ -73,7 +73,7 @@ module.exports = {
              * separate databases, one for each table, all stored within 
              * a single 'z3' directory. The databases are ATTACHed before use
              */
-            "exploded": path.join(dataDir, 'z3-exploded.sqlite')
+            "exploded": path.join(dataDir, 'z3.sqlite')
         },
 
         /**
