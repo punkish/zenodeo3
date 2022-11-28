@@ -3,7 +3,7 @@
  * 
  * running 'env.js' first, before anything else, ensures the env 
  * variables are loaded
-**/
+ */
 import './env.js';
 import { Config } from '@punkish/zconfig';
 import process from 'node:process';
@@ -49,7 +49,7 @@ const start = async () => {
          * save the original request query params for use later
          * because the query will get modified after schema 
          * validation
-        **/
+         */
         fastify.addHook('preValidation', async (request) => {
             request.origQuery = JSON.parse(JSON.stringify(request.query));
         });
@@ -59,7 +59,7 @@ const start = async () => {
          * as sent by the swagger interface to be validated 
          * correctly by ajv as an array. See `coerceToArray()`
          * above.
-        **/
+         */
         fastify.addHook('preValidation', async (request) => {
             coerceToArray(request, 'cols');
             coerceToArray(request, 'communities');

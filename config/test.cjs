@@ -6,6 +6,11 @@ module.exports = {
     },
 
     "cache": {
-        "on": true
+        "on": true,
+
+        /** 
+         * set default cache duration to 7 days
+         */ 
+        "ttl": 7 * 24 * 60 * 60 * 1000 
     },
 }

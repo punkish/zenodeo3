@@ -95,7 +95,6 @@ module.exports = {
         "supporting": {
             "gb": path.join(dataDir, 'z3-gbifcollections.sqlite'),
             "fa": path.join(dataDir, 'z3-facets.sqlite'),
-            "st": path.join(dataDir, 'z3-stats.sqlite')
         }
     },
 
@@ -110,9 +109,9 @@ module.exports = {
         "base": path.join(cwd, 'cache'),
 
         /** 
-         * set default cache duration to 7 days
+         * set default cache duration to 1 day
          */ 
-        "ttl": 7 * 24 * 60 * 60 * 1000 
+        "ttl": 1 * 24 * 60 * 60 * 1000 
     },
 
     "truebug": {
@@ -129,8 +128,16 @@ module.exports = {
         /**
          * server where the data are stored 
          */
-        "server": 'http://127.0.0.1/plazi/data',
-        //"server": "https://tb.plazi.org/dumps",
+        // "server": {
+        //     "hostname": 'http://127.0.0.1',
+        //     "path": 'plazi/data',
+        //     "port": 80
+        // },
+        "server": {
+            "hostname": 'https://tb.plazi.org',
+            "path": 'dumps',
+            "port": 443
+        },
 
         "source": "archive",
         //"source": "xml",
@@ -179,40 +186,40 @@ module.exports = {
 
         "steps": {
             "preflight": {
-                "checkDir": true,
-                "backupOldDB": true,
-                "copyXmlToDump": true,
+                "checkDir"        : true,
+                "backupOldDB"     : true,
+                "copyXmlToDump"   : true,
                 "filesExistInDump": true
             },
             "download": {
                 "checkRemote": true,
-                "download": true,
-                "unzip": false
+                "download"   : true,
+                "unzip"      : true
             },
             "database": {
-                "storeMaxrowid": false,
-                "dropIndexes": true,
-                "insertFTS": true,
-                "insertDerived": true,
-                "updateIsOnLand": true,
-                "buildIndexes": true,
-                "createTriggers": true,
-                "getLastUpdate": true,
-                "insertStats": true,
-                "repackageTreatment": false,
-                "insertData": true,
-                "resetData": true,
-                "getCounts": true,
-                "getArchiveUpdates": true,
+                "storeMaxrowid"       : false,
+                "dropIndexes"         : true,
+                "insertFTS"           : true,
+                "insertDerived"       : true,
+                "updateIsOnLand"      : true,
+                "buildIndexes"        : true,
+                "createTriggers"      : true,
+                "getLastUpdate"       : true,
+                "insertStats"         : true,
+                "repackageTreatment"  : true,
+                "insertData"          : true,
+                "resetData"           : true,
+                "getCounts"           : true,
+                "getArchiveUpdates"   : true,
                 "selCountOfTreatments": true
             },
             "parse": {
-                "parseOne": true,
+                "parseOne" : true,
                 "calcStats": true
             },
             "postflight": {
                 "cpFile": true,
-                "rmFile": false
+                "rmFile": true
             }
         }
     }

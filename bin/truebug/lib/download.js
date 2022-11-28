@@ -21,28 +21,26 @@ const checkRemote = (typeOfArchive = 'daily') => {
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
-    const options = {
-        hostname: 'tb.plazi.org',
-        port: 443,
-        path: typeOfArchive === 'full' 
-            ? '/dumps/plazi.zenodeo.zip' 
-            : `/dumps/plazi.zenodeo.${typeOfArchive}.zip`,
-        method: 'HEAD'
-    };
-    
-    const remoteResult = new Promise((resolve) => {
-        const req = https.request(options, (res) => {
-            const result = {};
+    const server = truebug.server.hostname;
+    const path = typeOfArchive === 'full' 
+        ? `/${truebug.server.path}/plazi.zenodeo.zip`
+        : `/${truebug.server.path}/plazi.zenodeo.${typeOfArchive}.zip`;
 
+    const url = `${server}/${path}`;
+    const opts = { method: 'HEAD' };
+
+    const remoteResult = new Promise((resolve) => {
+        const req = https.request(url, opts, (res) => {
+            const result = {};
+    
             if (res.statusCode == 200) {
                 const d = new Date(res.headers['last-modified']);
                 result.timeOfArchive  = d.getTime();
                 result.sizeOfArchive = res.headers['content-length'];
             }
-
+    
             resolve(result);
         });
-        
         req.on('error', (error) => console.error(error));
         req.end();
     });
@@ -50,21 +48,31 @@ const checkRemote = (typeOfArchive = 'daily') => {
     return remoteResult;
 }
 
-const unzip = function(source) {
+const unzip = function(typeOfArchive) {
     const fn = 'unzip';
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
-    log.info(`unzipping ${source} archive`);
+    log.info(`unzipping ${typeOfArchive} archive`);
 
-    const archive = `${truebug.dirs.data}/${truebug.download[source]}`;
-    const targetDir = truebug.dirs[source];
+    const archive = `${truebug.dirs.data}/${truebug.download[typeOfArchive]}`;
+    const targetDir = truebug.dirs[typeOfArchive];
+
+    /**
+     * -q Perform operations quietly.
+     * -n never overwrite existing files
+     * -d extract files into exdir
+     */
     let cmd = `unzip -q -n ${archive} -d ${targetDir}`;
 
     if (truebug.runMode === 'real') {
         execSync(cmd);
 
-        cmd = `unzip -Z -1 ${local} | wc -l`;
+        /**
+         * -Z   Switch to zipinfo mode.  Must be first option.
+         * -1  List names only, one per line. No headers/trailers.
+         */ 
+        cmd = `unzip -Z -1 ${archive} | wc -l`;
         let numOfFiles = Number(execSync(cmd).toString().trim());
 
         /**
@@ -92,16 +100,12 @@ const download = (source) => {
      */
     const archive = truebug.download[source];
     const local = `${truebug.dirs.data}/${archive}`;
-    const remote = `${truebug.server}/${archive}`;
+    const server = `${truebug.server.hostname}/${truebug.server.path}`;
+    const remote = `${server}/${archive}`;
     
     if (truebug.runMode === 'real') {
-        if (fs.existsSync(local)) {
-            log.info(`${local} archive exists… skipping download`);
-        }
-        else {
-            log.info(`downloading ${source} archive`);
-            execSync(`curl -s -o ${local} '${remote}'`);
-        }
+        log.info(`downloading ${source} archive`);
+        execSync(`curl -s -o ${local} '${remote}'`);
     }
 }
 

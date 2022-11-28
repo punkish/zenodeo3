@@ -222,7 +222,10 @@ const selCountOfTreatments = () => {
         ? 'SELECT Count(*) AS c FROM treatments'
         : 'SELECT Count(*) AS c FROM tr.treatments';
 
-    return db.prepare(sql).get().c;
+    log.info('Getting count of treatments already in the db… ', 'start');
+    const num = db.prepare(sql).get().c;
+    log.info(`found ${num}\n`, 'end');
+    return num;
 }
 
 const _selMaxrowidVirtualTable = (table, alias) => {
@@ -276,7 +279,7 @@ const getLastUpdate = (typeOfArchive) => {
     figureCitations,
     bibRefCitations
 FROM
-    st.etlstats
+    etlstats
 WHERE
     process = 'etl'
     AND typeOfArchive = ?`;

@@ -9,12 +9,8 @@ module.exports = {
         }
     },
 
-    "cache": {
-        "on": true
-    },
-
     /** 
      * don't add debug info to results 
-    **/
+     */
     "isDebug": false
 }

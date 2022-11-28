@@ -20,7 +20,7 @@ const tables = [
             figureCitations INTEGER,
             bibRefCitations INTEGER
         )`,
-        insert: `INSERT INTO ${alias}.etlstats (
+        insert: `INSERT INTO etlstats (
                 started, 
                 ended, 
                 process,
@@ -95,7 +95,7 @@ const tables = [
 const indexes = [
     {
         name: 'ix_bibRefCitations_bibRefCitationId',
-        create: `CREATE INDEX IF NOT EXISTS ${alias}.ix_etlstats_typeOfArchive ON etlstats (typeOfArchive)`
+        create: `CREATE INDEX IF NOT EXISTS ix_etlstats_typeOfArchive ON etlstats (typeOfArchive)`
     }
 ];
 

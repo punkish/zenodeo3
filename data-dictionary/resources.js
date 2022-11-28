@@ -25,7 +25,7 @@ export const resources = [
     {
         title: 'ETL Statistics',
         name: 'etlStats',
-        alias: 'st',
+        alias: 'main',
         summary: "Fetches extract-transform-load statistics",
         description: "…",
         dictionary: dictEtlStats,

@@ -46,8 +46,8 @@ const dictionary = [
     {
         name: 'q',
         alias: {
-            select: "snippet(vtreatments, 1, '<b>', '</b>', '…', 25) snippet",
-            where : 'vtreatments'
+            select: "snippet(tr.ftsTreatments, 1, '<b>', '</b>', '…', 25) snippet",
+            where : 'tr.ftsTreatments'
         },
         schema: {
             type: 'string',
@@ -59,7 +59,7 @@ const dictionary = [
         defaultOp: 'match',
         joins: {
             select: null,
-            where : [ 'JOIN vtreatments ON treatmentImages.treatmentId = vtreatments.treatmentId' ]
+            where : [ 'JOIN tr.ftsTreatments ON ti.treatmentImages.treatmentId = tr.ftsTreatments.treatmentId' ]
         }
     }
 ];
@@ -77,8 +77,8 @@ const dictionary = [
             where : 'tr.treatments.treatmentTitle'
         },
         joins: {
-            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
-            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
@@ -89,8 +89,8 @@ const dictionary = [
             where : 'tr.treatments.treatmentDOI'
         },
         joins: {
-            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
-            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
@@ -101,8 +101,8 @@ const dictionary = [
             where : 'tr.treatments.zenodoDep'
         },
         joins: {
-            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
-            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
@@ -113,8 +113,8 @@ const dictionary = [
             where : 'tr.treatments.journalTitle'
         },
         joins: {
-            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
-            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
@@ -131,8 +131,26 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("phylum")',
         joins: {
-            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
-            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+        }
+    },
+    {
+        name: 'class',
+        dict: dictTreatments,
+        alias: {
+            select: 'tr.treatments.class',
+            where : 'tr.treatments.class'
+        },
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("class")',
+        joins: {
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
@@ -149,8 +167,8 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("family")',
         joins: {
-            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
-            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
@@ -167,8 +185,8 @@ const dictionary = [
         sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("family")',
         joins: {
-            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
-            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
@@ -179,8 +197,8 @@ const dictionary = [
             where : 'tr.treatments.publicationDate'
         },
         joins: {
-            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
-            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {
@@ -191,8 +209,8 @@ const dictionary = [
             where : 'tr.treatments.checkinTime'
         },
         joins: {
-            select: [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
-            where : [ 'JOIN tr.treatments ON tr.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
         }
     },
     {

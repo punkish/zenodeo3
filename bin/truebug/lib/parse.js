@@ -14,7 +14,13 @@ const config = new Config().settings;
 const truebug = config.truebug;
 const ts = truebug.steps.parse;
 
-import { dispatch as ddutils } from '../../../data-dictionary/dd-utils.js';
+import { ddu } from '../../../data-dictionary/dd-utils.js';
+const allCols = {
+    treatments: ddu.getSqlCols('treatments'),
+    bibRefCitations: ddu.getSqlCols('bibRefCitations'),
+    figureCitations: ddu.getSqlCols('figureCitations'),
+    materialCitations: ddu.getSqlCols('materialCitations'),
+};
 
 const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
 logOpts.name = 'TRUEBUG:PARSE';
@@ -173,7 +179,7 @@ const _parse = function($, part, parts, partId, treatmentId) {
     const num = elements.length;
     let entries = [];
 
-    const allCols = ddutils.getSqlCols(parts)
+    //const allCols = ddu.getSqlCols(parts)
 
     if (num) {
         for (let i = 0; i < num; i++) {
@@ -182,7 +188,7 @@ const _parse = function($, part, parts, partId, treatmentId) {
             const missingAttr = [];
             const entry = {};
 
-            allCols.forEach(el => {
+            allCols[parts].forEach(el => {
                 if (el.cheerio) {
                     const attr = $(e).attr(el.name)
                     if (attr) {
@@ -219,7 +225,13 @@ const _parseBibRefCitations = function($, treatmentId) {
     utils.incrementStack(logOpts.name, fn);
 
     //const elements = $('bibRefCitation');
-    return _parse($, 'bibRefCitation', 'bibRefCitations', 'bibRefCitationId', treatmentId);  
+    return _parse(
+        $, 
+        'bibRefCitation', 
+        'bibRefCitations', 
+        'bibRefCitationId', 
+        treatmentId
+    );  
 }
 
 const _parseFigureCitations = function($, treatmentId) {
@@ -231,7 +243,7 @@ const _parseFigureCitations = function($, treatmentId) {
     const num = elements.length
 
     if (num) {
-        const allCols = ddutils.getSqlCols('figureCitations')
+        //const allCols = ddu.getSqlCols('figureCitations')
         
         for (let i = 0; i < num; i++) {
             if (elements[i].parent.name !== 'updateHistory') {
@@ -241,7 +253,7 @@ const _parseFigureCitations = function($, treatmentId) {
                 const cols_to_explode = {}
                 const entry = {}
 
-                allCols.forEach(col => {
+                allCols.figureCitations.forEach(col => {
                     if (col.cheerio) {
                         const matched = fc_keys.filter(key => key.match(new RegExp('^' + col.name + '-[0-9]+', 'gi')))
                         num_of_explosions = matched.length
@@ -341,7 +353,7 @@ const _parseMaterialsCitations = function($, treatmentId) {
      * for historical reasons, the xml tag is 'materialsCitation', 
      * hence the db table definitions use 'materialsCitation'
      */
-    const allCols = ddutils.getSqlCols('materialCitations')
+    //const allCols = ddu.getSqlCols('materialCitations')
 
     if (num) {
         for (let i = 0; i < num; i++) {
@@ -349,7 +361,7 @@ const _parseMaterialsCitations = function($, treatmentId) {
             const entry = {};
             const materialsCitationId = $(e).attr('id')
 
-            allCols.forEach(col => {
+            allCols.materialCitations.forEach(col => {
                 if (col.cheerio) {
                     const attr = $(e).attr(col.name);
 
@@ -410,10 +422,10 @@ const _parseTreatment = function($, treatmentId) {
     const fn = '_parseTreatment';
     utils.incrementStack(logOpts.name, fn);
 
-    let treatment = {};
+    const treatment = {};
     
-    const allCols = ddutils.getSqlCols('treatments')
-    allCols.forEach(el => {
+    //const allCols = ddu.getSqlCols('treatments');
+    allCols.treatments.forEach(el => {
         
         if (el.cheerio) {
             let val;
@@ -451,12 +463,12 @@ const _parseTreatment = function($, treatmentId) {
     return treatment;
 }
 
-const _cheerioparse = function(xml, treatmentId) {
+const _cheerioparse = function(xmlContent, treatmentId) {
     const fn = '_cheerioparse';
     utils.incrementStack(logOpts.name, fn);
 
     const cheerioOpts = { normalizeWhitespace: true, xmlMode: true };
-    const $ = cheerio.load(xml, cheerioOpts, false);
+    const $ = cheerio.load(xmlContent, cheerioOpts, false);
 
     const [
         materialsCitations, 
@@ -495,12 +507,9 @@ const parseOne = (typeOfArchive, xml) => {
     const treatmentId = path.basename(xml, '.xml');
 
     if (treatmentId.length != 32 || !_treatmentIdRegex.test(treatmentId)) {
-        const treatmentXml = `${truebug.dirs.dumps}/${typeOfArchive}/${xml}`;
-        
-        const treatment = _cheerioparse(
-            fs.readFileSync(treatmentXml, 'utf8'), 
-            treatmentId
-        );
+        const file = `${truebug.dirs.dumps}/${typeOfArchive}/${xml}`;
+        const xmlContent = fs.readFileSync(file, 'utf8');
+        const treatment = _cheerioparse(xmlContent, treatmentId);
         
         return treatment;
     }

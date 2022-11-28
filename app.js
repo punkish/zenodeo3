@@ -26,7 +26,7 @@ export async function server(opts={}) {
     fastify.register(swagger);
     fastify.register(fastifyStatic);
     fastify.register(view);
-    fastify.register(cron)
+    fastify.register(cron);
 
     /**
      * register the routes to resources

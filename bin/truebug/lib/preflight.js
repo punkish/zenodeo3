@@ -18,7 +18,7 @@ import fs from 'fs';
 import path from 'path';
 import tar from 'tar';
 
-const checkDir = (dir) => {
+const checkDir = (dir, empty = false) => {
     const fn = 'checkDir';
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
@@ -30,6 +30,12 @@ const checkDir = (dir) => {
 
     if (exists) {
         log.info('yes, it does\n', 'end');
+
+        if (empty) {
+            log.info(`removing all files from ${dir} directory… `, 'start');
+            fs.readdirSync(tgt).forEach(f => fs.rmSync(`${tgt}/${f}`));
+            log.info('done\n', 'end');
+        }
     }
     else {
         log.info("it doesn't exist… making it\n", 'end');

@@ -1,6 +1,6 @@
 'use strict'
 
-import { dispatch as ddutils } from './dd-utils.js';
+import { ddu } from './dd-utils.js';
 
 describe('getResources: returns all available resource', () => {
     const tests = [
@@ -25,7 +25,7 @@ describe('getResources: returns all available resource', () => {
 
     tests.forEach(t => {
         test(`available resources -> "${JSON.stringify(t.output, null, 2)}"`, () => {
-            expect(ddutils.getResources()).toEqual(t.output)
+            expect(ddu.getResources()).toEqual(t.output)
         })
     })
 })
@@ -45,7 +45,7 @@ describe('getSourceOfResource: given a resource, returns its source', () => {
 
     tests.forEach(t => {
         test(`source of ${t.input} -> "${t.output}"`, () => {
-            expect(ddutils.getSourceOfResource(t.input)).toBe(t.output)
+            expect(ddu.getSourceOfResource(t.input)).toBe(t.output)
         })
     })
 })
@@ -65,7 +65,7 @@ describe('getResourceid: given a resource, returns its resourceId', () => {
 
     tests.forEach(t => {
         test(`resource ${t.input} -> resourceId "${t.output}"`, () => {
-            expect(ddutils.getResourceid(t.input)).toEqual(t.output)
+            expect(ddu.getResourceid(t.input)).toEqual(t.output)
         })
     })
 })
@@ -85,7 +85,7 @@ describe('getFacetCols: given a resource, returns its facet columns', () => {
 
     tests.forEach(t => {
         test(`resource ${t.input} -> facets "${t.output}"`, () => {
-            expect(ddutils.getFacetCols(t.input)).toEqual(t.output)
+            expect(ddu.getFacetCols(t.input)).toEqual(t.output)
         })
     })
 })
