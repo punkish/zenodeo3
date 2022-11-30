@@ -185,6 +185,9 @@ module.exports = {
         },
 
         "steps": {
+            "main": {
+                "printStack": false
+            },
             "preflight": {
                 "checkDir"        : true,
                 "backupOldDB"     : true,

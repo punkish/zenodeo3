@@ -417,7 +417,7 @@ const dictionary = [
     {
         name: 'q',
         alias: {
-            select: "snippet(tr.ftsTreatments, 1, '<b>', '</b>', '…', 25) snippet",
+            select: "snippet(tr.ftsTreatments.ftsTreatments, 1, '<b>', '</b>', '…', 25) snippet",
             where : 'tr.ftsTreatments.ftsTreatments'
         },
         schema: {

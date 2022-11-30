@@ -46,8 +46,8 @@ const dictionary = [
     {
         name: 'q',
         alias: {
-            select: "snippet(tr.ftsTreatments, 1, '<b>', '</b>', '…', 25) snippet",
-            where : 'tr.ftsTreatments'
+            select: "snippet(tr.ftsTreatments.ftsTreatments, 1, '<b>', '</b>', '…', 25) snippet",
+            where : 'tr.ftsTreatments.ftsTreatments'
         },
         schema: {
             type: 'string',
@@ -59,7 +59,9 @@ const dictionary = [
         defaultOp: 'match',
         joins: {
             select: null,
-            where : [ 'JOIN tr.ftsTreatments ON ti.treatmentImages.treatmentId = tr.ftsTreatments.treatmentId' ]
+            where : [ 
+                'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId',
+                'JOIN tr.ftsTreatments ON tr.treatments.id = tr.ftsTreatments.rowid' ]
         }
     }
 ];

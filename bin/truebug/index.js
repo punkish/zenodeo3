@@ -12,6 +12,7 @@ import * as parse from './lib/parse.js';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 const truebug = config.truebug;
+const ts = truebug.steps.main;
 
 import * as utils from './lib/utils.js';
 
@@ -228,7 +229,7 @@ const update = async (archiveTypes, fullFlag) => {
 
     const typeOfArchive = archiveTypes.shift();
 
-    log.info(`checking if ${typeOfArchive} archive exists on remote server`);
+    log.info(`checking if ${typeOfArchive} archive exists on remote server…`);
     const remoteArchive = await download.checkRemote(typeOfArchive);
     
     if (remoteArchive.timeOfArchive) {
@@ -244,7 +245,7 @@ const update = async (archiveTypes, fullFlag) => {
                 etl(typeOfArchive, remoteArchive);
             }
             else {
-                log.info(`remote ${typeOfArchive} archive is older than the local version… moving on`);
+                log.info(`remote ${typeOfArchive} archive is older than the local version, moving on`);
             }
         }
         else {
@@ -275,10 +276,13 @@ const update = async (archiveTypes, fullFlag) => {
     else {
         log.info(`${typeOfArchive} archive doesn't exist`);
         log.info('EXITING TRUEBUG');
-        log.info('='.repeat(80));
-        log.info('S T A C K');
-        log.info('-'.repeat(80));
-        console.log(JSON.stringify(utils.stack, null, 4));
+
+        if (ts.printStack) {
+            log.info('='.repeat(80));
+            log.info('S T A C K');
+            log.info('-'.repeat(80));
+            console.log(JSON.stringify(utils.stack, null, 4));
+        }
     }
 }
 

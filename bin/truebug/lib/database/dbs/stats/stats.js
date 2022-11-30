@@ -89,6 +89,20 @@ const tables = [
         )`,
         insert: '',
         preparedinsert: ''
+    },
+    {
+        name: 'processes',
+        type: 'view',
+        create: `CREATE VIEW IF NOT EXISTS processes AS 
+            SELECT 
+                datetime(started / 1000, 'unixepoch') AS start,
+                datetime(ended / 1000, 'unixepoch') AS end,
+                (ended - started) AS duration,
+                process
+            FROM
+                etlstats`,
+        insert: '',
+        preparedinsert: ''
     }
 ];
 
