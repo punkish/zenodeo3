@@ -10,8 +10,7 @@ module.exports = {
     },
 
     /**
-     * this overrides any test or dev settings in 
-     * development mode
+     * this overrides any test or development mode settings
      */
     "runMode": "real", 
     "server": {

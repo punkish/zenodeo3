@@ -148,7 +148,6 @@ const etl = (typeOfArchive, remoteArchive) => {
 
     const stats = {
         download: {
-            started: new Date().getTime(),
             timeOfArchive,
             typeOfArchive,
             sizeOfArchive,
@@ -169,9 +168,12 @@ const etl = (typeOfArchive, remoteArchive) => {
     /** 
      * start download
      */
-    download.download(typeOfArchive);
-    stats.download.numOfFiles = download.unzip(typeOfArchive);
-    stats.download.ended = new Date().getTime();
+    const { started } = download.download(typeOfArchive);
+    const { ended, numOfFiles } = download.unzip(typeOfArchive);
+
+    stats.download.started = started;
+    stats.download.ended = ended;
+    stats.download.numOfFiles = numOfFiles;
 
     log.info('-'.repeat(80));
     log.info(`DOWNLOAD took: ${stats.download.ended - stats.download.started} ms`);
@@ -211,7 +213,7 @@ const etl = (typeOfArchive, remoteArchive) => {
             const row = stats[key];
             row.process = key;
             database.insertStats(row);
-        })
+        });
 
     log.info('-'.repeat(80));
     const took = stats.etl.ended - stats.etl.started;
@@ -219,9 +221,13 @@ const etl = (typeOfArchive, remoteArchive) => {
     log.info(`ETL took: ${took} ms = (${mspf} ms/file)`);
     log.info('TRUEBUG DONE');
     log.info('='.repeat(80));
-    log.info('S T A C K');
-    log.info('-'.repeat(80));
-    console.log(JSON.stringify(utils.stack, null, 4));
+
+    if (ts.printStack) {
+        console.log(`S T A C K
+${'-'.repeat(80)}
+${JSON.stringify(utils.stack, null, 4)}
+        `);
+    }
 }
 
 const update = async (archiveTypes, fullFlag) => {
@@ -276,12 +282,13 @@ const update = async (archiveTypes, fullFlag) => {
     else {
         log.info(`${typeOfArchive} archive doesn't exist`);
         log.info('EXITING TRUEBUG');
+        log.info('='.repeat(80));
 
         if (ts.printStack) {
-            log.info('='.repeat(80));
-            log.info('S T A C K');
-            log.info('-'.repeat(80));
-            console.log(JSON.stringify(utils.stack, null, 4));
+            console.log(`S T A C K
+${'-'.repeat(80)}
+${JSON.stringify(utils.stack, null, 4)}
+            `);
         }
     }
 }

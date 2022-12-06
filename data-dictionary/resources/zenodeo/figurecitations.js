@@ -44,7 +44,6 @@ export const dictFigureCitations = [
         sqltype: 'TEXT',
         cheerio: '$("figureCitation").attr("captionText")',
         defaultOp: 'match',
-        //constraint: 'vfigurecitations MATCH @captionText',
         joins: {
             select: null,
             where : [ 'JOIN fc.ftsFigureCitations ON fc.figureCitations.id = fc.ftsFigureCitations.rowid' ]

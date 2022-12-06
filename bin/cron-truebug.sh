@@ -18,5 +18,6 @@ export NODE_ENV=cron
 # load nvm bash_completion
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  
 
-# run truebug with arg 'etl'
-node bin/truebug/index.js etl
+# run truebug with default args etl --runMode=real 
+# the latter picked up from config
+node bin/truebug/index.js

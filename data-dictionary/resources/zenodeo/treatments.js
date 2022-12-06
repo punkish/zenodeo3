@@ -3,6 +3,7 @@ import { dictMaterialCitations } from './materialcitations.js';
 import { dictFigureCitations } from './figurecitations.js';
 import { dictCollectionCodes } from './collectioncodes.js';
 
+const datePattern = utils.getPattern('date');
 /** 
  * first we define all the params corresponding to the columns in the 
  * treatments table
@@ -142,7 +143,7 @@ const dictionary = [
         name: 'publicationDate',
         schema: {
             type: 'string',
-            pattern: utils.getPattern('date'),
+            pattern: datePattern,
             description: `The publication date of the treatment. Can use the following syntax: 
 - \`publicationDate=eq(2018-1-12)\`
 - \`publicationDate=since(2018-12-03)\`
@@ -348,7 +349,7 @@ const dictionary = [
         name: 'updateTime',
         schema: {
             type: 'string',
-            pattern: utils.getPattern('date'),
+            pattern: datePattern,
             description: `The time when the treatment was last updated (as a result of an update to the article). Can use the following syntax: 
 - \`updateTime=eq(2018-1-12)\`
 - \`updateTime=since(2018-12-03)\`
@@ -370,7 +371,7 @@ const dictionary = [
         name: 'checkinTime',
         schema: {
             type: 'string',
-            pattern: utils.getPattern('date'),
+            pattern: datePattern,
             description: `The time when the article was first uploaded into the system. Can use the following syntax: 
 - \`checkinTime=eq(2018-1-12)\`
 - \`checkinTime=since(2018-12-03)\`
@@ -407,17 +408,39 @@ const dictionary = [
         },
         schema: { 
             type: 'boolean',
-            //default: false,
             description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
         },
         sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("document").attr("deleted")',
         notDefaultCol: true
     },
+
+    /** 
+     * ==== select ====
+     * 
+     * SELECT 
+     *      '…' || 
+     *      Substring(tr.treatments.fulltext, instr(tr.treatments.fulltext, 'agosti') - 20, 20) || 
+     *      '<span class="hilite">agosti</span>' || 
+     *      Substring(tr.treatments.fulltext, instr(tr.treatments.fulltext, 'agosti') + 6, 20) || 
+     *      '…' AS snippet 
+     * FROM tr.treatments JOIN 
+     *      tr.ftsTreatments ON tr.treatments.id = tr.ftsTreatments.rowid 
+     * WHERE tr.ftsTreatments.ftsTreatments MATCH @q 
+     * …
+     * 
+     * ==== where ====
+     * 
+     * SELECT … 
+     * FROM tr.treatments JOIN 
+     *      tr.ftsTreatments ON tr.treatments.id = tr.ftsTreatments.rowid 
+     * WHERE tr.ftsTreatments.ftsTreatments MATCH @q 
+     * …
+     */
     {
         name: 'q',
         alias: {
-            select: "snippet(tr.ftsTreatments.ftsTreatments, 1, '<b>', '</b>', '…', 25) snippet",
+            select: () => `'…' || Substring(Replace(tr.treatments.fulltext, '\r\n', ' '), Instr(Replace(tr.treatments.fulltext, '\r\n', ' '), @q) - @sides, @sides) || '<span class="' || @cssClass || '">' || @q || '</span>' || Substring(Replace(tr.treatments.fulltext, '\r\n', ' '), Instr(Replace(tr.treatments.fulltext, '\r\n', ' '), @q) + Length(@q), @sides) || '…' AS snippet`,
             where : 'tr.ftsTreatments.ftsTreatments'
         },
         schema: {
@@ -430,7 +453,7 @@ const dictionary = [
         notDefaultCol: true,
         defaultOp: 'match',
         joins: {
-            select: null,
+            select: [ 'JOIN tr.ftsTreatments ON tr.treatments.id = tr.ftsTreatments.rowid' ],
             where : [ 'JOIN tr.ftsTreatments ON tr.treatments.id = tr.ftsTreatments.rowid' ]
         },
     }
@@ -441,30 +464,98 @@ const dictionary = [
  * via this REST endpoint
  */
 const externalParams = [
+
+    /** 
+     * ==== select ====
+     *
+     * SELECT fc.figureCitations.httpUri 
+     * FROM tr.treatments JOIN 
+     *      fc.figureCitations ON 
+     *          tr.treatments.treatmentId = fc.figureCitations.treatmentId 
+     * WHERE … 
+     * …
+     * 
+     * ==== where ====
+     * 
+     * SELECT … 
+     * FROM tr.treatments JOIN
+     *      fc.figureCitations ON 
+     *          tr.treatments.treatmentId = fc.figureCitations.treatmentId 
+     * WHERE fc.figureCitations.httpUri = @httpUri 
+     * … 
+     */
     {
         name: 'httpUri',
         dict: dictFigureCitations,
         alias: {
-            select: 'figureCitations.httpUri',
-            where : 'figureCitations.httpUri'
+            select: 'fc.figureCitations.httpUri',
+            where : 'fc.figureCitations.httpUri'
         },
         joins: {
             select: [ 'JOIN fc.figureCitations ON tr.treatments.treatmentId = fc.figureCitations.treatmentId' ],
             where : [ 'JOIN fc.figureCitations ON tr.treatments.treatmentId = fc.figureCitations.treatmentId' ]
         }
     },
+
+    /** 
+     * ==== select ====
+     *
+     * SELECT fc.figureCitations.captionText 
+     * FROM tr.treatments JOIN
+     *      fc.figureCitations ON 
+     *          tr.treatments.treatmentId = fc.figureCitations.treatmentId 
+     * WHERE … 
+     * …
+     * 
+     * ==== where ====
+     * 
+     * SELECT … 
+     * FROM tr.treatments JOIN 
+     *      fc.figureCitations ON 
+     *          tr.treatments.treatmentId = fc.figureCitations.treatmentId JOIN 
+     *      fc.ftsFigureCitations ON 
+     *          fc.figureCitations.id = fc.ftsFigureCitations.rowid
+     * WHERE fc.figureCitations.captionText MATCH @captionText 
+     * … 
+     */
     {
         name: 'captionText',
         dict: dictFigureCitations,
         alias: {
-            select: 'figureCitations.captionText',
-            where : 'vfigurecitations'
+            select: 'fc.figureCitations.captionText',
+            where : 'fc.figureCitations.captionText'
         },
+        defaultOp: 'match',
         joins: {
             select: [ 'JOIN fc.figureCitations ON tr.treatments.treatmentId = fc.figureCitations.treatmentId' ],
-            where : [ 'JOIN tr.ftsTreatments ON tr.treatments.id = tr.ftsTreatments.rowid']
+            where : [ 
+                'JOIN fc.figureCitations ON tr.treatments.treatmentId = fc.figureCitations.treatmentId',
+                'JOIN fc.ftsFigureCitations ON fc.figureCitations.id = fc.ftsFigureCitations.rowid'
+            ]
         }
     },
+
+    /** 
+     * ==== select ====
+     *
+     * SELECT mc.collectionCodes.collectionCode 
+     * FROM tr.treatments JOIN
+     *      mc.materialsCitations ON 
+     *          tr.treatments.treatmentId = mc.materialsCitations.treatmentId 
+     * WHERE … 
+     * …
+     * 
+     * ==== where ====
+     * 
+     * SELECT … 
+     * FROM tr.treatments JOIN 
+     *      fc.figureCitations ON 
+     *          tr.treatments.treatmentId = fc.figureCitations.treatmentId JOIN 
+     *      fc.ftsFigureCitations ON 
+     *          fc.figureCitations.id = fc.ftsFigureCitations.rowid
+     * WHERE fc.figureCitations.captionText MATCH @captionText 
+     * … 
+     */
     {
         name: 'collectionCode',
         dict: dictCollectionCodes,

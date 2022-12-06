@@ -2,6 +2,7 @@
 
 import process from 'node:process';
 import minimist from 'minimist';
+import clonedeep from 'lodash.clonedeep';
 
 import { commonparams } from './resources/commonparams.js';
 import { resources } from './resources.js';
@@ -74,6 +75,8 @@ const getResourcesFromSource = (source) => resources
     .filter(r => r.source === source)
     .map(r => r.name);
 
+
+
 /**
  * @function getParams  
  * @returns {array} all paramaters for a given resource
@@ -104,7 +107,8 @@ const getParams = (resource) => {
         })
 
         // finally, store a deep clone of the params
-        D[resource].params = structuredClone(params);
+        //D[resource].params = structuredClone(params);
+        D[resource].params = clonedeep(params);
     }
 
     return D[resource].params;
@@ -263,19 +267,27 @@ const getSqlCols = (resource) => {
 //             `${p.name} ${p.sqltype}`
 //     })
 
-const _getName = (resource, col, type) => {
+const _getName = (resource, col, type, queryTerm) => {
     const table = tableFromResource(resource);
 
-    return col.alias && col.alias[type] 
-        ? col.alias[type] 
-        : `${table}.${col.name}`
+    if (col.alias && col.alias[type]) {
+        if (typeof(col.alias[type]) === 'function') {
+            return col.alias[type]();
+        }
+        else {
+            return col.alias[type];
+        }
+    }
+    else {
+        return `${table}.${col.name}`;
+    }
 }
 
 // // getSelect: the column name or expression used in a SQL query
-const getSelect = (resource, column) => {
+const getSelect = (resource, column, queryTerm) => {
     const col = getParams(resource)
         .filter(p => p.name === column)[0];
-    return _getName(resource, col, 'select');
+    return _getName(resource, col, 'select', queryTerm);
 }
 
 // // where: the column name used in the WHERE clause of a SQL query
