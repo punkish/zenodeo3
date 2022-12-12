@@ -324,7 +324,7 @@ import { dictCollectionCodes } from './collectioncodes.js';
             description: 'The full text of the material citation'
         },
         sqltype: 'TEXT',
-        cheerio: '$("materialsCitation").text()',
+        cheerio: '$("materialsCitation").text().replace(/(?:\\r\\n|\\r|\\n)/g, " ").replace(/  /g, " ").replace(/  /g, " ")',
         notQueryable: true
     },
     {

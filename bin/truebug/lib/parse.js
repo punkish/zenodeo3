@@ -1,6 +1,6 @@
 'use strict';
 
-import * as utils from './utils.js';
+import * as utils from '../../../lib/utils.js';
 
 import fs from 'fs';
 import path from 'path';
@@ -22,7 +22,7 @@ const allCols = {
     materialCitations: ddu.getSqlCols('materialCitations'),
 };
 
-const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
+const logOpts = JSON.parse(JSON.stringify(truebug.log));
 logOpts.name = 'TRUEBUG:PARSE';
 import { Zlogger } from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
@@ -247,11 +247,11 @@ const _parseFigureCitations = function($, treatmentId) {
         
         for (let i = 0; i < num; i++) {
             if (elements[i].parent.name !== 'updateHistory') {
-                const el = elements[i]
-                const fc_keys = Object.keys(el.attribs)
-                let num_of_explosions = 0
-                const cols_to_explode = {}
-                const entry = {}
+                const el = elements[i];
+                const fc_keys = Object.keys(el.attribs);
+                let num_of_explosions = 0;
+                const cols_to_explode = {};
+                const entry = {};
 
                 allCols.figureCitations.forEach(col => {
                     if (col.cheerio) {
@@ -296,7 +296,10 @@ const _parseFigureCitations = function($, treatmentId) {
 
                         entry.updateVersion = $(el).attr('updateVersion') || '';
                         entry.deleted = $(el).attr('deleted') && ($(el).attr('deleted') === 'true') ? 1 : 0;
-                        entry.fulltext = $(el).text();
+                        entry.fulltext = $(el).text()
+                            .replace(utils.re.linebreaks, ' ')
+                            .replace(utils.re.double_spc, ' ');
+
                         entries.push(entry);
                     }
                 }
@@ -308,8 +311,13 @@ const _parseFigureCitations = function($, treatmentId) {
                     entry.captionText = $(el).attr('captionText') || '';
                     entry.figureDoi = $(el).attr('figureDoi') || '';
                     entry.updateVersion = $(el).attr('updateVersion') || '';
-                    entry.deleted = $(el).attr('deleted') && ($(el).attr('deleted') === 'true') ? 1 : 0;
-                    entry.fulltext = $(el).text();
+                    entry.deleted = $(el).attr('deleted') && ($(el).attr('deleted') === 'true') 
+                        ? 1 
+                        : 0;
+                    entry.fulltext = $(el).text()
+                        .replace(utils.re.linebreaks, ' ')
+                        .replace(utils.re.double_spc, ' ');
+
                     entries.push(entry);
                 }
             }
@@ -400,7 +408,9 @@ const _parseMaterialsCitations = function($, treatmentId) {
             entry.updateVersion = $(e).attr('updateVersion') || '';
             const deleted = $(e).attr('deleted');
             entry.deleted = deleted && deleted === 'true' ? 1 : 0;
-            entry.fulltext = $(e).text();
+            entry.fulltext = $(e).text()
+                .replace(utils.re.linebreaks, ' ')
+                .replace(utils.re.double_spc, ' ');
             
             entries.push(entry);
         }
@@ -497,8 +507,6 @@ const _cheerioparse = function(xmlContent, treatmentId) {
     // const addTreatmentId = (el) => el.treatmentId = treatmentId;
 }
 
-const _treatmentIdRegex = RegExp(/[^a-zA-Z0-9]/, 'g');
-
 const parseOne = (typeOfArchive, xml) => {
     const fn = 'parseOne';
     if (!ts[fn]) return true;
@@ -506,7 +514,7 @@ const parseOne = (typeOfArchive, xml) => {
 
     const treatmentId = path.basename(xml, '.xml');
 
-    if (treatmentId.length != 32 || !_treatmentIdRegex.test(treatmentId)) {
+    if (utils.re.treatmentId.test(treatmentId)) {
         const file = `${truebug.dirs.dumps}/${typeOfArchive}/${xml}`;
         const xmlContent = fs.readFileSync(file, 'utf8');
         const treatment = _cheerioparse(xmlContent, treatmentId);

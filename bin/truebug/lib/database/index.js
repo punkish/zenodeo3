@@ -4,7 +4,6 @@ import * as utils from '../utils.js';
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
-const dbType = config.dbType;
 const truebug = config.truebug;
 const ts = truebug.steps.database;
 
@@ -19,7 +18,7 @@ import isSea from 'is-sea';
  * connect to the database
  */
 import { db, createTriggers } from '../../../../lib/dbConnect.js';
-import { dbs } from './dbs/index.js';
+import { databases } from './dbs/index.js';
 
 /**
  *   Convert an array of single treatments into a
@@ -31,27 +30,36 @@ const repackageTreatment = (treatment) => {
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
-    for (const [database, schema] of Object.entries(dbs)) {
-        if (database !== 'stats') {
-            schema.tables.forEach(t => {
-                if (truebug.runMode === 'real') {
-                    if (t.type === 'normal') {
+    if (truebug.runMode === 'real') {
 
-                        /**
-                         * note the name of the table is 'treatments' (plural) 
-                         */ 
-                        if (t.name === 'treatments') {
-                            t.data.push(treatment.treatment);
-                        }
-                        else {
-                            if (treatment[t.name].length) {
-                                t.data.push(...treatment[t.name]);
-                            }
+        /**
+         * Object.values(dbs) is [ treatments, treatmentcitations … ]
+         */
+        const dbs = databases.attached;
+        Object.values(dbs).forEach(schema => {
+
+            /**
+             * schema is { tables, indexes, triggers }
+             */
+            const tables = schema.tables;
+            tables.forEach(t => {
+                if (t.type === 'normal') {
+
+                    /**
+                     * note the name of the table is 
+                     * 'treatments' (plural) 
+                     */ 
+                    if (t.name === 'treatments') {
+                        t.data.push(treatment.treatment);
+                    }
+                    else {
+                        if (treatment[t.name].length) {
+                            t.data.push(...treatment[t.name]);
                         }
                     }
                 }
             })
-        }
+        })
     }
 }
 
@@ -65,16 +73,24 @@ const resetData = () => {
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
-    for (const [database, schema] of Object.entries(dbs)) {
-        if (database !== 'stats') {
-            schema.tables.forEach(t => {
-                if (truebug.runMode === 'real') {
-                    if (t.type === 'normal') {
-                        t.data.length = 0;
-                    }
+    if (truebug.runMode === 'real') {
+
+        /**
+         * Object.values(dbs) is [ treatments, treatmentcitations … ]
+         */
+        const dbs = databases.attached;
+        Object.values(dbs).forEach(schema => {
+
+            /**
+             * schema is { tables, indexes, triggers }
+             */
+            const tables = schema.tables;
+            tables.forEach(t => {
+                if (t.type === 'normal') {
+                    t.data.length = 0;
                 }
             })
-        }
+        })
     }
 }
 
@@ -83,37 +99,44 @@ const insertData = () => {
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
-    for (const [database, schema] of Object.entries(dbs)) {
-        if (database !== 'stats') {
-            schema.tables.forEach(t => {
-                if (truebug.runMode === 'real') {
-                    if (t.type === 'normal') {
+    if (truebug.runMode === 'real') {
 
-                        /**
-                         *   Create a transaction function that takes an 
-                         *   array of rows and inserts them in the db 
-                         *   row by row.
-                         */
-                        const insertMany = db.transaction((rows) => {
-                            for (const row of rows) {  
-                                try {
-                                    t.preparedinsert.run(row);
-                                }
-                                catch(error) {
-                                    log.error('TABLE');
-                                    log.error('-'.repeat(50));
-                                    log.error(t);
-                                    log.error(t.preparedinsert);
-                                    log.error(error);
-                                }
+        /**
+         * Object.values(dbs) is [ treatments, treatmentcitations … ]
+         */
+        const dbs = databases.attached;
+        Object.values(dbs).forEach(schema => {
+
+            /**
+             * schema is { tables, indexes, triggers }
+             */
+            const tables = schema.tables;
+            tables.forEach(t => {
+                if (t.type === 'normal') {
+                    /**
+                     * Create a transaction function that 
+                     * takes an array of rows and inserts them 
+                     * in the db row by row.
+                     */
+                     const insertMany = db.transaction((rows) => {
+                        for (const row of rows) {  
+                            try {
+                                t.preparedinsert.run(row);
                             }
-                        })
-                        
-                        insertMany(t.data);
-                    }
+                            catch(error) {
+                                log.error('TABLE');
+                                log.error('-'.repeat(50));
+                                log.error(t);
+                                log.error(t.preparedinsert);
+                                log.error(error);
+                            }
+                        }
+                    })
+                    
+                    insertMany(t.data);
                 }
             })
-        }
+        })
     }
 }
 
@@ -122,23 +145,31 @@ const insertFTS = () => {
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
-    for (const [database, schema] of Object.entries(dbs)) {
-        if (database !== 'stats') {
-            schema.tables.forEach(t => {
-                if (truebug.runMode === 'real') {
-                    if (t.type === 'virtual') {
-                        log.info(`inserting data in virtual table ${t.name}`);
+    if (truebug.runMode === 'real') {
+
+        /**
+         * Object.values(dbs) is [ treatments, treatmentcitations … ]
+         */
+        const dbs = databases.attached;
+        Object.values(dbs).forEach(schema => {
+
+            /**
+             * schema is { tables, indexes, triggers }
+             */
+            const tables = schema.tables;
+            tables.forEach(t => {
+                if (t.type === 'virtual') {
+                    log.info(`inserting data in virtual table ${t.name}`);
         
-                        try {
-                            t.preparedinsert.run({maxrowid: t.maxrowid});
-                        }
-                        catch(error) {
-                            log.error(error);
-                        }
+                    try {
+                        t.preparedinsert.run({maxrowid: t.maxrowid});
+                    }
+                    catch(error) {
+                        log.error(error);
                     }
                 }
             })
-        }
+        })
     }
 }
 
@@ -147,24 +178,32 @@ const insertDerived = () => {
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
-    for (const [database, schema] of Object.entries(dbs)) {
-        if (database !== 'stats') {
-            schema.tables.forEach(t => {
-                if (truebug.runMode === 'real') {
-                    if (t.type === 'derived') {
-                        log.info(`inserting data in derived table ${t.name}`);
+    if (truebug.runMode === 'real') {
 
-                        try {
-                            //t.preparedinsert.run({maxrowid: t.maxrowid});
-                            t.preparedinsert.run();
-                        }
-                        catch(error) {
-                            log.error(error);
-                        }
+        /**
+         * Object.values(dbs) is [ treatments, treatmentcitations … ]
+         */
+        const dbs = databases.attached;
+        Object.values(dbs).forEach(schema => {
+
+            /**
+             * schema is { tables, indexes, triggers }
+             */
+            const tables = schema.tables;
+            tables.forEach(t => {
+                if (t.type === 'derived') {
+                    log.info(`inserting data in derived table ${t.name}`);
+
+                    try {
+                        //t.preparedinsert.run({maxrowid: t.maxrowid});
+                        t.preparedinsert.run();
+                    }
+                    catch(error) {
+                        log.error(error);
                     }
                 }
             })
-        }
+        })
     }
 }
 
@@ -174,19 +213,27 @@ const dropIndexes = () => {
     utils.incrementStack(logOpts.name, fn);
 
     log.info('dropping indexes');
-    for (const [database, schema] of Object.entries(dbs)) {
-        if (database !== 'stats') {
-            schema.indexes.forEach(i => {
-                if (truebug.runMode === 'real') {
-                    const ix = i.name.match(/\w+\.ix_\w+/);
-                        
-                    if (ix) {
-                        const idx = ix[0];
-                        db.prepare(`DROP INDEX IF EXISTS ${idx}`).run();
-                    }
+    if (truebug.runMode === 'real') {
+
+        /**
+         * Object.values(dbs) is [ treatments, treatmentcitations … ]
+         */
+        const dbs = databases.attached;
+        Object.values(dbs).forEach(schema => {
+
+            /**
+             * schema is { tables, indexes, triggers }
+             */
+            const indexes = schema.tables;
+            indexes.forEach(i => {
+                const ix = i.name.match(/\w+\.ix_\w+/);
+                    
+                if (ix) {
+                    const idx = ix[0];
+                    db.prepare(`DROP INDEX IF EXISTS ${idx}`).run();
                 }
             })
-        }
+        })
     }
 }
 
@@ -195,21 +242,29 @@ const buildIndexes = () => {
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
-    for (const [database, schema] of Object.entries(dbs)) {
-        if (database !== 'stats') {
-            schema.indexes.forEach(i => {
-                if (truebug.runMode === 'real') {
-                    log.info(`building index ${i.name}`);
-                    try {
-                        db.prepare(i.create).run();
-                    }
-                    catch(error) {
-                        console.log(error);
-                        console.log(error.stack);
-                    }
+    if (truebug.runMode === 'real') {
+
+        /**
+         * Object.values(dbs) is [ treatments, treatmentcitations … ]
+         */
+        const dbs = databases.attached;
+        Object.values(dbs).forEach(schema => {
+
+            /**
+             * schema is { tables, indexes, triggers }
+             */
+            const indexes = schema.tables;
+            indexes.forEach(i => {
+                log.info(`building index ${i.name}`);
+                try {
+                    db.prepare(i.create).run();
+                }
+                catch(error) {
+                    console.log(error);
+                    console.log(error.stack);
                 }
             })
-        }
+        })
     }
 }
 
@@ -218,9 +273,7 @@ const selCountOfTreatments = () => {
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
-    const sql = dbType === 'consolidated'
-        ? 'SELECT Count(*) AS c FROM treatments'
-        : 'SELECT Count(*) AS c FROM tr.treatments';
+    const sql = 'SELECT Count(*) AS c FROM tr.treatments';
 
     log.info('Getting count of treatments already in the db… ', 'start');
     const num = db.prepare(sql).get().c;
@@ -232,34 +285,8 @@ const _selMaxrowidVirtualTable = (table, alias) => {
     const fn = '_selMaxrowidVirtualTable';
     utils.incrementStack(logOpts.name, fn);
 
-    const sql = dbType === 'consolidated'
-        ? `SELECT Max(rowid) AS c FROM ${table}`
-        : `SELECT Max(rowid) AS c FROM ${alias}.${table}`;
-
+    const sql = `SELECT Max(rowid) AS c FROM ${alias}.${table}`;
     return db.prepare(sql).get().c;
-}
-
-const storeMaxrowid = () => {
-    const fn = 'storeMaxrowid';
-    if (!ts[fn]) return;
-    utils.incrementStack(logOpts.name, fn);
-
-    dbs.treatments.tables.forEach(t => {
-        if (truebug.runMode === 'real') {
-            if (t.type === 'virtual') {
-                const maxrowid = _selMaxrowidVirtualTable(t.name, t.alias) || 0;
-                log.info(`storing maxrowid ${maxrowid} of the virtual table ${t.name}`);
-
-                t.maxrowid = maxrowid;
-            }
-            // else if (t.type === 'derived') {
-            //     const maxrowid = selMaxrowidDerivedTable(t.name) || 0;
-            //     log.info(`storing maxrowid ${maxrowid} of the derived table ${t.name}`);
-
-            //     t.maxrowid = maxrowid;
-            // }
-        }
-    })
 }
 
 const getLastUpdate = (typeOfArchive) => {
@@ -294,7 +321,11 @@ const insertStats = (stats) => {
     log.info(`inserting ${stats.process} stats`);
 
     if (truebug.runMode === 'real') {
-        db.prepare(dbs.stats.tables[0].insert).run(stats);
+        const table = databases.main.z3
+            .tables
+            .filter(t => t.name === 'etlstats')[0];
+            
+        db.prepare(table.insert).run(stats);
     }
 }
 
@@ -468,7 +499,6 @@ export {
     dropIndexes,
     buildIndexes,
     selCountOfTreatments,
-    storeMaxrowid,
     getLastUpdate,
     insertStats,
     getDaysSinceLastEtl,

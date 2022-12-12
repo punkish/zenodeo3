@@ -143,7 +143,7 @@ const etl = (typeOfArchive, remoteArchive) => {
 
     log.info(`starting a ${typeOfArchive.toUpperCase()} process`);
 
-    database.storeMaxrowid();
+    //database.storeMaxrowid();
     database.dropIndexes();
 
     const stats = {
@@ -174,24 +174,26 @@ const etl = (typeOfArchive, remoteArchive) => {
     stats.download.started = started;
     stats.download.ended = ended;
     stats.download.numOfFiles = numOfFiles;
+    let duration = stats.download.ended - stats.download.started;
 
     log.info('-'.repeat(80));
-    log.info(`DOWNLOAD took: ${stats.download.ended - stats.download.started} ms`);
+    log.info(`DOWNLOAD took: ${duration} ms`);
 
     /** 
      * start ETL
      */
+    stats.etl = {
+        started: new Date().getTime(),
+        timeOfArchive,
+        typeOfArchive,
+        sizeOfArchive,
+        numOfFiles: null,
+        ended: 0
+    }
+
     if (stats.download.numOfFiles) {
         const files = preflight.filesExistInDump(typeOfArchive);
         log.info(`${files.length} files exist in dump… let's ETL them`);
-
-        stats.etl = {
-            started: new Date().getTime(),
-            timeOfArchive,
-            typeOfArchive,
-            sizeOfArchive,
-            numOfFiles: null
-        }
 
         processFiles(typeOfArchive, files);
         
@@ -216,9 +218,16 @@ const etl = (typeOfArchive, remoteArchive) => {
         });
 
     log.info('-'.repeat(80));
-    const took = stats.etl.ended - stats.etl.started;
-    const mspf = (took / stats.download.numOfFiles).toFixed(2);
-    log.info(`ETL took: ${took} ms = (${mspf} ms/file)`);
+    
+    let took = 0;
+    duration = 0;
+
+    if (stats.download.numOfFiles) {
+        took = stats.etl.ended - stats.etl.started;
+        duration = (took / stats.download.numOfFiles).toFixed(2)
+    }
+
+    log.info(`ETL took: ${took} ms = (${duration} ms/file)`);
     log.info('TRUEBUG DONE');
     log.info('='.repeat(80));
 
@@ -374,7 +383,7 @@ index.js --run=etl --source=xml         // use a single XML as a source
             preflight.checkDir(typeOfArchive, true);
             preflight.copyXmlToDump(typeOfArchive, xml);
 
-            const treatment = parse.parseOne(xml);
+            const treatment = parse.parseOne(typeOfArchive, xml);
             console.log(treatment);
         }
         else {

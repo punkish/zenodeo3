@@ -396,7 +396,7 @@ const dictionary = [
             description: 'The full text of the treatment',
         },
         sqltype: 'TEXT',
-        cheerio: '$("treatment").text()',
+        cheerio: '$("treatment").text().replace(/(?:\\r\\n|\\r|\\n)/g, " ").replace(/  /g, " ").replace(/  /g, " ")',
         notDefaultCol: true,
         notQueryable: true
     },

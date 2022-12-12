@@ -54,7 +54,7 @@ const copyXmlToDump = (typeOfArchive, xml) => {
     const srcPath = utils.pathToXml(xml);
     const src = `${srcPath}/${xml}`;
     const tgt = `${truebug.dirs.dumps}/${typeOfArchive}/${xml}`;
-
+    
     if (truebug.runMode === 'real') {
         fs.copyFileSync(src, tgt);
     }

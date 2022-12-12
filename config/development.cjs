@@ -1,6 +1,6 @@
 const path = require('path');
 const cwd = process.cwd();
-const dataDir = path.join(cwd, '..', 'data');
+const dataDir = path.join(cwd, 'data');
 
 module.exports = {
 
@@ -60,49 +60,28 @@ module.exports = {
     "isDebug": true,
     "useGot": false,
 
-    "db": {
-        "treatments-testing": path.join(dataDir, 'treatments-testing.sqlite'),
-        "treatments": {
-
-            /**
-             * consolidaed database with all the tables within
-             */
-            "consolidated": path.join(dataDir, 'z3-consolidated.sqlite'),
-
-            /**
-             * separate databases, one for each table, all stored within 
-             * a single 'z3' directory. The databases are ATTACHed before use
-             */
-            "exploded": path.join(dataDir, 'z3.sqlite')
-        },
-
-        /**
-         * exploded databases to be attached to the main z3 entry point
-         */
-        "treatmentParts": {
-            "tr": path.join(dataDir, 'z3', 'treatments.sqlite'),
-            "ti": path.join(dataDir, 'z3', 'treatmentimages.sqlite'),
-            "ta": path.join(dataDir, 'z3', 'treatmentauthors.sqlite'),
-            "tc": path.join(dataDir, 'z3', 'treatmentcitations.sqlite'),
-            "mc": path.join(dataDir, 'z3', 'materialcitations.sqlite'),
-            "fc": path.join(dataDir, 'z3', 'figurecitations.sqlite'),
-            "bc": path.join(dataDir, 'z3', 'bibrefcitations.sqlite'),
-        },
-
-        /**
-         * supporting databases
-         */
-        "supporting": {
-            "gb": path.join(dataDir, 'z3-gbifcollections.sqlite'),
-            "fa": path.join(dataDir, 'z3-facets.sqlite'),
-        }
-    },
+    "dataDir": "data",
 
     /**
-     * consolidated or exploded or both types of databases
+     * separate databases, one for each table, all stored within 
+     * a single 'z3' directory. The databases are ATTACHed before use
      */
-    // "dbType": "consolidated", 
-    "dbType": "exploded", 
+    "db": {
+        "main": {
+            "z3": path.join(dataDir, 'z3', 'z3.sqlite')
+        },
+        "attached": {
+            "tr": path.join(dataDir, 'z3', 'attached', 'treatments.sqlite'),
+            "ti": path.join(dataDir, 'z3', 'attached', 'treatmentimages.sqlite'),
+            "ta": path.join(dataDir, 'z3', 'attached', 'treatmentauthors.sqlite'),
+            "tc": path.join(dataDir, 'z3', 'attached', 'treatmentcitations.sqlite'),
+            "mc": path.join(dataDir, 'z3', 'attached', 'materialcitations.sqlite'),
+            "fc": path.join(dataDir, 'z3', 'attached', 'figurecitations.sqlite'),
+            "bc": path.join(dataDir, 'z3', 'attached', 'bibrefcitations.sqlite'),
+            "gb": path.join(dataDir, 'z3', 'attached', 'gbifcollections.sqlite'),
+            "fa": path.join(dataDir, 'z3', 'attached', 'facets.sqlite')
+        }
+    },
 
     "cache": {
         "on": true,
@@ -121,9 +100,8 @@ module.exports = {
             "dir": path.join(cwd, 'bin/truebug/logs')
         },
 
-        //"runMode": 'test', // test data (small sample ~10K records)
-        //"runMode": 'real', // real data
-        "runMode": "real",     // simulated run, no data changed
+        //"runMode": 'test', // simulated
+        "runMode": 'real',   // real data
 
         /**
          * server where the data are stored 
@@ -179,8 +157,10 @@ module.exports = {
             "monthly": path.join(dataDir, 'treatments-dumps', 'monthly'),
             "weekly" : path.join(dataDir, 'treatments-dumps', 'weekly'),
             "daily"  : path.join(dataDir, 'treatments-dumps', 'daily'),
+            "singles": path.join(dataDir, 'treatments-dumps', 'singles'),
             "old"    : path.join(dataDir, 'treatments-dump-old'),
             "archive": path.join(dataDir, 'treatments-archive'),
+            "zips"   : path.join(dataDir, 'zips'),
             "z3"     : path.join(dataDir, 'z3')
         },
 
