@@ -1,4 +1,9 @@
 module.exports = {
+    "schemes": [ "https" ],
+    "url": {
+        "zenodeo": "test.zenodeo.org",
+        "swagger": "test.zenodeo.org"
+    },
 
     /** 
      * log only errors
@@ -12,5 +17,14 @@ module.exports = {
     /** 
      * don't add debug info to results 
      */
-    "isDebug": false
+    "isDebug": false,
+
+    "cache": {
+        "on": true,
+
+        /** 
+         * set default cache duration to 7 days
+         */ 
+        "ttl": 7 * 24 * 60 * 60 * 1000 
+    },
 }
