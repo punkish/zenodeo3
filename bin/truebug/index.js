@@ -8,6 +8,7 @@ import * as postflight from './lib/postflight.js';
 import * as download from './lib/download.js';
 import * as database from './lib/database/index.js';
 import * as parse from './lib/parse.js';
+import { db, createTriggers } from '../../lib/dbConnect.js';
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
@@ -285,7 +286,12 @@ const update = async (archiveTypes, fullFlag) => {
                 database.updateIsOnLand();
             }
             
-            database.createTriggers();
+            /**
+             * Now that the full load has been completed, we can create 
+             * triggers for automatic updates of records without slowing 
+             * down the insert process too much
+             */
+            createTriggers(db);
         }
     }
     else {

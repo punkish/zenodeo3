@@ -17,7 +17,7 @@ import isSea from 'is-sea';
 /** 
  * connect to the database
  */
-import { db, createTriggers } from '../../../../lib/dbConnect.js';
+import { db } from '../../../../lib/dbConnect.js';
 import { databases } from './dbs/index.js';
 
 /**
@@ -504,6 +504,5 @@ export {
     getDaysSinceLastEtl,
     getCounts,
     getArchiveUpdates,
-    updateIsOnLand,
-    createTriggers
+    updateIsOnLand
 }
