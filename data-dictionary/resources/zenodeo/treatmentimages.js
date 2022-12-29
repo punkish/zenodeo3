@@ -108,7 +108,31 @@ const dictionary = [
         }
     },
     {
+        name: 'authorityName',
+        dict: dictTreatments,
+        alias: {
+            select: 'tr.treatments.authorityName',
+            where : 'tr.treatments.authorityName'
+        },
+        joins: {
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+        }
+    },
+    {
         name: 'journalTitle',
+        dict: dictTreatments,
+        alias: {
+            select: 'tr.treatments.journalTitle',
+            where : 'tr.treatments.journalTitle'
+        },
+        joins: {
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+        }
+    },
+    {
+        name: 'journalYear',
         dict: dictTreatments,
         alias: {
             select: 'tr.treatments.journalTitle',
@@ -185,7 +209,43 @@ const dictionary = [
             description: 'The higher category of the taxonomicName',
         },
         sqltype: 'TEXT',
-        cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("family")',
+        cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("order")',
+        joins: {
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+        }
+    },
+    {
+        name: 'genus',
+        dict: dictTreatments,
+        alias: {
+            select: 'tr.treatments.genus',
+            where : 'tr.treatments.genus'
+        },
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("genus")',
+        joins: {
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+        }
+    },
+    {
+        name: 'species',
+        dict: dictTreatments,
+        alias: {
+            select: 'tr.treatments.species',
+            where : 'tr.treatments.species'
+        },
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
+        sqltype: 'TEXT',
+        cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("species")',
         joins: {
             select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
             where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]

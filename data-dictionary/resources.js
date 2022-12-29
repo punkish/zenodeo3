@@ -7,7 +7,15 @@ import { dictBibRefCitations } from './resources/zenodeo/bibrefcitations.js';
 import { dictFigureCitations } from './resources/zenodeo/figurecitations.js';
 import { dictTreatmentImages } from './resources/zenodeo/treatmentimages.js';
 import { dictCollectionCodes } from './resources/zenodeo/collectioncodes.js';
+import { dictPhyla } from './resources/zenodeo/phyla.js';
+import { dictClasses } from './resources/zenodeo/classes.js';
+import { dictOrders } from './resources/zenodeo/orders.js';
 import { dictFamilies } from './resources/zenodeo/families.js';
+import { dictGenera } from './resources/zenodeo/genera.js';
+import { dictSpecies } from './resources/zenodeo/species.js';
+import { dictTaxa } from './resources/zenodeo/taxa.js';
+import { dictKeywords } from './resources/zenodeo/keywords.js';
+import { dictAuthors } from './resources/zenodeo/authors.js';
 import { dictImages } from './resources/zenodo/images.js';
 import { dictPublications } from './resources/zenodo/publications.js';
 
@@ -113,12 +121,92 @@ export const resources = [
         tags: [ 'zenodeo' ]
     },
     {
+        title: 'Phyla',
+        name: 'phyla',
+        alias: 'fa',
+        summary: 'Fetches phyla',
+        description: "…",
+        dictionary: dictPhyla,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+    {
+        title: 'Classes',
+        name: 'classes',
+        alias: 'fa',
+        summary: 'Fetches classes',
+        description: "…",
+        dictionary: dictClasses,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+    {
+        title: 'Orders',
+        name: 'orders',
+        alias: 'fa',
+        summary: 'Fetches orders',
+        description: "…",
+        dictionary: dictOrders,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+    {
         title: 'Families',
         name: 'families',
         alias: 'fa',
         summary: 'Fetches families',
         description: "…",
         dictionary: dictFamilies,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+    {
+        title: 'Genera',
+        name: 'genera',
+        alias: 'fa',
+        summary: 'Fetches genera',
+        description: "…",
+        dictionary: dictGenera,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+    {
+        title: 'Species',
+        name: 'species',
+        alias: 'fa',
+        summary: 'Fetches species',
+        description: "…",
+        dictionary: dictSpecies,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+    {
+        title: 'Taxa',
+        name: 'taxa',
+        alias: 'fa',
+        summary: 'Fetches taxon',
+        description: "…",
+        dictionary: dictTaxa,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+    {
+        title: 'Keywords',
+        name: 'keywords',
+        alias: 'fa',
+        summary: 'Fetches keywords',
+        description: "…",
+        dictionary: dictKeywords,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+    {
+        title: 'Authors',
+        name: 'authors',
+        alias: 'fa',
+        summary: 'Fetches authors',
+        description: "…",
+        dictionary: dictAuthors,
         source: 'zenodeo',
         tags: [ 'zenodeo' ]
     },
