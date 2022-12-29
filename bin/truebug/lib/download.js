@@ -57,7 +57,7 @@ const unzip = function(typeOfArchive) {
     const started = new Date().getTime();
     let numOfFiles = 0;
 
-    const archive = `${truebug.dirs.data}/${truebug.download[typeOfArchive]}`;
+    const archive = `${truebug.dirs.zips}/${truebug.download[typeOfArchive]}`;
     const targetDir = truebug.dirs[typeOfArchive];
 
     /**
@@ -107,7 +107,7 @@ const download = (source) => {
      * source is one of 'daily', 'weekly', 'monthly' or 'full' 
      */
     const archive = truebug.download[source];
-    const local = `${truebug.dirs.data}/${archive}`;
+    const local = `${truebug.dirs.zips}/${archive}`;
     const server = `${truebug.server.hostname}/${truebug.server.path}`;
     const remote = `${server}/${archive}`;
     

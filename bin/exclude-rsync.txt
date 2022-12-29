@@ -2,3 +2,5 @@
 treatments-dumps
 treatments-archive
 z3-bak
+zips
+logs
