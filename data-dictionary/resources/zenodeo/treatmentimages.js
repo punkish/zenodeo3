@@ -144,6 +144,22 @@ const dictionary = [
         }
     },
     {
+        name: 'kingdom',
+        dict: dictTreatments,
+        alias: {
+            select: 'tr.treatments.kingdom',
+            where : 'tr.treatments.kingdom'
+        },
+        schema: {
+            type: 'string',
+            description: 'The higher category of the taxonomicName',
+        },
+        joins: {
+            select: [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ],
+            where : [ 'JOIN tr.treatments ON ti.treatmentImages.treatmentId = tr.treatments.treatmentId' ]
+        }
+    },
+    {
         name: 'phylum',
         dict: dictTreatments,
         alias: {
