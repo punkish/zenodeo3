@@ -7,6 +7,7 @@ import { dictBibRefCitations } from './resources/zenodeo/bibrefcitations.js';
 import { dictFigureCitations } from './resources/zenodeo/figurecitations.js';
 import { dictTreatmentImages } from './resources/zenodeo/treatmentimages.js';
 import { dictCollectionCodes } from './resources/zenodeo/collectioncodes.js';
+import { dictKingdoms } from './resources/zenodeo/kingdoms.js';
 import { dictPhyla } from './resources/zenodeo/phyla.js';
 import { dictClasses } from './resources/zenodeo/classes.js';
 import { dictOrders } from './resources/zenodeo/orders.js';
@@ -117,6 +118,16 @@ export const resources = [
         summary: 'Fetches collection codes',
         description: "…",
         dictionary: dictCollectionCodes,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+    {
+        title: 'Kingdoms',
+        name: 'kingdoms',
+        alias: 'fa',
+        summary: 'Fetches kingdoms',
+        description: "…",
+        dictionary: dictKingdoms,
         source: 'zenodeo',
         tags: [ 'zenodeo' ]
     },

@@ -6,6 +6,7 @@ import { route as bibRefCitations } from './zenodeo/bibrefcitations.js';
 import { route as figureCitations } from './zenodeo/figurecitations.js';
 import { route as treatmentImages } from './zenodeo/treatmentimages.js';
 import { route as collectionCodes } from './zenodeo/collectioncodes.js';
+import { route as kingdoms } from './zenodeo/kingdoms.js';
 import { route as phyla } from './zenodeo/phyla.js';
 import { route as classes } from './zenodeo/classes.js';
 import { route as orders } from './zenodeo/orders.js';
@@ -83,6 +84,7 @@ export const routes = [
     figureCitations,
     treatmentImages,
     collectionCodes,
+    kingdoms,
     phyla,
     classes,
     orders,
