@@ -5,7 +5,10 @@ import * as utils from '../../../lib/utils.js';
 import fs from 'fs';
 import path from 'path';
 //import isSea from 'is-sea';
+
+// see https://github.com/cheeriojs/cheerio/issues/2786#issuecomment-1288843071
 import * as cheerio from 'cheerio';
+
 import Chance from 'chance';
 const chance = Chance();
 
@@ -15,6 +18,8 @@ const truebug = config.truebug;
 const ts = truebug.steps.parse;
 
 import { ddu } from '../../../data-dictionary/dd-utils.js';
+
+// get and cache allCols for later use
 const allCols = {
     treatments: ddu.getSqlCols('treatments'),
     bibRefCitations: ddu.getSqlCols('bibRefCitations'),
@@ -37,6 +42,7 @@ const stats = {
 
 const calcStats = (treatment) => {
     const fn = 'calcStats';
+
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
@@ -179,8 +185,6 @@ const _parse = function($, part, parts, partId, treatmentId) {
     const num = elements.length;
     let entries = [];
 
-    //const allCols = ddu.getSqlCols(parts)
-
     if (num) {
         for (let i = 0; i < num; i++) {
             const e = elements[i]
@@ -243,7 +247,6 @@ const _parseFigureCitations = function($, treatmentId) {
     const num = elements.length
 
     if (num) {
-        //const allCols = ddu.getSqlCols('figureCitations')
         
         for (let i = 0; i < num; i++) {
             if (elements[i].parent.name !== 'updateHistory') {
@@ -327,12 +330,6 @@ const _parseFigureCitations = function($, treatmentId) {
     return entries
 }
 
-// const isValidGeo = (latitude, longitude) => {
-//     const latIsGood = isFinite(latitude) && Math.abs(latitude) <= 90;
-//     const lngIsGood = isFinite(longitude) && Math.abs(longitude) <= 180;
-//     return latIsGood && lngIsGood ? 1 : 0;
-// }
-
 // const isOnLand = (latitude, longitude) => {
 //     if (isValidGeo(latitude, longitude)) {
 //         return isSea(latitude, longitude) ? 0 : 1;
@@ -361,7 +358,6 @@ const _parseMaterialsCitations = function($, treatmentId) {
      * for historical reasons, the xml tag is 'materialsCitation', 
      * hence the db table definitions use 'materialsCitation'
      */
-    //const allCols = ddu.getSqlCols('materialCitations')
 
     if (num) {
         for (let i = 0; i < num; i++) {
@@ -434,7 +430,6 @@ const _parseTreatment = function($, treatmentId) {
 
     const treatment = {};
     
-    //const allCols = ddu.getSqlCols('treatments');
     allCols.treatments.forEach(el => {
         
         if (el.cheerio) {

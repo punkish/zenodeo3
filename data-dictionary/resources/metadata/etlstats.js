@@ -54,12 +54,59 @@ export const dictEtlStats = [
         sqltype: 'INTEGER'
     },
     {
-        name: 'result',
+        name: 'sizeOfArchive',
         schema: { 
-            type: 'string', 
-            enum: [ 'full', 'monthly', 'weekly', 'daily' ],
-            description: 'Result of the process (in JSON format)'
+            type: 'integer', 
+            description: 'Size of the archive in kilobytes'
         },
-        sqltype: 'TEXT'
+        sqltype: 'INTEGER'
+    },
+    {
+        name: 'numOfFiles',
+        schema: { 
+            type: 'integer', 
+            description: 'files downloaded in the archive'
+        },
+        sqltype: 'INTEGER'
+    },
+    {
+        name: 'treatments',
+        schema: { 
+            type: 'integer', 
+            description: 'Number of treatments in the archive'
+        },
+        sqltype: 'INTEGER'
+    },
+    {
+        name: 'treatmentCitations',
+        schema: { 
+            type: 'integer', 
+            description: 'Number of treatmentCitations in the archive'
+        },
+        sqltype: 'INTEGER'
+    },
+    {
+        name: 'materialsCitations',
+        schema: { 
+            type: 'integer', 
+            description: 'Number of materialsCitations in the archive'
+        },
+        sqltype: 'INTEGER'
+    },
+    {
+        name: 'figureCitations',
+        schema: { 
+            type: 'integer', 
+            description: 'Number of figureCitations in the archive'
+        },
+        sqltype: 'INTEGER'
+    },
+    {
+        name: 'bibRefCitations',
+        schema: { 
+            type: 'integer', 
+            description: 'Number of bibRefCitations in the archive'
+        },
+        sqltype: 'INTEGER'
     }
 ]
