@@ -8,11 +8,9 @@ import fastifyStatic from '@fastify/static';
  *
  * @see https://github.com/fastify/fastify-static
  */
- const options = {
-    root: path.join(cwd(), 'public'),
-    prefix: '/public/'
-};
-
 export const plugin = fp(async function(fastify, opts) {
-    fastify.register(fastifyStatic, options);
+    fastify.register(fastifyStatic, {
+        root: path.join(cwd(), 'public'),
+        prefix: '/public/'
+    });
 })

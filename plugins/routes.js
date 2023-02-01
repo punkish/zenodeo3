@@ -9,8 +9,6 @@ import routes from '@fastify/routes';
  *
  * @see https://github.com/fastify/fastify-routes
  */
-const options = {};
-
- export const plugin = fp(async function(fastify, opts) {
-    fastify.register(routes, options);
+export const plugin = fp(async function(fastify, opts) {
+    fastify.register(routes, {});
 })

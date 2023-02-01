@@ -7,8 +7,6 @@ import favicon from 'fastify-favicon';
  *
  * @see https://github.com/smartiniOnGitHub/fastify-favicon
  */
-const options = {};
-
 export const plugin = fp(async function(fastify, opts) {
-    fastify.register(favicon, options);
+    fastify.register(favicon, {});
 })

@@ -12,10 +12,12 @@ const config = new Config().settings;
 import { server } from './app.js';
 
 const coerceToArray = (request, param) => {
+
     if (typeof request.query[param] === 'string') {
         const arr = request.query[param].split(',');
         request.query[param] = arr;
     }
+    
 }
 
 /**
@@ -75,7 +77,5 @@ const start = async () => {
     }
 };
 
-/**
- * Start the server!
-**/
+// Start the server!
 start();

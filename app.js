@@ -9,16 +9,14 @@ import { plugin as fastifyStatic } from './plugins/static.js';
 import { plugin as view } from './plugins/view.js';
 import { plugin as cron } from './plugins/cron.js';
 
-import { route as tos } from './routes/tos/index.js';
-import { route as docs } from './routes/docs/index.js';
-import * as api from './routes/api/index.js';
+import { tos } from './routes/tos/index.js';
+import { docs } from './routes/docs/index.js';
+import { routes as resources } from './routes/api/index.js';
 
 export async function server(opts={}) {
     const fastify = Fastify(opts);
 
-    /** 
-     * register plugins
-     */ 
+    // register the plugins
     fastify.register(favicon);
     fastify.register(cors);
     fastify.register(sensible);
@@ -28,12 +26,10 @@ export async function server(opts={}) {
     fastify.register(view);
     fastify.register(cron);
 
-    /**
-     * register the routes to resources
-     */ 
+    // register the routes to resources
     fastify.register(tos);
     fastify.register(docs);
-    api.routes.forEach(route => fastify.register(route, { prefix: 'v3' }));
+    resources.forEach(resource => fastify.register(resource, { prefix: 'v3' }));
     
     return fastify;
 }

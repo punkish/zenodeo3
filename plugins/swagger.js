@@ -12,7 +12,7 @@ import fastifySwaggerUi from '@fastify/swagger-ui'
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
-//const host = config.port ? `${config.address}:${config.port}` : config.address;
+
 const options = {
 
     //routePrefix: '/',

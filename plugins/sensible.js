@@ -6,10 +6,6 @@ import sensible from '@fastify/sensible';
  *
  * @see https://github.com/fastify/fastify-sensible
  */
-const options = {
-    errorHandler: true
-};
-
 export const plugin = fp(async function(fastify, opts) {
-    fastify.register(sensible, options);
+    fastify.register(sensible, { errorHandler: true });
 })
