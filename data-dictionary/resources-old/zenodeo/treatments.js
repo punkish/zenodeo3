@@ -4,36 +4,54 @@ import { dictFigureCitations } from './figurecitations.js';
 import { dictCollectionCodes } from './collectioncodes.js';
 
 const datePattern = utils.getPattern('date');
+
 /** 
  * first we define all the params corresponding to the columns in the 
  * treatments table
  */
 const dictionary = [
     {
+        name: 'id',
+        schema: {},
+        sql: {
+            type: 'INTEGER PRIMARY KEY',
+            desc: 'PK'
+        },
+        notDefaultCol: true,
+        notQueryable: true
+    },
+    {
         name: 'treatmentId',
         schema: { 
             type: 'string', 
             maxLength: 32, 
             minLength: 32,
-            description: `The unique ID of the treatment. Has to be a 32 character string:
+            description: `Has to be a 32 character string:
 - \`treatmentId=388D179E0D564775C3925A5B93C1C407\``,
         },
         isResourceId: true,
-        sqltype: 'TEXT NOT NULL UNIQUE',
+        sql: {
+            desc: 'The unique resourceId of the treatment',
+            type: 'TEXT NOT NULL UNIQUE CHECK(Length(treatmentId = 32))'
+        },
         cheerio: '$("document").attr("docId")'
     },
     {
         name: 'treatmentTitle',
         schema: { 
             type: 'string',
-            description: `Title of the treatment. Can use the following syntax:
+            description: `Can use the following syntax:
 - \`treatmentTitle=Ichneumonoidea (Homolobus) Foerster 1863\`
 - \`treatmentTitle=starts_with(Ichneumonoidea)\`
 - \`treatmentTitle=ends_with(Foerster 1863)\`
 - \`treatmentTitle=contains(Homolobus)\`
   **Note:** queries involving inexact matches will be considerably slow`
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'Title of the treatment',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("document").attr("docTitle")',
         defaultOp: 'starts_with'
     },
@@ -41,9 +59,13 @@ const dictionary = [
         name: 'treatmentVersion',
         schema: { 
             type: 'integer',
-            description: 'The version of the treatment (might be lower than the version of the parent article, as not all treatments change in each new version of the article).'
+            description: 'Might be lower than the version of the parent article, as not all treatments change in each new version of the article.'
         },
-        sqltype: 'INTEGER',
+        sql: {
+            desc: 'The version of the treatment',
+            type: 'INTEGER'
+        },
+        //sqltype: 'INTEGER',
         cheerio: '$("document").attr("docVersion")',
         notDefaultCol: true
     },
@@ -51,29 +73,41 @@ const dictionary = [
         name: 'treatmentDOI',
         schema: { 
             type: 'string',
-            description: `DOI of the treatment (for example, "10.5281/zenodo.275008"):
+            description: `For example:
 - \`doi=10.5281/zenodo.275008\``
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'DOI of the treatment',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("treatment").attr("ID-DOI")',
     },
     {
         name: 'treatmentLSID',
         schema: { 
             type: 'string',
-            description: `LSID of the treatment (for example, "urn:lsid:plazi:treatment:000B06B02350EF7F0E538C1045DA36A8"):
-- \`lsidurn:lsid:plazi:treatment:000B06B02350EF7F0E538C1045DA36A8\``
+            description: `For example:
+- \`lsid=urn:lsid:plazi:treatment:000B06B02350EF7F0E538C1045DA36A8\``
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'LSID of the treatment',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("treatment").attr("LSID")',
     },
     {
         name: 'zenodoDep',
         schema: {
-            type: 'string',
-            description: 'Zenodo record of the journal article'
+            type: 'integer',
+            description: ''
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'Zenodo deposition number',
+            type: 'INTEGER'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("document").attr("ID-Zenodo-Dep")',
         notQueryable: true
     },
@@ -81,9 +115,13 @@ const dictionary = [
         name: 'zoobankId',
         schema: {
             type: 'string',
-            description: 'ZooBank ID of the journal article'
+            description: ''
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'ZooBank ID of the journal article',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("document").attr("ID-ZooBank")',
         notQueryable: true
     },
@@ -93,24 +131,32 @@ const dictionary = [
             type: 'string', 
             maxLength: 32, 
             minLength: 32,
-            description: `The unique ID of the article. Has to be a 32 character string:
+            description: `Has to be a 32 character string:
 - \`articleId=8F39FF8A1E18FF9AFFF6FFB2FFEC6749\``
         },
-        sqltype: 'TEXT NOT NULL',
+        sql: {
+            desc: 'The unique ID of the article',
+            type: 'TEXT NOT NULL'
+        },
+        //sqltype: 'TEXT NOT NULL',
         cheerio: '$("document").attr("masterDocId")',
     },
     {
         name: 'articleTitle',
         schema: { 
             type: 'string',
-            description: `The article in which the treatment was published. Can use the following syntax:
+            description: `Can use the following syntax:
 - \`articleTitle=Checklist of British and Irish Hymenoptera - Braconidae\`
 - \`articleTitle=starts_with(Checklist)\`
 - \`articleTitle=ends_with(Braconidae)\`
 - \`articleTitle=contains(British and Irish)\`
   **Note:** queries involving inexact matches will be considerably slow`
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The article in which the treatment was published',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("document").attr("masterDocTitle")',
         defaultOp: 'starts_with'
     },
@@ -118,14 +164,18 @@ const dictionary = [
         name: 'articleAuthor',
         schema: { 
             type: 'string',
-            description: `The author of the article in which the treatment was published. Unless there is a nomenclature act, this is also the author of the treatment (there only is a nomenclature act if there is a taxonomicNameLabel in the "nomenclature" subSubSection, in which case the treatment authors are to be taken from the authorityName attribute of the first taxonomicName in the "nomenclature" subSubSection … and if said attribute is absent, the treatment author defaults to this field). Can use the following syntax:
+            description: `Unless there is a nomenclature act, this is also the author of the treatment (there only is a nomenclature act if there is a taxonomicNameLabel in the "nomenclature" subSubSection, in which case the treatment authors are to be taken from the authorityName attribute of the first taxonomicName in the "nomenclature" subSubSection … and if said attribute is absent, the treatment author defaults to this field). Can use the following syntax:
 - \`articleAuthor=Kronestedt, Torbjörn &amp; Marusik, Yuri M.\`
 - \`articleAuthor=starts_with(Kronestedt)\`
 - \`articleAuthor=ends_with(Yuri M.)\`
 - \`articleAuthor=contains(Torbjörn)\`
   **Note:** queries involving inexact matches will be considerably slow`
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The author of the article in which the treatment was published',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("document").attr("docAuthor")',
         defaultOp: 'starts_with'
     },
@@ -133,10 +183,14 @@ const dictionary = [
         name: 'articleDOI',
         schema: { 
             type: 'string',
-            description: `DOI of journal article (for example, "10.3897/BDJ.4.e8151"):
+            description: `For example:
 - \`doi=10.3897/BDJ.4.e8151\``
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'DOI of journal article',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("mods\\\\:identifier[type=DOI]").text()',
     },
     {
@@ -144,7 +198,7 @@ const dictionary = [
         schema: {
             type: 'string',
             pattern: datePattern,
-            description: `The publication date of the treatment. Can use the following syntax: 
+            description: `Can use the following syntax: 
 - \`publicationDate=eq(2018-1-12)\`
 - \`publicationDate=since(2018-12-03)\`
 - \`publicationDate=until(2018-03-22)\`
@@ -155,16 +209,30 @@ const dictionary = [
 - m?: one or two digit month
 - d?: one or two digit day`,
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The publication date of the treatment',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         zqltype: 'date',
         cheerio: '$("mods\\\\:detail[type=pubDate] mods\\\\:number").text()',
         defaultOp: 'eq'
     },
     {
+        name: 'journalId',
+        schema: {},
+        sql: {
+            desc: 'Unique ID of the journal',
+            type: 'INTEGER NOT NULL UNIQUE REFERENCES journals(journalId)'
+        },
+        notDefaultCol: true,
+        notQueryable: true
+    },
+    {
         name: 'journalTitle',
         schema: {
             type: 'string',
-            description: `The journal in which the treatment was published. Can use the following syntax:
+            description: `Can use the following syntax:
 - \`journalTitle=Biodiversity Data Journal 4\`
 - \`journalTitle=starts_with(Biodiversity)\`
 - \`journalTitle=ends_with(Journal 4)\`
@@ -172,7 +240,11 @@ const dictionary = [
 - \`journalTitle=not_like(Data Journal)\`
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The journal in which the treatment was published',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:titleInfo mods\\\\:title").text()',
         defaultOp: 'starts_with',
         facet: 'count > 100'
@@ -182,9 +254,13 @@ const dictionary = [
         schema: {
             type: 'string',
             pattern: utils.re.year,
-            description: 'The year of the journal'
+            description: ''
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The year of the journal',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:date").text()',
         facet: 'count > 1'
     },
@@ -192,9 +268,13 @@ const dictionary = [
         name: 'journalVolume',
         schema: {
             type: 'string',
-            description: 'The volume of the journal'
+            description: ''
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The volume of the journal',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:detail[type=volume] mods\\\\:number").text()'
     },
     {
@@ -203,16 +283,24 @@ const dictionary = [
             type: 'string',
             description: 'The issue of the journal'
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The issue of the journal',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:detail[type=issue] mods\\\\:number").text()',
     },
     {
         name: 'pages',
         schema: {
             type: 'string',
-            description: 'The "from" and "to" pages where the treatment occurs in the article'
+            description: ''
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The "from" and "to" pages where the treatment occurs in the article',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:extent[unit=page] mods\\\\:start").text() + "–" + $("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:extent[unit=page] mods\\\\:end").text()',
         notQueryable: true
     },
@@ -220,14 +308,18 @@ const dictionary = [
         name: 'authorityName',
         schema: {
             type: 'string',
-            description: `The author(s) of the treatment (not necessarily the same as the authors of the journal article, but omitted if same as article authors). Can use the following syntax:
+            description: `Not necessarily the same as the authors of the journal article, but omitted if same as article authors. Can use the following syntax:
 - \`authorityName=Foerster\`
 - \`authorityName=starts_with(Foe)\`
 - \`authorityName=ends_with(ster)\`
 - \`authorityName=contains(erst)\`
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The author(s) of the treatment',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("authorityName")',
         defaultOp: 'starts_with'
     },
@@ -236,9 +328,13 @@ const dictionary = [
         schema: {
             type: 'string',
             pattern: utils.re.year,
-            description: 'The year when the taxon name was published'
+            description: ''
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The year when the taxon name was published',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("authorityYear")',
         defaultOp: 'eq'
     },
@@ -246,27 +342,39 @@ const dictionary = [
         name: 'kingdom',
         schema: {
             type: 'string',
-            description: 'The higher category of the taxonomicName',
+            description: '',
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The higher category of the taxonomicName',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("kingdom")',
     },
     {
         name: 'phylum',
         schema: {
             type: 'string',
-            description: 'The higher category of the taxonomicName',
+            description: '',
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The higher category of the taxonomicName',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("phylum")',
     },
     {
         name: 'class',
         schema: {
             type: 'string',
-            description: 'The higher category of the taxonomicName',
+            description: '',
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The higher category of the taxonomicName',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("class")',
     },
     {
@@ -277,45 +385,65 @@ const dictionary = [
         },
         schema: {
             type: 'string',
-            description: 'The higher category of the taxonomicName',
+            description: '',
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The higher category of the taxonomicName',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("order")',
     },
     {
         name: 'family',
         schema: {
             type: 'string',
-            description: 'The higher category of the taxonomicName',
+            description: '',
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The higher category of the taxonomicName',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("family")',
     },
     {
         name: 'genus',
         schema: {
             type: 'string',
-            description: 'The higher category of the taxonomicName',
+            description: '',
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The higher category of the taxonomicName',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("genus")',
     },
     {
         name: 'species',
         schema: {
             type: 'string',
-            description: 'The higher category of the taxonomicName',
+            description: '',
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The higher category of the taxonomicName',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("species")',
     },
     {
         name: 'status',
         schema: {
             type: 'string',
-            description: 'The descriptor for the taxonomic status proposed by a given treatment (can be new species, or new combination, or new combination and new synonym)',
+            description: 'Can be new species, or new combination, or new combination and new synonym',
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The descriptor for the taxonomic status proposed by a given treatment',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("status")',
         facet: 'count > 1'
     },
@@ -323,14 +451,18 @@ const dictionary = [
         name: 'taxonomicNameLabel',
         schema: {
             type: 'string',
-            description: `The Taxonomic Name Label of a new species. Can use the following syntax:
+            description: `Can use the following syntax:
 - \`taxonomicNameLabel=Nilothauma paucisetis\`
 - \`taxonomicNameLabel=starts_with(Nilothauma)\`
 - \`taxonomicNameLabel=ends_with(paucisetis)\`
 - \`taxonomicNameLabel=contains(hauma pauci)\`
   **Note:** queries involving inexact matches will be considerably slow`,
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The Taxonomic Name Label of a new species',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").text()',
         defaultOp: 'starts_with'
     },
@@ -338,10 +470,14 @@ const dictionary = [
         name: 'rank',
         schema: {
             type: 'string',
-            description: 'The taxonomic rank of the taxon, e.g. species, family',
+            description: '',
             enum: [ 'kingdom', 'phylum', 'order', 'family', 'genus', 'species']
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The taxonomic rank of the taxon, e.g. species, family',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("rank")',
         facet: 'count > 1'
     },
@@ -350,7 +486,7 @@ const dictionary = [
         schema: {
             type: 'string',
             pattern: datePattern,
-            description: `The time when the treatment was last updated (as a result of an update to the article). Can use the following syntax: 
+            description: `Can use the following syntax: 
 - \`updateTime=eq(2018-1-12)\`
 - \`updateTime=since(2018-12-03)\`
 - \`updateTime=until(2018-03-22)\`
@@ -363,7 +499,11 @@ const dictionary = [
 
     **Note2:** Even though this field is called "updateTime", for now it can be queried only for dates.`,
         },
-        sqltype: 'INTEGER',
+        sql: {
+            desc: 'The time when the treatment was last updated (stored as ms since unixepoch)',
+            type: 'INTEGER'
+        },
+        //sqltype: 'INTEGER',
         zqltype: 'date',
         cheerio: '$("document").attr("updateTime")'
     },
@@ -372,7 +512,7 @@ const dictionary = [
         schema: {
             type: 'string',
             pattern: datePattern,
-            description: `The time when the article was first uploaded into the system. Can use the following syntax: 
+            description: `Can use the following syntax: 
 - \`checkinTime=eq(2018-1-12)\`
 - \`checkinTime=since(2018-12-03)\`
 - \`checkinTime=until(2018-03-22)\`
@@ -385,7 +525,11 @@ const dictionary = [
 
     **Note2:** Even though this field is called "checkinTime", for now it can be queried only for dates.`,
         },
-        sqltype: 'INTEGER',
+        sql: {
+            desc: 'The time when the article was first uploaded into the system (stored as ms since unixepoch)',
+            type: 'INTEGER'
+        },
+        //sqltype: 'INTEGER',
         zqltype: 'date',
         cheerio: '$("document").attr("checkinTime")'
     },
@@ -393,9 +537,13 @@ const dictionary = [
         name: 'fulltext',
         schema: {
             type: 'string',
-            description: 'The full text of the treatment',
+            description: '',
         },
-        sqltype: 'TEXT',
+        sql: {
+            desc: 'The full text of the treatment',
+            type: 'TEXT'
+        },
+        //sqltype: 'TEXT',
         cheerio: '$("treatment").text().replace(/(?:\\r\\n|\\r|\\n)/g, " ").replace(/  /g, " ").replace(/  /g, " ")',
         notDefaultCol: true,
         notQueryable: true
@@ -408,12 +556,49 @@ const dictionary = [
         },
         schema: { 
             type: 'boolean',
-            description: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
+            description: '',
         },
-        sqltype: 'INTEGER DEFAULT 0',
+        sql: {
+            desc: 'A boolean that tracks whether or not this resource is considered deleted/revoked, 1 if yes, 0 if no',
+            type: 'INTEGER DEFAULT 0'
+        },
+        //sqltype: 'INTEGER DEFAULT 0',
         cheerio: '$("document").attr("deleted")',
         notDefaultCol: true
     },
+    {
+        name: 'checkInYear',
+        schema: {},
+        sql: {
+            desc: 'Four digit year of checkinTime',
+            type: `INTEGER GENERATED ALWAYS AS (
+            strftime('%Y', datetime(checkinTime/1000, 'unixepoch'))
+        ) VIRTUAL`
+        },
+        notDefaultCol: true,
+        notQueryable: true
+    },
+    {
+        name: 'created',
+        schema: {},
+        sql: {
+            desc: 'ms since epoch record created in zenodeo',
+            type: "INTEGER DEFAULT (strftime('%s','now') * 1000)"
+        },
+        notDefaultCol: true,
+        notQueryable: true
+    },
+    {
+        name: 'updated',
+        schema: {},
+        sql: {
+            desc: 'ms since epoch record updated in zenodeo',
+            type: 'INTEGER'
+        },
+        notDefaultCol: true,
+        notQueryable: true
+    },
+
 
     /** 
      * ==== select ====
@@ -448,7 +633,7 @@ const dictionary = [
             description: `A snippet extracted from the full text of the treatment. Can use the following syntax: 
 - \`q=spiders\``
         },
-        sqltype: 'TEXT',
+        //sqltype: 'TEXT',
         //zqltype: 'expression',
         notDefaultCol: true,
         defaultOp: 'match',

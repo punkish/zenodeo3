@@ -90,6 +90,17 @@ export const commonparams = [
         notDefaultCol: true
     },
 
+    {
+        name: 'groupby',
+        schema: {
+            type: 'string',
+            description: `Fully-qualified name of column by which to group the results. For example:
+- \`groupby=images.httpUri\``,
+            //default: 'resourceId:ASC'
+        },
+        notDefaultCol: true
+    },
+
     /* 
      * maps --> SELECT <columns>
      */

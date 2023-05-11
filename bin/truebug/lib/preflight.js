@@ -8,40 +8,43 @@ const truebug = config.truebug;
 const ts = truebug.steps.preflight;
 
 const logOpts = JSON.parse(JSON.stringify(truebug.log));
-logOpts.name = 'TRUEBUG:PREFLIGHT';
+logOpts.name = 'TB:PREFLIGHT ';
 import { Zlogger } from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
-
-const dbType = config.dbType;
 
 import fs from 'fs';
 import path from 'path';
 import tar from 'tar';
 
-const checkDir = (dir, empty = false) => {
+const checkDir = (dir, notEmpty = false) => {
     const fn = 'checkDir';
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
-    log.info(`checking if ${dir} directory exists… `, 'start');
+    const dataDir = `${truebug.dirs.data}/treatments-dumps/${dir}`;
 
-    const tgt = truebug.dirs[dir];
-    const exists = fs.existsSync(tgt);
+    log.info(`checking if dir "${dataDir}" exists…`, 'start');
+    
+    const exists = fs.existsSync(dataDir);
 
     if (exists) {
-        log.info('yes, it does\n', 'end');
+        log.info(' ✅ yes, it does\n', 'end');
 
-        if (empty) {
-            log.info(`removing all files from ${dir} directory… `, 'start');
-            fs.readdirSync(tgt).forEach(f => fs.rmSync(`${tgt}/${f}`));
-            log.info('done\n', 'end');
+        if (notEmpty) {
+            log.info(`removing all files from ${dataDir} directory…`, 'start');
+
+            if (truebug.runMode === 'real') {
+                //fs.readdirSync(dataDir).forEach(f => fs.rmSync(`${dataDir}/${f}`));
+            }
+
+            log.info(' done\n', 'end');
         }
     }
     else {
-        log.info("it doesn't exist… making it\n", 'end');
+        log.info(" ❌ it doesn't exist, so making it\n", 'end');
         
         if (truebug.runMode === 'real') {
-            fs.mkdirSync(tgt);
+            fs.mkdirSync(dataDir);
         }
     }
 }
@@ -86,33 +89,28 @@ const backupOldDB = () => {
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
-    log.info(`backing up old ${dbType} db… `, 'start');
+    log.info(`backing up old db… `, 'start');
 
-    if (dbType === 'single' || dbType === 'both') {
-        _backup('treatments');
-        _backup('stats');
+    const dataDir = path.join('.', '..', 'data');
+    const dbDir = path.join(dataDir, 'z3');
+    const backupDir = path.join(dataDir, 'z3-bak');
+    const d = new Date().toDateString().split(' ').join('-');
+    const r = Math.random().toString(36).slice(2);
+    const backupName = `z3-${d}-${r}.tgz`;
+    
+    const tarOpts = {
+        gzip: true,
+        file: path.join(dataDir, backupDir, backupName),
+        sync: true
     }
-    else if (dbType === 'exploded' || dbType === 'both') {
-        const dataDir = path.join('.', '..', 'data');
-        const dbDir = path.join(dataDir, 'z3');
-        const backupDir = path.join(dataDir, 'z3-bak');
-        const d = new Date().toDateString().split(' ').join('-');
-        const r = Math.random().toString(36).slice(2);
-        const backupName = `z3-${d}-${r}.tgz`;
-        
-        const tarOpts = {
-            gzip: true,
-            file: path.join(dataDir, backupDir, backupName),
-            sync: true
-        }
-        
-        try {
-            tar.create(tarOpts, [ dbDir ]);
-        }
-        catch(error) {
-            log.error(error);
-        }
+    
+    try {
+        tar.create(tarOpts, [ dbDir ]);
     }
+    catch(error) {
+        log.error(error);
+    }
+    
 
     log.info('done\n', 'end');
 }

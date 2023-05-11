@@ -4,7 +4,7 @@ const alias = resources.filter(r => r.name === 'bibRefCitations')[0].alias;
 const tables = [
     {
         name: 'bibRefCitations',
-        type: 'normal',
+        //type: 'normal',
         create: `CREATE TABLE IF NOT EXISTS bibRefCitations ( 
     id INTEGER PRIMARY KEY,
     bibRefCitationId TEXT NOT NULL UNIQUE,
@@ -24,7 +24,8 @@ const tables = [
     -- ms since epoch record updated in zenodeo
     updated INTEGER 
 )`,
-        insert: `INSERT INTO ${alias}.bibRefCitations (
+        insert: [
+            `INSERT INTO ${alias}.bibRefCitations (
     bibRefCitationId,
     treatmentId,
     author,
@@ -59,9 +60,10 @@ DO UPDATE SET
     year=excluded.year,
     fulltext=excluded.fulltext,
     deleted=excluded.deleted,
-    updated=strftime('%s','now') * 1000`,
-        preparedinsert: '',
-        data: []
+    updated=strftime('%s','now') * 1000`
+],
+        // preparedinsert: '',
+        // data: []
     },
     {
         name: 'ftsBibrefcitations',
@@ -70,10 +72,12 @@ DO UPDATE SET
     fulltext,
     content=''
 )`,
-        insert: `INSERT INTO ${alias}.ftsBibrefcitations 
+        inserts: [
+            `INSERT INTO ${alias}.ftsBibrefcitations 
 SELECT fulltext 
-FROM bibRefCitations`,
-        preparedinsert: '',
+FROM bibRefCitations`
+],
+        //preparedinsert: '',
 //         maxrowid: 0
     },
 ]

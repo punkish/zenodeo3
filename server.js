@@ -4,7 +4,8 @@
  * running 'env.js' first, before anything else, ensures the env 
  * variables are loaded
  */
-import './env.js';
+//import './env.js';
+const env = process.env.NODE_ENV || 'development';
 import { Config } from '@punkish/zconfig';
 import process from 'node:process';
 const config = new Config().settings;
@@ -69,7 +70,7 @@ const start = async () => {
 
         await fastify.listen({ port: config.port });
 
-        fastify.log.info(`… in ${process.env.NODE_ENV.toUpperCase()} mode`);
+        fastify.log.info(`… in ${env.toUpperCase()} mode`);
     } 
     catch (err) {
         console.log(err);

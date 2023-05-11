@@ -1,6 +1,6 @@
 'use strict'
 
-import { ddu } from './dd-utils.js';
+import { ddu } from './utils/index.js';
 
 describe('getResources: returns all available resource', () => {
     const tests = [

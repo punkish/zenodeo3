@@ -10,18 +10,18 @@ import * as treatmentimages from './treatments/treatmentimages.js';
 import * as z3 from './z3.js';
 
 const databases = {
-    main: {
-        z3: z3
-    },
-    attached: {
-        tr: treatments,
-        tc: treatmentcitations,
-        ta: treatmentauthors,
-        bc: bibrefcitations,
-        fc: figurecitations,
-        mc: materialcitations,
-        ti: treatmentimages
-    }
+    main: [
+        { alias: 'z3', parts: z3 }
+    ],
+    attached: [
+        { alias: 'tr', parts: treatments },
+        { alias: 'tc', parts: treatmentcitations },
+        { alias: 'ta', parts: treatmentauthors },
+        { alias: 'bc', parts: bibrefcitations },
+        { alias: 'fc', parts: figurecitations },
+        { alias: 'mc', parts: materialcitations },
+        { alias: 'ti', parts: treatmentimages }
+    ]
 }
 
 export { databases }

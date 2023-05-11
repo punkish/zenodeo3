@@ -23,6 +23,35 @@ import { fileURLToPath } from 'url';
 const D = {};
 
 /**
+ * @function createTable
+ * @returns {string} create table statement
+ */
+const createTable = (resource) => {
+    const cols = getSqlCols(resource);
+
+    let stmt = `CREATE TABLE IF NOT EXISTS ${resource} (`;
+
+    stmt += cols.map(c => `\t-- ${c.sql.desc}\n\t"${c.name}" ${c.sql.type}`)
+        .join(",\n\n");
+
+    stmt += '\n)';
+
+    return stmt;
+}
+
+const createIndexes = (resource) => {
+    const cols = getSqlCols(resource);
+    const alias = 'tr';
+    const stmts = cols
+        .filter(col => col.name !== 'id')
+        .map(col => {
+        return `CREATE INDEX IF NOT EXISTS ${alias}.ix_${alias}_${col.name} ON ${resource} (${col.name})`
+    })
+
+    return stmts;
+}
+
+/**
  * @function tableFromResource
  * @returns {array} fully qualified table name
  */
@@ -246,9 +275,11 @@ const getSqlCols = (resource) => {
     if (!(resource in D)) D[resource] = {};
     if (!D[resource].sqlCols) {
         D[resource].sqlCols = getParams(resource)
+            .filter(p => p.sql)
             .map(p => {
                 return {
                     name: p.name, 
+                    sql: p.sql,
                     isResourceId: p.schema.isResourceId || false,
                     cheerio: p.cheerio
                 }
@@ -371,6 +402,8 @@ const getNotCols = () => commonparams.map(c => c.name);
 const functions = [
     { getResources          , args: ""         },
     { getNotCols            , args: ""         },
+    { createTable           , args: "resource" },
+    { createIndexes         , args: "resource" },
     { getSourceOfResource   , args: "resource" },
     { getResourcesFromSource, args: "source"   },
     { getParams             , args: "resource" },
@@ -401,21 +434,13 @@ const init = () => {
     if (nodePath === modulePath) {
         const argv = minimist(process.argv.slice(2));
         
-        if (argv.help) {
-            console.log(`
-ddUtils USAGE:
-${'*'.repeat(79)}
-
-node data-dictionary/dd-utils.js --fn=<fn> args
-node data-dictionary/dd-utils.js --list=true
-            `);
-            return;
-        }
-        
-        if (argv.list) {
+        if (!argv.fn) {
             console.log(`
 ddUtils
 ${'*'.repeat(79)}
+            
+USAGE: node data-dictionary/utils/index.js --fn=<fn> args
+${'-'.repeat(79)}
 available functions are:
             `);
 
@@ -430,7 +455,12 @@ available functions are:
         else {
             console.log(`function: ${argv.fn}("${argv._.join(',')}")\n`);
             const result = ddu[argv.fn](...argv._);
-            console.log(JSON.stringify(result, null, 4));
+            if (typeof result === 'object') {
+                console.log(JSON.stringify(result, null, 4));
+            }
+            else {
+                console.log(result);
+            }
         }
     }
 }

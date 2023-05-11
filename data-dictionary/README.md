@@ -35,11 +35,11 @@ The dictionary defines each param that can be used in a REST query. As such, it 
         // alternative name to use in the SELECT and WHERE clauses of SQL. 
         // This is important when using a db column from a different 
         // table, or when the name of the key is a reserved word in SQL
-        // for example, 'rank' shown below which is a special word in 
-        // SQLite FTS module
+        // for example, 'order' shown below which is a special word in 
+        // SQLite
         alias: {
-            select: 'treatments.rank',
-            where : 'treatments.rank'
+            select: 'treatments."order"',
+            where : 'treatments."order"'
         },
         
         // JSON schema that verifies the queries
@@ -51,8 +51,11 @@ The dictionary defines each param that can be used in a REST query. As such, it 
 - \`treatmentId=388D179E0D564775C3925A5B93C1C407\``,
         },
 
-        // whether on not the db column is a primary key. This key is required
-        // *only* if the column is a PK. Otherwise, it defaults to false.
+        // The primary key in every database is 'id' defined as 
+        // INTEGER PRIMARY KEY. However, from the perspective of the 
+        // resource, a resourceId is also defined that is unique in 
+        // the table. This key is required *only* if the column is a 
+        // resourceId. Otherwise, it defaults to false.
         isResourceId: true,
         
         // SQL datatype

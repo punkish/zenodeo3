@@ -4,7 +4,7 @@ const alias = resources.filter(r => r.name === 'figureCitations')[0].alias;
 const tables = [
     {
         name: 'figureCitations',
-        type: 'normal',
+        //type: 'normal',
         create: `CREATE TABLE IF NOT EXISTS figureCitations ( 
     id INTEGER PRIMARY KEY,
     figureNum INTEGER DEFAULT 0,
@@ -21,7 +21,8 @@ const tables = [
     updated INTEGER,
     UNIQUE (figureCitationId, figureNum)
 )`,
-        insert: `INSERT INTO ${alias}.figureCitations (
+        inserts: [
+            `INSERT INTO ${alias}.figureCitations (
     figureNum,
     figureCitationId,
     treatmentId,
@@ -45,9 +46,10 @@ DO UPDATE SET
     captionText=excluded.captionText,
     httpUri=excluded.httpUri,
     deleted=excluded.deleted,
-    updated=strftime('%s','now') * 1000`,
-        preparedinsert: '',
-        data: []
+    updated=strftime('%s','now') * 1000`
+],
+        // preparedinsert: '',
+        // data: []
     },
     {
         name: 'ftsFigurecitations',
@@ -56,10 +58,12 @@ DO UPDATE SET
     captionText,
     content=''
 )`,
-        insert: `INSERT INTO ${alias}.ftsFigurecitations 
+        inserts: [
+            `INSERT INTO ${alias}.ftsFigurecitations 
 SELECT captionText 
-FROM figureCitations`,
-        preparedinsert: '',
+FROM figureCitations`
+],
+        //preparedinsert: '',
 //         maxrowid: 0
     },
 ]

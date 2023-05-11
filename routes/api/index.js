@@ -1,5 +1,5 @@
 import { routeFactory } from '../../lib/routeUtils.js';
-import { resources } from '../../data-dictionary/resources.js';
+import { resources } from '../../data-dictionary/resources/index.js';
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;

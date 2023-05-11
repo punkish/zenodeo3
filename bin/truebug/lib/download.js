@@ -3,8 +3,10 @@
 import * as utils from './utils.js';
 
 import https from 'https';
+import http from 'http';
 import { execSync } from 'child_process';
 import fs from 'fs';
+import path from 'path';
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
@@ -12,113 +14,142 @@ const truebug = config.truebug;
 const ts = truebug.steps.download;
 
 const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
-logOpts.name = 'TRUEBUG:DOWNLOAD';
+logOpts.name = 'TB:DOWNLOAD  ';
 import { Zlogger } from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
 
-const checkRemote = (typeOfArchive = 'daily') => {
-    const fn = 'checkRemote';
-    if (!ts[fn]) return;
+const unzip = function(archive_name, stats) {
+    const fn = 'unzip';
+    if (!ts[fn]) return [];
+
     utils.incrementStack(logOpts.name, fn);
+    stats.unzip.started = new Date().getTime();
+    log.info(`checking if "${archive_name}" has already been unzipped…`, 'start');
+    const archive_dir = `${truebug.dirs.data}/treatments-dumps/${archive_name}`;
+    
+    if (fs.existsSync(archive_dir)) {
+        log.info(' yes, it has been\n', 'end');
+    }
+    else {
+        log.info(" no, it hasn't\n", 'end');
+        log.info(`unzipping "${archive_name}.zip"…`, 'start');
+        const archive = `${truebug.dirs.zips}/${archive_name}.zip`;
+    
+        // 
+        // -q Perform operations quietly.
+        // -n never overwrite existing files
+        // -d extract files into exdir
+        let cmd = `unzip -q -n ${archive} -d ${archive_dir}`;
+    
+        if (truebug.runMode === 'real') {
+            execSync(cmd);
+            
+            //
+            // check if there is an index.xml included in the archive; 
+            // if yes, remove it
+            if (fs.existsSync(`${archive_dir}/index.xml`)) {
+                fs.rmSync(`${archive_dir}/index.xml`);
+            }
+        }
 
-    const remoteResult = new Promise((resolve) => {
-        const server = truebug.server.hostname;
-        const path = typeOfArchive === 'full' 
-            ? `/${truebug.server.path}/plazi.zenodeo.zip`
-            : `/${truebug.server.path}/plazi.zenodeo.${typeOfArchive}.zip`;
+        log.info(` done.\n`, 'end');
+    }
 
-        const url = `${server}/${path}`;
+    const files = fs.readdirSync(archive_dir)
+        .filter(f => path.extname(f) === '.xml');
+
+    stats.unzip.numOfFiles = files.length;
+    stats.unzip.ended = new Date().getTime();
+    log.info(`downloaded archive contains ${files.length} files`);
+
+    return files;
+}
+
+const download = async (typeOfArchive = 'daily', stats) => {
+    stats.downloads.started = new Date().getTime();
+
+    //
+    // construct the remote file name and path to it on the server
+    const server = truebug.server.hostname;
+    const remoteName = typeOfArchive === 'yearly' 
+        ? 'plazi.zenodeo.zip'
+        : `plazi.zenodeo.${typeOfArchive}.zip`;
+    const pathToArchive = `/${truebug.server.path}/${remoteName}`;
+    const url = `${server}/${pathToArchive}`;
+
+    log.info(`checking if there is "${remoteName}" on the server…`, 'start');
+
+    let archive_name = await new Promise((resolve) => {
         const opts = { method: 'HEAD' };
         const req = https.request(url, opts, (res) => {
-            const result = {};
-    
+            let archive_name;
+
             if (res.statusCode == 200) {
                 const d = new Date(res.headers['last-modified']);
-                result.timeOfArchive  = d.getTime();
-                result.sizeOfArchive = Number(res.headers['content-length']);
+                const time = d.toDateString().replace(/ /g, '-');
+
+                archive_name = `${typeOfArchive}.${time}`;
+                stats.archives.typeOfArchive = typeOfArchive;
+                stats.archives.timeOfArchive = time;
+                stats.archives.sizeOfArchive = Number(res.headers['content-length']);
             }
     
-            resolve(result);
+            resolve(archive_name);
         });
         
         req.on('error', (error) => console.error(error));
         req.end();
     });
 
-    return remoteResult;
-}
+    if (archive_name) {
+        log.info(' yes, there is\n', 'end');
 
-const unzip = function(typeOfArchive) {
-    const fn = 'unzip';
-    if (!ts[fn]) return;
-    utils.incrementStack(logOpts.name, fn);
+        const localCopy = `${truebug.dirs.zips}/${archive_name}.zip`;
 
-    log.info(`unzipping ${typeOfArchive} archive… `, 'start');
-    const started = new Date().getTime();
-    let numOfFiles = 0;
+        //
+        // Let's check if a local copy exists
+        log.info(`checking for a local copy of "${remoteName}"…`, 'start');
+        const exists = fs.existsSync(localCopy);
 
-    const archive = `${truebug.dirs.zips}/${truebug.download[typeOfArchive]}`;
-    const targetDir = truebug.dirs[typeOfArchive];
+        if (!exists) {
+            log.info(' there is none\n', 'end');
+            log.info(`downloading "${remoteName}" -> "${archive_name}.zip"…`, 'start');
 
-    /**
-     * -q Perform operations quietly.
-     * -n never overwrite existing files
-     * -d extract files into exdir
-     */
-    let cmd = `unzip -q -n ${archive} -d ${targetDir}`;
+            //
+            // a local copy of the more recent archive does not
+            // exist, so we will download it from the remote server
+            const d = await new Promise((resolve) => {      
+                const opts = { method: 'GET' };
+                const req = https.request(url, opts, (res) => {
+                    const file = fs.createWriteStream(localCopy);
+                    res.on('data', (chunk) => file.write(chunk))
+                       .on('end', () => file.end());
 
-    if (truebug.runMode === 'real') {
-        execSync(cmd);
+                    resolve(archive_name);
+                });
+                
+                req.on('error', (error) => console.error(error));
+                req.end();
+            });
 
-        /**
-         * -Z   Switch to zipinfo mode.  Must be first option.
-         * -1  List names only, one per line. No headers/trailers.
-         */ 
-        cmd = `unzip -Z -1 ${archive} | wc -l`;
-        numOfFiles = Number(execSync(cmd).toString().trim());
-
-        /**
-         * check if there is an index.xml included in the archive; 
-         * if yes, remove it
-         */
-        if (fs.existsSync(`${targetDir}/index.xml`)) {
-            fs.rmSync(`${targetDir}/index.xml`);
-            numOfFiles--;
+            if (d) {
+                log.info(' done\n', 'end');
+            }
+        }
+        else {
+            log.info(' yes, there is one\n', 'end');
         }
     }
-
-    const ended = new Date().getTime();
-    const duration = ended - started;
-    log.info(`done. Took ${duration} ms\n`, 'end');
-    log.info(`downloaded archive contains ${numOfFiles} files`);
-
-    return { ended, numOfFiles };
-}
-
-const download = (source) => {
-    const fn = 'download';
-    if (!ts[fn]) return;
-    utils.incrementStack(logOpts.name, fn);
-
-    log.info(`downloading ${source} archive… `, 'start');
-    const started = new Date().getTime();
-
-    /** 
-     * source is one of 'daily', 'weekly', 'monthly' or 'full' 
-     */
-    const archive = truebug.download[source];
-    const local = `${truebug.dirs.zips}/${archive}`;
-    const server = `${truebug.server.hostname}/${truebug.server.path}`;
-    const remote = `${server}/${archive}`;
-    
-    if (truebug.runMode === 'real') {
-        execSync(`curl -s -o ${local} '${remote}'`);
+    else {
+        log.info(' there is none\n', 'end');
     }
 
-    const ended = new Date().getTime();
-    const duration = ended - started;
-    log.info(`done. Took ${duration} ms\n`, 'end');
-    return { started };
+    stats.downloads.ended = new Date().getTime();
+
+    return archive_name;
 }
 
-export { checkRemote, download, unzip }
+export { 
+    unzip, 
+    download
+}

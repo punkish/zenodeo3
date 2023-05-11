@@ -28,11 +28,11 @@
     "@punkish/zconfig": "^1.0.4",
     "@punkish/zlogger": "^1.0.7",
     "@turf/turf": "^6.5.0",
-    "better-sqlite3": "^8.0.1",
+    "better-sqlite3": "^8.3.0",
     "chance": "^1.1.9",
     "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.0.3",
-    "fastify": "^4.12.0",
+    "fastify": "^4.15.0",
     "fastify-cron": "^1.3.1",
     "fastify-favicon": "^4.2.0",
     "fastify-plugin": "^4.5.0",
@@ -48,9 +48,8 @@
     "test": "test"
   },
   "devDependencies": {
-    "jest": "^29.4.1",
     "pino-pretty": "^9.1.1",
     "tap": "^16.3.4",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.5"
   }
 }

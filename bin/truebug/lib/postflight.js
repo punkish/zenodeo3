@@ -12,7 +12,7 @@ logOpts.name = 'TRUEBUG:POSTFLIGHT';
 
 import fs from 'fs';
 
-const cpFile = (typeOfArchive, xml) => {
+const cpFile = (archive_name, xml) => {
     const fn = 'cpFile';
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
@@ -23,19 +23,19 @@ const cpFile = (typeOfArchive, xml) => {
         if (!fs.existsSync(tgt)) {
             fs.mkdirSync(tgt, { recursive: true });
 
-            const src = `${truebug.dirs.dumps}/${typeOfArchive}/${xml}`;
+            const src = `${truebug.dirs.data}/treatments-dumps/${archive_name}/${xml}`;
             fs.copyFileSync(src, tgt);
         }
     }
 }
 
-const rmFile = (typeOfArchive, xml) => {
+const rmFile = (archive_name, xml) => {
     const fn = 'rmFile';
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
     if (truebug.runMode === 'real') {
-        const src = `${truebug.dirs.dumps}/${typeOfArchive}/${xml}`;
+        const src = `${truebug.dirs.data}/treatments-dumps/${archive_name}/${xml}`;
         fs.rmSync(src);
     }
 }

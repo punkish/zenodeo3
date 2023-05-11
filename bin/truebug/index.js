@@ -1,419 +1,309 @@
+// @ts-check
+
 'use strict';
 
 import process from 'node:process';
+import util from 'util';
 import minimist from 'minimist';
+import fs from 'fs';
+import path from 'path';
 
 import * as preflight from './lib/preflight.js';
 import * as postflight from './lib/postflight.js';
 import * as download from './lib/download.js';
 import * as database from './lib/database/index.js';
 import * as parse from './lib/parse.js';
-import { db, createTriggers } from '../../lib/dbConnect.js';
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 const truebug = config.truebug;
-const ts = truebug.steps.main;
+//const ts = truebug.steps.database;
 
 import * as utils from './lib/utils.js';
 
 const logOpts = JSON.parse(JSON.stringify(truebug.log));
-logOpts.name = 'TRUEBUG';
+logOpts.name = 'TB           ';
 import { Zlogger } from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
 
-const fmtProgress = ({ startTime, i, strTotalFilesLen, batch }) => {
-
-    // adjust the number of spaces with which to left pad the 
-    // number of files
-    const numOfDots = Math.floor((i % batch) / (batch / 10));
-
-    if (numOfDots) {
-        const remainingDots = 9 - numOfDots;
-        strTotalFilesLen += remainingDots;
+const stats = {
+    archives: {
+        typeOfArchive: '',
+        timeOfArchive: 0,
+        sizeOfArchive: 0
+    },
+    downloads: {
+        started: 0,
+        ended: 0
+    },
+    unzip: {
+        started: 0,
+        ended: 0,
+        numOfFiles: 0
+    },
+    etl: {
+        started: 0,
+        ended: 0,
+        treatments: 0,
+        treatmentCitations: 0,
+        materialCitations: 0,
+        collectionCodes: 0,
+        figureCitations: 0,
+        bibRefCitations: 0,
+        treatmentAuthors: 0,
+        journals: 0
     }
-    
-    // calculate time taken in ms (endTime - startTime)
-    const took = Number(process.hrtime.bigint() - startTime) / 1e6;
+};
 
-    // calculate the num of files in this batch to correctly 
-    // figure out ms/file
-    const thisBatch = i % batch || batch;
+const calcRows = (stats) => {
+    const rowsInserted = Object.keys(stats.etl)
+        .filter(key => key !== 'started' && key !== 'ended')
+        .map(key => stats.etl[key])
+        .reduce((a, b) => a + b);
 
-    // calculate the amount of heap memory (in MB) used in this batch
-    const mu = process.memoryUsage();
-    const heapMem = mu.heapUsed / 1024 /1024;
-
-    let str = ` ${String(i).padStart(strTotalFilesLen, ' ')}`;
-    str += ` [${took.toFixed(0)} ms]`;
-    str += ` = (${(took / thisBatch).toFixed(2)} ms/file)`;
-    str += ` ${heapMem.toFixed(0)} MB\n`;
-    
-    return str;
+    return rowsInserted;
 }
 
-const processFiles = (typeOfArchive, files) => {
+const processFiles = (archive_name, files, stats) => {
     utils.incrementStack(logOpts.name, 'processFiles');
 
-    /**
-     * 
-     * update the progress bar every x% of the total num of files
-     * but x% of j should not be more than 5000 because we don't 
-     * want to insert more than 5K records at a time.
-     * 
-     */
+    //
+    // If totalFiles is less than ${defaultBatch} then we insert 1/10th of 
+    // totalFiles at a time. This is the ${batch}. But if totalFiles is 
+    // more than ${defaultBatch}, we insert ${defaultBatch} files at a time.
     const totalFiles = files.length;
+    //const totalFiles = 10;
     const strTotalFilesLen = String(totalFiles).length;
     const defaultBatch = 10000;
     const batch = totalFiles < defaultBatch 
         ? Math.floor(totalFiles / 10) 
         : defaultBatch;
     
+    // We print a progress dot on the console every 1/10th of the ${batch}
     const dot = batch / 10;
 
-    log.info(`parsing/inserting ${totalFiles} treatments ${batch} at a time`);
-    log.info(`${'~'.repeat(80)}\n`, 'end');
+    log.info(`parsing/inserting ${totalFiles} XMLs ${batch} at a time`);
+    log.info(`${'~'.repeat(120)}\n`, 'end');
 
-    /**
-     * we time the process using hrtime.bigint() which returns 
-     * time in nanoseconds
-     */
-    let startTime = process.hrtime.bigint();
-    
+    //
+    // we time the process using hrtime.bigint() which returns 
+    // time in nanoseconds
+
+    // when the ETL process started
+    let startETLTime = process.hrtime.bigint();
+
+    // when this batch transaction started. This includes reading and parsing 
+    // the files and inserting the rows
+    let startTransactionTime = startETLTime;
+
+    // stores when the actual db insert started
+    let startInsertTime;
+
+    const treatments = [];
+    const treatmentJSONs = [];
+
     for (let i = 0; i < totalFiles; i++) {
         const xml = files[i];
+        //let treatment;
 
-        /**
-         * we store a single treatment in one variable and then
-         * send it for repackaging into exploded treatment parts
-         * so they can be inserted 5000 at a time in a db 
-         * transaction
-         */
-        const treatment = parse.parseOne(typeOfArchive, xml);
+        // check if xml has already been parsed and stored in zenodeo-json.sqlite
+        const treatmentId = path.basename(xml, '.xml');
+        // let treatmentJSON = database.getTreatmentJSON(treatmentId);
 
-        if (treatment) {
-            parse.calcStats(treatment);
-            database.repackageTreatment(treatment);
+        // if (treatmentJSON) {
+        //     treatment = JSON.parse(treatmentJSON);
+        //     treatments.push(treatment);
+        // }
+        // else {
+            const { timeTaken, treatment } = parse.parseOne(archive_name, xml);
+            //const treatment = res.treatment;
+            //treatmentJSON = JSON.stringify(treatment);
+            treatmentJSONs.push({
+                treatmentId,
+                //treatmentJSON,
+                timeTaken
+            });
+        // }
+
+        treatments.push(treatment);
+        parse.calcStats(treatment, stats);
+        
+        if (i > 0) {
             
-            if (i > 0) {
+            // last file
+            if (i === (totalFiles - 1)) {
+
+                // initialize db insert time
+                startInsertTime = process.hrtime.bigint();
+                database.insertTreatments(treatments);
+                database.insertTreatmentJSONs(treatmentJSONs);
                 
-                // last file
-                if (i === (totalFiles - 1)) {
-                    database.insertData();
-                    database.resetData();
+                const str = utils.progressBar({ 
+                    startETLTime,
+                    startTransactionTime, 
+                    startInsertTime,
+                    i, 
+                    strTotalFilesLen, 
+                    batch,
+                    rowsInserted: calcRows(stats)
+                });
 
-                    const progInfo = { startTime, i, strTotalFilesLen, batch };
-                    const str = fmtProgress(progInfo);
+                treatments.length = 0;
+                treatmentJSONs.length = 0;
 
-                    // finished processing all files
-                    log.info(`${str}\n`, 'end');
-                }
-
-                // every 5000 files
-                else if ((i % batch) === 0) {
-                    database.insertData();
-                    database.resetData();
-
-                    const progInfo = { startTime, i, strTotalFilesLen, batch };
-                    const str = fmtProgress(progInfo);
-
-                    log.info(str, 'end');
-
-                    // reset startTime
-                    startTime = process.hrtime.bigint();
-                }
-
-                // every 500 files
-                else if ((i % dot) === 0) {
-                    log.info('.', 'end');
-                }
+                // finished processing all files
+                log.info(`${str}\n`, 'end');
             }
-            
-            postflight.cpFile(typeOfArchive, xml);
-            postflight.rmFile(typeOfArchive, xml);
+
+            // every ${batch} files
+            else if ((i % batch) === 0) {
+                startInsertTime = process.hrtime.bigint();
+                database.insertTreatments(treatments);
+                database.insertTreatmentJSONs(treatmentJSONs);
+
+                const str = utils.progressBar({ 
+                    startETLTime,
+                    startTransactionTime, 
+                    startInsertTime,
+                    i, 
+                    strTotalFilesLen, 
+                    batch,
+                    rowsInserted: calcRows(stats)
+                });
+
+                treatments.length = 0;
+                treatmentJSONs.length = 0;
+
+                // reset time counters
+                startTransactionTime = process.hrtime.bigint();
+
+                log.info(str, 'end');
+            }
+
+            // print a dot every batch/10 files
+            else if ((i % dot) === 0) {
+                log.info('.', 'end');
+            }
         }
+        
+        postflight.cpFile(archive_name, xml);
+        postflight.rmFile(archive_name, xml);
+        
     }
 
-    log.info(`${'~'.repeat(80)}\n`, 'end');
-}
+    log.info(`${'~'.repeat(120)}\n`, 'end');
+};
 
-const etl = (typeOfArchive, remoteArchive) => {
+const etl = (archive_name, files, stats) => {
     utils.incrementStack(logOpts.name, 'etl');
 
-    const { timeOfArchive, sizeOfArchive } = remoteArchive;
+    const [ typeOfArchive, timeOfArchive ] = archive_name.split('.');
+    log.info(`ETL-ing ${typeOfArchive}`);
 
-    log.info(`starting a ${typeOfArchive.toUpperCase()} process`);
+    // 
+    // start ETL
+    stats.etl.started = new Date().getTime();
 
-    //database.storeMaxrowid();
-    database.dropIndexes();
-
-    const stats = {
-        download: {
-            timeOfArchive,
-            typeOfArchive,
-            sizeOfArchive,
-            treatments: null,
-            treatmentCitations: null,
-            materialsCitations: null,
-            figureCitations: null,
-            bibRefCitations: null
-        }
-    };
-
-    /** 
-     * create appropriate dumps/{typeOfArchive} directory, if required
-     * and empty it if it has files in it
-     */
-    preflight.checkDir(typeOfArchive, true);
-
-    /** 
-     * start download
-     */
-    const { started } = download.download(typeOfArchive);
-    const { ended, numOfFiles } = download.unzip(typeOfArchive);
-
-    stats.download.started = started;
-    stats.download.ended = ended;
-    stats.download.numOfFiles = numOfFiles;
-    let duration = stats.download.ended - stats.download.started;
-
-    log.info('-'.repeat(80));
-    log.info(`DOWNLOAD took: ${duration} ms`);
-
-    /** 
-     * start ETL
-     */
-    stats.etl = {
-        started: new Date().getTime(),
-        timeOfArchive,
-        typeOfArchive,
-        sizeOfArchive,
-        numOfFiles: null,
-        ended: 0
-    }
-
-    if (stats.download.numOfFiles) {
-        const files = preflight.filesExistInDump(typeOfArchive);
+    if (stats.unzip.numOfFiles) {
         log.info(`${files.length} files exist in dump… let's ETL them`);
 
-        processFiles(typeOfArchive, files);
+        processFiles(archive_name, files, stats);
         
-        log.info(`parsed ${parse.stats.treatments} files with`);
-
-        for (const [key, value] of Object.entries(parse.stats)) {
-            log.info(`- ${value} ${key}`);
-            stats.etl[key] = value;
-        }
-
+        log.info(`parsed ${stats.etl.treatments} XMLs`);
+        stats.etl.journals = database.cache.journals.size;
         stats.etl.ended = new Date().getTime();
     }
     else {
         log.info('there are no files in the dump to process');
     }
 
-    Object.keys(stats).
-        forEach(key => {
-            const row = stats[key];
-            row.process = key;
-            database.insertStats(row);
-        });
-
-    log.info('-'.repeat(80));
-    
-    let took = 0;
-    duration = 0;
-
-    if (stats.download.numOfFiles) {
-        took = stats.etl.ended - stats.etl.started;
-        duration = (took / stats.download.numOfFiles).toFixed(2)
-    }
-
-    log.info(`ETL took: ${took} ms = (${duration} ms/file)`);
-    log.info('TRUEBUG DONE');
-    log.info('='.repeat(80));
-
-    if (ts.printStack) {
-        console.log(`S T A C K
-${'-'.repeat(80)}
-${JSON.stringify(utils.stack, null, 4)}
-        `);
-    }
+    // Object.keys(stats).
+    //     forEach(key => {
+    //         const row = stats[key];
+    //         database.insertStats(row);
+    //     });
 }
 
-const update = async (archiveTypes, fullFlag) => {
+const update = async (archives, stats, firstRun = false) => {
     utils.incrementStack(logOpts.name, 'update');
-
-    const typeOfArchive = archiveTypes.shift();
-
-    log.info(`checking if ${typeOfArchive} archive exists on remote server…`);
-    const remoteArchive = await download.checkRemote(typeOfArchive);
     
-    if (remoteArchive.timeOfArchive) {
-        const lastUpdate = database.getLastUpdate(typeOfArchive);
-        
-        if (lastUpdate.started) {
+    //
+    // we grab the first in the list of archives
+    // one of 'yearly', 'monthly', 'weekly', or 'daily'
+    const typeOfArchive = archives.shift();
 
-            /** 
-             * the remote archive is newer than the archive of the 
-             * last update
-             */
-            if (remoteArchive.timeOfArchive > lastUpdate.started) {
-                etl(typeOfArchive, remoteArchive);
-            }
-            else {
-                log.info(`remote ${typeOfArchive} archive is older than the local version, moving on`);
-            }
+    if (!firstRun) {
+        if (typeOfArchive === 'yearly') {
+            firstRun = true;
         }
-        else {
-            log.info(`${typeOfArchive} archive has not been processed yet`);
-            etl(typeOfArchive, remoteArchive);
-        }
+    }
 
-        /** 
-         * check the next shorter timePeriod
-         */
-        if (archiveTypes.length) {
-            log.info(`next up, the '${archiveTypes[0]}' archive`);
-            update(archiveTypes, fullFlag);
+    stats.archives.type = typeOfArchive;
+
+    //
+    // if needed, download archive from remote server
+    const archive_name = await download.download(typeOfArchive, stats);
+
+    if (archive_name) {
+        database.dropIndexes();
+
+        //
+        // unzip archive, if needed, and read the files into an array
+        const files = download.unzip(archive_name, stats);
+        etl(archive_name, files, stats);
+        database.insertStats(stats);
+
+        if (archives.length) {
+            log.info(`next up, the "${archives[0].toUpperCase()}" archive`);
+            return update(archives, stats, firstRun);
         }
         else {
             log.info('all archives processed');
-            database.buildIndexes();
-
-            if (fullFlag) {
-                database.insertFTS();
-                database.insertDerived();
-                database.updateIsOnLand();
-            }
-            
-            /**
-             * Now that the full load has been completed, we can create 
-             * triggers for automatic updates of records without slowing 
-             * down the insert process too much
-             */
-            createTriggers(db);
         }
+
     }
     else {
-        log.info(`${typeOfArchive} archive doesn't exist`);
-        log.info('EXITING TRUEBUG');
-        log.info('='.repeat(80));
-
-        if (ts.printStack) {
-            console.log(`S T A C K
-${'-'.repeat(80)}
-${JSON.stringify(utils.stack, null, 4)}
-            `);
-        }
+        log.info(`There is no "${typeOfArchive}" archive on the server. Wrapping up.`);
     }
+
+    // if (firstRun) {
+    //     database.insertVtabs();
+    // }
+
+    database.buildIndexes();
+    
+    const utilOpts = { showHidden: false, depth: null, color: true };
+    console.log(util.inspect(stats, utilOpts));
+
+    //if (ts.printStack) {
+        log.info('STACK');
+        log.info('-'.repeat(80));
+        log.info(JSON.stringify(utils.stack, null, 4));
+    //}
 }
 
-/** 
- * `truebug` starts here
- */
-const init = () => {
-    utils.incrementStack(logOpts.name, 'init');
-
-    const argv = minimist(process.argv.slice(2));
-    
-    if (argv.help) {
-        console.log(`
-truebug USAGE:
-${'*'.repeat(79)}
-
-node bin/truebug/index.js
-    --run=[ counts | archiveUpdates | etl ]
-    --runMode=[ dry-run | real ]
-    --source=[ archive | xml ]
-
-Note 1: 
-- *all* options expect --run are optional.
-- if no options are provided, usage is printed in the terminal.
-- options not provided are picked up from config.
-- [choices] are choose-one-from-the-list.
-
-EXAMPLES
-${'*'.repeat(79)}
-
-index.js --run=counts                   // get count of rows in each table in 
-                                        //     the db
-index.js --run=archiveUpdates           // get updates for each kind of archive
-${'-'.repeat(79)}
-Note 2: No other options are required for the above two invocations
-${'-'.repeat(79)}
-
-index.js --run=etl                      // perform the ETL
-
-Note 3: Additional options are as below, and may be provided on command line 
-or, if not, they will be picked up from the config settings
-
-index.js --run=etl --runMode=dry-run    // do a dry run without changing
-                                        //     anything
-
-index.js --run=etl --runMode=real       // make permanent changes
-index.js --run=etl --source=archive     // use archives
-index.js --run=etl --source=xml         // use a single XML as a source 
-                                        //     (for testing)`);
-        return;
-    }
-    
-    /**
-     * query the tables and return current counts
-     */
-    if (argv.run === 'counts') {
-        database.getCounts();
-    }
-
-    /**
-     * query the tables and return the details of each 
-     * kind of archive update
-     */
-    else if (argv.run === 'archiveUpdates') {
-        database.getArchiveUpdates();
-    }
-    
-    /** 
-     * actually run the etl service
-     */
-    else if (argv.run === 'etl' || typeof(argv.run) === 'undefined') {
-        const runMode = argv.runMode || truebug.runMode;
-        const source = argv.source || truebug.source;
-        
-        log.info('='.repeat(80));
-        log.info(`STARTING TRUEBUG (runMode ${runMode})`);
-
-        if (source === 'xml') {
-            const single = argv.xml || truebug.download.xml;
-            const xml = `${single}.xml`;
-            const typeOfArchive = 'singles';
-            preflight.checkDir(typeOfArchive, true);
-            preflight.copyXmlToDump(typeOfArchive, xml);
-
-            const treatment = parse.parseOne(typeOfArchive, xml);
-            console.log(treatment);
-        }
-        else {
-            preflight.checkDir('archive');
-            preflight.checkDir('dumps');
-            preflight.backupOldDB();
-
-            const numOfTreatments = database.selCountOfTreatments();
-                
 /*
 archive                   size          datetime                           notes
 ------------------------- ------------- ---------------------------------- -------------------------
 plazi.zenodeo.zip	      2548608 kb	Sat, 01 Jan 2022 02:00:00 GMT+0000
-plazi.zenodeo.monthly.zip 1536275 kb	Sun, 02 Oct 2022 02:00:00 GMT+0000 updates since full
+plazi.zenodeo.monthly.zip 1536275 kb	Sun, 02 Oct 2022 02:00:00 GMT+0000 updates since yearly
 plazi.zenodeo.weekly.zip    74739 kb	Sun, 30 Oct 2022 02:00:00 GMT+0000 updates since monthly.zip
 plazi.zenodeo.daily.zip	   	 4096 kb	Fri, 04 Nov 2022 02:00:00 GMT+0000 updates since weekly.zip
 
+remote                      local                                   unpacked
+=========================   =====================================   ============
+plazi.zenodeo.zip           plazi.zenodeo.yearly.<timestamp>.zip    dir/yearly/
+plazi.zenodeo.monthly.zip   plazi.zenodeo.monthly.<timestamp>.zip   dir/monthly/
+plazi.zenodeo.weekly.zip    plazi.zenodeo.weekly.<timestamp>.zip    dir/weekly/
+plazi.zenodeo.daily.zip     plazi.zenodeo.daily.<timestamp>.zip     dir/daily/
+
 
 if no data in table
-    process 'full', 'monthly', 'weekly', 'daily'
+    process 'yearly', 'monthly', 'weekly', 'daily'
 else
-    if last archive processed is 'full'
-        if 'full' archive on server is newer than local
-            process 'full', 'monthly', 'weekly', 'daily'
+    if last archive processed is 'yearly'
+        if 'yearly' archive on server is newer than local
+            process 'yearly', 'monthly', 'weekly', 'daily'
         else
             process 'monthly', 'weekly', 'daily'
     else if last archive processed is 'monthly'
@@ -435,39 +325,128 @@ else
         done
 */
 
-            /** 
-             * We use fullFlag later to decide whether or not to 
-             * create triggers and update fts tables in one go 
-             * or let previously created triggers populate the 
-             * fts tables.
-             */
-            let fullFlag = false;
-            const archiveTypes = [ 'monthly', 'weekly', 'daily' ];
+/** 
+ * `truebug` starts here
+ */
+const init = (stats) => {
+    utils.incrementStack(logOpts.name, 'init');
+
+    const argv = minimist(process.argv.slice(2));
+    
+    if (argv.help) {
+        const prompt = fs.readFileSync('./bin/truebug/lib/prompt.txt', 'utf8');
+        console.log(prompt);
+        return;
+    }
+    
+    //
+    // query the tables and return current counts
+    if (argv.run === 'counts') {
+        database.getCounts();
+    }
+
+    //
+    // query the tables and return the details of each 
+    // kind of archive update
+    else if (argv.run === 'archiveUpdates') {
+        database.getArchiveUpdates();
+    }
+    
+    //
+    // run etl
+    else if (argv.run === 'etl' || typeof(argv.run) === 'undefined') {
+        const runMode = argv.runMode || truebug.runMode;
+        const source = argv.source || truebug.source;
+        
+        log.info('='.repeat(80));
+        log.info(`STARTING TRUEBUG (runMode: ${runMode})`);
+
+        if (source === 'xml') {
+            const single = argv.xml || truebug.archives.xml;
+            const xml = `${single}.xml`;
+            const typeOfArchive = 'xmls';
+            preflight.checkDir(typeOfArchive, true);
+            //preflight.copyXmlToDump(typeOfArchive, xml);
+
+            const { timeTaken, treatment } = parse.parseOne(typeOfArchive, xml);
+        
+            //
+            // deep print object to the console
+            //
+            // https://stackoverflow.com/a/10729284/183692
+            const utilOpts = { showHidden: false, depth: null, color: true };
+            console.log(util.inspect(treatment, utilOpts));
+            // console.log(`time Taken To Parse: ${timeTaken}`);
+            //console.log(treatment.treatmentCitations.flat());
+            // console.log(treatment.materialCitations);
+            // treatment.materialCitations.forEach(materialCitation => {
+            //     console.log(materialCitation.collectionCodes)
+            // });
             
-            if (numOfTreatments === 0) {
+            //console.log(treatment.bibRefCitations);
+            // console.log(treatment.figureCitations);
+            // console.log(treatment.images);
+            // console.log(`figureCitations: ${treatment.figureCitations.length}`);
+            // console.log(`images: ${treatment.images.length}`);
+            //console.log(treatment.treatmentAuthors);
+        }
+        else {
+            preflight.checkDir('archive');
+            preflight.checkDir('dumps');
+            preflight.backupOldDB();
 
-                log.info("since there are no treatments in the db, we will start with a 'full' archive");
+            //
+            // This is the first time we are running update, so
+            // let's see if there are any treatments already in 
+            // the db
+            const numOfTreatments = database.selCountOfTreatments();
+            let archives;
 
-                /** 
-                 * There are no treatments in the db so no ETL 
-                 * was ever done. So we add 'full' to the typesOfArchives 
-                 * stack.
-                 */
-                archiveTypes.unshift('full');
-
-                /** 
-                 * We set fullFlag to true if [ archiveTypes ] 
-                 * includes 'full' archive to be processed.
-                 */
-                fullFlag = true;
+            if (numOfTreatments) {
+                
+                //
+                // There are treatments in the db already. So we need
+                // to determine the type of archive and timestamp of
+                // archive that should be processed
+                archives = utils.determinePeriodAndTimestamp();
             }
             else {
-                log.info("since treatments exist in the db, we will start with a 'monthly' archive");
+                log.info('-'.repeat(80));
+                log.info('since there are no treatments in the db, we will start with a "YEARLY" archive');
+                archives = [
+                    'yearly', 
+                    'monthly', 
+                    'weekly', 
+                    'daily'
+                ];
             }
+
+            update(archives, stats);
+
+            // let took = 0;
+            // let mspf = 0;
+            // let fps = 0;
+        
+            // if (stats.download.numOfFiles) {
+            //     took = stats.etl.ended - stats.etl.started;
+            //     mspf = (took / stats.etl.treatments).toFixed(2);
+            //     fps = (stats.etl.treatments * 1000 / took).toFixed(2);
+            // }
+
+            // log.info('='.repeat(80));
+
+            // if (ts.printStats) {
+            //     console.log(util.inspect(stats, false, null, true));
+            // }
+
             
-            update(archiveTypes, fullFlag);
+
+            // log.info('-'.repeat(80));
+            // log.info(`ETL took: ${took} ms = (${mspf} ms/XML or ${fps} XMLs/s)`);
+            // log.info('TRUEBUG DONE');
+            // log.info('='.repeat(80));
         }
     }
 }
 
-init();
+init(stats);

@@ -1,0 +1,36 @@
+truebug USAGE:
+*******************************************************************************
+
+node bin/truebug/index.js
+    --run=[ counts | archiveUpdates | etl ]
+    --runMode=[ dry-run | real ]
+    --source=[ archive | xml ]
+
+Note 1: 
+- *all* options expect --run are optional.
+- if no options are provided, usage is printed in the terminal.
+- options not provided are picked up from config.
+- [choices] are choose-one-from-the-list.
+
+EXAMPLES
+*******************************************************************************
+
+index.js --run=counts                   // get count of rows in each table in 
+                                        //     the db
+index.js --run=archiveUpdates           // get updates for each kind of archive
+-------------------------------------------------------------------------------
+Note 2: No other options are required for the above two invocations
+-------------------------------------------------------------------------------
+
+index.js --run=etl                      // perform the ETL
+
+Note 3: Additional options are as below, and may be provided on command line 
+or, if not, they will be picked up from the config settings
+
+index.js --run=etl --runMode=dry-run    // do a dry run without changing
+                                        //     anything
+
+index.js --run=etl --runMode=real       // make permanent changes
+index.js --run=etl --source=archive     // use archives
+index.js --run=etl --source=xml         // use a single XML as a source 
+                                        //     (for testing)`;

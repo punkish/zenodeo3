@@ -1,6 +1,6 @@
 'use strict'
 
-const { test } = require('tap')
+import { test } from 'tap';
 const { build } = require('../helper')
 
 test('example is loaded', async (t) => {
