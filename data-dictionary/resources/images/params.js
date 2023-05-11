@@ -225,23 +225,43 @@ const params = [
     },
     {
         name: 'latitude',
-        dict: materialCitations
+        dict: materialCitations,
+        joins: [
+            'JOIN treatments ON images.treatments_id = treatments.id',
+            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+        ]
     },
     {
         name: 'longitude',
-        dict: materialCitations
+        dict: materialCitations,
+        joins: [
+            'JOIN treatments ON images.treatments_id = treatments.id',
+            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+        ]
     },
     {
         name: 'geolocation',
-        dict: materialCitations
+        dict: materialCitations,
+        joins: [
+            'JOIN treatments ON images.treatments_id = treatments.id',
+            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+        ]
     },
     {
         name: 'isOnLand',
-        dict: materialCitations
+        dict: materialCitations,
+        joins: [
+            'JOIN treatments ON images.treatments_id = treatments.id',
+            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+        ]
     },
     {
         name: 'validGeo',
-        dict: materialCitations
+        dict: materialCitations,
+        joins: [
+            'JOIN treatments ON images.treatments_id = treatments.id',
+            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+        ]
     }
 ];
 
