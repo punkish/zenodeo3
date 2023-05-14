@@ -12,7 +12,7 @@ module.exports = {
     /**
      * this overrides any test or development mode settings
      */
-    "runMode": "real", 
+    "mode": "real", 
     "server": {
         "hostname": 'https://tb.plazi.org',
         "path": 'dumps',

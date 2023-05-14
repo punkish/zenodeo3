@@ -16,7 +16,9 @@ import { routes as resources } from './routes/api/index.js';
 export async function server(opts={}) {
     const fastify = Fastify(opts);
 
+    //
     // register the plugins
+    //
     fastify.register(favicon);
     fastify.register(cors);
     fastify.register(sensible);
@@ -26,7 +28,9 @@ export async function server(opts={}) {
     fastify.register(view);
     fastify.register(cron);
 
+    //
     // register the routes to resources
+    //
     fastify.register(tos);
     fastify.register(docs);
     resources.forEach(resource => fastify.register(resource, { prefix: 'v3' }));

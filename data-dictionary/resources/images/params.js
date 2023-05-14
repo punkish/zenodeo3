@@ -31,6 +31,19 @@ const params = [
         }
     },
     {
+        name: 'figureDoiOriginal',
+//         schema: {
+//             type: 'string',
+//             description: `Can use the following syntax: 
+// - \`figureDoi=eq(http://doi.org/10.5281/zenodo.3850863)\``
+//         },
+        sql: {
+            desc: 'The DOI of the image as extracted',
+            type: 'TEXT'
+        },
+        cheerio: '$("figureCitation").attr("figureDoi")'
+    },
+    {
         name: 'figureDoi',
         schema: {
             type: 'string',
@@ -38,8 +51,17 @@ const params = [
 - \`figureDoi=eq(http://doi.org/10.5281/zenodo.3850863)\``
         },
         sql: {
-            desc: 'The DOI of the image',
-            type: 'TEXT'
+            desc: 'The DOI of the image cleaned up',
+            type: `TEXT GENERATED ALWAYS AS (
+                Iif(
+                    Instr(figureDoiOriginal, '/10.'), 
+                    Substr(
+                        figureDoiOriginal, 
+                        Instr(figureDoiOriginal, '/10.') + 1
+                    ), 
+                    figureDoiOriginal
+                ) 
+            ) STORED`
         },
         cheerio: '$("figureCitation").attr("figureDoi")'
     },

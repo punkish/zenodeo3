@@ -17,9 +17,9 @@ import * as parse from './lib/parse.js';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 const truebug = config.truebug;
-//const ts = truebug.steps.database;
 
-import * as utils from './lib/utils.js';
+import * as tbutils from './lib/utils.js';
+import * as utils from '../../lib/utils.js';
 
 const logOpts = JSON.parse(JSON.stringify(truebug.log));
 logOpts.name = 'TB           ';
@@ -65,16 +65,19 @@ const calcRows = (stats) => {
 }
 
 const processFiles = (archive_name, files, stats) => {
-    utils.incrementStack(logOpts.name, 'processFiles');
+    tbutils.incrementStack(logOpts.name, 'processFiles');
 
     //
     // If totalFiles is less than ${defaultBatch} then we insert 1/10th of 
     // totalFiles at a time. This is the ${batch}. But if totalFiles is 
     // more than ${defaultBatch}, we insert ${defaultBatch} files at a time.
-    const totalFiles = files.length;
-    //const totalFiles = 10;
+    //
+    const totalFiles = truebug.mode === "real" 
+        ? files.length
+        : 15;
+    
     const strTotalFilesLen = String(totalFiles).length;
-    const defaultBatch = 10000;
+    const defaultBatch = 5000;
     const batch = totalFiles < defaultBatch 
         ? Math.floor(totalFiles / 10) 
         : defaultBatch;
@@ -86,8 +89,8 @@ const processFiles = (archive_name, files, stats) => {
     log.info(`${'~'.repeat(120)}\n`, 'end');
 
     //
-    // we time the process using hrtime.bigint() which returns 
-    // time in nanoseconds
+    // we time the process using hrtime.bigint() which returns time in 
+    // nanoseconds that we can convert to ms by dividing by 10e-6
 
     // when the ETL process started
     let startETLTime = process.hrtime.bigint();
@@ -100,31 +103,11 @@ const processFiles = (archive_name, files, stats) => {
     let startInsertTime;
 
     const treatments = [];
-    const treatmentJSONs = [];
 
     for (let i = 0; i < totalFiles; i++) {
         const xml = files[i];
-        //let treatment;
-
-        // check if xml has already been parsed and stored in zenodeo-json.sqlite
         const treatmentId = path.basename(xml, '.xml');
-        // let treatmentJSON = database.getTreatmentJSON(treatmentId);
-
-        // if (treatmentJSON) {
-        //     treatment = JSON.parse(treatmentJSON);
-        //     treatments.push(treatment);
-        // }
-        // else {
-            const { timeTaken, treatment } = parse.parseOne(archive_name, xml);
-            //const treatment = res.treatment;
-            //treatmentJSON = JSON.stringify(treatment);
-            treatmentJSONs.push({
-                treatmentId,
-                //treatmentJSON,
-                timeTaken
-            });
-        // }
-
+        const treatment = parse.parseOne(archive_name, xml);
         treatments.push(treatment);
         parse.calcStats(treatment, stats);
         
@@ -136,9 +119,8 @@ const processFiles = (archive_name, files, stats) => {
                 // initialize db insert time
                 startInsertTime = process.hrtime.bigint();
                 database.insertTreatments(treatments);
-                database.insertTreatmentJSONs(treatmentJSONs);
                 
-                const str = utils.progressBar({ 
+                const str = tbutils.progressBar({ 
                     startETLTime,
                     startTransactionTime, 
                     startInsertTime,
@@ -149,7 +131,6 @@ const processFiles = (archive_name, files, stats) => {
                 });
 
                 treatments.length = 0;
-                treatmentJSONs.length = 0;
 
                 // finished processing all files
                 log.info(`${str}\n`, 'end');
@@ -159,9 +140,8 @@ const processFiles = (archive_name, files, stats) => {
             else if ((i % batch) === 0) {
                 startInsertTime = process.hrtime.bigint();
                 database.insertTreatments(treatments);
-                database.insertTreatmentJSONs(treatmentJSONs);
 
-                const str = utils.progressBar({ 
+                const str = tbutils.progressBar({ 
                     startETLTime,
                     startTransactionTime, 
                     startInsertTime,
@@ -172,7 +152,6 @@ const processFiles = (archive_name, files, stats) => {
                 });
 
                 treatments.length = 0;
-                treatmentJSONs.length = 0;
 
                 // reset time counters
                 startTransactionTime = process.hrtime.bigint();
@@ -195,7 +174,7 @@ const processFiles = (archive_name, files, stats) => {
 };
 
 const etl = (archive_name, files, stats) => {
-    utils.incrementStack(logOpts.name, 'etl');
+    tbutils.incrementStack(logOpts.name, 'etl');
 
     const [ typeOfArchive, timeOfArchive ] = archive_name.split('.');
     log.info(`ETL-ing ${typeOfArchive}`);
@@ -225,7 +204,7 @@ const etl = (archive_name, files, stats) => {
 }
 
 const update = async (archives, stats, firstRun = false) => {
-    utils.incrementStack(logOpts.name, 'update');
+    tbutils.incrementStack(logOpts.name, 'update');
     
     //
     // we grab the first in the list of archives
@@ -243,7 +222,7 @@ const update = async (archives, stats, firstRun = false) => {
     //
     // if needed, download archive from remote server
     const archive_name = await download.download(typeOfArchive, stats);
-
+    
     if (archive_name) {
         database.dropIndexes();
 
@@ -278,7 +257,7 @@ const update = async (archives, stats, firstRun = false) => {
     //if (ts.printStack) {
         log.info('STACK');
         log.info('-'.repeat(80));
-        log.info(JSON.stringify(utils.stack, null, 4));
+        log.info(JSON.stringify(tbutils.stack, null, 4));
     //}
 }
 
@@ -329,7 +308,7 @@ else
  * `truebug` starts here
  */
 const init = (stats) => {
-    utils.incrementStack(logOpts.name, 'init');
+    tbutils.incrementStack(logOpts.name, 'init');
 
     const argv = minimist(process.argv.slice(2));
     
@@ -341,58 +320,81 @@ const init = (stats) => {
     
     //
     // query the tables and return current counts
-    if (argv.run === 'counts') {
+    //
+    if (argv.do === 'getCounts') {
         database.getCounts();
     }
 
     //
     // query the tables and return the details of each 
     // kind of archive update
-    else if (argv.run === 'archiveUpdates') {
+    //
+    else if (argv.do === 'archiveUpdates') {
         database.getArchiveUpdates();
     }
     
     //
     // run etl
-    else if (argv.run === 'etl' || typeof(argv.run) === 'undefined') {
-        const runMode = argv.runMode || truebug.runMode;
+    //
+    else if (argv.do === 'etl' || typeof(argv.do) === 'undefined') {
+        const mode = argv.mode || truebug.mode;
         const source = argv.source || truebug.source;
         
         log.info('='.repeat(80));
-        log.info(`STARTING TRUEBUG (runMode: ${runMode})`);
+        log.info(`STARTING TRUEBUG (mode: ${mode})`);
 
         if (source === 'xml') {
             const single = argv.xml || truebug.archives.xml;
             const xml = `${single}.xml`;
             const typeOfArchive = 'xmls';
-            preflight.checkDir(typeOfArchive, true);
+
+            utils.checkDir({
+                dir: `${truebug.dirs.data}/treatments-dumps/${typeOfArchive}`, 
+                removeFiles: false
+            });
+
             //preflight.copyXmlToDump(typeOfArchive, xml);
 
-            const { timeTaken, treatment } = parse.parseOne(typeOfArchive, xml);
+            const treatment = parse.parseOne(typeOfArchive, xml);
         
             //
             // deep print object to the console
             //
             // https://stackoverflow.com/a/10729284/183692
-            const utilOpts = { showHidden: false, depth: null, color: true };
-            console.log(util.inspect(treatment, utilOpts));
-            // console.log(`time Taken To Parse: ${timeTaken}`);
-            //console.log(treatment.treatmentCitations.flat());
-            // console.log(treatment.materialCitations);
-            // treatment.materialCitations.forEach(materialCitation => {
-            //     console.log(materialCitation.collectionCodes)
-            // });
+            //
+            const utilOpts = { 
+                showHidden: false, 
+                depth: null, 
+                colors: true 
+            };
             
-            //console.log(treatment.bibRefCitations);
-            // console.log(treatment.figureCitations);
-            // console.log(treatment.images);
-            // console.log(`figureCitations: ${treatment.figureCitations.length}`);
-            // console.log(`images: ${treatment.images.length}`);
-            //console.log(treatment.treatmentAuthors);
+            if (argv.print) {
+                console.log(util.inspect(treatment[argv.print], utilOpts));
+                console.log(`${argv.print}: ${treatment[argv.print].length}`)
+
+                // treatment.materialCitations.forEach(materialCitation => {
+                //     console.log(materialCitation.collectionCodes)
+                // });
+
+            }
+            else {
+                console.log(util.inspect(treatment, utilOpts));
+            }
+            
+            console.log(`time Taken To Parse: ${treatment.timeToParseXML}`);
+            
         }
         else {
-            preflight.checkDir('archive');
-            preflight.checkDir('dumps');
+            utils.checkDir({
+                dir: `${truebug.dirs.data}/treatments-archive`,
+                removeFiles: false
+            });
+
+            utils.checkDir({
+                dir: `${truebug.dirs.data}/treatments-dumps`,
+                removeFiles: false
+            });
+
             preflight.backupOldDB();
 
             //
@@ -408,16 +410,16 @@ const init = (stats) => {
                 // There are treatments in the db already. So we need
                 // to determine the type of archive and timestamp of
                 // archive that should be processed
-                archives = utils.determinePeriodAndTimestamp();
+                archives = tbutils.determinePeriodAndTimestamp();
             }
             else {
                 log.info('-'.repeat(80));
                 log.info('since there are no treatments in the db, we will start with a "YEARLY" archive');
                 archives = [
-                    'yearly', 
-                    'monthly', 
+                    // 'yearly', 
+                    // 'monthly', 
                     'weekly', 
-                    'daily'
+                    //'daily'
                 ];
             }
 

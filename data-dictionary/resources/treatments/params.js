@@ -1,8 +1,6 @@
 import * as utils from '../../../lib/utils.js';
 import { treatmentsFts } from '../treatmentsFts/index.js';
 import { materialCitations } from '../materialCitations/index.js';
-import { figureCitations } from '../figureCitations/index.js';
-import { imagesFts } from '../imagesFts/index.js';
 import { collectionCodes } from '../collectionCodes/index.js';
 import { journals } from '../journals/index.js';
 import { kingdoms } from '../kingdoms/index.js';
@@ -12,7 +10,6 @@ import { orders } from '../orders/index.js';
 import { families } from '../families/index.js';
 import { genera } from '../genera/index.js';
 import { species } from '../species/index.js';
-//import { images } from '../images/index.js';
 
 const datePattern = utils.getPattern('date');
 
@@ -86,6 +83,20 @@ const params = [
         indexed: false
     },
     {
+        name: 'treatmentDOIoriginal',
+//         schema: { 
+//             type: 'string',
+//             description: `For example:
+// - \`doi=10.5281/zenodo.275008\``
+//         },
+        sql: {
+            desc: 'DOI of the treatment as extracted',
+            type: 'TEXT COLLATE NOCASE'
+        },
+        cheerio: '$("treatment").attr("ID-DOI")',
+        indexed: false
+    },
+    {
         name: 'treatmentDOI',
         schema: { 
             type: 'string',
@@ -93,11 +104,18 @@ const params = [
 - \`doi=10.5281/zenodo.275008\``
         },
         sql: {
-            desc: 'DOI of the treatment',
-            type: 'TEXT COLLATE NOCASE'
-        },
-        cheerio: '$("treatment").attr("ID-DOI")',
-        indexed: false
+            desc: 'DOI of the treatment cleaned up',
+            type: `TEXT GENERATED ALWAYS AS (
+                Iif(
+                    Instr(treatmentDOIoriginal, '/10.'), 
+                    Substr(
+                        treatmentDOIoriginal, 
+                        Instr(treatmentDOIoriginal, '/10.') + 1
+                    ), 
+                    treatmentDOIoriginal
+                ) 
+            ) STORED`
+        }
     },
     {
         name: 'treatmentLSID',
@@ -199,6 +217,20 @@ const params = [
         defaultOp: 'starts_with'
     },
     {
+        name: 'articleDOIoriginal',
+//         schema: { 
+//             type: 'string',
+//             description: `For example:
+// - \`doi=10.3897/BDJ.4.e8151\``
+//         },
+        sql: {
+            desc: 'DOI of journal article as extracted',
+            type: 'TEXT COLLATE NOCASE'
+        },
+        cheerio: '$("mods\\\\:identifier[type=DOI]").text()',
+        indexed: false
+    },
+    {
         name: 'articleDOI',
         schema: { 
             type: 'string',
@@ -206,11 +238,18 @@ const params = [
 - \`doi=10.3897/BDJ.4.e8151\``
         },
         sql: {
-            desc: 'DOI of journal article',
-            type: 'TEXT COLLATE NOCASE'
-        },
-        cheerio: '$("mods\\\\:identifier[type=DOI]").text()',
-        indexed: false
+            desc: 'DOI of journal article cleaned up',
+            type: `TEXT GENERATED ALWAYS AS (
+                Iif(
+                    Instr(articleDOIoriginal, '/10.'), 
+                    Substr(
+                        articleDOIoriginal, 
+                        Instr(articleDOIoriginal, '/10.') + 1
+                    ), 
+                    articleDOIoriginal
+                ) 
+            ) STORED`
+        }
     },
     {
         name: 'publicationDate',
@@ -238,23 +277,9 @@ const params = [
     },
     {
         name: 'publicationDateMs',
-//         schema: {
-//             type: 'string',
-//             pattern: datePattern,
-//             description: `Can use the following syntax: 
-// - \`publicationDate=eq(2018-1-12)\`
-// - \`publicationDate=since(2018-12-03)\`
-// - \`publicationDate=until(2018-03-22)\`
-// - \`publicationDate=between(2018-03-22 and 2019-12-03)\`
-
-//   **Note:** Date is made of yyyy-m?-d?
-// - yyyy: a four digit year
-// - m?: one or two digit month
-// - d?: one or two digit day`,
-//         },
         sql: {
             desc: 'The publication date of the treatment in ms since unixepoch',
-            type: 'INTEGER AS ((julianday(Cast(publicationDate AS INTEGER)) - 2440587.5) * 86400 * 1000) STORED'
+            type: utils.unixEpochMs('publicationDate')
         },
         zqltype: 'date',
         cheerio: '$("mods\\\\:detail[type=pubDate] mods\\\\:number").text()',
@@ -600,7 +625,8 @@ const params = [
             type: 'INTEGER'
         },
         defaultCol: false,
-        queryable: false
+        queryable: false,
+        indexed: false
     }
 ];
 
@@ -631,43 +657,6 @@ const externalParams = [
             'JOIN treatmentsFts ON treatments.id = treatmentsFts.rowid'
         ],
     },
-    // {
-    //     name: 'httpUri',
-    //     dict: images,
-    //     joins: [
-    //         'JOIN figureCitations ON treatments.id = figureCitations.treatments_id',
-    //         'JOIN figureCitationsXimages ON figureCitations.id = figureCitationsXimages.figureCitations_id',
-    //         'JOIN images ON images.id = figureCitationsXimages.images_id'
-    //     ]
-    // },
-    {
-        name: 'captionText',
-        dict: imagesFts,
-        joins: [
-            'JOIN figureCitations ON treatments.id = figureCitations.treatments_id',
-            'JOIN figureCitationsFts ON figureCitations.id = figureCitationsFts.rowid'
-        ]
-    },
-    // {
-    //     name: 'httpUri',
-    //     dict: figureCitations
-    // },
-    // {
-    //     name: 'captionText',
-    //     dict: figureCitationsFts,
-    //     joins: [
-    //         'JOIN figureCitationsFts ON figureCitations.id = figureCitationsFts.rowid'
-    //     ],
-    //     selname: 'figureCitations.captionText'
-    // },
-    // {
-    //     name: 'isImage',
-    //     dict: figureCitations,
-    // },
-    // {
-    //     name: 'isFirst',
-    //     dict: figureCitations,
-    // },
     {
         name: 'collectionCode',
         dict: collectionCodes,

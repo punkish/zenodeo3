@@ -1,3 +1,5 @@
+import * as utils from '../../../lib/utils.js';
+
 export const params = [
     {
         name: 'id',
@@ -24,7 +26,7 @@ export const params = [
     {
         name: 'created',
         sql: {
-            type: 'INTEGER DEFAULT ((julianday() - 2440587.5) * 86400 * 1000)',
+            type: utils.unixEpochMs(),
             desc: 'timestamp of query'
         },
         indexed: false

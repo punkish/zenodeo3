@@ -19,7 +19,7 @@ import isSea from 'is-sea';
 /** 
  * connect to the database
  */
-import { db, dbJson } from '../../../../lib/dbconn.js';
+import { db } from '../../../../lib/dbconn.js';
 
 const cache = { 
     hits        : 0, 
@@ -44,26 +44,6 @@ const cache = {
 //         : false;
 // }
 
-const createInsertTreatmentJSONs = (db) => {
-    const fn = 'insertTreatmentJSONs';
-    if (!ts[fn]) return () => {};
-
-    const stm = db.prepare(`INSERT INTO treatments (treatmentId, timeTaken)
-    VALUES (@treatmentId, @timeTaken)`);
-
-    const insertTreatmentJSONs = db.transaction((treatmentJSONs) => {
-        
-        for (const { treatmentId, treatmentJSON, timeTaken } of treatmentJSONs) {
-            stm.run({ treatmentId, timeTaken });
-        }
-
-    });
-
-    return insertTreatmentJSONs;
-}
-
-const insertTreatmentJSONs = createInsertTreatmentJSONs(dbJson);
-
 const createInsertTreatment = (db) => {
     const dbConn = db.conn;
     const fn = db.insertFuncs;
@@ -86,7 +66,6 @@ const createInsertTreatment = (db) => {
     const insertTreatmentCitation                 = fn.insertTreatmentCitation(dbConn);
     const insertFigureCitation                    = fn.insertFigureCitation(dbConn);
     const insertImage                             = fn.insertImage(dbConn);
-    //const insertImages_figureCitations            = fn.insertImages_figureCitations(dbConn);
     const insertMaterialCitation                  = fn.insertMaterialCitation(dbConn);
     const selectMaterialCitations_id              = fn.selectMaterialCitations_id(dbConn);
     const insertCollectionCode                    = fn.insertCollectionCode(dbConn);
@@ -282,13 +261,6 @@ const createInsertTreatments = (db, cache) => {
 
 const insertTreatments = createInsertTreatments(db, cache);
 
-// const insertTreatmentJSONs = (treatmentJSONs) => {
-//     // const fn = 'insertTreatments';
-//     // if (!ts[fn]) return;
-
-//     insertTreatmentJSONsTransaction(treatmentJSONs);
-// }
-
 // const insertTreatments = (treatments) => {
 //     const fn = 'insertTreatments';
 //     if (!ts[fn]) return;
@@ -302,7 +274,7 @@ const dropIndexes = () => {
     //utils.incrementStack(logOpts.name, fn);
 
     log.info('dropping indexes');
-    if (truebug.runMode === 'real') {
+    if (truebug.mode !== 'dryRun') {
         const indexes = db.indexes;
         Object.keys(indexes).forEach(idx => {
             db.conn.prepare(`DROP INDEX IF EXISTS ${idx}`).run();
@@ -316,7 +288,7 @@ const buildIndexes = () => {
     //utils.incrementStack(logOpts.name, fn);
 
     log.info('building indexes');
-    if (truebug.runMode === 'real') {
+    if (truebug.mode !== 'dryRun') {
         const indexes = db.indexes;
 
         for (const [name, stmt] of Object.entries(indexes)) {
@@ -409,7 +381,7 @@ WHERE
 //     const insertMaterialCitationsRtree   = fn.insertMaterialCitationsRtree(dbConn);
 //     const insertMaterialCitationsGeopoly = fn.insertMaterialCitationsGeopoly(dbConn);
 
-//     if (truebug.runMode === 'real') {
+//     if (truebug.mode !== 'dryRun') {
 //         insertTreatmentsFts.run();
 //         insertMaterialCitationsFts.run();
 //         insertBibRefCitationsFts.run();
@@ -434,7 +406,7 @@ const insertStats = (stats) => {
     const insertEtl = fn.insertEtl(dbConn);
     const insertUnzip = fn.insertUnzip(dbConn);
 
-    if (truebug.runMode === 'real') {
+    if (truebug.mode !== 'dryRun') {
         const archives_id = insertArchivesGet_archives_id.run(stats.archives).lastInsertRowid;
 
         stats.downloads.archives_id = archives_id;
@@ -636,9 +608,7 @@ const updateIsOnLand = () => {
 }
 
 export {
-    //getTreatmentJSON,
     insertTreatments,
-    insertTreatmentJSONs,
     dropIndexes,
     buildIndexes,
     selCountOfTreatments,

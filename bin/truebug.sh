@@ -18,6 +18,6 @@
 # 0 0 * * * cd $HOME/$APPDIR && bin/truebug.sh
 # -------- end: crontab entry --------------------------
 
-# run truebug with default args etl --runMode=real 
+# run truebug with default args etl --mode=real 
 # the latter picked up from config
 node bin/truebug/index.js

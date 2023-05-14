@@ -56,7 +56,7 @@ module.exports = {
     "useGot": false,
 
     // This is where the db is stored
-    "dataDir": "data/db",
+    "dataDir": "data/db2",
 
     "cache": {
         "on": true,
@@ -73,8 +73,9 @@ module.exports = {
             "dir": path.join(cwd, 'bin/truebug/logs')
         },
 
-        //"runMode": 'test', // simulated
-        "runMode": 'real',   // real data
+        //"mode": 'dryRun', // simulated
+        "mode": "test",    // real data but only 15 files
+        //"mode": "real",     // real data
 
         /**
          * server where the data are stored 

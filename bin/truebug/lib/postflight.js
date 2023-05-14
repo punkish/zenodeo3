@@ -17,7 +17,7 @@ const cpFile = (archive_name, xml) => {
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
     
-    if (truebug.runMode === 'real') {
+    if (truebug.mode !== 'dryRun') {
         const tgt = utils.pathToXml(xml);
 
         if (!fs.existsSync(tgt)) {
@@ -34,7 +34,7 @@ const rmFile = (archive_name, xml) => {
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
-    if (truebug.runMode === 'real') {
+    if (truebug.mode !== 'dryRun') {
         const src = `${truebug.dirs.data}/treatments-dumps/${archive_name}/${xml}`;
         fs.rmSync(src);
     }

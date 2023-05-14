@@ -41,7 +41,7 @@ const unzip = function(archive_name, stats) {
         // -d extract files into exdir
         let cmd = `unzip -q -n ${archive} -d ${archive_dir}`;
     
-        if (truebug.runMode === 'real') {
+        if (truebug.mode !== 'dryRun') {
             execSync(cmd);
             
             //
@@ -118,18 +118,58 @@ const download = async (typeOfArchive = 'daily', stats) => {
             //
             // a local copy of the more recent archive does not
             // exist, so we will download it from the remote server
-            const d = await new Promise((resolve) => {      
-                const opts = { method: 'GET' };
-                const req = https.request(url, opts, (res) => {
-                    const file = fs.createWriteStream(localCopy);
-                    res.on('data', (chunk) => file.write(chunk))
-                       .on('end', () => file.end());
+            // const d = await new Promise((resolve) => {      
+            //     const opts = { method: 'GET' };
+            //     const req = https.request(url, opts, (res) => {
+            //         const file = fs.createWriteStream(localCopy);
+            //         res.on('data', (chunk) => {
+            //                 file.write(chunk);
+            //                 //process.stdout.write(chunk);
+            //             })
+            //            .on('end', () => {
+            //                 file.end();
+            //                 resolve(archive_name)
+            //            })
+            //            .on('error', (error) => console.log(error));
+            //     });
+                
+            //     req.on('error', (error) => console.error(error));
+            //     req.end();
+            // });
 
+            // https://stackoverflow.com/a/32134846/183692
+            const d = await new Promise((resolve) => { 
+                const file = fs.createWriteStream(localCopy);
+
+                const request = https.get(url, (response) => {
+
+                    // check if response is success
+                    if (response.statusCode !== 200) {
+                        return cb('Response status was ' + response.statusCode);
+                    }
+
+                    response.pipe(file);
+                });
+
+                // close() is async, call cb after close completes
+                file.on('finish', () => {
+                    file.close();
                     resolve(archive_name);
                 });
-                
-                req.on('error', (error) => console.error(error));
-                req.end();
+
+                // check for request error too
+                request.on('error', (err) => {
+
+                    // delete the (partial) file and then return the error
+                    fs.unlink(dest, () => cb(err.message)); 
+                });
+
+                // Handle errors
+                file.on('error', (err) => { 
+
+                    // delete the (partial) file and then return the error
+                    fs.unlink(dest, () => cb(err.message)); 
+                });
             });
 
             if (d) {
