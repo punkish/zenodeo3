@@ -416,10 +416,10 @@ const init = (stats) => {
                 log.info('-'.repeat(80));
                 log.info('since there are no treatments in the db, we will start with a "YEARLY" archive');
                 archives = [
-                    // 'yearly', 
-                    // 'monthly', 
+                    'yearly', 
+                    'monthly', 
                     'weekly', 
-                    //'daily'
+                    'daily'
                 ];
             }
 

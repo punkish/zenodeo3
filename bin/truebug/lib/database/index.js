@@ -440,60 +440,40 @@ const getCounts = () => {
     if (!ts[fn]) return;
     //utils.incrementStack(logOpts.name, fn);
 
-    const tables = [
-        { table: 'archives', count: 0 },
-        { table: 'bibRefCitations', count: 0 },
-        { table: 'bibRefCitationsFts', count: 0 },
-        { table: 'classes', count: 0 },
-        { table: 'collectionCodes', count: 0 },
-        { table: 'downloads', count: 0 },
-        { table: 'etl', count: 0 },
-        { table: 'families', count: 0 },
-        { table: 'figureCitations', count: 0 },
-        { table: 'figureCitationsFts', count: 0 },
-        { table: 'figureCitations_images', count: 0 },
-        { table: 'genera', count: 0 },
-        { table: 'images', count: 0 },
-        { table: 'journals', count: 0 },
-        { table: 'journalsByYears', count: 0 },
-        //{ table: 'keywords', count: 0 },
-        { table: 'kingdoms', count: 0 },
-        { table: 'materialCitations', count: 0 },
-        { table: 'materialCitationsFts', count: 0 },
-        { table: 'materialCitationsGeopoly', count: 0 },
-        { table: 'materialCitationsRtree', count: 0 },
-        { table: 'materialCitations_collectionCodes', count: 0 },
-        { table: 'orders', count: 0 },
-        { table: 'phyla', count: 0 },
-        //{ table: 'queries', count: 0 },
-        { table: 'species', count: 0 },
-        //{ table: 'taxa', count: 0 },
-        { table: 'treatmentAuthors', count: 0 },
-        { table: 'treatmentCitations', count: 0 },
-        { table: 'treatments', count: 0 },
-        { table: 'treatmentsFts', count: 0 },
-        { table: 'unzip', count: 0 }
-    ];
+    const tables = db.conn.prepare(`SELECT name AS table_name 
+        FROM pragma_table_list 
+        WHERE type != 'shadow' AND name NOT IN (
+            'materialCitationsGeopoly_node',
+            'materialCitationsGeopoly_parent',
+            'materialCitationsGeopoly_rowid',
+            'sqlite_schema',
+            'sqlite_temp_schema'
+        )
+        ORDER BY name`).all();
 
     let total = 0;
 
     tables.forEach(t => {
         try {
-            t.count = db.conn
-                .prepare(`SELECT Count(*) AS c FROM ${t.table}`)
+            const start = process.hrtime.bigint();
+            t.rows = db.conn
+                .prepare(`SELECT Count(*) AS c FROM ${t.table_name}`)
                 .get().c;
-
-            total += t.count;
+            const end = process.hrtime.bigint();
+            const took = (Number(end) - Number(start)) / 10e6;
+            t.took = took;
+            total += t.rows;
         }
         catch (error) {
             console.log(error);
         }
     });
 
-    tables.push({ table: 'Total rows', count: total });
+    tables.push({ table_name: 'Total rows', rows: total, took: '' });
 
     log.info('getting counts');
     console.table(tables);
+    //console.log(total);
 }
 
 /**

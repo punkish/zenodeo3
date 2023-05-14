@@ -56,7 +56,7 @@ module.exports = {
     "useGot": false,
 
     // This is where the db is stored
-    "dataDir": "data/db2",
+    "dataDir": "data/db",
 
     "cache": {
         "on": true,
@@ -74,8 +74,8 @@ module.exports = {
         },
 
         //"mode": 'dryRun', // simulated
-        "mode": "test",    // real data but only 15 files
-        //"mode": "real",     // real data
+        //"mode": "test",    // real data but only 15 files
+        "mode": "real",     // real data
 
         /**
          * server where the data are stored 
