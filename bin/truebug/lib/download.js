@@ -70,14 +70,14 @@ const download = async (typeOfArchive = 'daily', stats) => {
 
     //
     // construct the remote file name and path to it on the server
-    const server = truebug.server.hostname;
-    const remoteName = typeOfArchive === 'yearly' 
+    //
+    const remoteArchive = typeOfArchive === 'yearly' 
         ? 'plazi.zenodeo.zip'
         : `plazi.zenodeo.${typeOfArchive}.zip`;
-    const pathToArchive = `/${truebug.server.path}/${remoteName}`;
-    const url = `${server}/${pathToArchive}`;
+    const pathToArchive = `/${truebug.server.path}/${remoteArchive}`;
+    const url = `${truebug.server.hostname}/${pathToArchive}`;
 
-    log.info(`checking if there is "${remoteName}" on the server…`, 'start');
+    log.info(`checking if there is "${remoteArchive}" on the server…`, 'start');
 
     let archive_name = await new Promise((resolve) => {
         const opts = { method: 'HEAD' };
@@ -86,7 +86,8 @@ const download = async (typeOfArchive = 'daily', stats) => {
 
             if (res.statusCode == 200) {
                 const d = new Date(res.headers['last-modified']);
-                const time = d.toDateString().replace(/ /g, '-');
+                //const time = d.toDateString().replace(/ /g, '-');
+                const time = d.toISOString().split('T')[0];
 
                 archive_name = `${typeOfArchive}.${time}`;
                 stats.archives.typeOfArchive = typeOfArchive;
@@ -108,35 +109,17 @@ const download = async (typeOfArchive = 'daily', stats) => {
 
         //
         // Let's check if a local copy exists
-        log.info(`checking for a local copy of "${remoteName}"…`, 'start');
+        log.info(`checking for a local copy of "${remoteArchive}"…`, 'start');
         const exists = fs.existsSync(localCopy);
 
         if (!exists) {
             log.info(' there is none\n', 'end');
-            log.info(`downloading "${remoteName}" -> "${archive_name}.zip"…`, 'start');
+            log.info(`downloading "${remoteArchive}" -> "${archive_name}.zip"…`, 'start');
 
             //
             // a local copy of the more recent archive does not
             // exist, so we will download it from the remote server
-            // const d = await new Promise((resolve) => {      
-            //     const opts = { method: 'GET' };
-            //     const req = https.request(url, opts, (res) => {
-            //         const file = fs.createWriteStream(localCopy);
-            //         res.on('data', (chunk) => {
-            //                 file.write(chunk);
-            //                 //process.stdout.write(chunk);
-            //             })
-            //            .on('end', () => {
-            //                 file.end();
-            //                 resolve(archive_name)
-            //            })
-            //            .on('error', (error) => console.log(error));
-            //     });
-                
-            //     req.on('error', (error) => console.error(error));
-            //     req.end();
-            // });
-
+            //
             // https://stackoverflow.com/a/32134846/183692
             const d = await new Promise((resolve) => { 
                 const file = fs.createWriteStream(localCopy);
@@ -189,7 +172,13 @@ const download = async (typeOfArchive = 'daily', stats) => {
     return archive_name;
 }
 
+const cleanOldArchive = (archive_name) => {
+    console.log(`removing old archive ${archive_name}`);
+    //fs.rmdirSync(archive_name, { recursive: true, force: true });
+}
+
 export { 
     unzip, 
-    download
+    download,
+    cleanOldArchive
 }

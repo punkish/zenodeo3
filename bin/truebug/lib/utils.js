@@ -288,9 +288,11 @@ const getLastUpdate = (typeOfArchive) => {
 
 const determinePeriodAndTimestamp = () => {
     const last_update = database.getLastUpdate();
-    console.log(`last_update: ${last_update}`)
-    const currentTimeOfArchive = new Date().toDateString().replace(/ /g, '-');
-    //const current_archive = getArchiveNameAndTimestamp(typeOfArchive);
+
+    //
+    // what the archive should be if it were downloaded today
+    //
+    const currentTimeOfArchive = new Date().toISOString().split('T')[0];
 
     const archives = [];
 

@@ -306,47 +306,49 @@ const selCountOfTreatments = () => {
     const sql = 'SELECT Count(*) AS c FROM treatments';
 
     log.info('Getting count of treatments already in the db… ', 'start');
-    const num = db.conn.prepare(sql).get().c;
+    const num = db.conn
+        .prepare(sql)
+        .get().c;
     log.info(`found ${num}\n`, 'end');
     return num;
 }
 
-const _selMaxrowidVirtualTable = (table, alias) => {
-    const fn = '_selMaxrowidVirtualTable';
-    //utils.incrementStack(logOpts.name, fn);
+// const _selMaxrowidVirtualTable = (table, alias) => {
+//     const fn = '_selMaxrowidVirtualTable';
+//     //utils.incrementStack(logOpts.name, fn);
 
-    const sql = `SELECT Max(rowid) AS c FROM ${alias}.${table}`;
-    return db.conn.prepare(sql).get().c;
-}
+//     const sql = `SELECT Max(rowid) AS c FROM ${alias}.${table}`;
+//     return db.conn.prepare(sql).get().c;
+// }
 
-const getLastUpdate_old = (typeOfArchive) => {
-    const fn = 'getLastUpdate';
-    if (!ts[fn]) return;
-    //utils.incrementStack(logOpts.name, fn);
+// const getLastUpdate_old = (typeOfArchive) => {
+//     const fn = 'getLastUpdate';
+//     if (!ts[fn]) return;
+//     //utils.incrementStack(logOpts.name, fn);
 
-    const sql = `SELECT 
-    Max(started) AS started,
-    datetime(Max(started)/1000, 'unixepoch') AS start, 
-    datetime(ended/1000, 'unixepoch') AS end, 
-    (ended - started) AS duration,
-    datetime(timeOfArchive/1000, 'unixepoch') AS timeOfArchive,
-    treatments,
-    treatmentCitations,
-    materialCitations,
-    figureCitations,
-    bibRefCitations,
-    treatmentAuthors,
-    collectionCodes,
-    journals
-FROM
-    etlstats
-WHERE
-    typeOfArchive = ?`;
+//     const sql = `SELECT 
+//     Max(started) AS started,
+//     datetime(Max(started)/1000, 'unixepoch') AS start, 
+//     datetime(ended/1000, 'unixepoch') AS end, 
+//     (ended - started) AS duration,
+//     datetime(timeOfArchive/1000, 'unixepoch') AS timeOfArchive,
+//     treatments,
+//     treatmentCitations,
+//     materialCitations,
+//     figureCitations,
+//     bibRefCitations,
+//     treatmentAuthors,
+//     collectionCodes,
+//     journals
+// FROM
+//     etlstats
+// WHERE
+//     typeOfArchive = ?`;
 
-    return db.conn
-        .prepare(sql)
-        .get(typeOfArchive);
-}
+//     return db.conn
+//         .prepare(sql)
+//         .get(typeOfArchive);
+// }
 
 const getLastUpdate = () => {
     const fn = 'getLastUpdate';
@@ -360,8 +362,8 @@ const getLastUpdate = () => {
     typeOfArchive || '.' || timeOfArchive || '.zip' AS nameOfArchive
 FROM
     archives
-WHERE
-    id = (SELECT Max(id) FROM archives)`;
+ORDER BY id DESC 
+LIMIT 1`;
 
     return db.conn
         .prepare(sql)
@@ -407,7 +409,8 @@ const insertStats = (stats) => {
     const insertUnzip = fn.insertUnzip(dbConn);
 
     if (truebug.mode !== 'dryRun') {
-        const archives_id = insertArchivesGet_archives_id.run(stats.archives).lastInsertRowid;
+        const archives_id = insertArchivesGet_archives_id.run(stats.archives)
+            .lastInsertRowid;
 
         stats.downloads.archives_id = archives_id;
         insertDownloads.run(stats.downloads);
@@ -441,15 +444,16 @@ const getCounts = () => {
     //utils.incrementStack(logOpts.name, fn);
 
     const tables = db.conn.prepare(`SELECT name AS table_name 
-        FROM pragma_table_list 
-        WHERE type != 'shadow' AND name NOT IN (
+    FROM pragma_table_list 
+    WHERE 
+        type != 'shadow' AND 
+        name NOT LIKE 'sqlite%' AND 
+        name NOT IN (
             'materialCitationsGeopoly_node',
             'materialCitationsGeopoly_parent',
-            'materialCitationsGeopoly_rowid',
-            'sqlite_schema',
-            'sqlite_temp_schema'
+            'materialCitationsGeopoly_rowid'
         )
-        ORDER BY name`).all();
+    ORDER BY name;`).all();
 
     let total = 0;
 
@@ -460,7 +464,7 @@ const getCounts = () => {
                 .prepare(`SELECT Count(*) AS c FROM ${t.table_name}`)
                 .get().c;
             const end = process.hrtime.bigint();
-            const took = (Number(end) - Number(start)) / 10e6;
+            const took = Number(end - start) / 1e6;
             t.took = took;
             total += t.rows;
         }
@@ -473,7 +477,6 @@ const getCounts = () => {
 
     log.info('getting counts');
     console.table(tables);
-    //console.log(total);
 }
 
 /**

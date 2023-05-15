@@ -90,7 +90,7 @@ const processFiles = (archive_name, files, stats) => {
 
     //
     // we time the process using hrtime.bigint() which returns time in 
-    // nanoseconds that we can convert to ms by dividing by 10e-6
+    // nanoseconds that we can convert to ms by dividing by 1e-6
 
     // when the ETL process started
     let startETLTime = process.hrtime.bigint();
@@ -106,7 +106,7 @@ const processFiles = (archive_name, files, stats) => {
 
     for (let i = 0; i < totalFiles; i++) {
         const xml = files[i];
-        const treatmentId = path.basename(xml, '.xml');
+        //const treatmentId = path.basename(xml, '.xml');
         const treatment = parse.parseOne(archive_name, xml);
         treatments.push(treatment);
         parse.calcStats(treatment, stats);
@@ -209,6 +209,7 @@ const update = async (archives, stats, firstRun = false) => {
     //
     // we grab the first in the list of archives
     // one of 'yearly', 'monthly', 'weekly', or 'daily'
+    //
     const typeOfArchive = archives.shift();
 
     if (!firstRun) {
@@ -221,6 +222,7 @@ const update = async (archives, stats, firstRun = false) => {
 
     //
     // if needed, download archive from remote server
+    //
     const archive_name = await download.download(typeOfArchive, stats);
     
     if (archive_name) {
@@ -228,9 +230,15 @@ const update = async (archives, stats, firstRun = false) => {
 
         //
         // unzip archive, if needed, and read the files into an array
+        //
         const files = download.unzip(archive_name, stats);
         etl(archive_name, files, stats);
         database.insertStats(stats);
+
+        //
+        // clean up old archive
+        //
+        download.cleanOldArchive(archive_name);
 
         if (archives.length) {
             log.info(`next up, the "${archives[0].toUpperCase()}" archive`);
@@ -255,9 +263,9 @@ const update = async (archives, stats, firstRun = false) => {
     console.log(util.inspect(stats, utilOpts));
 
     //if (ts.printStack) {
-        log.info('STACK');
-        log.info('-'.repeat(80));
-        log.info(JSON.stringify(tbutils.stack, null, 4));
+        // log.info('STACK');
+        // log.info('-'.repeat(80));
+        // log.info(JSON.stringify(tbutils.stack, null, 4));
     //}
 }
 
@@ -401,6 +409,7 @@ const init = (stats) => {
             // This is the first time we are running update, so
             // let's see if there are any treatments already in 
             // the db
+            //
             const numOfTreatments = database.selCountOfTreatments();
             let archives;
 
@@ -410,6 +419,7 @@ const init = (stats) => {
                 // There are treatments in the db already. So we need
                 // to determine the type of archive and timestamp of
                 // archive that should be processed
+                //
                 archives = tbutils.determinePeriodAndTimestamp();
             }
             else {

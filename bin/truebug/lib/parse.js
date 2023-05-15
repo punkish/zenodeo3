@@ -530,12 +530,10 @@ const parseOne = (archive_name, xml) => {
         const startParseTime = process.hrtime.bigint();
         const treatment = _cheerioparse(xmlContent);
         const endParseTime = process.hrtime.bigint();
-        const timeToParseXML = (Number(endParseTime - startParseTime) / 1e6)
+        const timeToParseXML = (Number(endParseTime - startParseTime) * 1e-6)
             .toFixed(2);
         treatment.timeToParseXML = timeToParseXML;
         return treatment;
-        
-        //return { timeTaken, treatment };
     }
     else {
         log.error(`file ${xmlfile} doesn't look like a treatment`);
