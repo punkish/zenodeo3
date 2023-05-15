@@ -1,7 +1,7 @@
 import * as utils from '../../../lib/utils.js';
 import { treatments } from '../treatments/index.js';
-import { figureCitations } from '../figureCitations/index.js';
 import { imagesFts } from '../imagesFts/index.js';
+import { treatmentsFts } from '../treatmentsFts/index.js';
 import { materialCitations } from '../materialCitations/index.js';
 import { journals } from '../journals/index.js';
 
@@ -32,11 +32,6 @@ const params = [
     },
     {
         name: 'figureDoiOriginal',
-//         schema: {
-//             type: 'string',
-//             description: `Can use the following syntax: 
-// - \`figureDoi=eq(http://doi.org/10.5281/zenodo.3850863)\``
-//         },
         sql: {
             desc: 'The DOI of the image as extracted',
             type: 'TEXT'
@@ -97,11 +92,19 @@ const params = [
  * via this REST endpoint
  */
  const externalParams = [
+    // {
+    //     name: 'q',
+    //     dict: imagesFts,
+    //     joins: [
+    //         'JOIN imagesFts ON images.id = imagesFts.rowid'
+    //     ]
+    // },
     {
         name: 'q',
-        dict: imagesFts,
+        dict: treatmentsFts,
         joins: [
-            'JOIN imagesFts ON images.id = imagesFts.rowid'
+            'JOIN treatments ON images.treatments_id = treatments.id',
+            'JOIN treatmentsFts ON treatments.id = treatmentsFts.rowid'
         ]
     },
     {
