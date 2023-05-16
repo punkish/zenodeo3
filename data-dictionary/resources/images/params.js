@@ -62,11 +62,11 @@ const params = [
     },
     {
         name: 'captionText',
-        schema: {
-            type: 'string',
-            description: `Can use the following syntax: 
-- \`captionText=spiders\``
-        },
+//         schema: {
+//             type: 'string',
+//             description: `Can use the following syntax: 
+// - \`captionText=spiders\``
+//         },
         sql: {
             desc: 'The full text of the figure cited by this treatment',
             type: 'TEXT COLLATE NOCASE'
@@ -92,13 +92,13 @@ const params = [
  * via this REST endpoint
  */
  const externalParams = [
-    // {
-    //     name: 'q',
-    //     dict: imagesFts,
-    //     joins: [
-    //         'JOIN imagesFts ON images.id = imagesFts.rowid'
-    //     ]
-    // },
+    {
+        name: 'captionText',
+        dict: imagesFts,
+        joins: [
+            'JOIN imagesFts ON images.id = imagesFts.rowid'
+        ]
+    },
     {
         name: 'q',
         dict: treatmentsFts,

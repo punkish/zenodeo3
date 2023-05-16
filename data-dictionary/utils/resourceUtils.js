@@ -114,9 +114,13 @@ const getParams = (resourceName) => {
         const params = parm
             .filter(p => {
 
-                // remove params that start with '_' such as 
-                // _uniq and _pk
-                return p.name.substring(0, 1) !== '_';
+                // param names should not start with '_' such as _uniq and _pk
+                const cond1 = p.name.substring(0, 1) !== '_';
+
+                // params should have a schema because only they can be queried
+                const cond2 = p.schema;
+
+                return cond1 && cond2;
             })
             .map(p => {
 
