@@ -459,6 +459,9 @@ const params = [
 - \`geolocation=contained_in(lower_left:{lat: -40.00, lng: -120},upper_right: {lat:23,lng:6.564})\`
 `,
         },
+        joins: [
+            'JOIN materialCitationsRtree ON materialCitations.id = materialCitationsRtree.materialCitations_id'
+        ],
         zqltype: 'geolocation',
         defaultCol: false,
         indexed: false
@@ -474,11 +477,10 @@ const params = [
         name: 'collectionCode',
         dict: collectionCodes,
         joins: [
-            `JOIN materialCitationsXcollectionCodes 
-                ON materialCitations.id = materialCitationsXcollectionCodes.materialCitations_id`,
+            `JOIN materialCitations_collectionCodes 
+                ON materialCitations.id = materialCitations_collectionCodes.materialCitations_id`,
             `JOIN collectionCodes 
-                ON materialCitationsXcollectionCodes.collectionCodes_id = collectionCodes.id`,
-            //'LEFT JOIN gb.institutions ON collectionCodes.collectionCode = gb.institutions.institution_code'
+                ON materialCitations_collectionCodes.collectionCodes_id = collectionCodes.id`
         ]
     },
     {

@@ -661,9 +661,9 @@ const externalParams = [
         name: 'collectionCode',
         dict: collectionCodes,
         joins: [
-            `LEFT JOIN materialCitations ON treatments.treatmentId = materialCitations.treatmentId`,
-            `JOIN materialCitations_x_collectionCodes ON materialCitations.materialCitationId = materialCitations_x_collectionCodes.materialCitationId`,
-            `JOIN collectionCodes ON materialCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode`,
+            `LEFT JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
+            `JOIN materialCitations_collectionCodes ON materialCitations.id = materialCitations_collectionCodes.materialCitations_id`,
+            `JOIN collectionCodes ON materialCitations_collectionCodes.collectionCodes_id = collectionCodes.id`,
             // `LEFT JOIN gb.institutions ON collectionCodes.collectionCode = gb.institutions.institution_code`
         ]
     },
@@ -677,7 +677,10 @@ const externalParams = [
     },
     {
         name: 'geolocation',
-        dict: materialCitations
+        dict: materialCitations,
+        joins: [
+            'JOIN materialCitationsRtree ON materialCitations.id = materialCitationsRtree.materialCitations_id'
+        ],
     },
     {
         name: 'isOnLand',
