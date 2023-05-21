@@ -134,6 +134,11 @@ const getParams = (resourceName) => {
                     p.where = `${resourceName}."${p.name}"`;
                 }
 
+                // give priority to alias, if it exists
+                if (p.alias) {
+                    p.name = p.alias;
+                }
+
                 return p;
             });
 

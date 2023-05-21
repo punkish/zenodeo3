@@ -62,11 +62,12 @@ const params = [
     },
     {
         name: 'captionText',
-//         schema: {
-//             type: 'string',
-//             description: `Can use the following syntax: 
-// - \`captionText=spiders\``
-//         },
+        alias: 'caption',
+        schema: {
+            type: 'string',
+            description: `A snippet extracted from the caption of the image. Can use the following syntax: 
+- \`caption=starts_with(spiders)\``
+        },
         sql: {
             desc: 'The full text of the figure cited by this treatment',
             type: 'TEXT COLLATE NOCASE'
