@@ -180,6 +180,13 @@ const params = [
         ]
     },
     {
+        name: 'publicationDateMs',
+        dict: treatments,
+        joins: [
+            'JOIN treatments ON images.treatments_id = treatments.id'
+        ]
+    },
+    {
         name: 'kingdom',
         dict: treatments,
         joins: [
