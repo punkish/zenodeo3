@@ -82,7 +82,7 @@ const params = [
         },
         sql: {
             desc: 'The FK of the parent treatment',
-            type: 'INTEGER NOT NULL'
+            type: 'INTEGER NOT NULL REFERENCES treatments(id)'
         },
         //cheerio: '$("figureCitation").attr("captionText")'
     },

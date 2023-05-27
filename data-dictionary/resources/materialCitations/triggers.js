@@ -7,6 +7,11 @@ BEGIN
     --insert new entry in fulltext index
     INSERT INTO materialCitationsFts( fulltext ) 
     VALUES ( new.fulltext );
+
+    -- update validGeo in treatments
+    UPDATE treatments 
+    SET validGeo = new.validGeo
+    WHERE treatments.id = new.treatments_id;
 END;
     `,
 
