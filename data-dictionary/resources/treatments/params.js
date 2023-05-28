@@ -79,8 +79,7 @@ const params = [
         },
         cheerio: '$("document").attr("docVersion")',
         defaultCol: false,
-        queryable: false,
-        indexed: false
+        queryable: false
     },
     {
         name: 'treatmentDOIoriginal',
@@ -253,6 +252,32 @@ const params = [
     },
     {
         name: 'publicationDate',
+        alias: 'publicationDateOrig',
+//         schema: {
+//             type: 'string',
+//             pattern: datePattern,
+//             description: `Can use the following syntax: 
+// - \`publicationDate=eq(2018-1-12)\`
+// - \`publicationDate=since(2018-12-03)\`
+// - \`publicationDate=until(2018-03-22)\`
+// - \`publicationDate=between(2018-03-22 and 2019-12-03)\`
+
+//   **Note:** Date is made of yyyy-m?-d?
+// - yyyy: a four digit year
+// - m?: one or two digit month
+// - d?: one or two digit day`,
+//         },
+        sql: {
+            desc: 'The publication date of the treatment',
+            type: 'TEXT'
+        },
+        zqltype: 'date',
+        cheerio: '$("mods\\\\:detail[type=pubDate] mods\\\\:number").text()',
+        defaultOp: 'eq'
+    },
+    {
+        name: 'publicationDateMs',
+        alias: 'publicationDate',
         schema: {
             type: 'string',
             pattern: datePattern,
@@ -267,16 +292,6 @@ const params = [
 - m?: one or two digit month
 - d?: one or two digit day`,
         },
-        sql: {
-            desc: 'The publication date of the treatment',
-            type: 'TEXT'
-        },
-        zqltype: 'date',
-        cheerio: '$("mods\\\\:detail[type=pubDate] mods\\\\:number").text()',
-        defaultOp: 'eq'
-    },
-    {
-        name: 'publicationDateMs',
         sql: {
             desc: 'The publication date of the treatment in ms since unixepoch',
             type: utils.unixEpochMs('publicationDate')
@@ -298,8 +313,8 @@ const params = [
     {
         name: 'journalYear',
         schema: {
-            type: 'string',
-            pattern: utils.re.year,
+            type: 'integer',
+            //pattern: utils.re.year,
             description: ''
         },
         sql: {
@@ -627,6 +642,18 @@ const params = [
         defaultCol: false,
         queryable: false,
         indexed: false
+    },
+    {
+        name: 'validGeo',
+        schema: {
+            type: 'boolean',
+            description: ''
+        },
+        sql: {
+            desc: 'true if treatment has geolocation',
+            type: 'BOOLEAN'
+        },
+        defaultCol: false,
     }
 ];
 
@@ -661,9 +688,9 @@ const externalParams = [
         name: 'collectionCode',
         dict: collectionCodes,
         joins: [
-            `LEFT JOIN materialCitations ON treatments.treatmentId = materialCitations.treatmentId`,
-            `JOIN materialCitations_x_collectionCodes ON materialCitations.materialCitationId = materialCitations_x_collectionCodes.materialCitationId`,
-            `JOIN collectionCodes ON materialCitations_x_collectionCodes.collectionCode = collectionCodes.collectionCode`,
+            `LEFT JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
+            `JOIN materialCitations_collectionCodes ON materialCitations.id = materialCitations_collectionCodes.materialCitations_id`,
+            `JOIN collectionCodes ON materialCitations_collectionCodes.collectionCodes_id = collectionCodes.id`,
             // `LEFT JOIN gb.institutions ON collectionCodes.collectionCode = gb.institutions.institution_code`
         ]
     },
@@ -677,16 +704,19 @@ const externalParams = [
     },
     {
         name: 'geolocation',
-        dict: materialCitations
+        dict: materialCitations,
+        joins: [
+            'JOIN materialCitationsRtree ON materialCitations.id = materialCitationsRtree.materialCitations_id'
+        ],
     },
     {
         name: 'isOnLand',
         dict: materialCitations
     },
-    {
-        name: 'validGeo',
-        dict: materialCitations
-    },
+    // {
+    //     name: 'validGeo',
+    //     dict: materialCitations
+    // },
     {
         name: 'journalTitle',
         dict: journals,

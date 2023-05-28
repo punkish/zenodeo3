@@ -13,7 +13,8 @@ import {
     getDefaultParams,
     getFacetParams,
     getQueryStringSchema,
-    getResourceId
+    getResourceId,
+    getPk
 } from './resourceUtils.js';
 
 import { 
@@ -47,6 +48,7 @@ const functions = [
     { getFacetParams        , args: '[resourceName]'                        },
     { getQueryStringSchema  , args: "resourceName"                          },
     { getResourceId         , args: "resourceName"                          },
+    { getPk                 , args: "resourceName"                          },
     // { getNotCols            , args: ""         },
     //{ createFtsTable, args: '[resourceName]' },
     // { getSourceOfResource   , args: "resource" },

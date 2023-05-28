@@ -62,11 +62,12 @@ const params = [
     },
     {
         name: 'captionText',
-//         schema: {
-//             type: 'string',
-//             description: `Can use the following syntax: 
-// - \`captionText=spiders\``
-//         },
+        alias: 'caption',
+        schema: {
+            type: 'string',
+            description: `A snippet extracted from the caption of the image. Can use the following syntax: 
+- \`caption=starts_with(spiders)\``
+        },
         sql: {
             desc: 'The full text of the figure cited by this treatment',
             type: 'TEXT COLLATE NOCASE'
@@ -81,7 +82,7 @@ const params = [
         },
         sql: {
             desc: 'The FK of the parent treatment',
-            type: 'INTEGER NOT NULL'
+            type: 'INTEGER NOT NULL REFERENCES treatments(id)'
         },
         //cheerio: '$("figureCitation").attr("captionText")'
     },
@@ -173,6 +174,13 @@ const params = [
     },
     {
         name: 'journalYear',
+        dict: treatments,
+        joins: [
+            'JOIN treatments ON images.treatments_id = treatments.id'
+        ]
+    },
+    {
+        name: 'publicationDateMs',
         dict: treatments,
         joins: [
             'JOIN treatments ON images.treatments_id = treatments.id'

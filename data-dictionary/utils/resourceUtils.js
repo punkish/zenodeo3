@@ -68,6 +68,32 @@ const getResourceId = (resourceName) => {
     return D[cacheKey].resourceId;
 }
 
+/**
+ * @function getPk  
+ * @returns {string} name of Primary Key of the resource table
+ */
+const getPk = (resourceName) => {
+    if (!resourceName) {
+        console.error('required argument "resourceName" missing');
+        return;
+    }
+
+    const cacheKey = `res_${resourceName}`;
+
+    // check the cache for resource or initialize it
+    if (!(cacheKey in D)) D[cacheKey] = {};
+    if (!D[cacheKey].pk) {
+        D[cacheKey].pk = getParams(resourceName)
+            .filter(col => {
+                if (col.sql && col.sql.type) {
+                    return col.sql.type.indexOf('PRIMARY KEY') > -1
+                }
+            })[0];
+    }
+
+    return D[cacheKey].pk;
+}
+
 
 /**
  * @function getDefaultCols  
@@ -85,7 +111,16 @@ const getDefaultCols = (resourceName) => {
     if (!(cacheKey in D)) D[cacheKey] = {};
     if (!D[cacheKey].defaultCols) {
         D[cacheKey].defaultCols = getParams(resourceName)
-            .filter(p => !('notDefaultCol' in p));
+            .filter(p => {
+                
+                if ('defaultCol' in p) {
+                    return p.defaultCol === true
+                        ? true
+                        : false;
+                }
+                
+                return true;
+            });
     }
 
     return D[cacheKey].defaultCols;
@@ -113,26 +148,49 @@ const getParams = (resourceName) => {
         
         const params = parm
             .filter(p => {
+                
+                //
+                // should include the PRIMARY KEY
+                //
+                const cond0 = p.sql && p.sql.type 
+                    ? p.sql.type.indexOf('PRIMARY KEY') > -1
+                    : 1;
 
+
+                //
                 // param names should not start with '_' such as _uniq and _pk
+                //
                 const cond1 = p.name.substring(0, 1) !== '_';
 
-                // params should have a schema because only they can be queried
-                const cond2 = p.schema;
+                //
+                // params should have a schema because only they can be queried,
+                // but should include the PRIMARY KEY even though it does not 
+                // have a schema
+                //
+                const cond2 = !cond0 ? p.schema : 1;
 
-                return cond1 && cond2;
+                return cond0 || (cond1 && cond2);
             })
             .map(p => {
 
-                // add a fully-qualified name
-                if (!p.selname) {
-                    p.selname = `${resourceName}."${p.name}"`;
+                // give priority to alias, if it exists
+                if (p.alias) {
+                    p.name = p.alias;
+                    // p.selname = `${resourceName}."${p.name}"`;
+                    // p.where = `${resourceName}."${p.name}"`;
                 }
+                //else {
 
-                // add a where name
-                if (!p.where) {
-                    p.where = `${resourceName}."${p.name}"`;
-                }
+                    // add a fully-qualified name
+                    if (!p.selname) {
+                        p.selname = `${resourceName}."${p.name}"`;
+                    }
+
+                    // add a where name
+                    if (!p.where) {
+                        p.where = `${resourceName}."${p.name}"`;
+                    }
+                //}
 
                 return p;
             });
@@ -253,7 +311,8 @@ const getQueryStringSchema = function(resourceName) {
     if (!D[cacheKey].queryStringSchema) {
 
         // we will create the queryStringSchema and cache it
-        const resourceId = getResourceId(resourceName);
+        //const resourceId = getResourceId(resourceName);
+        const pk = getPk(resourceName);
         const defaultCols = getDefaultCols(resourceName)
             .map(c => c.name);
         defaultCols.push('');
@@ -269,7 +328,7 @@ const getQueryStringSchema = function(resourceName) {
                 if (p.name === 'sortby') {
                     schema.default = schema.default.replace(
                         /resourceId/, 
-                        resourceId.selname
+                        pk.selname
                     );
                 }
                 else if (p.name === 'cols') {
@@ -306,5 +365,6 @@ export {
     getDefaultParams,
     getFacetParams,
     getQueryStringSchema,
-    getResourceId
+    getResourceId,
+    getPk
 }
