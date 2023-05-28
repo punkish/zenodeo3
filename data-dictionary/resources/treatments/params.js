@@ -313,8 +313,8 @@ const params = [
     {
         name: 'journalYear',
         schema: {
-            type: 'string',
-            pattern: utils.re.year,
+            type: 'integer',
+            //pattern: utils.re.year,
             description: ''
         },
         sql: {

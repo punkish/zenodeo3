@@ -1,11 +1,6 @@
 // 
-// see
-// https://github.com/motdotla/dotenv/issues/133#issuecomment-255298822
-// 
-// running 'env.js' first, before anything else, ensures the env variables are 
-// loaded
-// 
-//import './env.js';
+// default the NODE_ENV to 'development'
+//
 const env = process.env.NODE_ENV || 'development';
 import { Config } from '@punkish/zconfig';
 import process from 'node:process';
@@ -81,8 +76,15 @@ const start = async () => {
                 };
 
                 reply.hijack();
+
+                //
+                // since we are sending back raw response, we need to add the
+                // appropriate headers so the response is recognized as JSON
+                // and is CORS-compatible
+                //
                 reply.raw.writeHead(200, { 
-                    'Content-Type': 'application/json; charset=utf-8' 
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'Access-Control-Allow-Origin': '*'
                 });
                 reply.raw.end(JSON.stringify(response));
                 return Promise.resolve('done');
