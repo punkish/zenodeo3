@@ -449,14 +449,14 @@ const parseTreatment = function($) {
         treatmentId       : $('document').attr('docId'),
         treatmentTitle    : $('document').attr('docTitle') || '',
         treatmentVersion  : $('document').attr('docVersion') || '',
-        treatmentDOIoriginal      : $('treatment').attr('ID-DOI') || '',
+        treatmentDOIorig  : $('treatment').attr('ID-DOI') || '',
         treatmentLSID     : $('treatment').attr('LSID') || '',
         zenodoDep         : $('document').attr('ID-Zenodo-Dep') || '',
         zoobankId         : $('document').attr('ID-ZooBank') || '',
         articleId         : $('document').attr('masterDocId') || '',
         articleTitle      : $('document').attr('masterDocTitle') || '',
         articleAuthor     : $('document').attr('docAuthor') || '',
-        articleDOIoriginal: $('mods\\:identifier[type=DOI]').text(),
+        articleDOIorig    : $('mods\\:identifier[type=DOI]').text(),
         publicationDate   : $('mods\\:detail[type=pubDate] mods\\:number').text() || '',
         journalYear       : $('mods\\:relatedItem[type=host] mods\\:part mods\\:date').text() || '',
         journalVolume     : $('mods\\:relatedItem[type=host] mods\\:part mods\\:detail[type=volume] mods\\:number').text() || '',
@@ -490,32 +490,41 @@ const parseTreatment = function($) {
     return treatment;
 }
 
-const _cheerioparse = function(xmlContent) {
-    const fn = '_cheerioparse';
-    if (!ts[fn]) return;
-    tbutils.incrementStack(logOpts.name, fn);
+// const _cheerioparse = function(xmlContent) {
+//     const fn = '_cheerioparse';
+//     if (!ts[fn]) return;
+//     tbutils.incrementStack(logOpts.name, fn);
 
-    const cheerioOpts = { normalizeWhitespace: true, xmlMode: true };
-    const $ = cheerio.load(xmlContent, cheerioOpts, false);
-    $.prototype.cleanText = function () {
-        const fn = 'cleanText';
-        if (!ts[fn]) return;
-        tbutils.incrementStack(logOpts.name, fn);
+//     const startParseTime = process.hrtime.bigint();
+
+//     const cheerioOpts = { normalizeWhitespace: true, xmlMode: true };
+//     const $ = cheerio.load(xmlContent, cheerioOpts, false);
+//     $.prototype.cleanText = function () {
+//         const fn = 'cleanText';
+//         if (!ts[fn]) return;
+//         tbutils.incrementStack(logOpts.name, fn);
     
-        let str = this.text();
-        str = str.replace(utils.re.double_spc, ' ');
-        str = str.replace(utils.re.space_comma, ',');
-        str = str.replace(utils.re.space_colon, ':');
-        str = str.replace(utils.re.space_period, '.');
-        str = str.replace(utils.re.space_openparens, '(');
-        str = str.replace(utils.re.space_closeparens, ')');
-        str = str.trim();
-        return str;
-    }
+//         let str = this.text();
+//         str = str.replace(utils.re.double_spc, ' ');
+//         str = str.replace(utils.re.space_comma, ',');
+//         str = str.replace(utils.re.space_colon, ':');
+//         str = str.replace(utils.re.space_period, '.');
+//         str = str.replace(utils.re.space_openparens, '(');
+//         str = str.replace(utils.re.space_closeparens, ')');
+//         str = str.trim();
+//         return str;
+//     }
 
-    // return a complete treatment 
-    return parseTreatment($);
-}
+//     const treatment = parseTreatment($);
+//     const endParseTime = process.hrtime.bigint();
+//     const timeToParseXML = (Number(endParseTime - startParseTime) * 1e-6)
+//         .toFixed(2);
+//     treatment.timeToParseXML = timeToParseXML;
+
+//     // return a complete treatment 
+//     //return parseTreatment($);
+//     return treatment;
+// }
 
 const parseOne = (archive_name, xml) => {
     const fn = 'parseOne';
@@ -527,12 +536,39 @@ const parseOne = (archive_name, xml) => {
     
     if (utils.re.treatmentId.test(treatmentId)) {
         const xmlContent = fs.readFileSync(xmlfile, 'utf8');
+        //const startParseTime = process.hrtime.bigint();
+        //const treatment = _cheerioparse(xmlContent);
+        // const endParseTime = process.hrtime.bigint();
+        // const timeToParseXML = (Number(endParseTime - startParseTime) * 1e-6)
+        //     .toFixed(2);
+        // treatment.timeToParseXML = timeToParseXML;
+
         const startParseTime = process.hrtime.bigint();
-        const treatment = _cheerioparse(xmlContent);
+
+        const cheerioOpts = { normalizeWhitespace: true, xmlMode: true };
+        const $ = cheerio.load(xmlContent, cheerioOpts, false);
+        $.prototype.cleanText = function () {
+            const fn = 'cleanText';
+            if (!ts[fn]) return;
+            tbutils.incrementStack(logOpts.name, fn);
+        
+            let str = this.text();
+            str = str.replace(utils.re.double_spc, ' ');
+            str = str.replace(utils.re.space_comma, ',');
+            str = str.replace(utils.re.space_colon, ':');
+            str = str.replace(utils.re.space_period, '.');
+            str = str.replace(utils.re.space_openparens, '(');
+            str = str.replace(utils.re.space_closeparens, ')');
+            str = str.trim();
+            return str;
+        }
+
+        const treatment = parseTreatment($);
         const endParseTime = process.hrtime.bigint();
         const timeToParseXML = (Number(endParseTime - startParseTime) * 1e-6)
             .toFixed(2);
         treatment.timeToParseXML = timeToParseXML;
+
         return treatment;
     }
     else {

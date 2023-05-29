@@ -26,7 +26,7 @@ export const plugin = fp(async function(fastify) {
                 cronTime: '5 0 * * *',
                 onTick: async server => {
                     try {
-                        await server.inject('/v3/treatmentimages?family=Formicidae&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
+                        await server.inject('/v3/images?family=Formicidae&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
                     } 
                     catch (err) { 
                         console.error(err);
@@ -39,7 +39,7 @@ export const plugin = fp(async function(fastify) {
                 cronTime: '10 0 * * *',
                 onTick: async server => {
                     try {
-                        await server.inject('/v3/treatmentimages?class=Actinopterygii&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
+                        await server.inject('/v3/images?class=Actinopterygii&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
                     } 
                     catch (err) { 
                         console.error(err);
@@ -52,7 +52,7 @@ export const plugin = fp(async function(fastify) {
                 cronTime: '15 0 * * *',
                 onTick: async server => {
                     try {
-                        await server.inject('/v3/treatmentimages?class=Arachnida&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
+                        await server.inject('/v3/images?class=Arachnida&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
                     } 
                     catch (err) { 
                         console.error(err);
@@ -65,7 +65,7 @@ export const plugin = fp(async function(fastify) {
                 cronTime: '15 0 * * *',
                 onTick: async server => {
                     try {
-                        await server.inject('/v3/treatmentimages?class=Malacostraca&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
+                        await server.inject('/v3/images?class=Malacostraca&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
                     } 
                     catch (err) { 
                         console.error(err);

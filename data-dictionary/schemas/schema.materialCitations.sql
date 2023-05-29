@@ -7,37 +7,37 @@ CREATE TABLE materialCitations (
     "materialCitationId" TEXT NOT NULL UNIQUE,
 
     -- The ID of the parent treatment (FK)
-    "treatmentId" TEXT NOT NULL REFERENCES treatments(treatmentId),
+    "treatments_id" INTEGER NOT NULL REFERENCES treatments(id),
 
     -- The date when the specimen was collected
-    "collectingDate" TEXT,
+    "collectingDate" TEXT COLLATE NOCASE,
 
     -- The collection codes as a CSV string as they appear in text
-    "collectionCodeCSV" TEXT,
+    "collectionCodeCSV" TEXT COLLATE NOCASE,
 
     -- The person who collected the specimen
-    "collectorName" TEXT,
+    "collectorName" TEXT COLLATE NOCASE,
 
     -- The country where the specimen was collected
-    "country" TEXT,
+    "country" TEXT COLLATE NOCASE,
 
     -- The geographic region where the specimen was collected
-    "collectingRegion" TEXT,
+    "collectingRegion" TEXT COLLATE NOCASE,
 
     -- A lower administrative region
-    "municipality" TEXT,
+    "municipality" TEXT COLLATE NOCASE,
 
     -- The county where the specimen was collected
-    "county" TEXT,
+    "county" TEXT COLLATE NOCASE,
 
     -- The state or province where the specimen was collected
-    "stateProvince" TEXT,
+    "stateProvince" TEXT COLLATE NOCASE,
 
     -- The location where the specimen was collected
-    "location" TEXT,
+    "location" TEXT COLLATE NOCASE,
 
     -- The distance to the nearest location, e.g. 23km NW from…
-    "locationDeviation" TEXT,
+    "locationDeviation" TEXT COLLATE NOCASE,
 
     -- The number of listed female specimens
     "specimenCountFemale" INTEGER,
@@ -49,20 +49,20 @@ CREATE TABLE materialCitations (
     "specimenCount" INTEGER,
 
     -- The code of the specimen
-    "specimenCode" TEXT,
+    "specimenCode" TEXT COLLATE NOCASE,
 
     -- The type status
-    "typeStatus" TEXT,
+    "typeStatus" TEXT COLLATE NOCASE,
 
     -- The person or agent who identified the specimen
-    "determinerName" TEXT,
+    "determinerName" TEXT COLLATE NOCASE,
 
     -- The substrate where the specimen has been collected, e.g. leaf,
     -- flower
-    "collectedFrom" TEXT,
+    "collectedFrom" TEXT COLLATE NOCASE,
 
     -- The method used for collecting the specimen
-    "collectingMethod" TEXT,
+    "collectingMethod" TEXT COLLATE NOCASE,
 
     -- The geolocation of the treatment
     "latitude" REAL,
@@ -74,136 +74,133 @@ CREATE TABLE materialCitations (
     "elevation" REAL,
 
     -- The persistent identifier of the specimen
-    "httpUri" TEXT,
+    "httpUri" TEXT COLLATE NOCASE,
 
     -- A boolean that tracks whether or not this resource is considered
     -- deleted/revoked, 1 if yes, 0 if no
     "deleted" INTEGER DEFAULT 0,
 
     -- The full text of the material citation
-    "fulltext" TEXT,
+    "fulltext" TEXT COLLATE NOCASE,
 
     -- 1 (true) if treatment has a valid geolocation
-    "validGeo" INTEGER AS (
-        CASE
-            WHEN
-                typeof(latitude) = 'real' AND
-                abs(latitude) <= 90 AND
-                typeof(longitude) = 'real' AND
+    "validGeo" BOOLEAN GENERATED ALWAYS AS (
+                typeof(latitude) = 'real' AND 
+                abs(latitude) < 90 AND 
+                typeof(longitude) = 'real' AND 
                 abs(longitude) <= 180
-            THEN 1
-            ELSE 0
-        END
-    ) STORED,
+            ) STORED,
 
     -- 1 (true) if treatment is on land
-    "isOnLand" INTEGER DEFAULT NULL,
-
-    -- FK to materialCitationsGeopoly(rowid)
-    "shapeId" INTEGER,
-
-    -- FK to materialCitationsRtree(rowid)
-    "rtreeId" INTEGER
+    "isOnLand" INTEGER DEFAULT NULL
 );
-CREATE TABLE materialCitations_x_collectionCodes (
+CREATE TRIGGER mc_afterInsert 
+AFTER INSERT ON materialCitations 
+BEGIN
 
-    -- The ID of the related materialCitation (FK)
-    "materialCitationId" TEXT NOT NULL REFERENCES materialCitations(materialCitationId),
+    --insert new entry in fulltext index
+    INSERT INTO materialCitationsFts( fulltext ) 
+    VALUES ( new.fulltext );
 
-    -- The ID of the related collectionCode (FK)
-    "collectionCode" TEXT NOT NULL REFERENCES collectionCodes(collectionCode),
-
-    -- primary key declaration
-    PRIMARY KEY ("materialCitationId", "collectionCode")
-) WITHOUT rowid;
-CREATE TABLE collectionCodes (
-
-    -- The collection code for a natural history collection
-    "collectionCode" TEXT UNIQUE NOT NULL PRIMARY KEY,
-
-    -- The country of the collection
-    "country" TEXT,
-
-    -- The name of the collection
-    "name" TEXT,
-
-    -- The LSID of the collection
-    "lsid" TEXT,
-
-    -- The type of the collection
-    "type" TEXT
-) WITHOUT rowid;
-CREATE VIRTUAL TABLE materialCitationsFts USING fts5 (
-    fulltext,
-    content=''
-)
-/* materialCitationsFts(fulltext) */;
-CREATE TABLE IF NOT EXISTS 'materialCitationsFts_data'(id INTEGER PRIMARY KEY, block BLOB);
-CREATE TABLE IF NOT EXISTS 'materialCitationsFts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
-CREATE TABLE IF NOT EXISTS 'materialCitationsFts_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
-CREATE TABLE IF NOT EXISTS 'materialCitationsFts_config'(k PRIMARY KEY, v) WITHOUT ROWID;
-CREATE TRIGGER mc_afterInsert
-            AFTER INSERT ON materialCitations
-            BEGIN
-
-                -- insert new entry in fulltext index
-                INSERT INTO materialCitationsFts(
-                    rowid,
-                    fulltext
-                )
-                VALUES (
-                    new.id,
-                    new.fulltext
-                );
-            END;
+    -- update validGeo in treatments
+    UPDATE treatments 
+    SET validGeo = new.validGeo
+    WHERE treatments.id = new.treatments_id;
+END;
 CREATE TRIGGER mc_afterUpdate
-            AFTER UPDATE ON materialCitations
-            BEGIN
+AFTER UPDATE ON materialCitations 
+BEGIN
 
-                -- "delete" the old index from the fts table
-                INSERT INTO materialCitationsFts(
-                    materialCitationsFts,
-                    rowid,
-                    fulltext
+    -- "delete" the old index from the fts table
+    INSERT INTO materialCitationsFts( materialCitationsFts, rowid, fulltext ) 
+    VALUES( 'delete', old.id, old.fulltext );
+
+    -- add the new index to the fts table
+    INSERT INTO materialCitationsFts( rowid, fulltext ) 
+    VALUES ( new.id, new.fulltext );
+END;
+CREATE TRIGGER mc_afterDelete 
+AFTER DELETE ON materialCitations 
+BEGIN
+
+    -- "delete" the old index from the fts table
+    INSERT INTO materialCitationsFts( materialCitationsFts, rowid, fulltext ) 
+    VALUES( 'delete', old.id, old.fulltext );
+
+    -- remove entries from the geopoly and rtree tables
+    DELETE FROM materialCitationsGeopoly 
+    WHERE materialCitations_id = old.id;
+
+    DELETE FROM materialCitationsRtree 
+    WHERE materialCitations_id = old.id;
+END;
+CREATE TRIGGER mc_loc_afterInsert 
+AFTER INSERT ON materialCitations 
+WHEN new.validGeo = 1
+BEGIN
+
+    -- insert new entry in geopoly table
+    INSERT INTO materialCitationsGeopoly (
+        _shape,
+        materialCitations_id,
+        treatments_id
+    ) 
+    VALUES (
+
+        -- shape
+        geopoly_bbox(
+            geopoly_regular(
+                new.longitude, 
+                new.latitude, 
+
+                -- 5 meters in degrees at given latitude
+                abs(5/(40075017*cos(new.latitude)/360)),
+
+                -- num of sides of poly
+                4
+            )
+        ),
+        new.id,
+        new.treatments_id
+    );
+
+    -- insert new entry in the rtree table
+    INSERT INTO materialCitationsRtree (
+        minX,
+        maxX,
+        minY,
+        maxY,
+        materialCitations_id,
+        treatments_id
+    )
+    SELECT 
+        json_extract(g, '$[0][0]') AS minX, 
+        json_extract(g, '$[2][0]') AS maxX,
+        json_extract(g, '$[0][1]') AS minY,
+        json_extract(g, '$[2][1]') AS maxY,
+        id,
+        treatments_id
+    FROM (
+        SELECT
+            geopoly_json(
+                geopoly_bbox(
+                    geopoly_regular(
+                        new.longitude, 
+                        new.latitude, 
+
+                        -- 5 meters in degrees at given latitude
+                        abs(5/(40075017*cos(new.latitude)/360)),
+
+                        -- num of sides of poly
+                        4
+                    )
                 )
-                VALUES(
-                    'delete',
-                    old.id,
-                    old.fulltext
-                );
-
-                -- add the new index to the fts table
-                INSERT INTO materialCitationsFts(
-                    rowid,
-                    fulltext
-                )
-                VALUES (
-                    new.id,
-                    new.fulltext
-                );
-            END;
-CREATE TRIGGER mc_afterDelete
-            AFTER DELETE ON materialCitations
-            BEGIN
-
-                -- "delete" the old index from the fts table
-                INSERT INTO materialCitationsFts(
-                    materialCitationsFts,
-                    rowid,
-                    fulltext
-                )
-                VALUES(
-                    'delete',
-                    old.id,
-                    old.fulltext
-                );
-
-                -- remove entries from the geopoly and rtree tables
-                DELETE FROM materialCitationsGeopoly WHERE rowid = old.shapeId;
-                DELETE FROM materialCitationsRtree WHERE rowid = old.rtreeId;
-            END;
-CREATE INDEX ix_materialCitations_materialCitationId ON materialCitations ("materialCitationId");
-CREATE INDEX ix_materialCitations_treatmentId ON materialCitations ("treatmentId");
+            ) AS g,
+            new.id,
+            new.treatments_id
+    );
+END;
+CREATE INDEX ix_materialCitations_treatments_id ON materialCitations ("treatments_id");
 CREATE INDEX ix_materialCitations_collectingDate ON materialCitations ("collectingDate");
 CREATE INDEX ix_materialCitations_collectorName ON materialCitations ("collectorName");
 CREATE INDEX ix_materialCitations_country ON materialCitations ("country");
@@ -224,11 +221,31 @@ CREATE INDEX ix_materialCitations_httpUri ON materialCitations ("httpUri");
 CREATE INDEX ix_materialCitations_deleted ON materialCitations ("deleted");
 CREATE INDEX ix_materialCitations_validGeo ON materialCitations ("validGeo");
 CREATE INDEX ix_materialCitations_isOnLand ON materialCitations ("isOnLand");
-CREATE INDEX ix_materialCitations_shapeId ON materialCitations ("shapeId");
-CREATE INDEX ix_materialCitations_rtreeId ON materialCitations ("rtreeId");
-CREATE INDEX ix_materialCitations_x_collectionCodes_materialCitationId ON materialCitations_x_collectionCodes ("materialCitationId");
-CREATE INDEX ix_materialCitations_x_collectionCodes_collectionCode ON materialCitations_x_collectionCodes ("collectionCode");
+CREATE TABLE collectionCodes (
+
+    -- PK
+    "id" INTEGER PRIMARY KEY,
+
+    -- The collection code for a natural history collection
+    "collectionCode" TEXT UNIQUE NOT NULL COLLATE NOCASE,
+
+    -- The country of the collection
+    "country" TEXT COLLATE NOCASE,
+
+    -- The name of the collection
+    "name" TEXT COLLATE NOCASE,
+
+    -- The URI of the collection
+    "httpUri" TEXT COLLATE NOCASE,
+
+    -- The LSID of the collection
+    "lsid" TEXT COLLATE NOCASE,
+
+    -- The type of the collection
+    "type" TEXT COLLATE NOCASE
+);
 CREATE INDEX ix_collectionCodes_country ON collectionCodes ("country");
 CREATE INDEX ix_collectionCodes_name ON collectionCodes ("name");
+CREATE INDEX ix_collectionCodes_httpUri ON collectionCodes ("httpUri");
 CREATE INDEX ix_collectionCodes_lsid ON collectionCodes ("lsid");
 CREATE INDEX ix_collectionCodes_type ON collectionCodes ("type");

@@ -82,7 +82,7 @@ const params = [
         queryable: false
     },
     {
-        name: 'treatmentDOIoriginal',
+        name: 'treatmentDOIorig',
 //         schema: { 
 //             type: 'string',
 //             description: `For example:
@@ -106,12 +106,12 @@ const params = [
             desc: 'DOI of the treatment cleaned up',
             type: `TEXT GENERATED ALWAYS AS (
                 Iif(
-                    Instr(treatmentDOIoriginal, '/10.'), 
+                    Instr(treatmentDOIorig, '/10.'), 
                     Substr(
-                        treatmentDOIoriginal, 
-                        Instr(treatmentDOIoriginal, '/10.') + 1
+                        treatmentDOIorig, 
+                        Instr(treatmentDOIorig, '/10.') + 1
                     ), 
-                    treatmentDOIoriginal
+                    treatmentDOIorig
                 ) 
             ) STORED`
         }
@@ -216,7 +216,7 @@ const params = [
         defaultOp: 'starts_with'
     },
     {
-        name: 'articleDOIoriginal',
+        name: 'articleDOIorig',
 //         schema: { 
 //             type: 'string',
 //             description: `For example:
@@ -240,12 +240,12 @@ const params = [
             desc: 'DOI of journal article cleaned up',
             type: `TEXT GENERATED ALWAYS AS (
                 Iif(
-                    Instr(articleDOIoriginal, '/10.'), 
+                    Instr(articleDOIorig, '/10.'), 
                     Substr(
-                        articleDOIoriginal, 
-                        Instr(articleDOIoriginal, '/10.') + 1
+                        articleDOIorig, 
+                        Instr(articleDOIorig, '/10.') + 1
                     ), 
-                    articleDOIoriginal
+                    articleDOIorig
                 ) 
             ) STORED`
         }

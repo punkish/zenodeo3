@@ -12,8 +12,7 @@ BEGIN
     UPDATE treatments 
     SET validGeo = new.validGeo
     WHERE treatments.id = new.treatments_id;
-END;
-    `,
+END;`,
 
     mc_afterUpdate: `
 CREATE TRIGGER IF NOT EXISTS mc_afterUpdate
@@ -27,8 +26,7 @@ BEGIN
     -- add the new index to the fts table
     INSERT INTO materialCitationsFts( rowid, fulltext ) 
     VALUES ( new.id, new.fulltext );
-END;
-    `,
+END;`,
 
     mc_afterDelete: `
 CREATE TRIGGER IF NOT EXISTS mc_afterDelete 
@@ -45,8 +43,7 @@ BEGIN
 
     DELETE FROM materialCitationsRtree 
     WHERE materialCitations_id = old.id;
-END;
-    `,
+END;`,
 
     mc_loc_afterInsert: `
 CREATE TRIGGER IF NOT EXISTS mc_loc_afterInsert 
@@ -114,8 +111,7 @@ BEGIN
             new.id,
             new.treatments_id
     );
-END;
-    `,
+END;`,
     
 
     // mc_ccode_afterInsert: `CREATE TRIGGER IF NOT EXISTS mc_ccode_afterInsert

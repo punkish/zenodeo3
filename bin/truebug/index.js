@@ -6,7 +6,6 @@ import process from 'node:process';
 import util from 'util';
 import minimist from 'minimist';
 import fs from 'fs';
-import path from 'path';
 
 import * as preflight from './lib/preflight.js';
 import * as postflight from './lib/postflight.js';
@@ -90,7 +89,7 @@ const processFiles = (archive_name, files, stats) => {
 
     //
     // we time the process using hrtime.bigint() which returns time in 
-    // nanoseconds that we can convert to ms by dividing by 1e-6
+    // nanoseconds that we can convert to ms by dividing by 1e6
 
     // when the ETL process started
     let startETLTime = process.hrtime.bigint();
@@ -106,7 +105,6 @@ const processFiles = (archive_name, files, stats) => {
 
     for (let i = 0; i < totalFiles; i++) {
         const xml = files[i];
-        //const treatmentId = path.basename(xml, '.xml');
         const treatment = parse.parseOne(archive_name, xml);
         treatments.push(treatment);
         parse.calcStats(treatment, stats);
@@ -167,7 +165,6 @@ const processFiles = (archive_name, files, stats) => {
         
         postflight.cpFile(archive_name, xml);
         postflight.rmFile(archive_name, xml);
-        
     }
 
     log.info(`${'~'.repeat(120)}\n`, 'end');
@@ -195,20 +192,14 @@ const etl = (archive_name, files, stats) => {
     else {
         log.info('there are no files in the dump to process');
     }
-
-    // Object.keys(stats).
-    //     forEach(key => {
-    //         const row = stats[key];
-    //         database.insertStats(row);
-    //     });
 }
 
 const update = async (archives, stats, firstRun = false) => {
     tbutils.incrementStack(logOpts.name, 'update');
     
     //
-    // we grab the first in the list of archives
-    // one of 'yearly', 'monthly', 'weekly', or 'daily'
+    // we grab the first in the list of archives one of 'yearly', 'monthly', 
+    // 'weekly', or 'daily'
     //
     const typeOfArchive = archives.shift();
 
@@ -253,80 +244,28 @@ const update = async (archives, stats, firstRun = false) => {
         log.info(`There is no "${typeOfArchive}" archive on the server. Wrapping up.`);
     }
 
-    // if (firstRun) {
-    //     database.insertVtabs();
-    // }
-
     database.buildIndexes();
     
     const utilOpts = { showHidden: false, depth: null, color: true };
     console.log(util.inspect(stats, utilOpts));
-
-    //if (ts.printStack) {
-        // log.info('STACK');
-        // log.info('-'.repeat(80));
-        // log.info(JSON.stringify(tbutils.stack, null, 4));
-    //}
 }
 
-/*
-archive                   size          datetime                           notes
-------------------------- ------------- ---------------------------------- -------------------------
-plazi.zenodeo.zip	      2548608 kb	Sat, 01 Jan 2022 02:00:00 GMT+0000
-plazi.zenodeo.monthly.zip 1536275 kb	Sun, 02 Oct 2022 02:00:00 GMT+0000 updates since yearly
-plazi.zenodeo.weekly.zip    74739 kb	Sun, 30 Oct 2022 02:00:00 GMT+0000 updates since monthly.zip
-plazi.zenodeo.daily.zip	   	 4096 kb	Fri, 04 Nov 2022 02:00:00 GMT+0000 updates since weekly.zip
-
-remote                      local                                   unpacked
-=========================   =====================================   ============
-plazi.zenodeo.zip           plazi.zenodeo.yearly.<timestamp>.zip    dir/yearly/
-plazi.zenodeo.monthly.zip   plazi.zenodeo.monthly.<timestamp>.zip   dir/monthly/
-plazi.zenodeo.weekly.zip    plazi.zenodeo.weekly.<timestamp>.zip    dir/weekly/
-plazi.zenodeo.daily.zip     plazi.zenodeo.daily.<timestamp>.zip     dir/daily/
-
-
-if no data in table
-    process 'yearly', 'monthly', 'weekly', 'daily'
-else
-    if last archive processed is 'yearly'
-        if 'yearly' archive on server is newer than local
-            process 'yearly', 'monthly', 'weekly', 'daily'
-        else
-            process 'monthly', 'weekly', 'daily'
-    else if last archive processed is 'monthly'
-        if 'monthly' archive on server is newer than local
-            process 'monthly', 'weekly', 'daily'
-        else
-            process 'weekly', 'daily'
-    else if last archive processed is 'weekly'
-        if 'weekly' archive on server is newer than local
-            process 'weekly', 'daily'
-        else
-            process 'daily'
-    else if last archive processed is 'daily'
-        if 'daily' archive on server is newer than local
-            process 'daily'
-        else
-            done
-    else
-        done
-*/
+const allArchive = [
+    'yearly',
+    'monthly',
+    'weekly',
+    'daily'
+];
 
 const determineArchiveToProcess = async () => {
     const lastUpdates = database.getLastUpdate();
-    const archivesToProcess = [
-        'yearly',
-        'monthly',
-        'weekly',
-        'daily'
-    ];
+    const archivesToProcess = JSON.parse(JSON.stringify(allArchive));
 
     for (const last of lastUpdates) {
         const archiveOnServer = await download.checkServerForArchive(last.typeOfArchive);
         
         if (archiveOnServer) {
             const [ typeOfArchive, time ] = archiveOnServer.split('.');
-            //console.log(typeOfArchive, time, last.timeOfArchive)
 
             if (time <= last.timeOfArchive) {
                 const i = archivesToProcess.indexOf(last.typeOfArchive);
@@ -347,10 +286,11 @@ const determineArchiveToProcess = async () => {
  * `truebug` starts here
  */
 const init = async (stats) => {
-    tbutils.incrementStack(logOpts.name, 'init');
-
     const argv = minimist(process.argv.slice(2));
     
+    //
+    // print usage/help message
+    //
     if (argv.help || typeof(argv.do) === 'undefined') {
         const prompt = fs.readFileSync('./bin/truebug/lib/prompt.txt', 'utf8');
         console.log(prompt);
@@ -365,8 +305,7 @@ const init = async (stats) => {
     }
 
     //
-    // query the tables and return the details of each 
-    // kind of archive update
+    // query the tables and return the details of each kind of archive update
     //
     else if (argv.do === 'archiveUpdates') {
         database.getArchiveUpdates();
@@ -437,9 +376,8 @@ const init = async (stats) => {
             preflight.backupOldDB();
 
             //
-            // This is the first time we are running update, so
-            // let's see if there are any treatments already in 
-            // the db
+            // This is the first time we are running update, so let's see if 
+            // there are any treatments already in the db
             //
             const numOfTreatments = database.selCountOfTreatments();
             let archives;
@@ -447,22 +385,16 @@ const init = async (stats) => {
             if (numOfTreatments) {
                 
                 //
-                // There are treatments in the db already. So we need
-                // to determine the type of archive and timestamp of
-                // archive that should be processed
+                // There are treatments in the db already. So we need to 
+                // determine the type of archive and timestamp of archive that 
+                // should be processed
                 //
-                //archives = tbutils.determinePeriodAndTimestamp();
                 archives = await determineArchiveToProcess();
             }
             else {
                 log.info('-'.repeat(80));
                 log.info('since there are no treatments in the db, we will start with a "YEARLY" archive');
-                archives = [
-                    'yearly', 
-                    'monthly', 
-                    'weekly', 
-                    'daily'
-                ];
+                archives = JSON.parse(JSON.stringify(allArchive));
             }
 
             update(archives, stats);

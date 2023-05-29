@@ -20,4 +20,4 @@
 
 # run truebug with default args etl --mode=real 
 # the latter picked up from config
-node bin/truebug/index.js
+node bin/truebug/index.js --do=etl

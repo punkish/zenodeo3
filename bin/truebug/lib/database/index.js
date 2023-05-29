@@ -33,17 +33,6 @@ const cache = {
     species : new Map()
 };
 
-// const stmGetTreatmentJson = dbJson.prepare(`SELECT treatmentJSON 
-// FROM treatments WHERE treatmentId = @treatmentId`);
-
-// const getTreatmentJSON = (treatmentId) => {
-//     const res = stmGetTreatmentJson.get({ treatmentId });
-
-//     return res
-//         ? res.treatmentJSON
-//         : false;
-// }
-
 const createInsertTreatment = (db) => {
     const dbConn = db.conn;
     const fn = db.insertFuncs;
@@ -313,92 +302,11 @@ const selCountOfTreatments = () => {
     return num;
 }
 
-// const _selMaxrowidVirtualTable = (table, alias) => {
-//     const fn = '_selMaxrowidVirtualTable';
-//     //utils.incrementStack(logOpts.name, fn);
-
-//     const sql = `SELECT Max(rowid) AS c FROM ${alias}.${table}`;
-//     return db.conn.prepare(sql).get().c;
-// }
-
-// const getLastUpdate_old = (typeOfArchive) => {
-//     const fn = 'getLastUpdate';
-//     if (!ts[fn]) return;
-//     //utils.incrementStack(logOpts.name, fn);
-
-//     const sql = `SELECT 
-//     Max(started) AS started,
-//     datetime(Max(started)/1000, 'unixepoch') AS start, 
-//     datetime(ended/1000, 'unixepoch') AS end, 
-//     (ended - started) AS duration,
-//     datetime(timeOfArchive/1000, 'unixepoch') AS timeOfArchive,
-//     treatments,
-//     treatmentCitations,
-//     materialCitations,
-//     figureCitations,
-//     bibRefCitations,
-//     treatmentAuthors,
-//     collectionCodes,
-//     journals
-// FROM
-//     etlstats
-// WHERE
-//     typeOfArchive = ?`;
-
-//     return db.conn
-//         .prepare(sql)
-//         .get(typeOfArchive);
-// }
-
-// const getLastUpdate_orig = () => {
-//     const fn = 'getLastUpdate';
-//     if (!ts[fn]) return;
-//     //utils.incrementStack(logOpts.name, fn);
-
-//     const sql = `SELECT 
-//     typeOfArchive,
-//     timeOfArchive,
-//     sizeOfArchive,
-//     typeOfArchive || '.' || timeOfArchive || '.zip' AS nameOfArchive
-// FROM
-//     archives
-// ORDER BY id DESC 
-// LIMIT 1`;
-
-//     return db.conn
-//         .prepare(sql)
-//         .get();
-// }
-
 // select the latest entry for each type of archive
 const getLastUpdate = () => {
     const stm = 'SELECT typeOfArchive, timeOfArchive FROM archives where id in (SELECT max(id) FROM archives GROUP BY typeOfArchive) order by id;'
     return db.conn.prepare(stm).all();
 }
-
-// const insertVtabs = () => {
-//     log.info('inserting virtual table content for the first time');
-//     const dbConn = db.conn;
-//     const fn = db.insertFuncs;
-
-//     const insertTreatmentsFts            = fn.insertTreatmentsFts(dbConn);
-//     const insertMaterialCitationsFts     = fn.insertMaterialCitationsFts(dbConn);
-//     const insertBibRefCitationsFts       = fn.insertBibRefCitationsFts(dbConn);
-//     const insertFigureCitationsFts       = fn.insertFigureCitationsFts(dbConn);
-//     //const createTempTableCoords          = fn.createTempTableCoords(dbConn);
-//     const insertMaterialCitationsRtree   = fn.insertMaterialCitationsRtree(dbConn);
-//     const insertMaterialCitationsGeopoly = fn.insertMaterialCitationsGeopoly(dbConn);
-
-//     if (truebug.mode !== 'dryRun') {
-//         insertTreatmentsFts.run();
-//         insertMaterialCitationsFts.run();
-//         insertBibRefCitationsFts.run();
-//         insertFigureCitationsFts.run();
-//         //createTempTableCoords.run();
-//         insertMaterialCitationsRtree.run();
-//         insertMaterialCitationsGeopoly.run();
-//     }
-// }
 
 const insertStats = (stats) => {
     if (!ts.insertStats) return;
@@ -620,7 +528,6 @@ export {
     selCountOfTreatments,
     getLastUpdate,
     insertStats,
-    //insertVtabs,
     getDaysSinceLastEtl,
     getCounts,
     getArchiveUpdates,
