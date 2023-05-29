@@ -16,12 +16,12 @@ export const params = [
     {
         name: 'timeOfArchive',
         schema: { 
-            type: 'integer', 
+            type: 'string', 
             description: ''
         },
         sql: {
-            type: 'INTEGER NOT NULL',
-            desc: 'Time when the archive was created in UTC ms since epoch'
+            type: 'TEXT NOT NULL',
+            desc: 'Date when the archive was created'
         }
     },
     {

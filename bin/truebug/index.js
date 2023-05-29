@@ -312,15 +312,46 @@ else
         done
 */
 
+const determineArchiveToProcess = async () => {
+    const lastUpdates = database.getLastUpdate();
+    const archivesToProcess = [
+        'yearly',
+        'monthly',
+        'weekly',
+        'daily'
+    ];
+
+    for (const last of lastUpdates) {
+        const archiveOnServer = await download.checkServerForArchive(last.typeOfArchive);
+        
+        if (archiveOnServer) {
+            const [ typeOfArchive, time ] = archiveOnServer.split('.');
+            //console.log(typeOfArchive, time, last.timeOfArchive)
+
+            if (time <= last.timeOfArchive) {
+                const i = archivesToProcess.indexOf(last.typeOfArchive);
+                archivesToProcess.splice(i, 1);
+            }
+        }
+        else {
+            const i = archivesToProcess.indexOf(last.typeOfArchive);
+            archivesToProcess.splice(i, 1);
+        }
+        
+    }
+
+    return archivesToProcess;
+}
+
 /** 
  * `truebug` starts here
  */
-const init = (stats) => {
+const init = async (stats) => {
     tbutils.incrementStack(logOpts.name, 'init');
 
     const argv = minimist(process.argv.slice(2));
     
-    if (argv.help) {
+    if (argv.help || typeof(argv.do) === 'undefined') {
         const prompt = fs.readFileSync('./bin/truebug/lib/prompt.txt', 'utf8');
         console.log(prompt);
         return;
@@ -344,7 +375,7 @@ const init = (stats) => {
     //
     // run etl
     //
-    else if (argv.do === 'etl' || typeof(argv.do) === 'undefined') {
+    else if (argv.do === 'etl') {
         const mode = argv.mode || truebug.mode;
         const source = argv.source || truebug.source;
         
@@ -420,7 +451,8 @@ const init = (stats) => {
                 // to determine the type of archive and timestamp of
                 // archive that should be processed
                 //
-                archives = tbutils.determinePeriodAndTimestamp();
+                //archives = tbutils.determinePeriodAndTimestamp();
+                archives = await determineArchiveToProcess();
             }
             else {
                 log.info('-'.repeat(80));
@@ -460,5 +492,9 @@ const init = (stats) => {
         }
     }
 }
+
+
+
+
 
 init(stats);

@@ -288,7 +288,7 @@ const getLastUpdate = (typeOfArchive) => {
 
 const determinePeriodAndTimestamp = () => {
     const last_update = database.getLastUpdate();
-
+    
     //
     // what the archive should be if it were downloaded today
     //
@@ -329,6 +329,8 @@ const determinePeriodAndTimestamp = () => {
     return archives;
 }
 
+
+
 export { 
     pathToXml, 
     stack, 
@@ -338,5 +340,5 @@ export {
     getArchiveNameAndTimestamp, 
     getTypeOfArchive, 
     getLastUpdate,
-    determinePeriodAndTimestamp
+    //determinePeriodAndTimestamp,
 }

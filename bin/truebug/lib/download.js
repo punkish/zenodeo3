@@ -65,6 +65,54 @@ const unzip = function(archive_name, stats) {
     return files;
 }
 
+const checkServerForArchive = async (typeOfArchive = 'daily', stats) => {
+
+    //
+    // construct the remote file name and path to it on the server
+    //
+    const remoteArchive = typeOfArchive === 'yearly' 
+        ? 'plazi.zenodeo.zip'
+        : `plazi.zenodeo.${typeOfArchive}.zip`;
+    const pathToArchive = `/${truebug.server.path}/${remoteArchive}`;
+    const url = `${truebug.server.hostname}/${pathToArchive}`;
+    log.info(`checking if there is "${remoteArchive}" on the server…`, 'start');
+
+    let archive_name = await new Promise((resolve) => {
+        const opts = { method: 'HEAD' };
+        const req = https.request(url, opts, (res) => {
+            let archive_name;
+
+            if (res.statusCode == 200) {
+                const d = new Date(res.headers['last-modified']);
+                //const time = d.toDateString().replace(/ /g, '-');
+                const time = d.toISOString().split('T')[0];
+
+                archive_name = `${typeOfArchive}.${time}`;
+                // stats.archives.typeOfArchive = typeOfArchive;
+                // stats.archives.timeOfArchive = time;
+                // stats.archives.sizeOfArchive = Number(
+                //     res.headers['content-length']
+                // );
+            }
+    
+            resolve(archive_name);
+        });
+        
+        req.on('error', (error) => console.error(error));
+        req.end();
+    });
+
+    if (archive_name) {
+        log.info(' yes, there is\n', 'end');
+        return archive_name;
+    }
+    else {
+        log.info(' there is not\n', 'end');
+        return false;
+    }
+}
+
+
 const download = async (typeOfArchive = 'daily', stats) => {
     stats.downloads.started = new Date().getTime();
 
@@ -177,8 +225,11 @@ const cleanOldArchive = (archive_name) => {
     //fs.rmdirSync(archive_name, { recursive: true, force: true });
 }
 
+
+
 export { 
     unzip, 
     download,
-    cleanOldArchive
+    cleanOldArchive,
+    checkServerForArchive
 }

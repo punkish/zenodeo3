@@ -350,24 +350,30 @@ const selCountOfTreatments = () => {
 //         .get(typeOfArchive);
 // }
 
+// const getLastUpdate_orig = () => {
+//     const fn = 'getLastUpdate';
+//     if (!ts[fn]) return;
+//     //utils.incrementStack(logOpts.name, fn);
+
+//     const sql = `SELECT 
+//     typeOfArchive,
+//     timeOfArchive,
+//     sizeOfArchive,
+//     typeOfArchive || '.' || timeOfArchive || '.zip' AS nameOfArchive
+// FROM
+//     archives
+// ORDER BY id DESC 
+// LIMIT 1`;
+
+//     return db.conn
+//         .prepare(sql)
+//         .get();
+// }
+
+// select the latest entry for each type of archive
 const getLastUpdate = () => {
-    const fn = 'getLastUpdate';
-    if (!ts[fn]) return;
-    //utils.incrementStack(logOpts.name, fn);
-
-    const sql = `SELECT 
-    typeOfArchive,
-    timeOfArchive,
-    sizeOfArchive,
-    typeOfArchive || '.' || timeOfArchive || '.zip' AS nameOfArchive
-FROM
-    archives
-ORDER BY id DESC 
-LIMIT 1`;
-
-    return db.conn
-        .prepare(sql)
-        .get();
+    const stm = 'SELECT typeOfArchive, timeOfArchive FROM archives where id in (SELECT max(id) FROM archives GROUP BY typeOfArchive) order by id;'
+    return db.conn.prepare(stm).all();
 }
 
 // const insertVtabs = () => {
@@ -456,21 +462,39 @@ const getCounts = () => {
     ORDER BY name;`).all();
 
     let total = 0;
+    const FtsTables = [];
 
     tables.forEach(t => {
         try {
-            const start = process.hrtime.bigint();
-            t.rows = db.conn
-                .prepare(`SELECT Count(*) AS c FROM ${t.table_name}`)
-                .get().c;
-            const end = process.hrtime.bigint();
-            const took = Number(end - start) / 1e6;
-            t.took = took;
-            total += t.rows;
+            if (t.table_name.indexOf('Fts') > -1) {
+                FtsTables.push(t.table_name);
+            }
+            else {
+                const start = process.hrtime.bigint();
+                t.rows = db.conn
+                    .prepare(`SELECT Count(*) AS c FROM ${t.table_name}`)
+                    .get()
+                    .c;
+                const end = process.hrtime.bigint();
+    
+                //
+                // convert nanoseconds to ms
+                //
+                const took = Number(end - start) / 1e6;
+                t.took = took;
+                total += t.rows;
+            }
         }
         catch (error) {
             console.log(error);
         }
+    });
+
+    FtsTables.forEach(t => {
+        const table = t.split('Fts')[0];
+        const rows = tables.filter(t => t.table_name === table)[0].rows;
+        tables.filter(t => t.table_name === `${table}Fts`)[0].rows = rows;
+        total += rows;
     });
 
     tables.push({ table_name: 'Total rows', rows: total, took: '' });
@@ -504,13 +528,12 @@ const getArchiveUpdates = () => {
         }
     
         const ms = s % 1000;
-    
         s = (s - ms) / 1000;
+
         const ss = s % 60;
-    
         s = (s - ss) / 60;
+
         const mm = s % 60;
-    
         const hh = (s - mm) / 60;
       
         return `${pad(hh)}h ${pad(mm)}m ${pad(ss)}s ${pad(ms, 3)}ms`;
