@@ -5,8 +5,9 @@ const chance = Chance();
 
 import Database from 'better-sqlite3';
 const dbFts = new Database('./fts.sqlite');
-const dbFtsExt = new Database('./ftsExt.sqlite');
-const dbFtsNone = new Database('./ftsNone.sqlite');
+const dbFtsExt1 = new Database('./ftsExt1.sqlite');
+const dbFtsExt2 = new Database('./ftsExt2.sqlite');
+//const dbFtsNone = new Database('./ftsNone.sqlite');
 
 const createTables = () => {
     
@@ -19,31 +20,32 @@ const createTables = () => {
 
     dbFts.prepare(stmTable).run();
 
-    dbFts.prepare(`
-        CREATE VIRTUAL TABLE tFts USING fts5 (
-            fulltext
-        )
-    `).run();
+    // dbFts.prepare(`
+    //     CREATE VIRTUAL TABLE tFts USING fts5 (
+    //         fulltext
+    //     )
+    // `).run();
     
-    dbFts.prepare(`
-        CREATE TRIGGER t_aftIns 
-        AFTER INSERT ON t 
-        BEGIN
-            INSERT INTO tFts(
-                rowid,
-                fulltext
-            ) 
-            VALUES (
-                new.id,
-                new.fulltext
-            );
-        END; 
-    `).run();
+    // dbFts.prepare(`
+    //     CREATE TRIGGER t_aftIns 
+    //     AFTER INSERT ON t 
+    //     BEGIN
+    //         INSERT INTO tFts(
+    //             rowid,
+    //             fulltext
+    //         ) 
+    //         VALUES (
+    //             new.id,
+    //             new.fulltext
+    //         );
+    //     END; 
+    // `).run();
 
     dbFtsExt.prepare(stmTable).run();
 
     dbFtsExt.prepare(`
         CREATE VIRTUAL TABLE tFtsExt USING fts5 (
+            title,
             fulltext, 
             content='t', 
             content_rowid='id'
@@ -54,38 +56,34 @@ const createTables = () => {
         CREATE TRIGGER t_aftIns 
         AFTER INSERT ON t 
         BEGIN
-            INSERT INTO tFtsExt(
-                fulltext
-            ) 
-            VALUES ( 
-                new.fulltext
-            );
+            INSERT INTO tFtsExt( title, fulltext ) 
+            VALUES ( new.title, new.fulltext );
         END; 
     `).run();
 
-    dbFtsNone.prepare(stmTable).run();
+    // dbFtsNone.prepare(stmTable).run();
 
-    dbFtsNone.prepare(`
-        CREATE VIRTUAL TABLE tFtsNone USING fts5 (
-            fulltext,
-            content=''
-        )
-    `).run();
+    // dbFtsNone.prepare(`
+    //     CREATE VIRTUAL TABLE tFtsNone USING fts5 (
+    //         fulltext,
+    //         content=''
+    //     )
+    // `).run();
 
-    dbFtsNone.prepare(`
-        CREATE TRIGGER t_aftIns 
-        AFTER INSERT ON t 
-        BEGIN
-            INSERT INTO tFtsNone(
-                rowid, 
-                fulltext
-            ) 
-            VALUES (
-                new.id, 
-                new.fulltext
-            );
-        END; 
-    `).run();
+    // dbFtsNone.prepare(`
+    //     CREATE TRIGGER t_aftIns 
+    //     AFTER INSERT ON t 
+    //     BEGIN
+    //         INSERT INTO tFtsNone(
+    //             rowid, 
+    //             fulltext
+    //         ) 
+    //         VALUES (
+    //             new.id, 
+    //             new.fulltext
+    //         );
+    //     END; 
+    // `).run();
 
     
 }
@@ -96,9 +94,9 @@ const insertData = () => {
     VALUES (@title, @fulltext)
 `;
 
-    const stmtFts = dbFts.prepare(s);
+    //const stmtFts = dbFts.prepare(s);
     const stmtFtsExt = dbFtsExt.prepare(s);
-    const stmtFtsNone = dbFtsNone.prepare(s);
+    //const stmtFtsNone = dbFtsNone.prepare(s);
 
     const data = [...Array(10000).keys()].map(i => {
         return {
@@ -123,43 +121,47 @@ const insertData = () => {
     )
 
     for (const row of data) {
-        stmtFts.run(row);
+        //stmtFts.run(row);
         stmtFtsExt.run(row);
-        stmtFtsNone.run(row);
+        //stmtFtsNone.run(row);
     }
 }
 
 const selectData = () => {
     const q = 'prefixing';
 
-    const resFts = dbFts.prepare(`SELECT t.id, t.title, snippet(tFts, 0, '<b>', '</b>', '…', 25) AS snip 
-    FROM t JOIN tFts ON t.id = tFts.rowid
-    WHERE tFts.fulltext MATCH ?`).get(q);
+    // const resFts = dbFts.prepare(`SELECT t.id, t.title, snippet(tFts, 0, '<b>', '</b>', '…', 25) AS snip 
+    // FROM t JOIN tFts ON t.id = tFts.rowid
+    // WHERE tFts.fulltext MATCH ?`).get(q);
 
-    const resFtsExt = dbFtsExt.prepare(`SELECT t.id, t.title, snippet(tFtsExt, 0, '<b>', '</b>', '…', 25) AS snip
+    let resFtsExt = dbFtsExt.prepare(`SELECT t.id, t.title, snippet(tFtsExt, 0, '<b>', '</b>', '…', 25) AS snip
     FROM t JOIN tFtsExt ON t.id = tFtsExt.rowid
     WHERE tFtsExt.fulltext MATCH ?`).get(q);
 
-    const resFtsNone = dbFtsNone.prepare(`SELECT t.id, t.title, Substring(t.fulltext, 1, 25) AS snip
-    FROM t JOIN tFtsNone ON t.id = tFtsNone.rowid
-    WHERE tFtsNone.fulltext MATCH ?`).get(q);
+    resFtsExt = dbFtsExt.prepare(`SELECT rowid, title, snippet(tFtsExt, 1, '<b>', '</b>', '…', 25) AS snip
+    FROM tFtsExt
+    WHERE fulltext MATCH ?`).get(q);
 
-    console.log('FTS')
-    console.log('-'.repeat(50));
-    console.log(resFts);
-    console.log('='.repeat(50));
+    // const resFtsNone = dbFtsNone.prepare(`SELECT t.id, t.title, Substring(t.fulltext, 1, 25) AS snip
+    // FROM t JOIN tFtsNone ON t.id = tFtsNone.rowid
+    // WHERE tFtsNone.fulltext MATCH ?`).get(q);
+
+    // console.log('FTS')
+    // console.log('-'.repeat(50));
+    // console.log(resFts);
+    // console.log('='.repeat(50));
     console.log('FTS External Content')
     console.log('-'.repeat(50));
     console.log(resFtsExt);
     console.log('='.repeat(50));
-    console.log('FTS Contentless')
-    console.log('-'.repeat(50));
-    console.log(resFtsNone);
-    console.log('='.repeat(50));
+    // console.log('FTS Contentless')
+    // console.log('-'.repeat(50));
+    // console.log(resFtsNone);
+    // console.log('='.repeat(50));
 }
     
-createTables();
-insertData();
+// createTables();
+// insertData();
 selectData();
 
 // const printResults = (rows, res) => {
