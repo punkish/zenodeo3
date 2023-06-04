@@ -165,6 +165,13 @@ const params = [
         ]
     },
     {
+        name: 'status',
+        dict: treatments,
+        joins: [
+            'JOIN treatments ON images.treatments_id = treatments.id'
+        ]
+    },
+    {
         name: 'journalTitle',
         dict: journals,
         joins: [

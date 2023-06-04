@@ -19,7 +19,8 @@ import isSea from 'is-sea';
 /** 
  * connect to the database
  */
-import { db } from '../../../../lib/dbconn.js';
+import { initDb } from '../../../../lib/dbconn.js';
+const db = initDb();
 
 const cache = { 
     hits        : 0, 

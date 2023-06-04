@@ -57,37 +57,53 @@ const start = async () => {
         // and stop processing any further
         //
         fastify.addHook('preHandler', async (request, reply) => {
-            const cacheKey = getCacheKey(request);
-            const path = request.url.split('/')[2];
-            const resourceName = path.split('?')[0];
-            const cache = getCache({ 
-                    dir: config.cache.base, 
-                    namespace: resourceName, 
-                    duration: config.cache.ttl
-            });
-            let res = await cache.get(cacheKey);
-            if (res) {
-                const response = {
-                    item: res.item,
-                    stored: res.stored,
-                    ttl: res.ttl,
-                    pre: true,
-                    cacheHit: true
-                };
 
-                reply.hijack();
+            //
+            // all of this makes sense only if refreshCache is not true
+            //
+            if (!request.query.refreshCache) {
+                
+                const path = request.url.split('/')[2];
+                const resourceName = path 
+                    ? path.split('?')[0]
+                    : '';
 
                 //
-                // since we are sending back raw response, we need to add the
-                // appropriate headers so the response is recognized as JSON
-                // and is CORS-compatible
+                // no point in going further if there is no resourceName
                 //
-                reply.raw.writeHead(200, { 
-                    'Content-Type': 'application/json; charset=utf-8',
-                    'Access-Control-Allow-Origin': '*'
-                });
-                reply.raw.end(JSON.stringify(response));
-                return Promise.resolve('done');
+                if (resourceName) {
+                    const cacheKey = getCacheKey(request);
+                    const cache = getCache({ 
+                        dir: config.cache.base, 
+                        namespace: resourceName, 
+                        duration: config.cache.ttl
+                    });
+                    let res = await cache.get(cacheKey);
+
+                    if (res) {
+                        const response = {
+                            item: res.item,
+                            stored: res.stored,
+                            ttl: res.ttl,
+                            pre: true,
+                            cacheHit: true
+                        };
+
+                        reply.hijack();
+
+                        //
+                        // since we are sending back raw response, we need to 
+                        // add the appropriate headers so the response is 
+                        // recognized as JSON and is CORS-compatible
+                        //
+                        reply.raw.writeHead(200, { 
+                            'Content-Type': 'application/json; charset=utf-8',
+                            'Access-Control-Allow-Origin': '*'
+                        });
+                        reply.raw.end(JSON.stringify(response));
+                        return Promise.resolve('done');
+                    }
+                }
             }
         });
 

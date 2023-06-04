@@ -24,6 +24,7 @@
     "@fastify/swagger": "^8.3.1",
     "@fastify/swagger-ui": "^1.8.1",
     "@fastify/view": "^7.4.1",
+    "@punkish/fastify-better-sqlite3": "^1.0.0",
     "@punkish/zcache": "^1.0.1",
     "@punkish/zconfig": "^1.0.4",
     "@punkish/zlogger": "^1.0.7",

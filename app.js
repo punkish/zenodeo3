@@ -1,18 +1,31 @@
 import Fastify from 'fastify';
+import fastifyStatic from '@fastify/static';
+import { staticOpts } from './plugins/static.js';
 
-import { plugin as favicon } from './plugins/favicon.js';
-import { plugin as cors } from './plugins/cors.js';
-import { plugin as sensible } from './plugins/sensible.js';
-import { plugin as routes } from './plugins/routes.js';
-import { plugin as swagger } from './plugins/swagger.js';
-import { plugin as fastifyStatic } from './plugins/static.js';
-import { plugin as view } from './plugins/view.js';
-import { plugin as cron } from './plugins/cron.js';
-//import { plugin as betterSqlite3 } from './plugins/better-sqlite3.js';
+import fastifyBetterSqlite3 from '@punkish/fastify-better-sqlite3';
+import { initDb } from './lib/dbconn.js';
+import routes from '@fastify/routes';
+import favicon from 'fastify-favicon';
+import cors from '@fastify/cors';
+
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUi from '@fastify/swagger-ui'
+import { swaggerOpts } from './plugins/swagger.js';
+
+import fastifyCron from 'fastify-cron';
+import { cronOpts } from './plugins/cron.js';
 
 import { tos } from './routes/tos/index.js';
 import { docs } from './routes/docs/index.js';
+
+//
+// we rename routes to resources because we have already imported a map of the 
+// routes above
+//
 import { routes as resources } from './routes/api/index.js';
+
+import view from '@fastify/view';
+import { viewOpts } from './plugins/view.js';
 
 export async function server(opts={}) {
     const fastify = Fastify(opts);
@@ -20,15 +33,16 @@ export async function server(opts={}) {
     //
     // register the plugins
     //
-    fastify.register(favicon);
-    fastify.register(cors);
-    fastify.register(sensible);
-    fastify.register(routes);
-    fastify.register(swagger);
-    fastify.register(fastifyStatic);
-    fastify.register(view);
-    fastify.register(cron);
-    //fastify.register(betterSqlite3);
+    fastify.register(favicon, {});
+    fastify.register(cors, {});
+    fastify.register(routes, {});
+    await fastify.register(fastifySwagger, swaggerOpts.swagger);
+    await fastify.register(fastifySwaggerUi, swaggerOpts.swaggerUi);
+    fastify.register(fastifyStatic, staticOpts);
+    fastify.register(view, viewOpts);
+    fastify.register(fastifyCron, cronOpts);
+    const db = initDb();
+    fastify.register(fastifyBetterSqlite3, db.conn);
 
     //
     // register the routes to resources

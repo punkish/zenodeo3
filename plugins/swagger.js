@@ -1,6 +1,6 @@
-import fp from 'fastify-plugin';
-import fastifySwagger from '@fastify/swagger';
-import fastifySwaggerUi from '@fastify/swagger-ui'
+// import fp from 'fastify-plugin';
+// import fastifySwagger from '@fastify/swagger';
+// import fastifySwaggerUi from '@fastify/swagger-ui'
 
 /**
  * A Fastify plugin for serving a Swagger UI, using Swagger (OpenAPI v2) or 
@@ -13,7 +13,7 @@ import fastifySwaggerUi from '@fastify/swagger-ui'
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 
-const options = {
+export const swaggerOpts = {
 
     //routePrefix: '/',
     swagger: {
@@ -70,7 +70,7 @@ const options = {
     }
 };
 
-export const plugin = fp(async (fastify) => {
-    await fastify.register(fastifySwagger, options.swagger);
-    await fastify.register(fastifySwaggerUi, options.swaggerUi);
-})
+// export const plugin = fp(async (fastify) => {
+//     await fastify.register(fastifySwagger, options.swagger);
+//     await fastify.register(fastifySwaggerUi, options.swaggerUi);
+// })
