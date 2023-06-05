@@ -1,151 +1,67 @@
-// import fp from 'fastify-plugin';
-// import fastifyCron from 'fastify-cron';
-
 /**
  * This plugin enables the use of cron in a Fastify application.
  * @see https://www.npmjs.com/package/fastify-cron
  */
 
-const jobs = [
-    {
-        // daily at midnight UTC
-        cronTime: '0 0 * * *',
-        onTick: async server => {
-            try {
-                await server.inject('/v3/treatments?cols=&stats=true&refreshCache=true');
-            } 
-            catch (err) { 
-                console.error(err);
-            }
-        },
-        start: true
-    },
-    {
-        // daily at five past midnight UTC
-        cronTime: '5 0 * * *',
-        onTick: async server => {
-            try {
-                await server.inject('/v3/images?family=Formicidae&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
-            } 
-            catch (err) { 
-                console.error(err);
-            }
-        },
-        start: true
-    },
-    {
-        // daily at ten past midnight UTC
-        cronTime: '10 0 * * *',
-        onTick: async server => {
-            try {
-                await server.inject('/v3/images?class=Actinopterygii&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
-            } 
-            catch (err) { 
-                console.error(err);
-            }
-        },
-        start: true
-    },
-    {
-        // daily at ten past midnight UTC
-        cronTime: '15 0 * * *',
-        onTick: async server => {
-            try {
-                await server.inject('/v3/images?class=Arachnida&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
-            } 
-            catch (err) { 
-                console.error(err);
-            }
-        },
-        start: true
-    },
-    {
-        // daily at fifteen past midnight UTC
-        cronTime: '15 0 * * *',
-        onTick: async server => {
-            try {
-                await server.inject('/v3/images?class=Malacostraca&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
-            } 
-            catch (err) { 
-                console.error(err);
-            }
-        },
-        start: true
-    },
-];
+const cols = 'cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=httpUri&cols=caption';
 
-export const cronOpts = {
-    jobs
-}
+const queries = {
+    images: [
+        'cols=',
+        'family=Formicidae',
+        'class=Actinopterygii',
+        'class=Arachnida',
+        'class=Malacostraca',
+        'captionText=phylogeny',
+        'q=phylogeny',
+        'q=phylogeny AND plantae',
+        'journalTitle=eq(European Journal of Taxonomy)',
+        'articleDOI=10.11646/zootaxa.5284.3.7',
+        'articleTitle=starts_with(Morphology and taxonomic assessment)',
+        `geolocation=within(radius:10, units:'kilometers', lat:40.21, lng:-120.33)`,
+        'class=Actinopterygii&publicationDate=since(2021-12-21)',
+        'checkinTime=since(yesterday)',
+        'tyrannosaurus&authorityName=Osborn',
+        'family=Agamidae',
+        'q=moloch OR horridus',
+        'decapoda&journalTitle=not_like(zootaxa)'
+    ],
+    treatments: [
+        'cols='
+    ]
+};
 
-// export const plugin = fp(async function(fastify) {
-//     fastify.register(fastifyCron, {
-        // jobs: [
-        //     {
-        //         // daily at midnight UTC
-        //         cronTime: '0 0 * * *',
-        //         onTick: async server => {
-        //             try {
-        //                 await server.inject('/v3/treatments?cols=&stats=true&refreshCache=true');
-        //             } 
-        //             catch (err) { 
-        //                 console.error(err);
-        //             }
-        //         },
-        //         start: true
-        //     },
-        //     {
-        //         // daily at five past midnight UTC
-        //         cronTime: '5 0 * * *',
-        //         onTick: async server => {
-        //             try {
-        //                 await server.inject('/v3/images?family=Formicidae&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
-        //             } 
-        //             catch (err) { 
-        //                 console.error(err);
-        //             }
-        //         },
-        //         start: true
-        //     },
-        //     {
-        //         // daily at ten past midnight UTC
-        //         cronTime: '10 0 * * *',
-        //         onTick: async server => {
-        //             try {
-        //                 await server.inject('/v3/images?class=Actinopterygii&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
-        //             } 
-        //             catch (err) { 
-        //                 console.error(err);
-        //             }
-        //         },
-        //         start: true
-        //     },
-        //     {
-        //         // daily at ten past midnight UTC
-        //         cronTime: '15 0 * * *',
-        //         onTick: async server => {
-        //             try {
-        //                 await server.inject('/v3/images?class=Arachnida&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
-        //             } 
-        //             catch (err) { 
-        //                 console.error(err);
-        //             }
-        //         },
-        //         start: true
-        //     },
-        //     {
-        //         // daily at fifteen past midnight UTC
-        //         cronTime: '15 0 * * *',
-        //         onTick: async server => {
-        //             try {
-        //                 await server.inject('/v3/images?class=Malacostraca&cols=httpUri&cols=treatmentTitle&cols=zenodoDep&cols=treatmentId&cols=captionText&refreshCache=true');
-        //             } 
-        //             catch (err) { 
-        //                 console.error(err);
-        //             }
-        //         },
-        //         start: true
-        //     },
-        // ]
-//     });
-// })
+const jobs = [];
+let i = -1;
+
+Object.keys(queries)
+    .forEach((resource) => {
+        const queryStrings = queries[resource];
+        const qry = queryStrings.map((qry, idx) => {
+            i++;
+
+            const qs = idx
+                ? `/v3/${resource}?${qry}&${cols}&refreshCache=true`
+                : `/v3/${resource}?cols=&refreshCache=true`;
+
+            console.log(qs)
+            return {
+
+                // starting at midnight, every two mins
+                cronTime: `${i * 2} 0 * * *`,
+                onTick: async server => {
+                    try {
+                        await server.inject(qs);
+                    } 
+                    catch (err) { 
+                        console.error(err);
+                    }
+                },
+                start: true
+            }
+        });
+
+        jobs.push(...qry);
+    })
+
+export const cronOpts = { jobs }
