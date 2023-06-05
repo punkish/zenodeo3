@@ -44,7 +44,6 @@ Object.keys(queries)
                 ? `/v3/${resource}?${qry}&${cols}&refreshCache=true`
                 : `/v3/${resource}?cols=&refreshCache=true`;
 
-            console.log(qs)
             return {
 
                 // starting at midnight, every two mins
