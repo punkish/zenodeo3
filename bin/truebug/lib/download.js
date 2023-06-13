@@ -7,6 +7,8 @@ import http from 'http';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { Readable } from 'stream';
+import { finished } from 'stream/promises';
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
@@ -18,12 +20,49 @@ logOpts.name = 'TB:DOWNLOAD  ';
 import { Zlogger } from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
 
-const unzip = function(archive_name, stats) {
+
+import stream from 'node:stream';
+import { pipeline as streamPipeline } from 'node:stream/promises';
+//import fs from 'node:fs';
+import got from 'got';
+
+const download = async (typeOfArchive, stats) => {
+    stats.downloads.started = new Date().getTime();
+
+    const remoteArchive = typeOfArchive === 'yearly' 
+        ? 'plazi.zenodeo.zip'
+        : `plazi.zenodeo.${typeOfArchive}.zip`;
+    const pathToArchive = `/${truebug.server.path}/${remoteArchive}`;
+    const url = `${truebug.server.hostname}/${pathToArchive}`;
+
+    log.info(`checking if there is "${remoteArchive}" on the server…`, 'start');
+    const { headers } = await got(url);
+    log.info(' yes, there is\n', 'end');
+
+    const d = new Date(headers['last-modified']);
+    const timeOfArchive = d.toISOString().split('T')[0];
+    const archive_name = `${typeOfArchive}.${timeOfArchive}`;
+    const localCopy = `${truebug.dirs.zips}/${archive_name}.zip`;
+
+    stats.archives.typeOfArchive = typeOfArchive;
+    stats.archives.timeOfArchive = timeOfArchive;
+    stats.archives.sizeOfArchive = Number(headers['content-length']);
+    
+    await streamPipeline(
+        got.stream(url),
+        fs.createWriteStream(localCopy)
+    );
+
+    stats.downloads.ended = new Date().getTime();
+}
+
+const unzip = function(archive, stats) {
     const fn = 'unzip';
     if (!ts[fn]) return [];
 
     utils.incrementStack(logOpts.name, fn);
     stats.unzip.started = new Date().getTime();
+    const archive_name = `${archive.typeOfArchive}.${archive.timeOfArchive}`;
     log.info(`checking if "${archive_name}" has already been unzipped…`, 'start');
     const archive_dir = `${truebug.dirs.data}/treatments-dumps/${archive_name}`;
     
@@ -75,36 +114,19 @@ const checkServerForArchive = async (typeOfArchive = 'daily', stats) => {
         : `plazi.zenodeo.${typeOfArchive}.zip`;
     const pathToArchive = `/${truebug.server.path}/${remoteArchive}`;
     const url = `${truebug.server.hostname}/${pathToArchive}`;
+
     log.info(`checking if there is "${remoteArchive}" on the server…`, 'start');
 
-    let archive_name = await new Promise((resolve) => {
-        const opts = { method: 'HEAD' };
-        const req = https.request(url, opts, (res) => {
-            let archive_name;
+    const res = await fetch(url);
 
-            if (res.statusCode == 200) {
-                const d = new Date(res.headers['last-modified']);
-                //const time = d.toDateString().replace(/ /g, '-');
-                const time = d.toISOString().split('T')[0];
-
-                archive_name = `${typeOfArchive}.${time}`;
-                // stats.archives.typeOfArchive = typeOfArchive;
-                // stats.archives.timeOfArchive = time;
-                // stats.archives.sizeOfArchive = Number(
-                //     res.headers['content-length']
-                // );
-            }
-    
-            resolve(archive_name);
-        });
-        
-        req.on('error', (error) => console.error(error));
-        req.end();
-    });
-
-    if (archive_name) {
+    if (res.ok) {
         log.info(' yes, there is\n', 'end');
-        return archive_name;
+        const d = new Date(res.headers.get('last-modified'));
+        const timeOfArchive = d.toISOString().split('T')[0];
+        stats.archives.typeOfArchive = typeOfArchive;
+        stats.archives.timeOfArchive = timeOfArchive;
+        stats.archives.sizeOfArchive = Number(res.headers.get('content-length'));
+        return timeOfArchive;
     }
     else {
         log.info(' there is not\n', 'end');
@@ -112,8 +134,48 @@ const checkServerForArchive = async (typeOfArchive = 'daily', stats) => {
     }
 }
 
+// https://stackoverflow.com/a/74722818/183692
+const download_works = async (archive, stats) => {
+    stats.downloads.started = new Date().getTime();
 
-const download = async (typeOfArchive = 'daily', stats) => {
+    const remoteArchive = archive.typeOfArchive === 'yearly' 
+        ? 'plazi.zenodeo.zip'
+        : `plazi.zenodeo.${archive.typeOfArchive}.zip`;
+
+    const pathToArchive = `/${truebug.server.path}/${remoteArchive}`;
+    const url = `${truebug.server.hostname}/${pathToArchive}`;
+
+    log.info(`checking if there is "${remoteArchive}" on the server…`, 'start');
+    const res = await fetch(url);
+
+    if (res.ok) {
+        const d = new Date(res.headers.get('last-modified'));
+        const timeOfArchive = d.toISOString().split('T')[0];
+        stats.archives.typeOfArchive = archive.typeOfArchive;
+        stats.archives.timeOfArchive = timeOfArchive;
+        stats.archives.sizeOfArchive = Number(res.headers.get('content-length'));
+
+        const archive_name = `${archive.typeOfArchive}.${archive.timeOfArchive}`;
+        const localCopy = `${truebug.dirs.zips}/${archive_name}.zip`;
+        const file = fs.createWriteStream(localCopy);
+
+        try {
+            await finished(Readable.fromWeb(res.body).pipe(file));
+            stats.downloads.ended = new Date().getTime();
+        } 
+        catch (err) {
+            console.error(err.stack);
+        }
+    }
+    else {
+        log.info(' there is not\n', 'end');
+        stats.downloads.ended = new Date().getTime();
+        return false;
+    }
+}
+
+
+const download_old = async (typeOfArchive = 'daily', stats) => {
     stats.downloads.started = new Date().getTime();
 
     //
@@ -125,34 +187,37 @@ const download = async (typeOfArchive = 'daily', stats) => {
     const pathToArchive = `/${truebug.server.path}/${remoteArchive}`;
     const url = `${truebug.server.hostname}/${pathToArchive}`;
 
-    log.info(`checking if there is "${remoteArchive}" on the server…`, 'start');
+    // log.info(`checking if there is "${remoteArchive}" on the server…`, 'start');
 
-    let archive_name = await new Promise((resolve) => {
-        const opts = { method: 'HEAD' };
-        const req = https.request(url, opts, (res) => {
-            let archive_name;
+    // let archive_name = await new Promise((resolve) => {
+    //     const opts = { method: 'HEAD' };
+    //     const req = https.request(url, opts, (res) => {
+    //         let archive_name;
 
-            if (res.statusCode == 200) {
-                const d = new Date(res.headers['last-modified']);
-                //const time = d.toDateString().replace(/ /g, '-');
-                const time = d.toISOString().split('T')[0];
+    //         if (res.statusCode == 200) {
+    //             const d = new Date(res.headers['last-modified']);
+    //             //const time = d.toDateString().replace(/ /g, '-');
+    //             const time = d.toISOString().split('T')[0];
 
-                archive_name = `${typeOfArchive}.${time}`;
-                stats.archives.typeOfArchive = typeOfArchive;
-                stats.archives.timeOfArchive = time;
-                stats.archives.sizeOfArchive = Number(res.headers['content-length']);
-            }
+    //             archive_name = `${typeOfArchive}.${time}`;
+    //             stats.archives.typeOfArchive = typeOfArchive;
+    //             stats.archives.timeOfArchive = time;
+    //             stats.archives.sizeOfArchive = Number(res.headers['content-length']);
+    //         }
     
-            resolve(archive_name);
-        });
+    //         resolve(archive_name);
+    //     });
         
-        req.on('error', (error) => console.error(error));
-        req.end();
-    });
+    //     req.on('error', (error) => console.error(error));
+    //     req.end();
+    // });
 
-    if (archive_name) {
-        log.info(' yes, there is\n', 'end');
+    const timeOfArchive = checkServerForArchive(typeOfArchive);
+    let archive_name;
 
+    if (timeOfArchive) {
+        //log.info(' yes, there is\n', 'end');
+        archive_name = `${typeOfArchive}.${timeOfArchive}`;
         const localCopy = `${truebug.dirs.zips}/${archive_name}.zip`;
 
         //
@@ -162,7 +227,7 @@ const download = async (typeOfArchive = 'daily', stats) => {
 
         if (!exists) {
             log.info(' there is none\n', 'end');
-            log.info(`downloading "${remoteArchive}" -> "${archive_name}.zip"…`, 'start');
+            log.info(`downloading "${typeOfArchive}" archive -> "${archive_name}.zip"…`, 'start');
 
             //
             // a local copy of the more recent archive does not

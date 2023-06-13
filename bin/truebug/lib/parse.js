@@ -526,11 +526,12 @@ const parseTreatment = function($) {
 //     return treatment;
 // }
 
-const parseOne = (archive_name, xml) => {
+const parseOne = (archive, xml) => {
     const fn = 'parseOne';
     if (!ts[fn]) return true;
     tbutils.incrementStack(logOpts.name, fn);
 
+    const archive_name = `${archive.typeOfArchive}.${archive.timeOfArchive}`;
     const treatmentId = path.basename(xml, '.xml');
     const xmlfile = `${truebug.dirs.data}/treatments-dumps/${archive_name}/${xml}`;
     

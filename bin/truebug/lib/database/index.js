@@ -305,7 +305,27 @@ const selCountOfTreatments = () => {
 
 // select the latest entry for each type of archive
 const getLastUpdate = () => {
-    const stm = 'SELECT typeOfArchive, timeOfArchive FROM archives where id in (SELECT max(id) FROM archives GROUP BY typeOfArchive) order by id;'
+    const stm = `SELECT 
+    typeOfArchive, 
+    timeOfArchive, 
+    started, 
+    ended, 
+    ended - started AS duration,
+    treatments,
+    treatmentCitations,
+    materialCitations,
+    figureCitations,
+    bibRefCitations,
+    treatmentAuthors,
+    collectionCodes,
+    journals
+FROM archives JOIN etl ON archives.id = etl.archives_id 
+WHERE archives.id IN (
+    SELECT max(id) 
+    FROM archives 
+    GROUP BY typeOfArchive
+) 
+ORDER BY archives.id`;
     return db.conn.prepare(stm).all();
 }
 
@@ -324,6 +344,7 @@ const insertStats = (stats) => {
     const insertUnzip = fn.insertUnzip(dbConn);
 
     if (truebug.mode !== 'dryRun') {
+        console.log(stats.archives)
         const archives_id = insertArchivesGet_archives_id.run(stats.archives)
             .lastInsertRowid;
 
@@ -447,26 +468,9 @@ const getArchiveUpdates = () => {
       
         return `${pad(hh)}h ${pad(mm)}m ${pad(ss)}s ${pad(ms, 3)}ms`;
     }
-    
-    Object.keys(typesOfArchives).forEach(archive => {
-        const lastUpdate = getLastUpdate(archive);
-        lastUpdate.duration = msToTime(lastUpdate.duration);
 
-        const table = [
-            { item: "started",            value: lastUpdate.start },
-            { item: "ended",              value: lastUpdate.end },
-            { item: "duration",           value: lastUpdate.duration },
-            { item: "time of archive",    value: lastUpdate.timeOfArchive },
-            { item: "treatments",         value: lastUpdate.treatments },
-            { item: "treatmentCitations", value: lastUpdate.treatmentCitations },
-            { item: "materialsCitations", value: lastUpdate.materialsCitations },
-            { item: "figureCitations",    value: lastUpdate.figureCitations },
-            { item: "bibRefCitations",    value: lastUpdate.bibRefCitations }
-        ]
-
-        console.log(`archive: ${archive.toUpperCase()}`);
-        console.table(table);
-    });
+    const lastUpdate = getLastUpdate();
+    console.table(lastUpdate)
 }
 
 const updateIsOnLand = () => {
