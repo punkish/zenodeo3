@@ -42,8 +42,10 @@
     "is-sea": "^0.3.1",
     "lodash.clonedeep": "^4.5.0",
     "minimist": "^1.2.8",
+    "node-fetch": "^3.3.1",
     "sql-formatter": "^12.2.1",
     "tar": "^6.1.14",
+    "unfetch": "^5.0.0",
     "walker": "^1.0.8"
   },
   "directories": {
