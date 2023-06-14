@@ -173,7 +173,6 @@ const processFiles = (archive, files, stats) => {
 const etl = (archive, files, stats) => {
     tbutils.incrementStack(logOpts.name, 'etl');
 
-    //const [ typeOfArchive, timeOfArchive ] = archive_name.split('.');
     log.info(`ETL-ing ${archive.typeOfArchive}`);
 
     // 
@@ -208,8 +207,6 @@ const update = async (archives, stats, firstRun = false) => {
             firstRun = true;
         }
     }
-
-    //stats.archives.type = archive.typeOfArchive;
 
     //
     // if needed, download archive from remote server
@@ -263,46 +260,6 @@ const allArchives = [
     { typeOfArchive: 'weekly' , timeOfArchive: '' },
     { typeOfArchive: 'daily'  , timeOfArchive: '' }
 ];
-
-const determineArchiveToProcess = async () => {
-    const lastUpdates = database.getLastUpdate();
-    const archivesToProcess = JSON.parse(JSON.stringify(allArchives));
-    
-    for (const last of lastUpdates) {
-        const timeOfArchive = await download.checkServerForArchive(last.typeOfArchive);
-        
-        if (timeOfArchive && (timeOfArchive > last.timeOfArchive)) {
-            
-            // do nothing
-            //
-            // if the archive on the server is older than the one we have 
-            // already processed, then we remove it from the array as we will 
-            // no longer process it
-            //
-            // if (timeOfArchive <= last.timeOfArchive) {
-            //     const i = archivesToProcess
-            //         .findIndex(a => a.typeOfArchive === last.typeOfArchive);
-            //     archivesToProcess.splice(i, 1);
-            // }
-
-        }
-        else {
-
-            //
-            // if the archive on the server is older than the one we have or
-            // if archive doesn't exist on the server, we remove it from the 
-            // array as we will no longer process it
-            //
-            const i = archivesToProcess
-                .findIndex(a => a.typeOfArchive === last.typeOfArchive);
-            archivesToProcess.splice(i, 1);
-        }
-        
-    }
-
-    log.info(`archivesToProcess: ${JSON.stringify(archivesToProcess)}`);
-    return archivesToProcess;
-}
 
 /** 
  * `truebug` starts here
@@ -375,49 +332,17 @@ const init = async (stats) => {
                 // determine the type of archive and timestamp of archive that 
                 // should be processed
                 //
-                //archives = await determineArchiveToProcess();
-
-                // since treatments already exist in the db,
-                // we check previously processed archives
                 const lastUpdates = database.getLastUpdate();
 
                 for (const last of lastUpdates) {
                     confirmArchive(last, last.typeOfArchive, archives);
                 }
             }
-            // else {
-            //     log.info('-'.repeat(80));
-            //     log.info('since there are no treatments in the db, we will start with a "YEARLY" archive');
-            //     archives = JSON.parse(JSON.stringify(allArchives));
-            // }
 
             if (archives.length) {
                 update(archives, stats);
             }
-            
 
-            // let took = 0;
-            // let mspf = 0;
-            // let fps = 0;
-        
-            // if (stats.download.numOfFiles) {
-            //     took = stats.etl.ended - stats.etl.started;
-            //     mspf = (took / stats.etl.treatments).toFixed(2);
-            //     fps = (stats.etl.treatments * 1000 / took).toFixed(2);
-            // }
-
-            // log.info('='.repeat(80));
-
-            // if (ts.printStats) {
-            //     console.log(util.inspect(stats, false, null, true));
-            // }
-
-            
-
-            // log.info('-'.repeat(80));
-            // log.info(`ETL took: ${took} ms = (${mspf} ms/XML or ${fps} XMLs/s)`);
-            // log.info('TRUEBUG DONE');
-            // log.info('='.repeat(80));
         }
     }
 }
@@ -429,9 +354,6 @@ const confirmArchive = (last, typeOfArchive, archives) => {
         const currentPeriodOfLast = getCurrentPeriod(
             typeOfArchive, new Date(last.timeOfArchive)
         );
-
-        // console.log(typeOfArchive, last.timeOfArchive)
-        // console.log(currentPeriodOfLast, currentPeriod)
 
         if (currentPeriodOfLast >= currentPeriod) {
 
