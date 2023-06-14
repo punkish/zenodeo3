@@ -288,6 +288,17 @@ const buildIndexes = () => {
     }
 }
 
+const analyzeDb = () => {
+    const fn = 'analyzeDb';
+    if (!ts[fn]) return;
+    //utils.incrementStack(logOpts.name, fn);
+
+    log.info('analyzing db');
+    if (truebug.mode !== 'dryRun') {
+        db.conn.prepare('ANALYZE').run();
+    }
+}
+
 const selCountOfTreatments = () => {
     const fn = 'selCountOfTreatments';
     if (!ts[fn]) return;
@@ -530,6 +541,7 @@ export {
     insertTreatments,
     dropIndexes,
     buildIndexes,
+    analyzeDb,
     selCountOfTreatments,
     getLastUpdate,
     insertStats,

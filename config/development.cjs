@@ -189,8 +189,9 @@ module.exports = {
                 "unzip"      : true
             },
             "database": {
-                "dropIndexes"         : true,
-                "buildIndexes"        : true,
+                "dropIndexes"         : false,
+                "buildIndexes"        : false,
+                "analyzeDb"           : true,
                 "getLastUpdate"       : true,
                 "insertStats"         : true,
                 "insertTreatments"    : true,

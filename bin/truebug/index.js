@@ -245,6 +245,7 @@ const update = async (archives, stats, firstRun = false) => {
     // }
 
     database.buildIndexes();
+    database.analyzeDb();
     
     const utilOpts = { showHidden: false, depth: null, color: true };
     console.log(util.inspect(stats, utilOpts));
