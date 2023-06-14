@@ -217,7 +217,10 @@ const update = async (archives, stats, firstRun = false) => {
     await download.download(archive.typeOfArchive, stats);
     
     //if (archive_name) {
+    if (firstRun) {
         database.dropIndexes();
+    }
+        
 
         //
         // unzip archive, if needed, and read the files into an array
@@ -244,7 +247,10 @@ const update = async (archives, stats, firstRun = false) => {
     //     log.info(`There is no "${typeOfArchive}" archive on the server. Wrapping up.`);
     // }
 
-    database.buildIndexes();
+    if (firstRun) {
+        database.buildIndexes();
+    }
+
     database.analyzeDb();
     
     const utilOpts = { showHidden: false, depth: null, color: true };
