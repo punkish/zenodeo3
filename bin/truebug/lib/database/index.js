@@ -291,9 +291,9 @@ const buildIndexes = () => {
 const analyzeDb = () => {
     const fn = 'analyzeDb';
     if (!ts[fn]) return;
-    //utils.incrementStack(logOpts.name, fn);
 
     log.info('analyzing db');
+
     if (truebug.mode !== 'dryRun') {
         db.conn.prepare('ANALYZE').run();
     }
@@ -355,12 +355,12 @@ const insertStats = (stats) => {
     const insertUnzip = fn.insertUnzip(dbConn);
 
     if (truebug.mode !== 'dryRun') {
-        console.log(stats.archives)
-        const archives_id = insertArchivesGet_archives_id.run(stats.archives)
+        console.log(stats.archive)
+        const archives_id = insertArchivesGet_archives_id.run(stats.archive)
             .lastInsertRowid;
 
-        stats.downloads.archives_id = archives_id;
-        insertDownloads.run(stats.downloads);
+        stats.download.archives_id = archives_id;
+        insertDownloads.run(stats.download);
 
         stats.etl.archives_id = archives_id;
         insertEtl.run(stats.etl);

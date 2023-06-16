@@ -25,34 +25,8 @@ logOpts.name = 'TB           ';
 import { Zlogger } from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
 
-const stats = {
-    archives: {
-        typeOfArchive: '',
-        timeOfArchive: 0,
-        sizeOfArchive: 0
-    },
-    downloads: {
-        started: 0,
-        ended: 0
-    },
-    unzip: {
-        started: 0,
-        ended: 0,
-        numOfFiles: 0
-    },
-    etl: {
-        started: 0,
-        ended: 0,
-        treatments: 0,
-        treatmentCitations: 0,
-        materialCitations: 0,
-        collectionCodes: 0,
-        figureCitations: 0,
-        bibRefCitations: 0,
-        treatmentAuthors: 0,
-        journals: 0
-    }
-};
+const truebugStats = [];
+
 
 const calcRows = (stats) => {
     const rowsInserted = Object.keys(stats.etl)
@@ -63,7 +37,7 @@ const calcRows = (stats) => {
     return rowsInserted;
 }
 
-const processFiles = (archive, files, stats) => {
+const processFiles = (files, stats) => {
     tbutils.incrementStack(logOpts.name, 'processFiles');
 
     //
@@ -76,7 +50,7 @@ const processFiles = (archive, files, stats) => {
         : 15;
     
     const strTotalFilesLen = String(totalFiles).length;
-    const defaultBatch = 5000;
+    const defaultBatch = 7500;
     const batch = totalFiles < defaultBatch 
         ? Math.floor(totalFiles / 10) 
         : defaultBatch;
@@ -105,7 +79,7 @@ const processFiles = (archive, files, stats) => {
 
     for (let i = 0; i < totalFiles; i++) {
         const xml = files[i];
-        const treatment = parse.parseOne(archive, xml);
+        const treatment = parse.parseOne(xml, stats);
         treatments.push(treatment);
         parse.calcStats(treatment, stats);
         
@@ -163,17 +137,17 @@ const processFiles = (archive, files, stats) => {
             }
         }
         
-        postflight.cpFile(archive, xml);
-        postflight.rmFile(archive, xml);
+        postflight.cpFile(xml, stats);
+        postflight.rmFile(xml, stats);
     }
 
     log.info(`${'~'.repeat(120)}\n`, 'end');
 };
 
-const etl = (archive, files, stats) => {
+const etl = (files, stats) => {
     tbutils.incrementStack(logOpts.name, 'etl');
 
-    log.info(`ETL-ing ${archive.typeOfArchive}`);
+    log.info(`ETL-ing ${stats.archive.typeOfArchive}`);
 
     // 
     // start ETL
@@ -182,28 +156,59 @@ const etl = (archive, files, stats) => {
     if (stats.unzip.numOfFiles) {
         log.info(`${files.length} files exist in dump… let's ETL them`);
 
-        processFiles(archive, files, stats);
+        processFiles(files, stats);
         
         log.info(`parsed ${stats.etl.treatments} XMLs`);
         stats.etl.journals = database.cache.journals.size;
         stats.etl.ended = new Date().getTime();
     }
     else {
+        stats.etl.ended = new Date().getTime();
         log.info('there are no files in the dump to process');
     }
 }
 
-const update = async (archives, stats, firstRun = false) => {
+const update = async (typesOfArchives, truebugStats, firstRun = false) => {
     tbutils.incrementStack(logOpts.name, 'update');
+
+    const stats = {
+        archive: {
+            typeOfArchive: '',
+            timeOfArchive: 0,
+            sizeOfArchive: 0
+        },
+        download: {
+            started: 0,
+            ended: 0
+        },
+        unzip: {
+            started: 0,
+            ended: 0,
+            numOfFiles: 0
+        },
+        etl: {
+            started: 0,
+            ended: 0,
+            treatments: 0,
+            treatmentCitations: 0,
+            materialCitations: 0,
+            collectionCodes: 0,
+            figureCitations: 0,
+            bibRefCitations: 0,
+            treatmentAuthors: 0,
+            journals: 0
+        }
+    };
     
     //
     // we grab the first in the list of archives one of 'yearly', 'monthly', 
     // 'weekly', or 'daily'
     //
-    const archive = archives.shift();
+    const typeOfArchive = typesOfArchives.shift();
+    stats.archive.typeOfArchive = typeOfArchive;
 
     if (!firstRun) {
-        if (archive.typeOfArchive === 'yearly') {
+        if (typeOfArchive === 'yearly') {
             firstRun = true;
         }
     }
@@ -211,60 +216,59 @@ const update = async (archives, stats, firstRun = false) => {
     //
     // if needed, download archive from remote server
     //
-    await download.download(archive.typeOfArchive, stats);
+    await download.download(stats);
+
+    if (!stats.archive.timeOfArchive) {
+        truebugStats.push(stats);
+        return update(typesOfArchives, truebugStats);
+    }
     
-    //if (archive_name) {
-    if (firstRun) {
+    if (firstRun && typeOfArchive === 'yearly') {
         database.dropIndexes();
     }
-        
+    
+    //
+    // unzip archive, if needed, and read the files into an array
+    //
+    const files = download.unzip(stats);
+    etl(files, stats);
+    database.insertStats(stats);
 
-        //
-        // unzip archive, if needed, and read the files into an array
-        //
-        const files = download.unzip(archive, stats);
-        etl(archive, files, stats);
-        database.insertStats(stats);
+    //
+    // clean up old archive
+    //
+    download.cleanOldArchive(stats);
 
-        //
-        // clean up old archive
-        //
-        download.cleanOldArchive(archive);
-
-        if (archives.length) {
-            log.info(`next up, the "${archives[0].typeOfArchive.toUpperCase()}" archive`);
-            return update(archives, stats, firstRun);
-        }
-        else {
-            log.info('all archives processed');
-        }
-
-    //}
-    // else {
-    //     log.info(`There is no "${typeOfArchive}" archive on the server. Wrapping up.`);
-    // }
+    if (typesOfArchives.length) {
+        log.info(`next up, the "${typesOfArchives[0].toUpperCase()}" archive`);
+        truebugStats.push(stats);
+        return update(typesOfArchives, truebugStats, firstRun);
+    }
+    else {
+        log.info('all archives processed');
+    }
 
     if (firstRun) {
         database.buildIndexes();
+        database.analyzeDb();
     }
 
-    database.analyzeDb();
-    
-    const utilOpts = { showHidden: false, depth: null, color: true };
-    console.log(util.inspect(stats, utilOpts));
+    // const utilOpts = { showHidden: false, depth: null, color: true };
+    // console.log(util.inspect(truebugStats, utilOpts));
+    postflight.printit(truebugStats);
 }
 
-const allArchives = [
-    { typeOfArchive: 'yearly' , timeOfArchive: '' },
-    { typeOfArchive: 'monthly', timeOfArchive: '' },
-    { typeOfArchive: 'weekly' , timeOfArchive: '' },
-    { typeOfArchive: 'daily'  , timeOfArchive: '' }
+const allTypesOfArchives = [
+    'yearly',
+    'monthly',
+    'weekly',
+    'daily'  
 ];
 
 /** 
  * `truebug` starts here
  */
-const init = async (stats) => {
+const init = async (truebugStats) => {
     const argv = minimist(process.argv.slice(2));
     
     //
@@ -318,7 +322,9 @@ const init = async (stats) => {
 
             
             // by default, we check all archives
-            const archives = JSON.parse(JSON.stringify(allArchives));
+            const typesOfArchives = JSON.parse(
+                JSON.stringify(allTypesOfArchives)
+            );
 
             //
             // Let's see if there are any treatments already in the db
@@ -335,71 +341,22 @@ const init = async (stats) => {
                 const lastUpdates = database.getLastUpdate();
 
                 for (const last of lastUpdates) {
-                    confirmArchive(last, last.typeOfArchive, archives);
+                    tbutils.pruneTypesOfArchives(last, typesOfArchives);
                 }
             }
 
-            if (archives.length) {
-                update(archives, stats);
+            log.info(`have to ETL ${JSON.stringify(typesOfArchives)}`);
+
+            //
+            // By now our archives[] have been pruned to just those entries 
+            // that need to be ETLed
+            //
+            if (typesOfArchives.length) {
+                update(typesOfArchives, truebugStats);
             }
 
         }
     }
-}
-
-const confirmArchive = (last, typeOfArchive, archives) => {
-    if (last.typeOfArchive === typeOfArchive) {
-        const date = new Date();
-        const currentPeriod = getCurrentPeriod(typeOfArchive, date);
-        const currentPeriodOfLast = getCurrentPeriod(
-            typeOfArchive, new Date(last.timeOfArchive)
-        );
-
-        if (currentPeriodOfLast >= currentPeriod) {
-
-            log.info(`we don't process "${typeOfArchive}" archive`);
-
-            // we don't process this archive
-            const i = archives
-                .findIndex(a => a.typeOfArchive === typeOfArchive);
-            archives.splice(i, 1);
-        }
-        
-    }
-}
-
-const getWeekOfYear = (date = new Date()) => {
-    const first_of_year = new Date(
-        date.getUTCFullYear(), 
-        0, 
-        1
-    );
-
-    const ms_till_date = date - first_of_year;
-    const days_till_date = Math.ceil(ms_till_date / 1000 / 60 / 60 / 24);
-
-    // if w if less than 7, then it is week 1
-    let w = days_till_date <= 7 ? 1 : Math.floor(days_till_date / 7);
-    w += days_till_date % 7 ? 1 : 0;
-    
-    return w;
-}
-
-const getCurrentPeriod = (typeOfArchive, date) => {
-
-    if (typeOfArchive === 'yearly') {
-        return date.getUTCFullYear();
-    }
-    else if (typeOfArchive === 'monthly') {
-        return date.getUTCMonth() + 1;
-    }
-    else if (typeOfArchive === 'weekly') {
-        return getWeekOfYear(date);
-    }
-    else if (typeOfArchive === 'daily') {
-        return date.getUTCDay();
-    }
-    
 }
 
 const processXml = (argv) => {
@@ -443,4 +400,4 @@ const processXml = (argv) => {
     console.log(`time Taken To Parse: ${treatment.timeToParseXML}`);
 }
 
-init(stats);
+init(truebugStats);

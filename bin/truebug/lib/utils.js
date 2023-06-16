@@ -329,7 +329,80 @@ const determinePeriodAndTimestamp = () => {
     return archives;
 }
 
+const getWeekOfYear = (date = new Date()) => {
+    const first_of_year = new Date(
+        date.getUTCFullYear(), 
+        0, 
+        1
+    );
 
+    const ms_till_date = date - first_of_year;
+    const days_till_date = Math.ceil(ms_till_date / 1000 / 60 / 60 / 24);
+
+    let w = Math.floor(days_till_date / 7);
+    if (days_till_date % 7) w += 1;
+    
+    return w;
+}
+
+const getPeriodOfArchive = (typeOfArchive, date) => {
+
+    let periodOfArchive;
+
+    if (typeOfArchive === 'yearly') {
+        periodOfArchive = date.getUTCFullYear();
+    }
+    else if (typeOfArchive === 'monthly') {
+        periodOfArchive = date.getUTCMonth() + 1;
+    }
+    else if (typeOfArchive === 'weekly') {
+        periodOfArchive = getWeekOfYear(date);
+    }
+
+    // https://stackoverflow.com/a/40975730/183692
+    else if (typeOfArchive === 'daily') {
+        
+        const yyyy = date.getUTCFullYear();
+        const mm = date.getUTCMonth();
+        const dd = date.getUTCDate();
+        const end = Date.UTC(yyyy, mm, dd);
+        const start = Date.UTC(date.getUTCFullYear(), 0, 0);
+
+        periodOfArchive = (end - start) / 24 / 60 / 60 / 1000;
+    }
+
+    return periodOfArchive;
+    
+}
+
+const pruneTypesOfArchives = (last, typesOfArchives) => {
+
+    const lastTypeOfArchive = last.typeOfArchive;
+    const lastTimeOfArchive = last.timeOfArchive;
+
+    // find out the timePeriod of the typeOfArchive if it were to be processed
+    // "today". For example, if the archive is 'yearly', get current year. For 
+    // the 'monthly' archive, get current month, and so on
+    const periodOfArchiveToday = getPeriodOfArchive(
+        lastTypeOfArchive, new Date()
+    );
+
+    // similar to above, get the period of the last processed archive
+    const periodOfLastArchive = getPeriodOfArchive(
+        lastTypeOfArchive, new Date(lastTimeOfArchive)
+    );
+
+    if (periodOfLastArchive >= periodOfArchiveToday) {
+        //log.info(`we don't process "${typeOfArchive}" archive`);
+
+        // we don't process this archive
+        const i = typesOfArchives.findIndex(a => a === lastTypeOfArchive);
+
+        // remove index i from typesOfArchives
+        typesOfArchives.splice(i, 1);
+    }
+    
+}
 
 export { 
     pathToXml, 
@@ -340,5 +413,8 @@ export {
     getArchiveNameAndTimestamp, 
     getTypeOfArchive, 
     getLastUpdate,
+    getWeekOfYear,
+    getPeriodOfArchive,
+    pruneTypesOfArchives
     //determinePeriodAndTimestamp,
 }

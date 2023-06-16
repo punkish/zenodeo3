@@ -12,12 +12,14 @@ logOpts.name = 'TRUEBUG:POSTFLIGHT';
 
 import fs from 'fs';
 
-const cpFile = (archive, xml) => {
+const cpFile = (xml, stats) => {
     const fn = 'cpFile';
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
     
-    const archive_name = `${archive.typeOfArchive}.${archive.timeOfArchive}`;
+    const typeOfArchive = stats.archive.typeOfArchive;
+    const timeOfArchive = stats.archive.timeOfArchive;
+    const archive_name = `${typeOfArchive}.${timeOfArchive}`;
 
     if (truebug.mode !== 'dryRun') {
         const tgt = utils.pathToXml(xml);
@@ -31,12 +33,14 @@ const cpFile = (archive, xml) => {
     }
 }
 
-const rmFile = (archive, xml) => {
+const rmFile = (xml, stats) => {
     const fn = 'rmFile';
     if (!ts[fn]) return;
     utils.incrementStack(logOpts.name, fn);
 
-    const archive_name = `${archive.typeOfArchive}.${archive.timeOfArchive}`;
+    const typeOfArchive = stats.archive.typeOfArchive;
+    const timeOfArchive = stats.archive.timeOfArchive;
+    const archive_name = `${typeOfArchive}.${timeOfArchive}`;
 
     if (truebug.mode !== 'dryRun') {
         const src = `${truebug.dirs.data}/treatments-dumps/${archive_name}/${xml}`;
@@ -44,4 +48,33 @@ const rmFile = (archive, xml) => {
     }
 }
 
-export { cpFile, rmFile }
+const printit = (stats) => {
+    for (const s of stats) {
+      for (const [k, v] of Object.entries(s)) {
+        if (k === 'archive') {
+          const size = v.sizeOfArchive / 1024 / 1024;
+          console.log(`${k}: ${v.typeOfArchive}, ${v.timeOfArchive}, ${size.toFixed(2)} MB`);
+          console.log('-'.repeat(50));
+        }
+  
+        if (k === 'download') {
+          const time = v.ended - v.started;
+          console.log(`${k} took: ${time} ms`);
+        }
+  
+        if (k === 'unzip') {
+          console.log(`number of files: ${v.numOfFiles}`);
+        }
+  
+        if (k === 'etl') {
+          const time = v.ended - v.started;
+          console.log(`etl took: ${time} ms`);
+          delete(v.started);
+          delete(v.ended);
+          console.table(v);
+        }
+      }
+    }
+  }
+
+export { cpFile, rmFile, printit }
