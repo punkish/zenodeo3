@@ -39,40 +39,46 @@ const download = async (stats) => {
         
     const pathToArchive = `/${truebug.server.path}/${remoteArchive}`;
     const url = `${truebug.server.hostname}/${pathToArchive}`;
-
     log.info(`checking for "${remoteArchive}" on the server…`, 'start');
-    const res = await got(url, { method: 'HEAD' });
 
-    if (!res.ok) {
-        log.info(' there is not\n', 'end');
-        stats.download.ended = new Date().getTime();
-        return;
+    try {
+        const res = await got(url, { method: 'HEAD' });
+
+        log.info(' yes, there is\n', 'end');
+        const headers = res.headers;
+        const d = new Date(headers['last-modified']);
+        const timeOfArchive = d.toISOString().split('T')[0];
+        const archive_name = `${typeOfArchive}.${timeOfArchive}`;
+        const localCopy = `${truebug.dirs.zips}/${archive_name}.zip`;
+
+        stats.archive.timeOfArchive = timeOfArchive;
+        stats.archive.sizeOfArchive = Number(headers['content-length']);
+
+        if (!fs.existsSync(localCopy)) {
+            log.info(`downloading ${archive_name}…`, 'start');
+
+            if (truebug.mode !== 'dryRun') {
+                await streamPipeline(
+                    got.stream(url),
+                    fs.createWriteStream(localCopy)
+                );
+            }
+            
+            log.info(' done\n', 'end');
+        }
+
     }
-    
-    log.info(' yes, there is\n', 'end');
-    const headers = res.headers;
-    const d = new Date(headers['last-modified']);
-    const timeOfArchive = d.toISOString().split('T')[0];
-    const archive_name = `${typeOfArchive}.${timeOfArchive}`;
-    const localCopy = `${truebug.dirs.zips}/${archive_name}.zip`;
+    catch (error) {
 
-    stats.archive.timeOfArchive = timeOfArchive;
-    stats.archive.sizeOfArchive = Number(headers['content-length']);
-
-    if (!fs.existsSync(localCopy)) {
-        log.info(`downloading ${archive_name}…`, 'start');
-
-        if (truebug.mode !== 'dryRun') {
-            await streamPipeline(
-                got.stream(url),
-                fs.createWriteStream(localCopy)
-            );
+        if (error.response.statusCode) {
+            log.info(' there is not\n', 'end');
         }
         
-        log.info(' done\n', 'end');
     }
     
     stats.download.ended = new Date().getTime();
+    
+    
 }
 
 const unzip = function(stats) {
@@ -158,7 +164,7 @@ const cleanOldArchive = (stats) => {
                 log.info(`removing old archive "${a}"`);
 
                 if (truebug.mode !== 'dryRun') {
-                    fs.rmdirSync(
+                    fs.rmSync(
                         `${truebug.dirs.data}/treatments-dumps/${a}`, 
                         { 
                             recursive: true, 

@@ -219,8 +219,18 @@ const update = async (typesOfArchives, truebugStats, firstRun = false) => {
     await download.download(stats);
 
     if (!stats.archive.timeOfArchive) {
-        truebugStats.push(stats);
-        return update(typesOfArchives, truebugStats);
+
+        //
+        // if nothing was downloaded, we move on to the next archive
+        //
+        if (typesOfArchives.length) {
+            return update(typesOfArchives, truebugStats);
+        }
+        else {
+            log.info('no more archives on the server');
+            return;
+        }
+        
     }
     
     if (firstRun && typeOfArchive === 'yearly') {
@@ -345,7 +355,7 @@ const init = async (truebugStats) => {
                 }
             }
 
-            log.info(`have to ETL ${JSON.stringify(typesOfArchives)}`);
+            log.info(`have to ETL ${typesOfArchives.join(', ')}`);
 
             //
             // By now our archives[] have been pruned to just those entries 
