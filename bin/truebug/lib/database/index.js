@@ -11,7 +11,7 @@ const ts = truebug.steps.database;
 
 const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
 logOpts.name = 'TB:DATABASE  ';
-import { Zlogger } from '@punkish/zlogger';
+import Zlogger from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
 
 import isSea from 'is-sea';

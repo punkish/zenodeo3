@@ -9,7 +9,7 @@ const ts = truebug.steps.preflight;
 
 const logOpts = JSON.parse(JSON.stringify(truebug.log));
 logOpts.name = 'TB:PREFLIGHT ';
-import { Zlogger } from '@punkish/zlogger';
+import Zlogger from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
 
 import fs from 'fs';

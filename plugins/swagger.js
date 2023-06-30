@@ -37,9 +37,9 @@ export const swaggerOpts = {
                 description: 'Find more info on Swagger here'
             },
             tags: [
-                { name: 'meta', description: 'Resources metadata' },
+                //{ name: 'meta', description: 'Resources metadata' },
                 { name: 'zenodeo', description: 'Zenodeo end-points' },
-                { name: 'zenodo', description: 'Zenodo end-points' }
+                //{ name: 'zenodo', description: 'Zenodo end-points' }
             ],
 
             /**

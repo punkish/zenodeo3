@@ -17,7 +17,7 @@ const ts = truebug.steps.download;
 
 const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
 logOpts.name = 'TB:DOWNLOAD  ';
-import { Zlogger } from '@punkish/zlogger';
+import Zlogger from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
 
 
@@ -77,8 +77,6 @@ const download = async (stats) => {
     }
     
     stats.download.ended = new Date().getTime();
-    
-    
 }
 
 const unzip = function(stats) {

@@ -34,7 +34,7 @@ const allCols = {
 
 const logOpts = JSON.parse(JSON.stringify(truebug.log));
 logOpts.name = 'TB:PARSE';
-import { Zlogger } from '@punkish/zlogger';
+import Zlogger from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
 
 // const cleanText = (str) => {

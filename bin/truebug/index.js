@@ -22,11 +22,10 @@ import * as utils from '../../lib/utils.js';
 
 const logOpts = JSON.parse(JSON.stringify(truebug.log));
 logOpts.name = 'TB           ';
-import { Zlogger } from '@punkish/zlogger';
+import Zlogger from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
 
 const truebugStats = [];
-
 
 const calcRows = (stats) => {
     const rowsInserted = Object.keys(stats.etl)
@@ -330,7 +329,6 @@ const init = async (truebugStats) => {
 
             preflight.backupOldDB();
 
-            
             // by default, we check all archives
             const typesOfArchives = JSON.parse(
                 JSON.stringify(allTypesOfArchives)
@@ -355,7 +353,7 @@ const init = async (truebugStats) => {
                 }
             }
 
-            log.info(`have to ETL ${typesOfArchives.join(', ')}`);
+            log.info(`have to ETL "${typesOfArchives.join('", "')}"`);
 
             //
             // By now our archives[] have been pruned to just those entries 
