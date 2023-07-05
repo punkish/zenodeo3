@@ -40,6 +40,15 @@ export const commonparams = [
         },
         notDefaultCol: true
     },
+    {
+        name: 'termFreq',
+        schema: {
+            type: 'boolean',
+            description: '',
+            default: false
+        },
+        notDefaultCol: true
+    },
 
     /*
      * parameters that are a part of the query 
