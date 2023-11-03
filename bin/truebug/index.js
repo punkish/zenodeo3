@@ -368,7 +368,7 @@ const init = async (truebugStats) => {
 }
 
 const processXml = (argv) => {
-    const single = argv.xml || truebug.archives.xml;
+    const single = truebug.archives.xml;
     const xml = `${single}.xml`;
     const typeOfArchive = 'xmls';
 

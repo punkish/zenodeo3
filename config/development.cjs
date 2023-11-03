@@ -91,8 +91,8 @@ module.exports = {
             "port": 443
         },
 
-        "source": "archive",
-        //"source": "xml",
+        //"source": "archive",
+        "source": "xml",
 
         /**
          * by default, download the daily dump, and then go to
@@ -159,7 +159,10 @@ module.exports = {
             // "xml": "7EF1B844B6845777A5D50518D27AC513"
 
             // problematic journalTitle (EJT)
-            "xml": "5C7987C4FFC0FFDCECF6F9FB34B5FD3F"
+            //"xml": "5C7987C4FFC0FFDCECF6F9FB34B5FD3F"
+
+            // problematic figures and plates
+            "xml": "039C87AE7D51FFEEFF4707CF75ABFBF1"
             
         },
 
