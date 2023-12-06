@@ -29,7 +29,7 @@ function updateMaterialCitationsWithGeo() {
 
         if (res && res.ecoregions_id) {
             const { ecoregions_id, biomes_id } = res;
-            upd.run({ ecoregions_id, biomes_id })
+            upd.run({ ecoregions_id, biomes_id, id })
         }
 
         const row500 = !(count % 500);
