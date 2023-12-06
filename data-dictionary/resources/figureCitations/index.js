@@ -18,10 +18,10 @@ export const figureCitations = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'figureCitations',
-        schema: 'fc'
-    },
+    // attachedDatabase: {
+    //     name: 'figureCitations',
+    //     schema: 'fc'
+    // },
 
     summary: 'Fetches figure citations of the treatments',
     description: "…",

@@ -18,10 +18,10 @@ export const collectionCodes = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'materialCitations',
-        schema: 'mc'
-    },
+    // attachedDatabase: {
+    //     name: 'materialCitations',
+    //     schema: 'mc'
+    // },
 
     summary: 'Fetches collection codes',
     description: "…",

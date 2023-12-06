@@ -52,6 +52,7 @@ const getTableSchemas = () => {
 }
 
 const getTables = (property = 'name') => {
+
     if (property === 'name') {
         return tables.map(r => r[property]);
     }
@@ -133,6 +134,10 @@ const getCols = (tableName) => {
     // check the cache for resource or initialize it
     if (!(cacheKey in D)) D[cacheKey] = {};
 
+    const schema = getTable(tableName, 'attachedDatabase')
+        ? getTable(tableName, 'attachedDatabase').name
+        : '';
+
     if (!D[cacheKey].cols) {
         D[cacheKey].cols = getTable(tableName, 'params')
             .filter(col => col.sql)
@@ -142,12 +147,26 @@ const getCols = (tableName) => {
                 // if selname doesn't already exist, create a fully-qualified 
                 // selname by prefixing with the resourceName
                 if (!col.selname) {
-                    col.selname = `${tableName}."${col.name}"`;
+
+                    if (schema) {
+                        col.selname = `${schema}.${tableName}."${col.name}"`;
+                    }
+                    else {
+                        col.selname = `${tableName}."${col.name}"`;
+                    }
+                    
                 }
 
                 // add a where name
                 if (!col.where) {
-                    col.where = `${tableName}."${col.name}"`;
+                    
+                    if (schema) {
+                        col.where = `${schema}.${tableName}."${col.name}"`;
+                    }
+                    else {
+                        col.where = `${tableName}."${col.name}"`;
+                    }
+                    
                 }
 
                 return col;

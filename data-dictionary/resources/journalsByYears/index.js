@@ -18,10 +18,10 @@ export const journalsByYears = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'treatments',
-        schema: 'tr'
-    },
+    // attachedDatabase: {
+    //     name: 'treatments',
+    //     schema: 'tr'
+    // },
 
     summary: 'A table of frequency of journals by year',
     description: "Stores the number of times a journal was processed in a given year",

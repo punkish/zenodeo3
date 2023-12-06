@@ -2,6 +2,7 @@ import * as utils from '../../../lib/utils.js';
 
 import { collectionCodes } from '../collectionCodes/index.js';
 import { materialCitationsFts } from '../materialCitationsFts/index.js';
+import { ecoregions } from '../ecoregions/index.js';
 
 /** 
  * first we define all the params corresponding to the columns in the 
@@ -450,6 +451,28 @@ const params = [
         }
     },
     {
+        name: 'ecoregions_id',
+        schema: {
+            type: 'integer',
+            description: '',
+        },
+        sql: {
+            desc: 'The ID of the enclosing ecoregion (FK)',
+            type: 'INTEGER'
+        }
+    },
+    {
+        name: 'biomes_id',
+        schema: {
+            type: 'integer',
+            description: '',
+        },
+        sql: {
+            desc: 'The ID of the enclosing biome (FK)',
+            type: 'INTEGER'
+        }
+    },
+    {
         name: 'geolocation',
         schema: {
             type: 'string',
@@ -486,6 +509,22 @@ const params = [
     {
         name: 'q',
         dict: materialCitationsFts
+    },
+    {
+        name: 'eco_name',
+        dict: ecoregions,
+        joins: [
+            `JOIN geodata.ecoregions  
+                ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+        ]
+    },
+    {
+        name: 'biome_name',
+        dict: ecoregions,
+        joins: [
+            `JOIN geodata.ecoregions  
+                ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+        ]
     }
     // {
     //     name: 'institution_name',

@@ -18,10 +18,10 @@ export const taxa = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'treatments',
-        schema: 'tr'
-    },
+    // attachedDatabase: {
+    //     name: 'treatments',
+    //     schema: 'tr'
+    // },
 
     summary: 'Taxa of treatments',
     description: "…",

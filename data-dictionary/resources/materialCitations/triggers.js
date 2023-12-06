@@ -112,6 +112,32 @@ BEGIN
             new.treatments_id
     );
 END;`,
+
+    mc_loc_temp_afterInsert: `
+CREATE TEMPORARY TRIGGER IF NOT EXISTS mc_loc_temp_afterInsert 
+AFTER INSERT ON materialCitations 
+WHEN new.validGeo = 1
+BEGIN
+
+    -- update 'ecoregions_id' and 'biomes_id' columns
+    UPDATE materialCitations
+    SET 
+        ecoregions_id = (
+            SELECT ecoregions_id 
+            FROM geo.ecoregionsGeopoly
+            WHERE geopoly_contains_point(
+                _shape, new.longitude, new.latitude
+            )
+        ),
+        biomes_id = (
+            SELECT biomes_id 
+            FROM geo.ecoregionsGeopoly
+            WHERE geopoly_contains_point(
+                _shape, new.longitude, new.latitude
+            )
+        )
+    WHERE id = new.id;
+END;`,
     
 
     // mc_ccode_afterInsert: `CREATE TRIGGER IF NOT EXISTS mc_ccode_afterInsert

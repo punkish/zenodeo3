@@ -2,28 +2,28 @@ import { triggers } from './triggers.js';
 import { inserts } from './inserts.js';
 import { params } from './params.js';
 
-export const orders = {
+export const biomes = {
 
     // descriptive title of the datastore
-    title: 'Orders',
+    title: 'Biomes',
 
     // single word name of the table
-    name: 'orders',
+    name: 'biomes',
     
     // name of the database, also used as the name of the 
     // file on disk with '.sqlite' extension
     //
     // name of the schema, if ATTACHED as a separate database
     singleDatabase: {
-        name: 'zenodeo',
+        name: 'ecoregions',
         schema: 'main'
     },
-    // attachedDatabase: {
-    //     name: 'treatments',
-    //     schema: 'tr'
-    // },
+    attachedDatabase: {
+        name: 'geodata',
+        schema: 'ec'
+    },
 
-    summary: 'Orders of treatments',
+    summary: 'Biomes of the world',
     description: "…",
     
     // TABLE | VIEW | VIRTUAL TABLE
@@ -41,7 +41,7 @@ export const orders = {
     params,
     triggers,
     inserts,
-    
+
     // data source is 'zenodeo' | 'zenodo'
     source: 'zenodeo',
 

@@ -18,10 +18,10 @@ export const treatments_images = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'treatments',
-        schema: 'tr'
-    },
+    // attachedDatabase: {
+    //     name: 'treatments',
+    //     schema: 'tr'
+    // },
 
     summary: 'A cross-table between treatments and images',
     description: "A cross-table for many-to-many relationships between treatments and images",

@@ -18,10 +18,10 @@ export const unzip = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'stats',
-        schema: 'st'
-    },
+    // attachedDatabase: {
+    //     name: 'stats',
+    //     schema: 'st'
+    // },
 
     summary: 'A record of unzipping of archives',
     description: "…",

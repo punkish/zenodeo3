@@ -1,6 +1,7 @@
 import { triggers } from './triggers.js';
 import { inserts } from './inserts.js';
 import { params } from './params.js';
+//import { queries } from './queries.js';
 
 export const images = {
 
@@ -18,10 +19,10 @@ export const images = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'figureCitations',
-        schema: 'fc'
-    },
+    // attachedDatabase: {
+    //     name: 'figureCitations',
+    //     schema: 'fc'
+    // },
 
     summary: 'Fetches treatment-related images',
     description: "Treatments are well-defined parts of articles that describe the particular usage of a scientific name by an author at the time of the publication. Treatments have images.",
@@ -41,6 +42,7 @@ export const images = {
     params,
     triggers,
     inserts,
+    //queries,
     
     // data source is 'zenodeo' | 'zenodo'
     source: 'zenodeo',

@@ -10,6 +10,7 @@ import { orders } from '../orders/index.js';
 import { families } from '../families/index.js';
 import { genera } from '../genera/index.js';
 import { species } from '../species/index.js';
+import { ecoregions } from '../ecoregions/index.js';
 
 const datePattern = utils.getPattern('date');
 
@@ -707,6 +708,26 @@ const externalParams = [
         dict: materialCitations,
         joins: [
             'JOIN materialCitationsRtree ON materialCitations.id = materialCitationsRtree.materialCitations_id'
+        ],
+    },
+    {
+        name: 'eco_name',
+        dict: ecoregions,
+        joins: [
+            `JOIN materialCitations 
+                ON treatments.id = materialCitations.treatments_id`,
+            `JOIN geodata.ecoregions  
+                ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+        ],
+    },
+    {
+        name: 'biome_name',
+        dict: ecoregions,
+        joins: [
+            `JOIN materialCitations 
+                ON treatments.id = materialCitations.treatments_id`,
+            `JOIN geodata.ecoregions  
+                ON materialCitations.ecoregions_id = geodata.ecoregions.id`
         ],
     },
     {

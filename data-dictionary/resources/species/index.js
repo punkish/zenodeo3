@@ -18,10 +18,10 @@ export const species = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'treatments',
-        schema: 'tr'
-    },
+    // attachedDatabase: {
+    //     name: 'treatments',
+    //     schema: 'tr'
+    // },
 
     summary: 'Species of treatments',
     description: "…",

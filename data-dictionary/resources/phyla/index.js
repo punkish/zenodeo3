@@ -18,10 +18,10 @@ export const phyla = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'treatments',
-        schema: 'tr'
-    },
+    // attachedDatabase: {
+    //     name: 'treatments',
+    //     schema: 'tr'
+    // },
 
     summary: 'Phyla of treatments',
     description: "…",

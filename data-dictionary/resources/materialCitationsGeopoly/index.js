@@ -18,10 +18,10 @@ export const materialCitationsGeopoly = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'materialCitations',
-        schema: 'mc'
-    },
+    // attachedDatabase: {
+    //     name: 'materialCitations',
+    //     schema: 'mc'
+    // },
 
     summary: 'Location information stored using geopoly',
     description: 'Location information for material citations',

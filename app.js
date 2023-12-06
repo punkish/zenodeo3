@@ -15,6 +15,8 @@ import { swaggerOpts } from './plugins/swagger.js';
 import fastifyCron from 'fastify-cron';
 import { cronOpts } from './plugins/cron.js';
 
+import fastifyQueries from './plugins/queries.js';
+
 import { tos } from './routes/tos/index.js';
 import { docs } from './routes/docs/index.js';
 
@@ -43,6 +45,7 @@ export async function server(opts={}) {
     fastify.register(fastifyCron, cronOpts);
     const db = initDb();
     fastify.register(fastifyBetterSqlite3, db.conn);
+    fastify.register(fastifyQueries, db.queries);
 
     //
     // register the routes to resources

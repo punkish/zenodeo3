@@ -1,9 +1,11 @@
 import { archives } from "./archives/index.js";
 import { bibRefCitations } from "./bibRefCitations/index.js";
 import { bibRefCitationsFts } from "./bibRefCitationsFts/index.js";
+import { biomes } from "./biomes/index.js";
 import { classes } from "./classes/index.js";
 import { collectionCodes } from "./collectionCodes/index.js";
 import { downloads } from "./downloads/index.js";
+import { ecoregions } from "./ecoregions/index.js";
 import { etl } from "./etl/index.js";
 import { families } from "./families/index.js";
 import { figureCitations } from "./figureCitations/index.js";
@@ -30,9 +32,11 @@ import { treatmentsFts } from "./treatmentsFts/index.js";
 import { unzip } from "./unzip/index.js";
 
 const resources = [
+    biomes,
     bibRefCitations,
     classes,
     collectionCodes,
+    ecoregions,
     families,
     figureCitations,
     genera,
@@ -52,9 +56,11 @@ const tables = [
     archives,
     bibRefCitations,
     bibRefCitationsFts,
+    biomes,
     classes,
     collectionCodes,
     downloads,
+    ecoregions,
     etl,
     families,
     figureCitations,

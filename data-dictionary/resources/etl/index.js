@@ -18,10 +18,10 @@ export const etl = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'stats',
-        schema: 'st'
-    },
+    // attachedDatabase: {
+    //     name: 'stats',
+    //     schema: 'st'
+    // },
 
     summary: 'Stats for the extract-transform-load process',
     description: "…",

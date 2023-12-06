@@ -1,4 +1,4 @@
-import { db } from '../dbconn.js';
+import { dbmat } from '../dbconn.js';
 
 function mc() {
     console.log('insert data in table materialCitations');
@@ -16,38 +16,38 @@ function mc() {
         @latitude
     )`;
 
-    const insert = db.prepare(sql);
+    const insert = dbmat.prepare(sql);
 
     const data = [
         { 
             materialCitation: 'one materialCitation',
             treatments_id: '1',
-            longitude: -3,
-            latitude: -11
+            longitude: -5,
+            latitude: 10
         },
         { 
             materialCitation: 'two materialCitation',
             treatments_id: '1',
-            longitude: -10,
-            latitude: -6
-        },
-        { 
-            materialCitation: 'three materialCitation',
-            treatments_id: '2',
-            longitude: -4,
-            latitude: 6
-        },
-        { 
-            materialCitation: 'four materialCitation',
-            treatments_id: '3',
             longitude: 14,
             latitude: 5
         },
         { 
+            materialCitation: 'three materialCitation',
+            treatments_id: '2',
+            longitude: 23,
+            latitude: 12
+        },
+        { 
+            materialCitation: 'four materialCitation',
+            treatments_id: '3',
+            longitude: -5,
+            latitude: -10
+        },
+        { 
             materialCitation: 'five materialCitation',
             treatments_id: '2',
-            longitude: 16,
-            latitude: 10
+            longitude: -15,
+            latitude: -25
         },
 
         // bad lat long
@@ -56,11 +56,17 @@ function mc() {
             treatments_id: '2',
             longitude: -160,
             latitude: '10a.3f'
-        }
+        },
+        { 
+            materialCitation: 'seven materialCitation',
+            treatments_id: '3',
+            longitude: -15,
+            latitude: 5
+        },
     ];
 
 
-    const insertMany = db.transaction((data) => {
+    const insertMany = dbmat.transaction((data) => {
         for (const row of data) insert.run(row);
     });
 

@@ -18,10 +18,10 @@ export const treatmentCitations = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'treatmentCitations',
-        schema: 'tc'
-    },
+    // attachedDatabase: {
+    //     name: 'treatmentCitations',
+    //     schema: 'tc'
+    // },
 
     summary: 'Fetches treatment citations of the treatments',
     description: "…",

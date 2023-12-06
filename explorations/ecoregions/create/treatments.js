@@ -1,4 +1,4 @@
-import { db } from '../dbconn.js';
+import { dbmat } from '../dbconn.js';
 
 function tr() {
     console.log('creating table treatments');
@@ -8,7 +8,7 @@ function tr() {
         treatment TEXT
     )`;
 
-    db.prepare(sql).run();
+    dbmat.prepare(sql).run();
 }
 
 export { tr }

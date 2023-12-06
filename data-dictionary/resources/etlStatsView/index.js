@@ -18,10 +18,10 @@ export const etlStatsView = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'stats',
-        schema: 'st'
-    },
+    // attachedDatabase: {
+    //     name: 'stats',
+    //     schema: 'st'
+    // },
 
     summary: 'Simplified view of ETL processes',
     description: "…",

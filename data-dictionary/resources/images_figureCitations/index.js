@@ -18,10 +18,10 @@ export const images_figureCitations = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'figureCitations',
-        schema: 'fc'
-    },
+    // attachedDatabase: {
+    //     name: 'figureCitations',
+    //     schema: 'fc'
+    // },
 
     summary: 'A cross-table between images and figureCitations',
     description: "A cross-table for many-to-many relationships between images and figureCitations",

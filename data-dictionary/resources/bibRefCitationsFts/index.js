@@ -18,10 +18,10 @@ export const bibRefCitationsFts = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'bibRefCitations',
-        schema: 'bc'
-    },
+    // attachedDatabase: {
+    //     name: 'bibRefCitations',
+    //     schema: 'bc'
+    // },
 
     summary: 'Full text of Bibliographic Reference Citations',
     description: '…',

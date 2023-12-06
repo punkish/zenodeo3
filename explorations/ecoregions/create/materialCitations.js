@@ -1,4 +1,4 @@
-import { db } from '../dbconn.js';
+import { dbmat } from '../dbconn.js';
 
 function mc() {
     console.log('creating table materialCitations');
@@ -15,10 +15,11 @@ function mc() {
             typeof(longitude) = 'real' AND 
             abs(longitude) <= 180
         ) STORED,
-        ecoregions_id INTEGER REFERENCES ecoregions(id)
+        ecoregions_id INTEGER,
+        biomes_id INTEGER
     )`;
 
-    db.prepare(sql).run();
+    dbmat.prepare(sql).run();
 }
 
 function mc_geopoly() {
@@ -29,13 +30,13 @@ function mc_geopoly() {
         treatments_id
     )`;
 
-    db.prepare(sql).run();
+    dbmat.prepare(sql).run();
 }
 
 function mc_trigg() {
-    console.log('creating trigger mc_loc_afterInsert');
+    console.log('creating trigger mc_loc_afterInsert1');
 
-    const sql = `CREATE TRIGGER IF NOT EXISTS mc_loc_afterInsert 
+    const sql1 = `CREATE TRIGGER IF NOT EXISTS mc_loc_afterInsert1 
     AFTER INSERT ON materialCitations 
     WHEN new.validGeo = 1
     BEGIN
@@ -64,18 +65,41 @@ function mc_trigg() {
             new.id,
             new.treatments_id
         );
+    END;`;
 
-        -- update 'ecoregions_id' column
+    dbmat.prepare(sql1).run();
+
+    const res = dbmat.prepare('SELECT * FROM geo.ecoregions').all();
+    console.log(res);
+
+    console.log('creating trigger mc_loc_afterInsert2');
+
+    const sql2 = `CREATE TEMPORARY TRIGGER IF NOT EXISTS mc_loc_afterInsert2 
+    AFTER INSERT ON materialCitations 
+    WHEN new.validGeo = 1
+    BEGIN
+
+        -- update 'ecoregions_id' and 'biomes_id' columns
         UPDATE materialCitations
-        SET ecoregions_id = (
-            SELECT ecoregions_id 
-            FROM ecoregionsGeopoly
-            WHERE geopoly_contains_point(_shape, new.longitude, new.latitude)
-        )
+        SET 
+            ecoregions_id = (
+                SELECT ecoregions_id 
+                FROM geo.ecoregionsGeopoly
+                WHERE geopoly_contains_point(
+                    _shape, new.longitude, new.latitude
+                )
+            ),
+            biomes_id = (
+                SELECT biomes_id 
+                FROM geo.ecoregionsGeopoly
+                WHERE geopoly_contains_point(
+                    _shape, new.longitude, new.latitude
+                )
+            )
         WHERE id = new.id;
     END;`;
 
-    db.prepare(sql).run();
+    dbmat.prepare(sql2).run();
 }
 
 export { mc, mc_geopoly, mc_trigg }

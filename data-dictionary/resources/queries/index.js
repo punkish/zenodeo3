@@ -18,10 +18,10 @@ export const queries = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'stats',
-        schema: 'st'
-    },
+    // attachedDatabase: {
+    //     name: 'stats',
+    //     schema: 'st'
+    // },
 
     summary: 'Queries conducted via the web',
     description: 'The REST queries and their corresponding SQL',

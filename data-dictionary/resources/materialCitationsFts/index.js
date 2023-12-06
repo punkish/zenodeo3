@@ -18,10 +18,10 @@ export const materialCitationsFts = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'materialCitations',
-        schema: 'mc'
-    },
+    // attachedDatabase: {
+    //     name: 'materialCitations',
+    //     schema: 'mc'
+    // },
 
     summary: 'Full text of Material Citations',
     description: "…",

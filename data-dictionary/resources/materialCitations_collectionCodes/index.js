@@ -18,10 +18,10 @@ export const materialCitations_collectionCodes = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'materialCitations',
-        schema: 'mc'
-    },
+    // attachedDatabase: {
+    //     name: 'materialCitations',
+    //     schema: 'mc'
+    // },
 
     summary: 'A cross-table between materialCitations and collectionCodes',
     description: "A cross-table for many-to-many relationships between materialCitations and collectionCodes",

@@ -18,10 +18,10 @@ export const queryStats = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'stats',
-        schema: 'st'
-    },
+    // attachedDatabase: {
+    //     name: 'stats',
+    //     schema: 'st'
+    // },
     
     summary: 'Stats for queries',
     description: "…",

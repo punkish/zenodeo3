@@ -1,4 +1,4 @@
-import { db } from '../dbconn.js';
+import { dbmat } from '../dbconn.js';
 
 function tr() {
     console.log('insert data in table treatments');
@@ -6,7 +6,7 @@ function tr() {
     const sql = `INSERT INTO treatments ( treatment ) 
     VALUES ( @treatment )`;
 
-    const insert = db.prepare(sql);
+    const insert = dbmat.prepare(sql);
 
     const data = [
         { treatment: 'one treatment' },
@@ -15,7 +15,7 @@ function tr() {
     ];
 
 
-    const insertMany = db.transaction((data) => {
+    const insertMany = dbmat.transaction((data) => {
         for (const row of data) insert.run(row);
     });
 

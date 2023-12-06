@@ -8,20 +8,7 @@ export const params = [
         isResourceId: true
     },
     {
-        name: 'eco_name',
-        schema: { 
-            type: 'string', 
-            description: ''
-        },
-        sql: {
-            type: 'TEXT',
-            desc: 'name of the ecoregions'
-        },
-        defaultOp: 'starts_with'
-    },
-    {
         name: 'biome_name',
-        selname: 'biome_synonyms.synonym',
         schema: { 
             type: 'string', 
             description: ''
@@ -33,15 +20,17 @@ export const params = [
         defaultOp: 'starts_with'
     },
     {
-        name: 'geometry',
+        name: 'biome',
+        selname: 'biome_synonyms.synonym',
+        where: 'biome_synonyms.synonym',
         schema: { 
             type: 'string', 
             description: ''
         },
         sql: {
             type: 'TEXT',
-            desc: 'GeoJSON of the ecoregion'
+            desc: 'name of the biome'
         },
-        notqueryable: true
+        defaultOp: 'starts_with'
     }
 ]

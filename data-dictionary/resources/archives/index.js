@@ -18,10 +18,10 @@ export const archives = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'stats',
-        schema: 'st'
-    },
+    // attachedDatabase: {
+    //     name: 'stats',
+    //     schema: 'st'
+    // },
 
     summary: 'Zip archives downloaded from TreatmentBank',
     description: '…',

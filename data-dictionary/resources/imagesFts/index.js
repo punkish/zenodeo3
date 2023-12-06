@@ -18,10 +18,10 @@ export const imagesFts = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'figureCitations',
-        schema: 'fc'
-    },
+    // attachedDatabase: {
+    //     name: 'figureCitations',
+    //     schema: 'fc'
+    // },
 
     summary: 'Full text of the image captions',
     description: "…",

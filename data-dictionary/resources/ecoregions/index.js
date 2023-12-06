@@ -19,7 +19,7 @@ export const ecoregions = {
         schema: 'main'
     },
     attachedDatabase: {
-        name: 'ecoregions',
+        name: 'geodata',
         schema: 'ec'
     },
 

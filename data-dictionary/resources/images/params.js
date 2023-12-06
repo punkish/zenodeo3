@@ -4,6 +4,8 @@ import { imagesFts } from '../imagesFts/index.js';
 import { treatmentsFts } from '../treatmentsFts/index.js';
 import { materialCitations } from '../materialCitations/index.js';
 import { journals } from '../journals/index.js';
+import { ecoregions } from '../ecoregions/index.js';
+import { biomes } from '../biomes/index.js';
 
 const params = [
     {
@@ -302,6 +304,24 @@ const params = [
             'JOIN treatments ON images.treatments_id = treatments.id',
             'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
         ]
+    },
+    {
+        name: 'eco_name',
+        dict: ecoregions,
+        joins: [
+            `JOIN treatments ON images.treatments_id = treatments.id`,
+            `JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
+            `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+        ]
+    },
+    {
+        name: 'biome',
+        dict: biomes,
+        joins: [
+            'JOIN treatments ON images.treatments_id = treatments.id',
+            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id',
+            'JOIN geodata.biome_synonyms ON materialCitations.biomes_id = geodata.biome_synonyms.biomes_id'
+        ]
     }
 ];
 
@@ -313,3 +333,22 @@ externalParams.forEach(externalParam => utils.addExternalDef(
 ));
 
 export { params }
+
+
+// SELECT Count(*) AS num_of_records 
+// FROM 
+//     images JOIN 
+//     treatments ON images.treatments_id = treatments.id JOIN 
+//     materialCitations ON treatments.id = materialCitations.treatments_id JOIN 
+//     geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id JOIN 
+//     geodata.biomes ON geodata.ecoregions.biomes_id = geodata.biomes.id JOIN 
+//     geodata.biome_synonyms ON geodata.biomes.id = geodata.biome_synonyms.biomes_id  
+// WHERE geodata.biome_synonyms.synonym LIKE 'pampas%'
+
+// SELECT Count(*) AS num_of_records 
+// FROM 
+//     images JOIN 
+//     treatments ON images.treatments_id = treatments.id JOIN 
+//     materialCitations ON treatments.id = materialCitations.treatments_id JOIN 
+//     geodata.biome_synonyms ON materialCitations.biomes_id = geodata.biome_synonyms.id   
+// WHERE geodata.biome_synonyms.synonym LIKE 'pampas%'

@@ -19,6 +19,8 @@ import { dictKeywords } from './resources/zenodeo/keywords.js';
 import { dictAuthors } from './resources/zenodeo/authors.js';
 import { dictImages } from './resources/zenodo/images.js';
 import { dictPublications } from './resources/zenodo/publications.js';
+import { dictEcoregions } from './resources/zenodeo/ecoregions.js';
+import { dictBiomes } from './resources/zenodeo/biomes.js';
 
 export const resources = [
     {
@@ -218,6 +220,26 @@ export const resources = [
         summary: 'Fetches authors',
         description: "…",
         dictionary: dictAuthors,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+    {
+        title: 'Ecoregions',
+        name: 'ecoregions',
+        alias: 'er',
+        summary: 'Fetches ecoregions',
+        description: "…",
+        dictionary: dictEcoregions,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+    {
+        title: 'Biomes',
+        name: 'biomes',
+        alias: 'bm',
+        summary: 'Fetches biomes',
+        description: "…",
+        dictionary: dictBiomes,
         source: 'zenodeo',
         tags: [ 'zenodeo' ]
     },

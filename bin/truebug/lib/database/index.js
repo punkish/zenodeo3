@@ -1,5 +1,3 @@
-// @ts-check
-
 'use strict';
 
 import * as utils from '../utils.js';
@@ -307,9 +305,7 @@ const selCountOfTreatments = () => {
     const sql = 'SELECT Count(*) AS c FROM treatments';
 
     log.info('Getting count of treatments already in the db… ', 'start');
-    const num = db.conn
-        .prepare(sql)
-        .get().c;
+    const num = db.conn.prepare(sql).get().c;
     log.info(`found ${num}\n`, 'end');
     return num;
 }

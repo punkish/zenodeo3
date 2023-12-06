@@ -18,10 +18,10 @@ export const materialCitationsRtree = {
         name: 'zenodeo',
         schema: 'main'
     },
-    attachedDatabase: {
-        name: 'materialCitations',
-        schema: 'mc'
-    },
+    // attachedDatabase: {
+    //     name: 'materialCitations',
+    //     schema: 'mc'
+    // },
 
     summary: 'Location information stored using R*Tree',
     description: 'Location information for material citations',
