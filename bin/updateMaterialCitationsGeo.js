@@ -28,6 +28,7 @@ function updateMaterialCitationsWithGeo() {
         const res = sel.get({ longitude, latitude });
 
         if (res && res.ecoregions_id) {
+            const { ecoregions_id, biomes_id } = res;
             upd.run({ ecoregions_id, biomes_id })
         }
 
