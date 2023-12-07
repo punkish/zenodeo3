@@ -21,10 +21,10 @@ const queries = {
         `geolocation=within(radius:10, units:'kilometers', lat:40.21, lng:-120.33)`,
         'class=Actinopterygii&publicationDate=since(2021-12-21)',
         'checkinTime=since(yesterday)',
-        'tyrannosaurus&authorityName=Osborn',
+        'q=tyrannosaurus&authorityName=Osborn',
         'family=Agamidae',
         'q=moloch OR horridus',
-        'decapoda&journalTitle=not_like(zootaxa)'
+        'q=decapoda&journalTitle=not_like(zootaxa)'
     ],
     treatments: [
         'cols='
