@@ -714,20 +714,16 @@ const externalParams = [
         name: 'eco_name',
         dict: ecoregions,
         joins: [
-            `JOIN materialCitations 
-                ON treatments.id = materialCitations.treatments_id`,
-            `JOIN geodata.ecoregions  
-                ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+            `JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
+            `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
         ],
     },
     {
         name: 'biome_name',
         dict: ecoregions,
         joins: [
-            `JOIN materialCitations 
-                ON treatments.id = materialCitations.treatments_id`,
-            `JOIN geodata.ecoregions  
-                ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+            `JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
+            `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
         ],
     },
     {

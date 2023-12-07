@@ -29,7 +29,6 @@ const getResource = (resourceName, property) => {
     }
 
     if (property) {
-
         const cacheKey = `res_${resourceName}`;
 
         // check the cache for resource or initialize it
@@ -198,11 +197,12 @@ const getParams = (resourceName) => {
         // add commonparams
         params.push(...commonparams);
 
-        // finally, store a copy the params
+        // finally, store a copy of the params
         D[cacheKey].params = params;
     }
 
     return D[cacheKey].params;
+    
 }
 
 const getParam = (resourceName, keyname, property) => {
@@ -313,8 +313,7 @@ const getQueryStringSchema = function(resourceName) {
         // we will create the queryStringSchema and cache it
         //const resourceId = getResourceId(resourceName);
         const pk = getPk(resourceName);
-        const defaultCols = getDefaultCols(resourceName)
-            .map(c => c.name);
+        const defaultCols = getDefaultCols(resourceName).map(c => c.name);
         defaultCols.push('');
         const queryStringSchema = {};
         const params = getParams(resourceName);

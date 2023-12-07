@@ -500,10 +500,8 @@ const params = [
         name: 'collectionCode',
         dict: collectionCodes,
         joins: [
-            `JOIN materialCitations_collectionCodes 
-                ON materialCitations.id = materialCitations_collectionCodes.materialCitations_id`,
-            `JOIN collectionCodes 
-                ON materialCitations_collectionCodes.collectionCodes_id = collectionCodes.id`
+            `JOIN materialCitations_collectionCodes ON materialCitations.id = materialCitations_collectionCodes.materialCitations_id`,
+            `JOIN collectionCodes ON materialCitations_collectionCodes.collectionCodes_id = collectionCodes.id`
         ]
     },
     {
@@ -514,16 +512,14 @@ const params = [
         name: 'eco_name',
         dict: ecoregions,
         joins: [
-            `JOIN geodata.ecoregions  
-                ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+            `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
         ]
     },
     {
         name: 'biome_name',
         dict: ecoregions,
         joins: [
-            `JOIN geodata.ecoregions  
-                ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+            `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
         ]
     }
     // {

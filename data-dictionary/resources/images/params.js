@@ -286,7 +286,8 @@ const params = [
         dict: materialCitations,
         joins: [
             'JOIN treatments ON images.treatments_id = treatments.id',
-            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id',
+            'JOIN materialCitationsRtree ON materialCitations.id = materialCitationsRtree.materialCitations_id'
         ]
     },
     {
