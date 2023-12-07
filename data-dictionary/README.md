@@ -68,8 +68,8 @@ The dictionary defines each param that can be used in a REST query. As such, it 
         cheerio: '$("document").attr("docId")',
 
         // all columns are included in the query results by 
-        // default unless notDefaultCol is true
-        notDefaultCol: true
+        // default unless defaultCol is false
+        defaultCol: false
 
         // all params are queryable unless notqueryable is true
         notQueryable: true

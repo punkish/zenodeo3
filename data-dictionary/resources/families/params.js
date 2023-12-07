@@ -11,7 +11,7 @@ export const params = [
         },
         isResourceId: true,
         sqltype: 'INTEGER',
-        notDefaultCol: true
+        defaultCol: false
     },
     {
         name: 'family',

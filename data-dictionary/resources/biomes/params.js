@@ -31,6 +31,9 @@ export const params = [
             type: 'TEXT',
             desc: 'name of the biome'
         },
+        joins: [
+            'JOIN biome_synonyms ON biomes.id = biome_synonyms.biomes_id'
+        ],
         defaultOp: 'starts_with'
     }
-]
+];

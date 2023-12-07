@@ -594,7 +594,7 @@ const params = [
             type: 'INTEGER DEFAULT 0'
         },
         cheerio: '$("document").attr("deleted")',
-        notDefaultCol: true
+        defaultCol: false
     },
     {
         name: 'checkInYear',

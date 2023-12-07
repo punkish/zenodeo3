@@ -5,7 +5,7 @@ export const params = [
         sql: {
             desc: 'Primary Key'
         },
-        notDefaultCol: true,
+        defaultCol: false,
         notQueryable: true,
         indexed: false
     },
@@ -15,7 +15,7 @@ export const params = [
         sql: {
             desc: 'lower left longitude'
         },
-        notDefaultCol: true,
+        defaultCol: false,
         notQueryable: true,
         indexed: false
     },
@@ -25,7 +25,7 @@ export const params = [
         sql: {
             desc: 'upper right longitude'
         },
-        notDefaultCol: true,
+        defaultCol: false,
         notQueryable: true,
         indexed: false
     },
@@ -35,7 +35,7 @@ export const params = [
         sql: {
             desc: 'lower left latitude'
         },
-        notDefaultCol: true,
+        defaultCol: false,
         notQueryable: true,
         indexed: false
     },
@@ -45,7 +45,7 @@ export const params = [
         sql: {
             desc: 'upper right latitude'
         },
-        notDefaultCol: true,
+        defaultCol: false,
         notQueryable: true,
         indexed: false
     },
@@ -56,7 +56,7 @@ export const params = [
             desc: 'ID of parent materialCitation',
             type: 'INTEGER NOT NULL'
         },
-        notDefaultCol: true,
+        defaultCol: false,
         notQueryable: true,
         indexed: false
     },
@@ -67,7 +67,7 @@ export const params = [
             desc: 'ID of parent treatment',
             type: 'INTEGER NOT NULL'
         },
-        notDefaultCol: true,
+        defaultCol: false,
         notQueryable: true,
         indexed: false
     }

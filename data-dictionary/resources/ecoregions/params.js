@@ -21,7 +21,6 @@ export const params = [
     },
     {
         name: 'biome_name',
-        selname: 'biome_synonyms.synonym',
         schema: { 
             type: 'string', 
             description: ''
@@ -42,6 +41,7 @@ export const params = [
             type: 'TEXT',
             desc: 'GeoJSON of the ecoregion'
         },
+        defaultCol: false,
         notqueryable: true
     }
 ]

@@ -11,7 +11,7 @@ export const commonparams = [
             description: 'Force refresh cache (true | false)',
             default: false
         },
-        notDefaultCol: true
+        defaultCol: false
     },
     {
         name: 'facets',
@@ -20,7 +20,7 @@ export const commonparams = [
             description: 'Calculate facets (true | false)',
             default: false
         },
-        notDefaultCol: true
+        defaultCol: false
     },
     {
         name: 'relatedRecords',
@@ -29,7 +29,7 @@ export const commonparams = [
             description: 'Calculate related records (true | false)',
             default: false
         },
-        notDefaultCol: true
+        defaultCol: false
     },
     {
         name: 'stats',
@@ -38,7 +38,7 @@ export const commonparams = [
             description: 'Calculate statistics for dashboard (true | false)',
             default: false
         },
-        notDefaultCol: true
+        defaultCol: false
     },
     {
         name: 'termFreq',
@@ -47,7 +47,7 @@ export const commonparams = [
             description: '',
             default: false
         },
-        notDefaultCol: true
+        defaultCol: false
     },
 
     /*
@@ -67,7 +67,7 @@ export const commonparams = [
             description: 'Starting page. Has to be an integer greater than 0. Defaults to 1',
             default: 1
         },
-        notDefaultCol: true
+        defaultCol: false
     },
 
     /* 
@@ -81,7 +81,7 @@ export const commonparams = [
             description: 'Number of records to fetch per page. Has to be an integer between 1 and 100. Defaults to 30',
             default: 30
         },
-        notDefaultCol: true
+        defaultCol: false
     }, 
 
     /*
@@ -96,7 +96,7 @@ export const commonparams = [
   **Note:** sort direction can be ASC or DESC`,
             default: 'resourceId:ASC'
         },
-        notDefaultCol: true
+        defaultCol: false
     },
 
     {
@@ -107,7 +107,7 @@ export const commonparams = [
 - \`groupby=images.httpUri\``,
             //default: 'resourceId:ASC'
         },
-        notDefaultCol: true
+        defaultCol: false
     },
 
     /* 
@@ -123,6 +123,6 @@ export const commonparams = [
             description: `Columns to retreive in the result set. Order of columns doesn't matter. Provide columns like so:
 - \`cols=column1&cols=column2&cols=column3\``
         },
-        notDefaultCol: true
+        defaultCol: false
     }
 ]

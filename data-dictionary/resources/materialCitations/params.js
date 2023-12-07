@@ -348,7 +348,7 @@ const params = [
             type: 'REAL'
         },
         cheerio: '$("materialsCitation").attr("latitude")',
-        notDefaultCol: true
+        defaultCol: false
     },
     {
         name: 'longitude',
@@ -363,7 +363,7 @@ const params = [
             type: 'REAL'
         },
         cheerio: '$("materialsCitation").attr("longitude")',
-        notDefaultCol: true
+        defaultCol: false
     },
     {
         name: 'elevation',
@@ -407,7 +407,7 @@ const params = [
             type: 'INTEGER DEFAULT 0'
         },
         cheerio: '$("materialsCitation").attr("deleted")',
-        notDefaultCol: true
+        defaultCol: false
     },
     {
         name: 'fulltext',

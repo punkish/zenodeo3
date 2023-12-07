@@ -3,7 +3,7 @@ export const params = [
         name: 'materialCitations_id',
         schema: {},
         sql: {},
-        notDefaultCol: true,
+        defaultCol: false,
         notQueryable: true,
         indexed: false
     },
@@ -11,7 +11,7 @@ export const params = [
         name: 'treatments_id',
         schema: {},
         sql: {},
-        notDefaultCol: true,
+        defaultCol: false,
         notQueryable: true,
         indexed: false
     },
