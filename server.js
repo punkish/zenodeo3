@@ -38,9 +38,9 @@ const start = async () => {
         // save the original request query params for use later because the 
         // query will get modified after schema validation
         // 
-        fastify.addHook('preValidation', async (request) => {
-            request.origQuery = JSON.parse(JSON.stringify(request.query));
-        });
+        // fastify.addHook('preValidation', async (request) => {
+        //     request.origQuery = JSON.parse(JSON.stringify(request.query));
+        // });
 
         // 
         // the following takes care of cols=col1,col2,col3 as sent by the 
