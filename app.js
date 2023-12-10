@@ -43,19 +43,18 @@ export async function server(opts={}) {
     fastify.register(fastifyStatic, staticOpts);
     fastify.register(view, viewOpts);
     fastify.register(fastifyCron, cronOpts);
-
+    
     //
     // we initialize the db connection once, and store it in a fastify
     // plugin so it can be used everywhere
     //
     const db = initDb();
     const fastifyBetterSqlite3Opts = {
-        class: db.class,
-        connection: db.conn
+        "class": db.class,
+        "connection": db.conn
     };
 
     fastify.register(fastifyBetterSqlite3, fastifyBetterSqlite3Opts);
-    fastify.register(fastifyQueries, db.queries);
 
     //
     // register the routes to resources
