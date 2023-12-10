@@ -13,6 +13,12 @@ Built with [Fastify](https://www.fastify.io/) and [SQLite](https://sqlite.org/).
 ~/zenodeo3$ node server
 ```
 
+If using `pm2` in production, start like so
+
+```
+~/zenodeo3$ NODE_ENV=production pm2 start server.js --name=z3
+```
+
 ## Objective
 
 Zenodeo is a node-based, REST API with its own data source built from treatment XMLs downloaded periodically from [TreatmentBank](https://plazi.org/treatmentbank/). It allows querying treatment data granularly against almost all its uniquely tagged information that has been parsed and extracted out of XMLs and stored in a relational database. Zenodeo is particularly fast at full-text search and spatial search against an R*Tree index of `lat-lng` values of **material citations**.
