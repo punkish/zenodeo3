@@ -2,9 +2,10 @@
 // default the NODE_ENV to 'development'
 //
 const env = process.env.NODE_ENV || 'development';
-import { Config } from '@punkish/zconfig';
 import process from 'node:process';
+import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
+
 import { server } from './app.js';
 import { coerceToArray, getCache, getCacheKey } from './lib/routeUtils.js';
 
@@ -110,6 +111,26 @@ const start = async () => {
         await fastify.listen({ port: config.port });
 
         fastify.log.info(`… in ${env.toUpperCase()} mode`);
+
+        const cronQueries = config.cronQueries;
+        const queryParams = cronQueries.queryParams;
+        const queries = cronQueries.queries;
+
+        for (const [resource, queryStrings] of Object.entries(queries)) {
+            for (let i = 0, j = queryStrings.length; i < j; i++) {
+                const qry = queryStrings[i];
+                const qs = i
+                    ? `/v3/${resource}?${qry}&${queryParams}&refreshCache=true`
+                    : `/v3/${resource}?cols=&refreshCache=true`;
+
+                try {
+                    await fastify.inject(qs);
+                } 
+                catch (err) { 
+                    console.error(err);
+                }
+            }
+        }
     } 
     catch (err) {
         console.log(err);

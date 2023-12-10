@@ -58,6 +58,53 @@ module.exports = {
     // This is where the db is stored
     "dataDir": "data/db",
 
+    "cronQueries": {
+        "queryParams": "page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption",
+
+        "queries" : {
+            "images": [
+                `cols=`,
+                `family=Formicidae`,
+                `class=Actinopterygii`,
+                `class=Arachnida`,
+                `class=Malacostraca`,
+                `captionText=phylogeny`,
+                `q=phylogeny`,
+                `q=phylogeny AND plantae`,
+                `journalTitle=eq(European Journal of Taxonomy)`,
+                `articleDOI=10.11646/zootaxa.5284.3.7`,
+                `articleTitle=starts_with(Morphology and taxonomic assessment)`,
+                `geolocation=within(radius:10, units:'kilometers', lat:40.21, lng:-120.33)`,
+                `class=Actinopterygii&publicationDate=since(2021-12-21)`,
+                `checkinTime=since(yesterday)`,
+                `q=tyrannosaurus&authorityName=Osborn`,
+                `family=Agamidae`,
+                `q=moloch OR horridus`,
+                `q=decapoda&journalTitle=not_like(zootaxa)`,
+                `biome=savanna`,
+                `biome=veld`,
+                `biome=pampas`,
+                `biome=Tundra`,
+                `biome=Tropical and Subtropical Moist Broadleaf Forests`,
+                `biome=Mediterranean Forests, Woodlands and Scrub`,
+                `biome=Deserts and Xeric Shrublands`,
+                `biome=Temperate Grasslands, Savannas and Shrublands`,
+                `biome=Boreal Forests/Taiga`,
+                `biome=Temperate Conifer Forests`,
+                `biome=Temperate Broadleaf and Mixed Forests`,
+                `biome=Montane Grasslands and Shrublands`,
+                `biome=Mangroves`,
+                `biome=Flooded Grasslands and Savannas`,
+                `biome=Tropical and Subtropical Grasslands, Savannas and Shrublands`,
+                `biome=Tropical and Subtropical Dry Broadleaf Forests`,
+                `biome=Tropical and Subtropical Coniferous Forests`
+            ],
+            "treatments": [
+                `cols=`
+            ]
+        }
+    },
+
     "cache": {
         "on": true,
         "base": path.join(cwd, 'cache'),

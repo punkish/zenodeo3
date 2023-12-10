@@ -15,7 +15,7 @@ import { swaggerOpts } from './plugins/swagger.js';
 import fastifyCron from 'fastify-cron';
 import { cronOpts } from './plugins/cron.js';
 
-import fastifyQueries from './plugins/queries.js';
+//import fastifyQueries from './plugins/queries.js';
 
 import { tos } from './routes/tos/index.js';
 import { docs } from './routes/docs/index.js';
