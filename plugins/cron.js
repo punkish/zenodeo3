@@ -19,8 +19,8 @@ Object.keys(queries)
             i++;
 
             const qs = idx
-                ? `/v3/${resource}?${qry}&${queryParams}&refreshCache=true`
-                : `/v3/${resource}?cols=&refreshCache=true`;
+                ? `/v3/${resource}?${qry}&${queryParams}`
+                : `/v3/${resource}?cols=&cacheDuration=1`;
 
             return {
 

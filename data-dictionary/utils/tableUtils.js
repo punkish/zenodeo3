@@ -1,4 +1,5 @@
 import { tables } from '../resources/index.js';
+import { commonparams } from '../resources/commonparams.js';
 import { D } from './index.js';
 
 const getTableProperties = () => Object.keys(tables[0]).join("\n\t- ");
@@ -395,6 +396,8 @@ const createIndexes = (tableName) => {
     }
 }
 
+const getNotCols = () => commonparams.map(c => c.name);
+
 export { 
     getTableSchemas,
     getTableProperties,
@@ -402,6 +405,7 @@ export {
     getTable,
     getCols,
     getCol,
+    getNotCols,
     getXmlCols,
     getDOM,
     createTable,

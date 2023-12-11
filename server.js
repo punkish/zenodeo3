@@ -74,11 +74,15 @@ const start = async () => {
                 //
                 if (resourceName) {
                     const cacheKey = getCacheKey(request);
+
                     const cache = getCache({ 
                         dir: config.cache.base, 
                         namespace: resourceName, 
-                        duration: config.cache.ttl
+                        duration: request.query.cacheDuration
+                            ? request.query.cacheDuration * 24 * 60 * 60 * 1000
+                            : config.cache.ttl
                     });
+
                     let res = await cache.get(cacheKey);
 
                     if (res) {
@@ -120,8 +124,8 @@ const start = async () => {
             for (let i = 0, j = queryStrings.length; i < j; i++) {
                 const qry = queryStrings[i];
                 const qs = i
-                    ? `/v3/${resource}?${qry}&${queryParams}&refreshCache=true`
-                    : `/v3/${resource}?cols=&refreshCache=true`;
+                    ? `/v3/${resource}?${qry}&${queryParams}`
+                    : `/v3/${resource}?cols=&cacheDuration=1`;
 
                 try {
                     await fastify.inject(qs);

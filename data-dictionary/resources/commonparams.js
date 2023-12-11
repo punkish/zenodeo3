@@ -14,6 +14,15 @@ export const commonparams = [
         defaultCol: false
     },
     {
+        name: 'cacheDuration',
+        schema: {
+            type: 'integer',
+            description: 'number of days',
+            default: 7
+        },
+        defaultCol: false
+    },
+    {
         name: 'facets',
         schema: {
             type: 'boolean',
@@ -105,7 +114,7 @@ export const commonparams = [
             type: 'string',
             description: `Fully-qualified name of column by which to group the results. For example:
 - \`groupby=images.httpUri\``,
-            //default: 'resourceId:ASC'
+            default: ''
         },
         defaultCol: false
     },
