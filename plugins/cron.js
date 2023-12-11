@@ -10,19 +10,17 @@ const queryParams = cronQueries.queryParams;
 const queries = cronQueries.queries;
 
 const jobs = [];
-let i = -1;
+let i = 0;
 
 Object.keys(queries)
     .forEach((resource) => {
         const queryStrings = queries[resource];
         const qry = queryStrings.map((qry, idx) => {
-            i++;
-
             const qs = idx
                 ? `/v3/${resource}?${qry}&${queryParams}`
                 : `/v3/${resource}?cols=&cacheDuration=1`;
 
-            return {
+            const job = {
 
                 // starting at midnight, every min
                 cronTime: `${(i * 1)} 0 * * *`,
@@ -36,6 +34,10 @@ Object.keys(queries)
                 },
                 start: true
             }
+
+            i++;
+            return job;
+
         });
 
         jobs.push(...qry);

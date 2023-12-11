@@ -1,6 +1,8 @@
-// 
-// default the NODE_ENV to 'development'
-//
+/** 
+ * default the NODE_ENV to 'development'.
+ * To start in 'production' mode using `pm2`, start like so
+ * $ NODE_ENV=production pm2 start server.js --name=z3
+ */
 const env = process.env.NODE_ENV || 'development';
 import process from 'node:process';
 import { Config } from '@punkish/zconfig';
@@ -70,7 +72,8 @@ const start = async () => {
                     : '';
 
                 //
-                // no point in going further if there is no resourceName
+                // The following is applicable *only* if a resourceName is 
+                // present
                 //
                 if (resourceName) {
                     const cacheKey = getCacheKey(request);
@@ -90,8 +93,8 @@ const start = async () => {
                             item: res.item,
                             stored: res.stored,
                             ttl: res.ttl,
-                            pre: true,
-                            cacheHit: true
+                            //pre: true,
+                            cacheHit: true,
                         };
 
                         reply.hijack();
