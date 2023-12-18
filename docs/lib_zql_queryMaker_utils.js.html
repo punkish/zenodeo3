@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: lib/zql/queryMaker/utils.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: lib/zql/queryMaker/utils.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { Config } from '@punkish/zconfig';
+const config = new Config().settings;
+import { ddutils } from "../../../data-dictionary/utils/index.js";
+
+// see https://ajv.js.org/packages/ajv-errors.html
+import Ajv from 'ajv';
+const ajv = new Ajv(config.ajv.opts);
+
+/**
+ * check if the submitted params conform to the schema
+ */
+const validate = function({ resource, params }) {
+    const schema = {
+        type: 'object',
+        additionalProperties: false,
+        properties: ddutils.getQueryStringSchema(resource)
+    };
+    const validator = ajv.compile(schema);
+    const valid = validator(params);
+
+    if (valid) {
+        if (params.cols &amp;&amp; params.cols.length === 1 &amp;&amp; params.cols[0] === '') {
+            delete params.cols;
+        }
+
+        return params;
+    }
+    
+    //
+    // validation failed
+    //
+    console.error('😩 validation failed')
+    console.error(validator.errors);
+    return false;
+}
+
+/**
+ * the following params can be a part of the queryString but are not used in 
+ * making the SQL query so they need to be excluded when creating the SQL
+ */
+const nonSqlQueryable = [
+    'cols', 'refreshCache', 'cacheDuration', 'facets', 'termFreq', 'relatedRecords', 'stats', 
+    'page', 'size', 'sortby', 'groupby'
+];
+
+const CACHE = {};
+
+const queryCache = (resource) => {
+    
+    if (!('_defaultOps' in CACHE)) {
+        CACHE._defaultOps = {};
+    }
+
+    if (!(resource in CACHE._defaultOps)) {
+        
+        const queryableParams = ddutils.getParams(resource)
+                .filter(p => !('notQueryable' in p));
+
+        // https://stackoverflow.com/questions/19874555/how-do-i-convert-array-of-objects-into-one-object-in-javascript
+        const _defaultOps = queryableParams
+            .reduce((o, i) => Object.assign(
+                o, 
+                { [i.name]: i.defaultOp || 'eq' }
+            ), {});
+        
+        CACHE._defaultOps[resource] = _defaultOps;
+    }
+
+    return CACHE._defaultOps[resource];
+}
+
+/**
+ * mapping of ZQL ops to actual SQL ops
+ */
+const _zops = {
+
+    //
+    // numeric and string operators
+    //
+    eq          : '=',
+    ne          : '!=',
+
+    //
+    // numeric operators
+    //
+    gte         : '>=',
+    lte         : '&lt;=',
+    gt          : '>',
+    lt          : '&lt;',
+
+    //
+    // string operators
+    //
+    like        : 'LIKE',
+    starts_with : 'LIKE',
+    ends_with   : 'LIKE',
+    contains    : 'LIKE',
+    not_like    : 'NOT LIKE',
+
+    //
+    // date operators
+    //
+    between     : 'BETWEEN',
+    since       : '>=',
+    until       : '&lt;=',
+
+    // spatial operator
+    within      : 'BETWEEN',
+    bbox        : 'BETWEEN',
+
+    //
+    // fts5
+    //
+    match       : 'MATCH'
+};
+
+export { validate, nonSqlQueryable, queryCache, _zops }</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#D">D</a></li><li><a href="global.html#_dateStr2Ms">_dateStr2Ms</a></li><li><a href="global.html#_getConstraint">_getConstraint</a></li><li><a href="global.html#_isBoolean">_isBoolean</a></li><li><a href="global.html#_isDate">_isDate</a></li><li><a href="global.html#_sqlRunner">_sqlRunner</a></li><li><a href="global.html#_zops">_zops</a></li><li><a href="global.html#coerceToArray">coerceToArray</a></li><li><a href="global.html#createRootRoute">createRootRoute</a></li><li><a href="global.html#createTable">createTable</a></li><li><a href="global.html#env">env</a></li><li><a href="global.html#externalParams">externalParams</a></li><li><a href="global.html#getArchiveUpdates">getArchiveUpdates</a></li><li><a href="global.html#getCache">getCache</a></li><li><a href="global.html#getCacheKey">getCacheKey</a></li><li><a href="global.html#getCountSql">getCountSql</a></li><li><a href="global.html#getCounts">getCounts</a></li><li><a href="global.html#getDataFromZenodeo">getDataFromZenodeo</a></li><li><a href="global.html#getDefaultCols">getDefaultCols</a></li><li><a href="global.html#getDefaultParams">getDefaultParams</a></li><li><a href="global.html#getFacetParams">getFacetParams</a></li><li><a href="global.html#getParams">getParams</a></li><li><a href="global.html#getPk">getPk</a></li><li><a href="global.html#getResourceId">getResourceId</a></li><li><a href="global.html#getResources">getResources</a></li><li><a href="global.html#getResourcesFromSource">getResourcesFromSource</a></li><li><a href="global.html#getSearch">getSearch</a></li><li><a href="global.html#getSourceOfResource">getSourceOfResource</a></li><li><a href="global.html#groupParamsByKey">groupParamsByKey</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#makeLinks">makeLinks</a></li><li><a href="global.html#nonSqlQueryable">nonSqlQueryable</a></li><li><a href="global.html#params">params</a></li><li><a href="global.html#pathToXml">pathToXml</a></li><li><a href="global.html#plugin">plugin</a></li><li><a href="global.html#preZql">preZql</a></li><li><a href="global.html#queryDataStore">queryDataStore</a></li><li><a href="global.html#queryViaCache">queryViaCache</a></li><li><a href="global.html#re">re</a></li><li><a href="global.html#res2data">res2data</a></li><li><a href="global.html#routeFactory">routeFactory</a></li><li><a href="global.html#routeHandler">routeHandler</a></li><li><a href="global.html#routeOptions">routeOptions</a></li><li><a href="global.html#start">start</a></li><li><a href="global.html#staticOpts">staticOpts</a></li><li><a href="global.html#str2ms">str2ms</a></li><li><a href="global.html#tableFromResource">tableFromResource</a></li><li><a href="global.html#timerFormat">timerFormat</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#viewOpts">viewOpts</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Wed Dec 13 2023 19:41:35 GMT+0100 (GMT+01:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -473,6 +473,17 @@ const params = [
         }
     },
     {
+        name: 'realms_id',
+        schema: {
+            type: 'integer',
+            description: '',
+        },
+        sql: {
+            desc: 'The ID of the enclosing realm (FK)',
+            type: 'INTEGER'
+        }
+    },
+    {
         name: 'geolocation',
         schema: {
             type: 'string',

@@ -2,13 +2,13 @@
 // import fastifySwagger from '@fastify/swagger';
 // import fastifySwaggerUi from '@fastify/swagger-ui'
 
-/**
- * A Fastify plugin for serving a Swagger UI, using Swagger (OpenAPI v2) or 
- * OpenAPI v3 schemas automatically generated from your route schemas, or from 
- * an existing Swagger/OpenAPI schema.
- *
- * @see https://github.com/fastify/fastify-swagger
- */
+// 
+// A Fastify plugin for serving a Swagger UI, using Swagger (OpenAPI v2) or 
+// OpenAPI v3 schemas automatically generated from your route schemas, or from 
+// an existing Swagger/OpenAPI schema.
+// 
+// @see https://github.com/fastify/fastify-swagger
+// 
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
@@ -42,10 +42,10 @@ export const swaggerOpts = {
                 //{ name: 'zenodo', description: 'Zenodo end-points' }
             ],
 
-            /**
-             * make sure there is no scheme before the host
-             * that is, there should not be any 'http(s)://' 
-             */ 
+            // 
+            // make sure there is no scheme before the host
+            // that is, there should not be any 'http(s)://' 
+            //  
             host: config.url.swagger,
             test: config.url.swagger,
             schemes: config.schemes,

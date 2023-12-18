@@ -1,7 +1,7 @@
-/**
- * This plugin enables the use of cron in a Fastify application.
- * @see https://www.npmjs.com/package/fastify-cron
- */
+// 
+// This plugin enables the use of cron in a Fastify application.
+// @see https://www.npmjs.com/package/fastify-cron
+// 
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;

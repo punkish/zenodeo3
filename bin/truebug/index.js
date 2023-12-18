@@ -274,9 +274,9 @@ const allTypesOfArchives = [
     'daily'  
 ];
 
-/** 
- * `truebug` starts here
- */
+//  
+// `truebug` starts here
+// 
 const init = async (truebugStats) => {
     const argv = minimist(process.argv.slice(2));
     

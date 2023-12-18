@@ -119,19 +119,26 @@ AFTER INSERT ON materialCitations
 WHEN new.validGeo = 1
 BEGIN
 
-    -- update 'ecoregions_id' and 'biomes_id' columns
+    -- update 'ecoregions_id', 'biomes_id' and 'realms_id' columns
     UPDATE materialCitations
     SET 
         ecoregions_id = (
             SELECT ecoregions_id 
-            FROM geo.ecoregionsGeopoly
+            FROM geodata.ecoregionsGeopoly
             WHERE geopoly_contains_point(
                 _shape, new.longitude, new.latitude
             )
         ),
         biomes_id = (
             SELECT biomes_id 
-            FROM geo.ecoregionsGeopoly
+            FROM geodata.ecoregionsGeopoly
+            WHERE geopoly_contains_point(
+                _shape, new.longitude, new.latitude
+            )
+        ),
+        realms_id = (
+            SELECT realms_id 
+            FROM geodata.ecoregionsGeopoly
             WHERE geopoly_contains_point(
                 _shape, new.longitude, new.latitude
             )

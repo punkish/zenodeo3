@@ -9,6 +9,7 @@ import { dictTreatmentImages } from './resources/zenodeo/treatmentimages.js';
 import { dictCollectionCodes } from './resources/zenodeo/collectioncodes.js';
 import { dictKingdoms } from './resources/zenodeo/kingdoms.js';
 import { dictPhyla } from './resources/zenodeo/phyla.js';
+import { dictRealms } from './resources/zenodeo/realms.js';
 import { dictClasses } from './resources/zenodeo/classes.js';
 import { dictOrders } from './resources/zenodeo/orders.js';
 import { dictFamilies } from './resources/zenodeo/families.js';
@@ -240,6 +241,16 @@ export const resources = [
         summary: 'Fetches biomes',
         description: "…",
         dictionary: dictBiomes,
+        source: 'zenodeo',
+        tags: [ 'zenodeo' ]
+    },
+    {
+        title: 'Realms',
+        name: 'realms',
+        alias: 'rl',
+        summary: 'Fetches realms',
+        description: "…",
+        dictionary: dictRealms,
         source: 'zenodeo',
         tags: [ 'zenodeo' ]
     },

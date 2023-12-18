@@ -1,8 +1,8 @@
-/** 
- * default the NODE_ENV to 'development'.
- * To start in 'production' mode using `pm2`, start like so
- * $ NODE_ENV=production pm2 start server.js --name=z3
- */
+//  
+// default the NODE_ENV to 'development'.
+// To start in 'production' mode using `pm2`, start like so
+// $ NODE_ENV=production pm2 start server.js --name=z3
+// 
 const env = process.env.NODE_ENV || 'development';
 import process from 'node:process';
 import { Config } from '@punkish/zconfig';
@@ -11,9 +11,9 @@ const config = new Config().settings;
 import { server } from './app.js';
 import { coerceToArray, getCache, getCacheKey } from './lib/routeUtils.js';
 
-/**
- * Function to initialize and start the server!
- */
+// 
+// Function to initialize and start the server!
+// 
 const start = async () => {
     const opts = {
 
@@ -138,7 +138,7 @@ const start = async () => {
                 }
             }
         }
-    } 
+    }
     catch (err) {
         console.log(err);
         process.exit(1);

@@ -24,6 +24,7 @@ import { materialCitationsGeopoly } from "./materialCitationsGeopoly/index.js";
 import { materialCitationsRtree } from "./materialCitationsRtree/index.js";
 import { orders } from "./orders/index.js";
 import { phyla } from "./phyla/index.js";
+import { realms } from "./realms/index.js";
 import { species } from "./species/index.js";
 import { treatmentAuthors } from "./treatmentAuthors/index.js";
 import { treatmentCitations } from "./treatmentCitations/index.js";
@@ -46,6 +47,7 @@ const resources = [
     materialCitations,
     orders,
     phyla,
+    realms,
     species,
     treatmentAuthors,
     treatmentCitations,
@@ -79,6 +81,7 @@ const tables = [
     materialCitationsRtree,
     orders,
     phyla,
+    realms,
     species,
     treatmentAuthors,
     treatmentCitations,

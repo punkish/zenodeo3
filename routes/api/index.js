@@ -6,6 +6,7 @@ const config = new Config().settings;
 
 /**
  * create the root route
+ * @param {string} resource - name of the resource.
  */
 const createRootRoute = (resource) => {
     

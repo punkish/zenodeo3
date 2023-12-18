@@ -6,6 +6,7 @@ import { materialCitations } from '../materialCitations/index.js';
 import { journals } from '../journals/index.js';
 import { ecoregions } from '../ecoregions/index.js';
 import { biomes } from '../biomes/index.js';
+import { realms } from '../realms/index.js';
 
 const params = [
     {
@@ -322,6 +323,15 @@ const params = [
             'JOIN treatments ON images.treatments_id = treatments.id',
             'JOIN materialCitations ON treatments.id = materialCitations.treatments_id',
             'JOIN geodata.biome_synonyms ON materialCitations.biomes_id = geodata.biome_synonyms.biomes_id'
+        ]
+    },
+    {
+        name: 'realm',
+        dict: realms,
+        joins: [
+            'JOIN treatments ON images.treatments_id = treatments.id',
+            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id',
+            'JOIN geodata.realms ON materialCitations.realms_id = geodata.realms.realms_id'
         ]
     }
 ];

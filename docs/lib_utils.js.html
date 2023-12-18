@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: lib/utils.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: lib/utils.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import fs from 'fs';
+
+import { Config } from '@punkish/zconfig';
+const config = new Config().settings;
+const truebug = config.truebug;
+
+const logOpts = JSON.parse(JSON.stringify(config.truebug.log));
+logOpts.name = 'LIB:UTILS';
+logOpts.level = 'error';
+import Zlogger from '@punkish/zlogger';
+const log = new Zlogger(logOpts);
+
+/**
+ * Returns a three-level directory path to store xml. 
+ * @param {string} xml - the input xml.
+ * @param {object} param - the param object.
+ */
+const pathToXml = (xml) => {
+    const one = xml.substr(0, 1);
+    const two = xml.substr(0, 2);
+    const thr = xml.substr(0, 3);
+    const dir = `${truebug.dirs.archive}/${one}/${two}/${thr}`;
+
+    return dir;
+}
+
+// const stack = {};
+
+// const incrementStack = (module, fn) => {
+    
+//     const incrFn = (fn) => {
+//         if (fn in stack[module]) {
+//             stack[module][fn]++;
+//         }
+//         else {
+//             stack[module][fn] = 1;
+//         }
+//     }
+
+//     if (!(module in stack)) {
+//         stack[module] = {};
+//     }
+    
+//     incrFn(fn);
+// }
+
+/** 
+ * 't' is an array of seconds and nanoseconds.
+ * convert 't' into s and ms 
+ */
+const timerFormat = (t) => `${t[0]}s ${(t[1]/10e6).toFixed(2)}ms`;
+
+/** 
+ * various regexp patterns to be used in other constructions
+ */
+const re = {
+    date: '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}|yesterday',
+    year: '[0-9]{4}',
+    int: '[0-9]+',
+    num: '([+-]?([0-9]+)(\.[0-9]+)?)',
+    quotes: `['"]`,
+    spc: '\\s*',
+    text: '(\\w|\\s)+',
+    glob: '\\*',
+    units: 'kilometers|miles',
+    open_parens: '\\(',
+    close_parens: '\\)',
+    open_curly: '\\{',
+    close_curly: '\\}',
+    linebreaks: new RegExp('(?:\\r\\n|\\r|\\n)', 'g'),
+    double_spc: new RegExp('\\s+', 'g'),
+    space_comma: new RegExp('\\s+,', 'g'),
+    space_colon: new RegExp('\\s+:', 'g'),
+    space_period: new RegExp('\\s+\\.', 'g'),
+    openparens_space: new RegExp('\\(\\s+', 'g'),
+    space_closeparens: new RegExp('\\s+\\)', 'g'),
+    treatmentId: new RegExp('^[a-zA-Z0-9]{32}$')
+};
+
+const getPattern = (zqltype) => {
+    let pattern;
+
+    // if (zqltype === 'geolocation') {
+
+    //     /**
+    //      * within(radius:30,units:'kilometers',lat:20.1,lng:-120.32)
+    //      */
+    //     const operator1   = '(?&lt;operator1>within)';
+    //     const radius      = `radius:${re.spc}(?&lt;radius>${re.int})`;
+    //     const units       = `units:${re.spc}${re.quotes}(?&lt;units>${re.units})${re.quotes}`;
+    //     const lat         = `lat:${re.spc}(?&lt;lat>${re.num})`;
+    //     const lng         = `lng:${re.spc}(?&lt;lng>${re.num})`;
+    //     const condition1  = `${radius},${re.spc}${units},${re.spc}${lat},${re.spc}${lng}`;
+    //     const pattern1    = `${operator1}${re.open_parens}${condition1}${re.close_parens}`;      
+
+    //     /**
+    //      * bbox(min_lat:20.1,min_lng:-120.32,max_lat:20.1,max_lng:-120.32)
+    //      */
+    //     const operator2   = '(?&lt;operator2>bbox)';
+    //     const min_lat     = `min_lat:${re.spc}(?&lt;min_lat>${re.num})`;
+    //     const min_lng     = `min_lng:${re.spc}(?&lt;min_lng>${re.num})`;
+    //     const max_lat     = `max_lat:${re.spc}(?&lt;max_lat>${re.num})`;
+    //     const max_lng     = `max_lng:${re.spc}(?&lt;max_lng>${re.num})`;
+    //     // const lower_left  = `lower_left:${re.open_curly}${re.spc}${min_lat},${re.spc}${min_lng}${re.close_curly}`;
+    //     // const upper_right = `upper_right:${re.open_curly}${re.spc}${max_lat},${re.spc}${max_lng}${re.close_curly}`;
+    //     const condition2  = `${min_lat},${min_lng},${max_lat},${max_lng}`;
+    //     const pattern2    = `${operator2}${re.open_parens}${condition2}${re.close_parens}`;
+
+    //     pattern           = `${pattern1}|${pattern2}`;
+    // }
+    if (zqltype === 'geolocation') {
+
+        /**
+         * within(radius:30,units:'kilometers',lat:20.1,lng:-120.32)
+         */
+        const operator    = '(?&lt;operator>within)';
+        const radius      = `radius:${re.spc}(?&lt;radius>${re.int})`;
+        const units       = `units:${re.spc}${re.quotes}(?&lt;units>${re.units})${re.quotes}`;
+        const lat         = `lat:${re.spc}(?&lt;lat>${re.num})`;
+        const lng         = `lng:${re.spc}(?&lt;lng>${re.num})`;
+        const condition1  = `${radius},${re.spc}${units},${re.spc}${lat},${re.spc}${lng}`;
+        //const pattern1    = `${operator1}${re.open_parens}${condition1}${re.close_parens}`;      
+
+        /**
+         * bbox(min_lat:20.1,min_lng:-120.32,max_lat:20.1,max_lng:-120.32)
+         */
+        //const operator2   = '(?&lt;operator2>bbox)';
+        const min_lat     = `min_lat:${re.spc}(?&lt;min_lat>${re.num})`;
+        const min_lng     = `min_lng:${re.spc}(?&lt;min_lng>${re.num})`;
+        const max_lat     = `max_lat:${re.spc}(?&lt;max_lat>${re.num})`;
+        const max_lng     = `max_lng:${re.spc}(?&lt;max_lng>${re.num})`;
+        // const lower_left  = `lower_left:${re.open_curly}${re.spc}${min_lat},${re.spc}${min_lng}${re.close_curly}`;
+        // const upper_right = `upper_right:${re.open_curly}${re.spc}${max_lat},${re.spc}${max_lng}${re.close_curly}`;
+        const condition2  = `${min_lat},${min_lng},${max_lat},${max_lng}`;
+        //const pattern2    = `${operator2}${re.open_parens}${condition2}${re.close_parens}`;
+
+        pattern = `${operator}${re.open_parens}(${condition1}|${condition2})${re.close_parens}`;
+    }
+    else if (zqltype === 'date') {
+        const operator1  = `(?&lt;operator1>eq|since|until)?`;
+        const condition1 = `(?&lt;date>${re.date})`;
+        const pattern1   = `${operator1}${re.open_parens}${condition1}${re.close_parens}`
+
+        const operator2  = `(?&lt;operator2>between)?`;
+        const condition2 = `(?&lt;from>${re.date})${re.spc}and${re.spc}(?&lt;to>${re.date})`;
+        const pattern2   = `${operator2}${re.open_parens}${condition2}${re.close_parens}`;
+
+        pattern          = `${pattern1}|${pattern2}`;
+    }
+    else if (zqltype === 'year') {
+        const operator1  = `(?&lt;operator1>eq|since|until)?`;
+        const condition1 = `(?&lt;year>${re.year})`;
+        const pattern1   = `${operator1}${re.open_parens}${condition1}${re.close_parens}`
+
+        const operator2  = `(?&lt;operator2>between)?`;
+        const condition2 = `(?&lt;from>${re.year})${re.spc}and${re.spc}(?&lt;to>${re.year})`;
+        const pattern2   = `${operator2}${re.open_parens}${condition2}${re.close_parens}`;
+
+        pattern          = `${pattern1}|${pattern2}`;
+    }
+    // else if (zqltype === 'text') {
+    //     const operator   = `(?&lt;operator>(eq|ne|starts_with|ends_with|contains|not_like))?`;
+    //     const condition  = '(?&lt;text>.*)';
+    //     pattern          = `${operator}${re.open_parens}${condition}${re.close_parens}`;
+    // }
+    else if (zqltype === 'text') {
+        const operator = '(?&lt;operator>(eq|ne|starts_with|ends_with|contains|not_like))';
+        const preglob  = `(?&lt;preglob>${re.glob}?)`;
+        const postglob = `(?&lt;postglob>${re.glob}?)`;
+        const operand  = `(?&lt;operand>${re.text})`;
+
+        pattern        = `(${operator}${re.open_parens}|${preglob})${operand}(${re.close_parens}|${postglob})`;
+    }
+    
+    return pattern;
+};
+
+const addExternalDef = (externalParam, resourceName, resourceId, params) => {
+    
+    //
+    // origParam is as the param exists in its original data dictionary
+    //
+    const origParam = externalParam.dict.params
+        .filter(e => e.name === externalParam.name)[0];
+
+    //
+    // we start with a copy of the origParam as the basis for the newParam
+    //
+    const newParam = JSON.parse(JSON.stringify(origParam));
+    newParam.external = true;
+    newParam.fk = externalParam.fk || false;
+
+    //
+    // name of the parent resource of the external param
+    //
+    const extParamResourceName = externalParam.dict.name;
+
+    if (!newParam.selname) {
+        newParam.selname = `${extParamResourceName}."${newParam.name}"`;
+    }
+    
+    if (!newParam.where) {
+        newParam.where = `${extParamResourceName}."${newParam.name}"`;
+    }
+    
+    if (externalParam.joins) {
+        newParam.joins = externalParam.joins;
+    } else {
+        newParam.joins = [
+            `JOIN ${extParamResourceName} ON ${resourceName}.id = ${extParamResourceName}.${resourceName}_id`
+        ];
+    }
+
+    newParam.isResourceId = false;
+
+    //  
+    // all externally defined params are set to notDefaultCol so they are 
+    // returned only when explicitly queried
+    //
+    newParam.defaultCol = false;
+
+    params.push(newParam);
+}
+
+const insertAndReturnFk = ({ insert, select }) => {
+    return ({ table, key, value, cache }) => {
+        const cacheSegment = table;
+    
+        let id;     
+    
+        if (cache[cacheSegment].has(value)) {
+            id = cache[cacheSegment].get(value);
+        }
+        else {
+            try {
+                insert.run(value);
+                id = select.get(value).id;
+                cache[cacheSegment].set(value, id);
+            }
+            catch (error) {
+                console.log(`${key} id: ${id}, value: ${value}`);
+                console.log(error);
+            }
+        }
+    
+        const res = {};
+        res[key] = id;
+        return res;
+    }
+}
+
+const checkDir = ({ dir, removeFiles = true }) => {
+    log.info(`checking if dir "${dir}" exists…`, 'start');
+    const exists = fs.existsSync(dir);
+
+    if (exists) {
+        log.info(' ✅ yes, it does\n', 'end');
+
+        if (removeFiles) {
+            log.info(`removing all files from ${dir} directory…`, 'start');
+
+            if (truebug.mode !== 'dryRun') {
+                fs.readdirSync(dir)
+                    .forEach(f => fs.rmSync(`${dir}/${f}`));
+            }
+
+            log.info(' done\n', 'end');
+        }
+    }
+    else {
+        log.info(" ❌ it doesn't exist, so making it\n", 'end');
+        
+        if (truebug.mode !== 'dryRun') {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+    }
+}
+
+// see https://sqlite.org/forum/forumpost/1f173cd9ea810bd0
+const unixEpochMs = (column) => {
+    if (column) {
+        return `INTEGER GENERATED ALWAYS AS (
+            (julianday(${column}) - 2440587.5) * 86400 * 1000
+        ) STORED`
+    }
+    else {
+        return 'INTEGER DEFAULT ((julianday() - 2440587.5) * 86400 * 1000)'
+    }
+};
+
+export { 
+    pathToXml, 
+    timerFormat, 
+    re, 
+    getPattern, 
+    addExternalDef,
+    insertAndReturnFk,
+    checkDir,
+    unixEpochMs
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#D">D</a></li><li><a href="global.html#_dateStr2Ms">_dateStr2Ms</a></li><li><a href="global.html#_getConstraint">_getConstraint</a></li><li><a href="global.html#_isBoolean">_isBoolean</a></li><li><a href="global.html#_isDate">_isDate</a></li><li><a href="global.html#_sqlRunner">_sqlRunner</a></li><li><a href="global.html#_zops">_zops</a></li><li><a href="global.html#coerceToArray">coerceToArray</a></li><li><a href="global.html#createRootRoute">createRootRoute</a></li><li><a href="global.html#createTable">createTable</a></li><li><a href="global.html#env">env</a></li><li><a href="global.html#externalParams">externalParams</a></li><li><a href="global.html#getArchiveUpdates">getArchiveUpdates</a></li><li><a href="global.html#getCache">getCache</a></li><li><a href="global.html#getCacheKey">getCacheKey</a></li><li><a href="global.html#getCountSql">getCountSql</a></li><li><a href="global.html#getCounts">getCounts</a></li><li><a href="global.html#getDataFromZenodeo">getDataFromZenodeo</a></li><li><a href="global.html#getDefaultCols">getDefaultCols</a></li><li><a href="global.html#getDefaultParams">getDefaultParams</a></li><li><a href="global.html#getFacetParams">getFacetParams</a></li><li><a href="global.html#getParams">getParams</a></li><li><a href="global.html#getPk">getPk</a></li><li><a href="global.html#getResourceId">getResourceId</a></li><li><a href="global.html#getResources">getResources</a></li><li><a href="global.html#getResourcesFromSource">getResourcesFromSource</a></li><li><a href="global.html#getSearch">getSearch</a></li><li><a href="global.html#getSourceOfResource">getSourceOfResource</a></li><li><a href="global.html#groupParamsByKey">groupParamsByKey</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#makeLinks">makeLinks</a></li><li><a href="global.html#nonSqlQueryable">nonSqlQueryable</a></li><li><a href="global.html#params">params</a></li><li><a href="global.html#pathToXml">pathToXml</a></li><li><a href="global.html#plugin">plugin</a></li><li><a href="global.html#preZql">preZql</a></li><li><a href="global.html#queryDataStore">queryDataStore</a></li><li><a href="global.html#queryViaCache">queryViaCache</a></li><li><a href="global.html#re">re</a></li><li><a href="global.html#res2data">res2data</a></li><li><a href="global.html#routeFactory">routeFactory</a></li><li><a href="global.html#routeHandler">routeHandler</a></li><li><a href="global.html#routeOptions">routeOptions</a></li><li><a href="global.html#start">start</a></li><li><a href="global.html#staticOpts">staticOpts</a></li><li><a href="global.html#str2ms">str2ms</a></li><li><a href="global.html#tableFromResource">tableFromResource</a></li><li><a href="global.html#timerFormat">timerFormat</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#viewOpts">viewOpts</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Wed Dec 13 2023 19:41:35 GMT+0100 (GMT+01:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
