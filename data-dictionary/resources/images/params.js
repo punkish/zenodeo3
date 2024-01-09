@@ -270,24 +270,21 @@ const params = [
         name: 'latitude',
         dict: materialCitations,
         joins: [
-            'JOIN treatments ON images.treatments_id = treatments.id',
-            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+            'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id'
         ]
     },
     {
         name: 'longitude',
         dict: materialCitations,
         joins: [
-            'JOIN treatments ON images.treatments_id = treatments.id',
-            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+            'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id'
         ]
     },
     {
         name: 'geolocation',
         dict: materialCitations,
         joins: [
-            'JOIN treatments ON images.treatments_id = treatments.id',
-            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id',
+            'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id',
             'JOIN materialCitationsRtree ON materialCitations.id = materialCitationsRtree.materialCitations_id'
         ]
     },
@@ -295,24 +292,21 @@ const params = [
         name: 'isOnLand',
         dict: materialCitations,
         joins: [
-            'JOIN treatments ON images.treatments_id = treatments.id',
-            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+            'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id'
         ]
     },
     {
         name: 'validGeo',
         dict: materialCitations,
         joins: [
-            'JOIN treatments ON images.treatments_id = treatments.id',
-            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+            'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id'
         ]
     },
     {
         name: 'eco_name',
         dict: ecoregions,
         joins: [
-            `JOIN treatments ON images.treatments_id = treatments.id`,
-            `JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
+            'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id',
             `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
         ]
     },
@@ -320,8 +314,7 @@ const params = [
         name: 'biome',
         dict: biomes,
         joins: [
-            'JOIN treatments ON images.treatments_id = treatments.id',
-            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id',
+            'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id',
             'JOIN geodata.biome_synonyms ON materialCitations.biomes_id = geodata.biome_synonyms.biomes_id'
         ]
     },
@@ -329,8 +322,7 @@ const params = [
         name: 'realm',
         dict: realms,
         joins: [
-            'JOIN treatments ON images.treatments_id = treatments.id',
-            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id',
+            'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id',
             'JOIN geodata.realms ON materialCitations.realms_id = geodata.realms.realms_id'
         ]
     }
@@ -354,7 +346,7 @@ export { params }
 //     geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id JOIN 
 //     geodata.biomes ON geodata.ecoregions.biomes_id = geodata.biomes.id JOIN 
 //     geodata.biome_synonyms ON geodata.biomes.id = geodata.biome_synonyms.biomes_id  
-// WHERE geodata.biome_synonyms.synonym LIKE 'pampas%'
+// WHERE geodata.biome_synonyms.biome_synonym LIKE 'pampas%'
 
 // SELECT Count(*) AS num_of_records 
 // FROM 
@@ -362,4 +354,4 @@ export { params }
 //     treatments ON images.treatments_id = treatments.id JOIN 
 //     materialCitations ON treatments.id = materialCitations.treatments_id JOIN 
 //     geodata.biome_synonyms ON materialCitations.biomes_id = geodata.biome_synonyms.id   
-// WHERE geodata.biome_synonyms.synonym LIKE 'pampas%'
+// WHERE geodata.biome_synonyms.biome_synonym LIKE 'pampas%'

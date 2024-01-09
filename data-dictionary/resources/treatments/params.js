@@ -11,6 +11,7 @@ import { families } from '../families/index.js';
 import { genera } from '../genera/index.js';
 import { species } from '../species/index.js';
 import { ecoregions } from '../ecoregions/index.js';
+import { biomes } from '../biomes/index.js';
 
 const datePattern = utils.getPattern('date');
 
@@ -737,7 +738,10 @@ const externalParams = [
     {
         name: 'journalTitle',
         dict: journals,
-        fk: true
+        //fk: true
+        joins: [
+            `JOIN journals ON treatments.journals_id = journals.id`
+        ]
     },
     {
         name: 'kingdom',
@@ -773,6 +777,14 @@ const externalParams = [
         name: 'species',
         dict: species,
         fk: true
+    },
+    {
+        name: 'biome',
+        dict: biomes,
+        joins: [
+            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id',
+            'JOIN geodata.biome_synonyms ON materialCitations.biomes_id = geodata.biome_synonyms.biomes_id'
+        ]
     }
 ];
 

@@ -59,7 +59,7 @@ module.exports = {
     "dataDir": "data/db",
 
     "cronQueries": {
-        "queryParams": "page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption&cacheDuration=1",
+        "queryParams": "page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption",
 
         "queries" : {
             "images": [

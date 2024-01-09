@@ -21,8 +21,8 @@ export const params = [
     },
     {
         name: 'biome',
-        selname: 'biome_synonyms.synonym',
-        where: 'biome_synonyms.synonym',
+        selname: 'biome_synonyms.biome_synonym',
+        where: 'biome_synonyms.biome_synonym',
         schema: { 
             type: 'string', 
             description: ''

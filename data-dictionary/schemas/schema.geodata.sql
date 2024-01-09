@@ -33,7 +33,7 @@ CREATE INDEX ix_eco_name_ecoregions ON ecoregions(eco_name);
 CREATE INDEX ix_biome_name_ecoregions ON ecoregions(biome_name);
 CREATE TABLE biome_synonyms (
     id INTEGER PRIMARY KEY,
-    synonym TEXT UNIQUE,
+    biome_synonym TEXT UNIQUE,
     biomes_id INTEGER REFERENCES biomes(id)
 );
-CREATE INDEX ix_synonym_biome_synonyms ON biome_synonyms(synonym);
+CREATE INDEX ix_biome_synonym_biome_synonyms ON biome_synonyms(biome_synonym);
