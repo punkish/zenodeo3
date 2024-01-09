@@ -12,6 +12,7 @@ import { genera } from '../genera/index.js';
 import { species } from '../species/index.js';
 import { ecoregions } from '../ecoregions/index.js';
 import { biomes } from '../biomes/index.js';
+//import { images } from '../images/index.js';
 
 const datePattern = utils.getPattern('date');
 
@@ -656,7 +657,19 @@ const params = [
             type: 'BOOLEAN'
         },
         defaultCol: false,
-    }
+    },
+    {
+        name: 'httpUri',
+        schema: {
+            type: 'string',
+            description: '',
+        },
+        defaultCol: false,
+        //dict: images,
+        // joins: [
+        //     'JOIN treatmentsFts ON treatments.id = treatmentsFts.rowid'
+        // ],
+    },
 ];
 
 //
