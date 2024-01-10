@@ -139,8 +139,8 @@ module.exports = {
             "port": 443
         },
 
-        //"source": "archive",
-        "source": "xml",
+        "source": "archive",
+        //"source": "xml",
 
         /**
          * by default, download the daily dump, and then go to
