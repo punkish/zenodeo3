@@ -9,14 +9,7 @@ import { cwd } from 'node:process';
 // @see https://github.com/fastify/fastify-static
 // 
 
-export const staticOpts = {
+export const staticPublic = {
     root: path.join(cwd(), 'public'),
     prefix: '/public/'
 };
-
-// export const plugin = fp(async function(fastify, opts) {
-//     fastify.register(fastifyStatic, {
-//         root: path.join(cwd(), 'public'),
-//         prefix: '/public/'
-//     });
-// })

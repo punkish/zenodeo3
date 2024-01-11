@@ -52,6 +52,28 @@ const createRootRoute = (resource) => {
     };
 }
 
+const xmlRoute = async function (fastify, opts) {
+    const options = {
+        method: 'GET',
+        url: '/treatments-archive/',
+        schema: {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "https://example.com/root.schema.json",
+            title: 'xml',
+            summary: 'treatment xml',
+            description: 'treatment xml',
+            response: {},
+            querystring: {},
+            tags: resource.tags
+        },
+        handler: async (request, reply) => {
+            return request.pathname
+        }
+    };
+
+    fastify.route(options);
+};
+
 const routes = resources
     .map(resource => {
 
@@ -61,4 +83,5 @@ const routes = resources
 
     });
 
+routes.shift(xmlRoute);
 export { routes }

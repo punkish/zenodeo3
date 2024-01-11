@@ -1,6 +1,9 @@
+import * as path from 'path';
+import { cwd } from 'node:process';
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
-import { staticOpts } from './plugins/static.js';
+import { staticPublic } from './plugins/static-public.js';
+//import { staticTreatmentsArchives } from './plugins/static-treatments-archives.js';
 
 import fastifyBetterSqlite3 from '@punkish/fastify-better-sqlite3';
 import { initDb } from './lib/dbconn.js';
@@ -19,6 +22,7 @@ import { cronOpts } from './plugins/cron.js';
 
 import { tos } from './routes/tos/index.js';
 import { docs } from './routes/docs/index.js';
+import { treatmentsArchive } from './routes/treatments-archive/index.js';
 
 //
 // we rename routes to resources because we have already imported a map of the 
@@ -40,7 +44,8 @@ export async function server(opts={}) {
     fastify.register(routes, {});
     await fastify.register(fastifySwagger, swaggerOpts.swagger);
     await fastify.register(fastifySwaggerUi, swaggerOpts.swaggerUi);
-    fastify.register(fastifyStatic, staticOpts);
+    fastify.register(fastifyStatic, staticPublic);
+    //fastify.register(fastifyStatic, staticTreatmentsArchives);
     fastify.register(view, viewOpts);
     fastify.register(fastifyCron, cronOpts);
     
@@ -61,6 +66,7 @@ export async function server(opts={}) {
     //
     fastify.register(tos);
     fastify.register(docs);
+    fastify.register(treatmentsArchive);
     resources.forEach(resource => fastify.register(resource, { prefix: 'v3' }));
     
     return fastify;
