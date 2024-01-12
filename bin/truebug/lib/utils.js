@@ -3,6 +3,11 @@ const config = new Config().settings;
 const truebug = config.truebug;
 import * as database from './database/index.js';
 
+const logOpts = JSON.parse(JSON.stringify(truebug.log));
+logOpts.name = 'TB:UTILS      ';
+import Zlogger from '@punkish/zlogger';
+const log = new Zlogger(logOpts);
+
 const pathToXml = (xml) => {
     const one = xml.substr(0, 1);
     const two = xml.substr(0, 2);
@@ -379,6 +384,8 @@ const pruneTypesOfArchives = (last, typesOfArchives) => {
 
     const lastTypeOfArchive = last.typeOfArchive;
     const lastTimeOfArchive = last.timeOfArchive;
+    const yearOfArchive = last.timeOfArchive.split('-')[0];
+    const yearOfToday = (new Date()).getFullYear();
 
     // find out the timePeriod of the typeOfArchive if it were to be processed
     // "today". For example, if the archive is 'yearly', get current year. For 
@@ -392,14 +399,19 @@ const pruneTypesOfArchives = (last, typesOfArchives) => {
         lastTypeOfArchive, new Date(lastTimeOfArchive)
     );
 
-    if (periodOfLastArchive >= periodOfArchiveToday) {
-        //log.info(`we don't process "${typeOfArchive}" archive`);
+    if (yearOfArchive == yearOfToday) {
 
-        // we don't process this archive
-        const i = typesOfArchives.findIndex(a => a === lastTypeOfArchive);
+        if (periodOfLastArchive >= periodOfArchiveToday) {
 
-        // remove index i from typesOfArchives
-        typesOfArchives.splice(i, 1);
+            // we don't process this archive
+            const i = typesOfArchives.findIndex(a => a === lastTypeOfArchive);
+            const typeOfArchive = typesOfArchives[i];
+            log.info(`we don't process "${typeOfArchive}" archive`);
+
+            // remove index i from typesOfArchives
+            typesOfArchives.splice(i, 1);
+        }
+        
     }
     
 }
