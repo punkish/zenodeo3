@@ -1,0 +1,386 @@
+status                                                        c     
+------------------------------------------------------------  ------
+                                                              656246
+sp. nov.                                                      110946
+comb. nov.                                                    15317 
+gen. nov.                                                     8974  
+spec. nov.                                                    7276  
+sp. n.                                                        1196  
+stat. nov.                                                    1185  
+subsp. nov.                                                   919   
+nom. nov.                                                     727   
+gen. et sp. nov.                                              644   
+sp.nov.                                                       377   
+subgen. nov.                                                  347   
+var. nov.                                                     288   
+[invalid]                                                     262   
+fam. nov.                                                     194   
+comb. n.                                                      152   
+new species                                                   131   
+n. sp.                                                        124   
+subfam. nov.                                                  124   
+trib. nov.                                                    115   
+gen. et comb. nov.                                            113   
+incertae sedis                                                101   
+gen. n.                                                       93    
+n. gen., n. sp.                                               82    
+[unavailable]                                                 71    
+comb. et stat. nov.                                           69    
+comb. rev.                                                    64    
+comb. nova.                                                   55    
+ord. nov.                                                     44    
+stat. rev.                                                    43    
+sp.                                                           42    
+n . sp .                                                      36    
+sect. nov.                                                    36    
+gen. spp.                                                     31    
+subgen. et sp. nov.                                           31    
+subspec. nov.                                                 31    
+spp.                                                          30    
+gen. nov., sp. nov.                                           29    
+n.sp.                                                         26    
+nov.sp.                                                       25    
+subtrib. nov.                                                 25    
+ sp. nov.                                                     24    
+new to Canada                                                 24    
+spec. nova                                                    24    
+stat. n.                                                      23    
+new to Quebec                                                 21    
+ssp. nov.                                                     21    
+n. comb.                                                      20    
+new record                                                    20    
+sp.n.                                                         20    
+new genus                                                     19    
+nom. cons.                                                    19    
+gen. et spec. nov.                                            18    
+spec.                                                         18    
+(nomen dubium)                                                16    
+comb.                                                         16    
+new                                                           16    
+[unresolved]                                                  15    
+gen. et sp. n.                                                14    
+new to New Brunswick                                          14    
+subgen. n.                                                    14    
+gen. et sp. nov                                               13    
+n . sp.                                                       13    
+nov. sp.                                                      13    
+syn. nov.                                                     13    
+n. var.                                                       12    
+sp . n .                                                      12    
+ssp. n.                                                       12    
+superfam. nov.                                                12    
+synonym                                                       12    
+nov. spec.                                                    11    
+new combination                                               10    
+sp. nov                                                       10    
+comb. nov., stat. nov.                                        9     
+INCERTAE                                                      9     
+n.                                                            9     
+n. st.                                                        9     
+n. subg.                                                      9     
+rec. nov.                                                     9     
+f. nov.                                                       8     
+gen. n., sp. n.                                               8     
+n. gen. et n. sp.                                             8     
+new status                                                    8     
+sp. novo                                                      8     
+comb.nova.                                                    7     
+indet.                                                        7     
+syn. n.                                                       7     
+clas. nov.                                                    6     
+comb. & stat. nov.                                            6     
+comb.n.                                                       6     
+gen. nov. et sp. nov.                                         6     
+hybr. nov.                                                    6     
+n. gen.                                                       6     
+sp. n .                                                       6     
+stat. rev., comb. nov.                                        6     
+status restored                                               6     
+subgen. et comb. nov.                                         6     
+subord. nov.                                                  6     
+supertrib. nov.                                               6     
+comb. and stat. nov.                                          5     
+comb.nov.                                                     5     
+gen nov. et sp. nov.                                          5     
+gen.                                                          5     
+gen. n. et sp. n.                                             5     
+n. sp .                                                       5     
+n.gen. and n.sp.                                              5     
+new status, new combination                                   5     
+nom. n.                                                       5     
+NOMEN DUBIUM                                                  5     
+nov. var.                                                     5     
+ser. nov.                                                     5     
+sp. rev.                                                      5     
+species-group                                                 5     
+stat. rev. et comb. nov.                                      5     
+subsect. nov.                                                 5     
+subsp. n.                                                     5     
+igen. et isp. nov.                                            4     
+n . gen .                                                     4     
+n. comb                                                       4     
+new to Alberta                                                4     
+new to Manitoba                                               4     
+nothosp. nov.                                                 4     
+Nov. Gen.                                                     4     
+reinstated                                                    4     
+stat. res.                                                    4     
+stat. restit.                                                 4     
+status revived                                                4     
+subg. nov.                                                    4     
+(s. str.)                                                     3     
+comb . nov .                                                  3     
+fam. n.                                                       3     
+gen . n .                                                     3     
+gen.n.                                                        3     
+group                                                         3     
+hyb. nov.                                                     3     
+n. stat., n. comb.                                            3     
+new genus and species                                         3     
+new genus, new species                                        3     
+new name                                                      3     
+new record from China                                         3     
+new subgenus                                                  3     
+new to Ontario                                                3     
+new to Ontario and Quebec                                     3     
+nom. nov., stat. nov.                                         3     
+nom. rev.                                                     3     
+nov. ser.                                                     3     
+s. str.                                                       3     
+sp .n.                                                        3     
+sp. et subsp. nov.                                            3     
+spec. nov .                                                   3     
+species                                                       3     
+spp. nov.                                                     3     
+subfam. n.                                                    3     
+SUBSP.                                                        3     
+trib. n.                                                      3     
+ n. sp.                                                       2     
+ ssp. nov.                                                    2     
+comb.                                                         2     
+nova.                                                               
+comb. nov., stat. rev.                                        2     
+comb. nova                                                    2     
+emend.nov.                                                    2     
+f. n.                                                         2     
+gen . nov .                                                   2     
+gen. et stat. nov.                                            2     
+gen. nov., comb. nov.                                         2     
+gen.et sp. nov.                                               2     
+hybr. nat. nov.                                               2     
+infraord. nov.                                                2     
+Latreille                                                     2     
+n . gen.                                                      2     
+n. gen                                                        2     
+n. gen., n. comb.                                             2     
+n. n.                                                         2     
+n. subgen.                                                    2     
+n. subgen., n. sp.                                            2     
+n. taxon                                                      2     
+new clade                                                     2     
+new record to China                                           2     
+new spec.                                                     2     
+new status and new combination                                2     
+new to Nova Scotia                                            2     
+nom. inval.                                                   2     
+nomen novum                                                   2     
+nothosp.,                                                     2     
+nov. stat.                                                    2     
+nov. subgen.                                                  2     
+restricted                                                    2     
+sensulato                                                     2     
+sp . nov .                                                    2     
+sp . nov.                                                     2     
+sp .nov.                                                      2     
+sp. A.                                                        2     
+sp. n                                                         2     
+sp. nov .                                                     2     
+sp. propria                                                   2     
+spec . nov .                                                  2     
+spec . nov.                                                   2     
+stat. & comb. nov.                                            2     
+stat. nov. et nom. nov.                                       2     
+stat. nov., nom. nov.                                         2     
+subf. nov.                                                    2     
+subtr. n.                                                     2     
+subtrib. n.                                                   2     
+valid species                                                 2     
+var.                                                          2     
+ (Soula, 2008) Unavailable, invalid name                      1     
+ nom. nov.                                                    1     
+ sect.                                                        1     
+           nov.                                                     
+ sp. 2 and sp. 4                                              1     
+(Cameron)                                                     1     
+(comb. n.)                                                    1     
+(new combination                                              1     
+(Soula, 2006) Unavailable, invalid name                       1     
+[nom. cons.                                                   1     
+amended diagnosis                                             1     
+asian sp. 1                                                   1     
+Bischoff                                                      1     
+bona sp.                                                      1     
+candidatus                                                    1     
+clade. nov                                                    1     
+comb. et. stat. nov.                                          1     
+comb. n., nom. n.                                             1     
+comb. nov                                                     1     
+comb. nov, stat. nov.                                         1     
+comb. nov. et st. nov.                                        1     
+comb. nov. et stat. nov.                                      1     
+comb. nov., stat nov.                                         1     
+comb. rev                                                     1     
+combinatio revivisco                                          1     
+emend                                                         1     
+Fabricius                                                     1     
+gen et sp. nov.                                               1     
+gen nov.                                                      1     
+GEN. & COMB. NOV.                                             1     
+gen. & stat. nov.                                             1     
+gen. and sp.                                                  1     
+gen. and sp. nov.                                             1     
+gen. et sp. indet.                                            1     
+gen. et sp. n                                                 1     
+gen. et sp. n .                                               1     
+gen. et sp.nov.                                               1     
+gen. n .                                                      1     
+gen. n. and sp. n.                                            1     
+gen. nov, sp. nov.                                            1     
+gen. nov. and sp. nov.                                        1     
+gen. nov. et sp. nov                                          1     
+gen. nov.,                                                    1     
+gen. nov., sp.                                                1     
+gen.et sp.nov.                                                1     
+GEN.ETSP.NOV.                                                 1     
+gen.n., sp. n.                                                1     
+gen.nov.                                                      1     
+genus et species novum                                        1     
+Illiger                                                       1     
+invalid name                                                  1     
+modus riсtus sсribindi                                        1     
+mut. char.                                                    1     
+n . comb.                                                     1     
+n . gen                                                       1     
+n. comb., n. stat.                                            1     
+n. fam                                                        1     
+n. g.                                                         1     
+n. g., n. sp.                                                 1     
+n. gen.,                                                      1     
+n. v.                                                         1     
+n.g. and n.sp.                                                1     
+n.gen., n. sp.                                                1     
+n.nov.                                                        1     
+name n.                                                       1     
+new clade name                                                1     
+new comb.                                                     1     
+new combination and new status                                1     
+new data on first Alberta record                              1     
+new data on first Canadian and Quebec records                 1     
+new data on first Canadian record                             1     
+new data on first Canadian record, and first Quebec record    1     
+new data on first Ontario record                              1     
+new data on first Quebec record                               1     
+new data supporting first records for Quebec                  1     
+new family                                                    1     
+new genus and new species                                     1     
+new rank                                                      1     
+new species, new genus                                        1     
+new species-group                                             1     
+new status and combination                                    1     
+new subtribe                                                  1     
+new to Alberta, and Saskatchewan                              1     
+new to Alberta, Saskatchewan, Manitoba, and Ontario           1     
+new to New Brunswick, and new data supporting first records   1     
+for Canada                                                          
+new to New Brunswick, Northwest Territories                   1     
+new to Newfoundland                                           1     
+new to Nova Scotia, Ontario and Quebec                        1     
+new to Prince Edward Island                                   1     
+new to Saskatchewan                                           1     
+new to Yukon                                                  1     
+new to Yukon and Nunavut: not known from Northwest Territori  1     
+es                                                                  
+new tribe                                                     1     
+new. species                                                  1     
+nom. & stat. nov.                                             1     
+nom. et orth. cons.                                           1     
+nom. et stat. nov.                                            1     
+nom. nov. and stat. nov.                                      1     
+nom. nov. et stat. nov.                                       1     
+nom. nov., comb. nov.                                         1     
+nom. nov., sp. nov.                                           1     
+nom. nud.                                                     1     
+NOM. REST.                                                    1     
+nomen nudum                                                   1     
+nomina dubia                                                  1     
+nov.                                                          1     
+nov. comb.                                                    1     
+nov. gen. et sp.                                              1     
+nov. st.                                                      1     
+nov. subspec.                                                 1     
+nov.comb., nov.stat.                                          1     
+nov.sp                                                        1     
+rec. n.                                                       1     
+reg. nov.                                                     1     
+replacement name                                              1     
+restored combination                                          1     
+rev. placement                                                1     
+rev. stat.                                                    1     
+rev. stat. et comb. n.                                        1     
+rev. stat., comb. n.                                          1     
+rev. stat., n. comb.                                          1     
+revalidated name                                              1     
+s                                                             1     
+Saussure                                                      1     
+sect.                                                         1     
+              nov.                                                  
+sect.                                                         1     
+            nov.                                                    
+sect. nov                                                     1     
+sect. nova                                                    1     
+sect.nov.                                                     1     
+section nov                                                   1     
+sens. str.                                                    1     
+sp . n.                                                       1     
+sp . nov                                                      1     
+sp A.                                                         1     
+sp. B.                                                        1     
+species group                                                 1     
+species inquirenda                                            1     
+species status restored                                       1     
+ssp.n.                                                        1     
+ssp.nov.                                                      1     
+STAT. DEM.                                                    1     
+stat. nov. and sect. nov.                                     1     
+stat. nov., comb. n.                                          1     
+stat. nov., comb. nov.                                        1     
+stat. prom.                                                   1     
+stat. r.                                                      1     
+stat. rev. and comb. nov.                                     1     
+stat. rev., comb. n.                                          1     
+stat. rev., n. comb.                                          1     
+stat. rev., nom. nov.                                         1     
+stat. rev., stat. nov.                                        1     
+stat. revalid                                                 1     
+status resurrected                                            1     
+status resurrectus                                            1     
+subgen. et sp. nov                                            1     
+subsect. auton.                                               1     
+subsp . n .                                                   1     
+subspec. nova                                                 1     
+subtr. nov.                                                   1     
+Terayama                                                      1     
+tr. nov.                                                      1     
+tranf. to Araniella                                           1     
+tranf. to Bianor                                              1     
+tranf. to Borboropactus                                       1     
+tranf. to Diaea                                               1     
+tranf. to Drassodes                                           1     
+tranf. to Henriksenia                                         1     
+tranf. to Lysteles                                            1     
+tranf. to Massuria                                            1     
+transf. from Alaeho                                           1     
+Transf. from Amaurobius                                       1     
+transf. from Phrurolithus                                     1     
+von Schulthess                                                1     
+Zammararia Distant 1905                                       1     
