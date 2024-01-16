@@ -61,11 +61,11 @@ function createIndivIndexes(resource, cols) {
     cols.forEach(col => {
         const ix = `ix_${resource}_${col}`;
         db.prepare(`DROP INDEX IF EXISTS ${ix}`).run();
-        db.prepare(`CREATE INDEX IF NOT EXISTS ${ix} ON ${resource} (${col}, id, treatments_id)`).run();
+        db.prepare(`CREATE INDEX IF NOT EXISTS ${ix} ON ${resource} (${col})`).run();
     })
 }
 
-//dropIndivIndexes('treatments', treatmentCols);
+dropIndivIndexes('treatments', treatmentCols);
 dropIndivIndexes('images', imagesCols);
 
 // createCompoundIndex('treatments', treatmentCols);
@@ -74,5 +74,5 @@ dropIndivIndexes('images', imagesCols);
 // dropCompoundIndex('treatments');
 // dropCompoundIndex('images');
 
-//createIndivIndexes('treatments', treatmentCols);
+createIndivIndexes('treatments', treatmentCols);
 createIndivIndexes('images', imagesCols);
