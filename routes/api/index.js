@@ -1,6 +1,5 @@
 import { routeFactory } from '../../lib/routeUtils.js';
 import { resources } from '../../data-dictionary/resources/index.js';
-
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 
@@ -8,22 +7,20 @@ const config = new Config().settings;
  * create the root route
  * @param {string} resource - name of the resource.
  */
-const createRootRoute = (resource) => {
-    
-    return async function (fastify, opts) {
-        
+//const createRootRoute = (resource) => {
+const rootRoute = async function (fastify, opts) {
         const options = {
             method: 'GET',
             url: '/',
             schema: {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
                 "$id": "https://example.com/root.schema.json",
-                title: resource.title,
-                summary: resource.summary,
-                description: resource.description,
+                title: "API root",
+                summary: "This is where it starts",
+                description: "This is the root of the Zenodeo API",
                 response: {},
                 querystring: {},
-                tags: resource.tags
+                tags: [ 'zenodeo' ]
             },
             handler: async (request, reply) => {
                 return Object.values(Object.fromEntries(fastify.routes))
@@ -50,7 +47,7 @@ const createRootRoute = (resource) => {
     
         fastify.route(options);
     };
-}
+//}
 
 const xmlRoute = async function (fastify, opts) {
     const options = {
@@ -64,7 +61,7 @@ const xmlRoute = async function (fastify, opts) {
             description: 'treatment xml',
             response: {},
             querystring: {},
-            tags: resource.tags
+            tags: [ 'zenodeo' ]
         },
         handler: async (request, reply) => {
             return request.pathname
@@ -75,13 +72,8 @@ const xmlRoute = async function (fastify, opts) {
 };
 
 const routes = resources
-    .map(resource => {
+    .map(resource => routeFactory(resource.name));
 
-        return resource.name === 'root'
-            ? createRootRoute(resource)
-            : routeFactory(resource.name)
-
-    });
-
-routes.shift(xmlRoute);
+routes.push(xmlRoute);
+routes.unshift(rootRoute);
 export { routes }

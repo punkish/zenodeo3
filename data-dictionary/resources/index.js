@@ -26,6 +26,7 @@ import { orders } from "./orders/index.js";
 import { phyla } from "./phyla/index.js";
 import { realms } from "./realms/index.js";
 import { species } from "./species/index.js";
+//import { taxa } from "./taxa/index.js";
 import { treatmentAuthors } from "./treatmentAuthors/index.js";
 import { treatmentCitations } from "./treatmentCitations/index.js";
 import { treatments } from "./treatments/index.js";
@@ -49,6 +50,7 @@ const resources = [
     phyla,
     realms,
     species,
+    //taxa,
     treatmentAuthors,
     treatmentCitations,
     treatments
