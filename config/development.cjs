@@ -110,7 +110,15 @@ module.exports = {
         "on": true,
         "base": path.join(cwd, 'cache'),
 
-        // default cache duration set to 1 day
+        //  
+        // set default cache duration to 1 days
+        //  
+        //     +------------------------- days
+        //     |    +-------------------- hours
+        //     |    |    +--------------- mins
+        //     |    |    |    +---------- secs
+        //     |    |    |    |    +----- ms
+        //     |    |    |    |    |
         "ttl": 1 * 24 * 60 * 60 * 1000 
     },
 

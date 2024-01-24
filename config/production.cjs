@@ -22,9 +22,15 @@ module.exports = {
     "cache": {
         "on": true,
 
-        /** 
-         * set default cache duration to 7 days
-         */ 
-        "ttl": 1 * 24 * 60 * 60 * 1000 
+        //  
+        // set default cache duration to 7 days
+        //  
+        //     +------------------------- days
+        //     |    +-------------------- hours
+        //     |    |    +--------------- mins
+        //     |    |    |    +---------- secs
+        //     |    |    |    |    +----- ms
+        //     |    |    |    |    |
+        "ttl": 7 * 24 * 60 * 60 * 1000 
     },
 }
