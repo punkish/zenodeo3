@@ -63,7 +63,7 @@ module.exports = {
 
         "queries" : {
             "images": [
-                `cols=`,
+                `cols=&yearlyCounts=true`,
                 `family=Formicidae`,
                 `class=Actinopterygii`,
                 `class=Arachnida`,
@@ -101,7 +101,7 @@ module.exports = {
                 `biome=Tropical and Subtropical Coniferous Forests`
             ],
             "treatments": [
-                `cols=`
+                `cols=&yearlyCounts=true`
             ]
         }
     },
