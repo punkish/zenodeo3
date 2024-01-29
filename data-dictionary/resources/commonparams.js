@@ -58,6 +58,15 @@ export const commonparams = [
         },
         defaultCol: false
     },
+    {
+        name: 'yearlyCounts',
+        schema: {
+            type: 'boolean',
+            description: '',
+            default: false
+        },
+        defaultCol: false
+    },
 
     /*
      * parameters that are a part of the query 
