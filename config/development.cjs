@@ -102,6 +102,9 @@ module.exports = {
             ],
             "treatments": [
                 `cols=&yearlyCounts=true`
+            ],
+            "species": [
+                'cols='
             ]
         }
     },
