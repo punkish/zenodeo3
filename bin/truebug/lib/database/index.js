@@ -65,14 +65,61 @@ const createInsertTreatment = (db) => {
 
         // step1: insert FKs (journalTitle, kingdom, phylum, etc.), get 
         // their ids, and append them into the treatment object           
-        const { journals_id } = insertJournalGet_journals_id({ table: 'journals', key: 'journals_id', value: treatment.journalTitle, cache });
-        const { kingdoms_id } = insertKingdomGet_kingdoms_id({ table: 'kingdoms', key: 'kingdoms_id', value: treatment.kingdom,      cache });
-        const { phyla_id    } = insertPhylumGet_phyla_id(    { table: 'phyla',    key: 'phyla_id',    value: treatment.phylum,       cache });
-        const { classes_id  } = insertClassGet_classes_id(   { table: 'classes',  key: 'classes_id',  value: treatment.class,        cache });
-        const { orders_id   } = insertOrderGet_orders_id(    { table: 'orders',   key: 'orders_id',   value: treatment.order,        cache });
-        const { genera_id   } = insertGenusGet_genera_id(    { table: 'genera',   key: 'genera_id',   value: treatment.genus,        cache });
-        const { families_id } = insertFamilyGet_families_id( { table: 'families', key: 'families_id', value: treatment.family,       cache });
-        const { species_id  } = insertSpeciesGet_species_id( { table: 'species',  key: 'species_id',  value: treatment.species,      cache });
+        const { journals_id } = insertJournalGet_journals_id({ 
+            table: 'journals', 
+            key: 'journals_id', 
+            value: treatment.journalTitle, 
+            cache 
+        });
+
+        const { kingdoms_id } = insertKingdomGet_kingdoms_id({ 
+            table: 'kingdoms', 
+            key: 'kingdoms_id', 
+            value: treatment.kingdom,      
+            cache 
+        });
+
+        const { phyla_id    } = insertPhylumGet_phyla_id({ 
+            table: 'phyla',    
+            key: 'phyla_id',    
+            value: treatment.phylum,       
+            cache 
+        });
+
+        const { classes_id  } = insertClassGet_classes_id({ 
+            table: 'classes',  
+            key: 'classes_id',  
+            value: treatment.class,        
+            cache 
+        });
+
+        const { orders_id   } = insertOrderGet_orders_id({ 
+            table: 'orders',   
+            key: 'orders_id',   
+            value: treatment.order,        
+            cache 
+        });
+
+        const { genera_id   } = insertGenusGet_genera_id({ 
+            table: 'genera',   
+            key: 'genera_id',   
+            value: treatment.genus,        
+            cache 
+        });
+        
+        const { families_id } = insertFamilyGet_families_id({ 
+            table: 'families', 
+            key: 'families_id', 
+            value: treatment.family,       
+            cache 
+        });
+
+        const { species_id  } = insertSpeciesGet_species_id({ 
+            table: 'species',  
+            key: 'species_id',  
+            value: treatment.species,      
+            cache 
+        });
 
         treatment.journals_id = journals_id || null;
         treatment.kingdoms_id = kingdoms_id || null;
