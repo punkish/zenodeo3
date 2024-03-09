@@ -80,9 +80,27 @@ const hierarchies = [
     }
 ];
 
-function query(sql) {
-    const res = db.conn.prepare(sql).all();
-    console.log(res)
+function query(rank) {
+
+    let res;
+
+    if (rank === 'kingdom') {
+        res = db.conn.prepare(`SELECT kingdom, Count(kingdom) AS value
+        FROM treatments JOIN 
+            kingdoms ON treatments.kingdoms_id = kingdoms.id 
+        GROUP BY kingdom`).all();
+    }
+    else if (rank === 'phylum') {
+        res.forEach(r => {
+            res = db.conn.prepare(`SELECT phylum, Count(phylum) AS count
+            FROM treatments JOIN 
+                phyla ON phyla_id = phyla.id 
+            WHERE kingdoms_id = @kingdoms_id 
+            GROUP BY phylum`).all({ kingdoms_id: r.kingdoms_id });
+            r.children = res;
+        })
+    }
+    
 }
 
 query(hierarchies[0].sql);
