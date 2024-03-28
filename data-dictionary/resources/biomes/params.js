@@ -35,5 +35,22 @@ export const params = [
             'JOIN biome_synonyms ON biomes.id = biome_synonyms.biomes_id'
         ],
         defaultOp: 'starts_with'
+    },
+    {
+        name: 'biome_id',
+        selname: 'biomes.id',
+        where: 'biomes.id',
+        schema: { 
+            type: 'integer', 
+            description: ''
+        },
+        // sql: {
+        //     type: 'TEXT',
+        //     desc: 'name of the biome'
+        // },
+        // joins: [
+        //     'JOIN biome_synonyms ON biomes.id = biome_synonyms.biomes_id'
+        // ],
+        defaultOp: 'eq'
     }
 ];
