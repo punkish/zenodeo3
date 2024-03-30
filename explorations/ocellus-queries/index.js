@@ -1,5 +1,6 @@
 import { init1 } from "./trad.js";
 import { init2 } from "./ng.js";
+import { init3 } from "./ng2.js";
 
 const queries = [
     {
@@ -52,14 +53,14 @@ for (const query of queries) {
 
     console.log(`Query: ${name}`);
     console.log('='.repeat(50));
-    const result1 = init1(from, where);
+    const result1 = init2(from, where);
     const t1 = timerFormat(result1.runtime);
     const onetime = t1.ms;
     console.log(`  one took ${t1.formatted}`);
     console.log(`  found ${result1.num_of_records} records`);
     console.log('-'.repeat(50));
 
-    const result2 = init2(from, where);
+    const result2 = init3(from, where);
     const t2 = timerFormat(result2.runtime);
     const twotime = t2.ms;
     console.log(`  two took ${t2.formatted}`);
