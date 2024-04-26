@@ -1,0 +1,20 @@
+{
+  "name": "@punkish/zcache",
+  "version": "1.0.2",
+  "description": "a zimple file-based cache",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/punkish/zcache.git"
+  },
+  "keywords": [
+    "file-cache"
+  ],
+  "author": "Puneet Kishor",
+  "license": "CC0-1.0",
+  "type": "module",
+  "homepage": "https://github.com/punkish/zcache#readme"
+}

@@ -17,7 +17,7 @@ const params = [
         },
         schema: { 
             type: 'integer', 
-            description: 'The unique ID of the images',
+            description: 'The unique ID of the image',
         },
         isResourceId: true
     },
@@ -64,15 +64,18 @@ const params = [
         cheerio: '$("figureCitation").attr("figureDoi")'
     },
     {
-        name: 'captionText',
-        alias: 'caption',
+        name: 'caption',
+        selname: 'images.captionText',
+        where: 'images.captionText',
+        //name: 'captionText',
+        //alias: 'caption',
         schema: {
             type: 'string',
             description: `A snippet extracted from the caption of the image. Can use the following syntax: 
 - \`caption=starts_with(spiders)\``
         },
         sql: {
-            desc: 'The full text of the figure cited by this treatment',
+            desc: 'The text of the figure cited by this treatment',
             type: 'TEXT COLLATE NOCASE'
         },
         cheerio: '$("figureCitation").attr("captionText")'
@@ -87,7 +90,6 @@ const params = [
             desc: 'The FK of the parent treatment',
             type: 'INTEGER NOT NULL REFERENCES treatments(id)'
         },
-        //cheerio: '$("figureCitation").attr("captionText")'
     },
 ];
 
@@ -190,7 +192,7 @@ const params = [
         ]
     },
     {
-        name: 'publicationDateMs',
+        name: 'publicationDate',
         dict: treatments,
         joins: [
             'JOIN treatments ON images.treatments_id = treatments.id'
@@ -250,13 +252,6 @@ const params = [
         joins: [
             'JOIN treatments ON images.treatments_id = treatments.id',
             'JOIN species ON treatments.species_id = species.id'
-        ]
-    },
-    {
-        name: 'publicationDate',
-        dict: treatments,
-        joins: [
-            'JOIN treatments ON images.treatments_id = treatments.id'
         ]
     },
     {
@@ -335,23 +330,5 @@ externalParams.forEach(externalParam => utils.addExternalDef(
     params
 ));
 
+
 export { params }
-
-
-// SELECT Count(*) AS num_of_records 
-// FROM 
-//     images JOIN 
-//     treatments ON images.treatments_id = treatments.id JOIN 
-//     materialCitations ON treatments.id = materialCitations.treatments_id JOIN 
-//     geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id JOIN 
-//     geodata.biomes ON geodata.ecoregions.biomes_id = geodata.biomes.id JOIN 
-//     geodata.biome_synonyms ON geodata.biomes.id = geodata.biome_synonyms.biomes_id  
-// WHERE geodata.biome_synonyms.biome_synonym LIKE 'pampas%'
-
-// SELECT Count(*) AS num_of_records 
-// FROM 
-//     images JOIN 
-//     treatments ON images.treatments_id = treatments.id JOIN 
-//     materialCitations ON treatments.id = materialCitations.treatments_id JOIN 
-//     geodata.biome_synonyms ON materialCitations.biomes_id = geodata.biome_synonyms.id   
-// WHERE geodata.biome_synonyms.biome_synonym LIKE 'pampas%'

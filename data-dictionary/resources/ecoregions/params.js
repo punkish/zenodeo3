@@ -5,6 +5,10 @@ export const params = [
             type: 'INTEGER PRIMARY KEY',
             desc: 'PK'
         },
+        schema: { 
+            type: 'integer', 
+            description: 'The unique ID of the image',
+        },
         isResourceId: true
     },
     {

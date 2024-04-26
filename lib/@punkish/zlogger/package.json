@@ -1,0 +1,29 @@
+{
+  "name": "@punkish/zlogger",
+  "version": "1.0.9",
+  "description": "a very, very zimple logger",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/punkish/zlogger.git"
+  },
+  "author": "Puneet Kishor <punk.kish@gmail.com> (https://punkish.org)",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/punkish/zlogger/issues"
+  },
+  "scripts": {
+    "test": "tap"
+  },
+  "type": "module",
+  "homepage": "https://github.com/punkish/zlogger#readme",
+  "directories": {
+    "test": "test"
+  },
+  "keywords": [
+    "logger"
+  ],
+  "devDependencies": {
+    "tap": "^16.3.6"
+  }
+}

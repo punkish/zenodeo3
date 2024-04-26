@@ -125,6 +125,7 @@ const getTable = (tableName, property) => {
 }
 
 const getCols = (tableName) => {
+    console.log("GETCOLS")
     if (!tableName) {
         console.error('required argument "tableName" missing');
         return;
@@ -150,10 +151,12 @@ const getCols = (tableName) => {
                 if (!col.selname) {
 
                     if (schema) {
-                        col.selname = `${schema}.${tableName}."${col.name}"`;
+                        //col.selname = `${schema}.${tableName}."${col.name}"`;
+                        col.selname = `${schema}.${tableName}.${col.name}`;
                     }
                     else {
-                        col.selname = `${tableName}."${col.name}"`;
+                        //col.selname = `${tableName}."${col.name}"`;
+                        col.selname = col.name;
                     }
                     
                 }

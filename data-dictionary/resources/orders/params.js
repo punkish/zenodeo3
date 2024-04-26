@@ -13,6 +13,8 @@ export const params = [
     },
     {
         name: 'order',
+        selname: 'orders."order"',
+        where: 'orders."order"',
         schema: {
             type: 'string',
             description: 'The name of the order'

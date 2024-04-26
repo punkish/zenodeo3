@@ -1,0 +1,20 @@
+{
+  "name": "@punkish/zconfig",
+  "version": "1.0.4",
+  "description": "a zimple config utility",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/punkish/zconfig.git"
+  },
+  "keywords": [
+    "config"
+  ],
+  "author": "Puneet Kishor",
+  "license": "CC0-1.0",
+  "type": "module",
+  "homepage": "https://github.com/punkish/zconfig#readme"
+}
