@@ -130,7 +130,8 @@ const params = [
             type: 'TEXT COLLATE NOCASE'
         },
         cheerio: '$("treatment").attr("LSID")',
-        indexed: false
+        indexed: false,
+        defaultOp: 'eq'
     },
     {
         name: 'zenodoDep',
@@ -144,7 +145,8 @@ const params = [
         },
         cheerio: '$("document").attr("ID-Zenodo-Dep")',
         queryable: false,
-        indexed: false
+        indexed: false,
+        defaultOp: 'eq'
     },
     {
         name: 'zoobankId',
@@ -273,7 +275,7 @@ const params = [
             desc: 'The publication date of the treatment',
             type: 'TEXT'
         },
-        zqltype: 'date',
+        zqltype: 'datetime',
         cheerio: '$("mods\\\\:detail[type=pubDate] mods\\\\:number").text()',
         defaultOp: 'eq'
     },
@@ -298,7 +300,7 @@ const params = [
             desc: 'The publication date of the treatment in ms since unixepoch',
             type: utils.unixEpochMs('publicationDate')
         },
-        zqltype: 'date',
+        zqltype: 'datetime',
         cheerio: '$("mods\\\\:detail[type=pubDate] mods\\\\:number").text()',
         defaultOp: 'eq'
     },
@@ -323,6 +325,7 @@ const params = [
             desc: 'The year of the journal',
             type: 'INTEGER'
         },
+        zqltype: 'datetime',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:date").text()',
         facet: 'count > 1'
     },
@@ -398,6 +401,7 @@ const params = [
             desc: 'The year when the taxon name was published',
             type: 'INTEGER'
         },
+        zqltype: 'datetime',
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("authorityYear")',
         defaultOp: 'eq'
     },
@@ -541,7 +545,7 @@ const params = [
             desc: 'The time when the treatment was last updated (stored as ms since unixepoch)',
             type: 'INTEGER'
         },
-        zqltype: 'msecs',
+        zqltype: 'datetime',
         cheerio: '$("document").attr("updateTime")'
     },
     {
@@ -566,7 +570,7 @@ const params = [
             desc: 'The time when the article was first uploaded into the system (stored as ms since unixepoch)',
             type: 'INTEGER'
         },
-        zqltype: 'msecs',
+        zqltype: 'datetime',
         cheerio: '$("document").attr("checkinTime")'
     },
     {
@@ -606,6 +610,7 @@ const params = [
         strftime('%Y', datetime(checkinTime/1000, 'unixepoch'))
     ) VIRTUAL`
         },
+        zqltype: 'datetime',
         defaultCol: false,
         queryable: false,
         indexed: false

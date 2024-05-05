@@ -1,0 +1,9 @@
+TAP version 14
+# Subtest: geolocation
+    ok 1 - should be equivalent
+    ok 2 - should be equivalent
+    ok 3 - should be equivalent
+    1..3
+ok 1 - geolocation # time=10.959ms
+
+1..1

@@ -35,6 +35,11 @@ const getParams = (resourceName) => {
             if (!p.where) {
                 p.where = `${resourceName}.${p.name}`;
             }
+
+            // add a defaultOp if it doesn't already exist
+            if (!p.defaultOp) {
+                p.defaultOp = '=';
+            }
             
             return p;
         });

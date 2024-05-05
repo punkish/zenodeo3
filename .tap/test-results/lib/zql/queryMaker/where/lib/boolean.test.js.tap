@@ -1,0 +1,12 @@
+TAP version 14
+# Subtest: boolean
+    ok 1 - should be equivalent
+    ok 2 - should be equivalent
+    ok 3 - should be equivalent
+    ok 4 - should be equivalent
+    ok 5 - should be equivalent
+    ok 6 - should be equivalent
+    1..6
+ok 1 - boolean # time=2.888ms
+
+1..1
