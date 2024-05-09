@@ -24,12 +24,12 @@
 ######################
 logs/
 *.log
-# *.sql
+*.sql
 *.sqlite
 *.xml
 data/
 scratch/
-#explorations/
+explorations/
 bak/
 
 # SQLite extensions

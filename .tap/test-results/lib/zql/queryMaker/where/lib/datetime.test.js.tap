@@ -1,24 +1,92 @@
 TAP version 14
-# Subtest: dates
+# Subtest: dates 0
     ok 1 - should be equivalent
-    ok 2 - should be equivalent
-    ok 3 - should be equivalent
-    ok 4 - should be equivalent
-    ok 5 - should be equivalent
-    ok 6 - should be equivalent
-    ok 7 - should be equivalent
-    ok 8 - should be equivalent
-    ok 9 - should be equivalent
-    ok 10 - should be equivalent
-    ok 11 - should be equivalent
-    ok 12 - should be equivalent
-    ok 13 - should be equivalent
-    ok 14 - should be equivalent
-    ok 15 - should be equivalent
-    ok 16 - should be equivalent
-    ok 17 - should be equivalent
-    ok 18 - should be equivalent
-    1..18
-ok 1 - dates # time=4.678ms
+    1..1
+ok 1 - dates 0 # time=2.758ms
 
-1..1
+# Subtest: dates 1
+    ok 1 - should be equivalent
+    1..1
+ok 2 - dates 1 # time=0.37ms
+
+# Subtest: dates 2
+    ok 1 - should be equivalent
+    1..1
+ok 3 - dates 2 # time=0.197ms
+
+# Subtest: dates 3
+    ok 1 - should be equivalent
+    1..1
+ok 4 - dates 3 # time=0.186ms
+
+# Subtest: dates 4
+    ok 1 - should be equivalent
+    1..1
+ok 5 - dates 4 # time=0.169ms
+
+# Subtest: dates 5
+    ok 1 - should be equivalent
+    1..1
+ok 6 - dates 5 # time=0.156ms
+
+# Subtest: dates 6
+    ok 1 - should be equivalent
+    1..1
+ok 7 - dates 6 # time=0.187ms
+
+# Subtest: dates 7
+    ok 1 - should be equivalent
+    1..1
+ok 8 - dates 7 # time=0.203ms
+
+# Subtest: dates 8
+    ok 1 - should be equivalent
+    1..1
+ok 9 - dates 8 # time=0.155ms
+
+# Subtest: dates 9
+    ok 1 - should be equivalent
+    1..1
+ok 10 - dates 9 # time=0.147ms
+
+# Subtest: dates 10
+    ok 1 - should be equivalent
+    1..1
+ok 11 - dates 10 # time=0.145ms
+
+# Subtest: dates 11
+    ok 1 - should be equivalent
+    1..1
+ok 12 - dates 11 # time=0.143ms
+
+# Subtest: dates 12
+    ok 1 - should be equivalent
+    1..1
+ok 13 - dates 12 # time=0.145ms
+
+# Subtest: dates 13
+    ok 1 - should be equivalent
+    1..1
+ok 14 - dates 13 # time=0.282ms
+
+# Subtest: dates 14
+    ok 1 - should be equivalent
+    1..1
+ok 15 - dates 14 # time=0.184ms
+
+# Subtest: dates 15
+    ok 1 - should be equivalent
+    1..1
+ok 16 - dates 15 # time=0.15ms
+
+# Subtest: dates 16
+    ok 1 - should be equivalent
+    1..1
+ok 17 - dates 16 # time=0.299ms
+
+# Subtest: dates 17
+    ok 1 - should be equivalent
+    1..1
+ok 18 - dates 17 # time=0.147ms
+
+1..18

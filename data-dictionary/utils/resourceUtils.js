@@ -1,8 +1,55 @@
 import { resources } from '../resources/index.js';
-
 import { commonparams } from '../resources/commonparams.js';
 import clonedeep from 'lodash.clonedeep';
-import { D } from './index.js';
+
+
+/**
+ * @function getParams  
+ * @returns {array} all paramaters for a given resource
+ */
+const getParams = (resourceName) => {
+
+    // We are going to modify the parameter values, so to not change the 
+    // original definitions, we first deep clone the params
+    const resource = resources.filter(r => r.name === resourceName)[0];
+    const paramsCopy = clonedeep(resource.params);
+
+    const params = paramsCopy
+
+        // param names should not start with '_' such as _uniq and _pk
+        .filter(p => p.name.substring(0, 1) !== '_')
+
+        // should have a schema as params without a schema are not usable 
+        // in the REST queries
+        .filter(p => p.schema)
+        .map(p => {
+            
+            // add a fully-qualified SELECT name if it doesn't already
+            // exist
+            if (!p.selname) {
+                p.selname = `${resourceName}.${p.name}`;
+            }
+
+            // add a fully-qualified WHERE name if it doesn't already
+            // exist
+            if (!p.where) {
+                p.where = `${resourceName}.${p.name}`;
+            }
+
+            // add a defaultOp if it doesn't already exist
+            if (!p.defaultOp) {
+                p.defaultOp = '=';
+            }
+            
+            return p;
+        });
+
+    // add commonparams
+    params.push(...commonparams);
+
+    return params;
+    
+}
 
 const getResourceProperties = () => Object.keys(resources[0]).join("\n\t- ");
 
@@ -18,33 +65,14 @@ const getResources = (property = 'name') => {
 }
 
 const getResource = (resourceName, property) => {
-    if (!resourceName) {
-        console.error('Error: required argument "resourceName" missing');
-        return;
-    }
-
     const resource = resources.filter(r => r.name === resourceName)[0];
     
-    // if (!resource) {
-    //     throw(new Error(`alleged resource "${resourceName}" does not exist`));
-    // }
-
-    // if (property) {
-    //     const cacheKey = `res_${resourceName}`;
-
-    //     // check the cache for resource or initialize it
-    //     if (!(cacheKey in D)) D[cacheKey] = {};
-
-    //     if (!D[cacheKey][property]) {
-    //         D[cacheKey][property] = resource[property];
-    //     }
-
-        
-    //     return D[cacheKey][property];
-    // }
-    // else {
-    //     return resource;
-    // }
+    if (property) {
+        return resource[property];
+    }
+    else {
+        return resource;
+    }
 }
 
 /**
@@ -52,21 +80,8 @@ const getResource = (resourceName, property) => {
  * @returns {string} name of resourceId of a resource
  */
 const getResourceId = (resourceName) => {
-    if (!resourceName) {
-        console.error('required argument "resourceName" missing');
-        return;
-    }
-
-    const cacheKey = `res_${resourceName}`;
-
-    // check the cache for resource or initialize it
-    if (!(cacheKey in D)) D[cacheKey] = {};
-    if (!D[cacheKey].resourceId) {
-        D[cacheKey].resourceId = getParams(resourceName)
+    return getParams(resourceName)
             .filter(col => col.isResourceId)[0];
-    }
-
-    return D[cacheKey].resourceId;
 }
 
 /**
@@ -127,76 +142,7 @@ const getDefaultCols = (resourceName) => {
     return D[cacheKey].defaultCols;
 }
 
-/**
- * @function getParams  
- * @returns {array} all paramaters for a given resource
- */
-const getParams = (resourceName, keyname) => {
-    if (resourceName === 'images') {
-        console.log('㊗️')
-    }
-    
-    if (!resourceName) {
-        console.error('required argument "resourceName" missing');
-        return;
-    }
 
-    const cacheKey = `res_${resourceName}`;
-
-    // check the cache for resource or initialize it
-    if (!(cacheKey in D)) D[cacheKey] = {};
-
-    if (!D[cacheKey].params) {
-
-        // We are going to modify the parameter values, so to not change the 
-        // original definitions, we first deep clone the params
-        const parm = clonedeep(getResource(resourceName, 'params'));
-        console.log(parm)
-
-        const params = parm
-
-            // param names should not start with '_' such as _uniq and _pk
-            .filter(p => p.name.substring(0, 1) !== '_')
-
-            // should have a schema as params without a schema are not usable 
-            // in the REST queries
-            .filter(p => p.schema)
-            .map(p => {
-
-                // // give priority to alias, if it exists
-                // if (p.alias) {
-                //     p.name = p.alias;
-                // }
-                
-                // add a fully-qualified SELECT name if it doesn't already
-                // exist
-                if (!p.selname) {
-                    p.selname = `${resourceName}.${p.name}`;
-                }
-
-                // add a fully-qualified WHERE name if it doesn't already
-                // exist
-                if (!p.where) {
-                    p.where = `${resourceName}.${p.name}`;
-                }
-                
-                return p;
-            });
-
-        // add commonparams
-        params.push(...commonparams);
-
-        // finally, store a copy of the params
-        D[cacheKey].params = params;
-    }
-
-    if (keyname) {
-        return D[cacheKey].params.map(p => p[keyname])
-    }
-
-    return D[cacheKey].params;
-    
-}
 
 const getParam = (resourceName, keyname, property) => {
     if (!resourceName) {
@@ -291,43 +237,32 @@ const getFacetParams = (resourceName) => {
 // }
 
 // schema: we use the schema to validate the query params
-const getQueryStringSchema = function(resourceName, params) {
-    if (!resourceName) {
-        console.error('required argument "resourceName" missing');
-        return;
+const getQueryStringSchema = function(resourceName, resourceParams) {
+    if (!resourceParams) {
+        resourceParams = getParams(resourceName);
     }
 
-    if (!params) {
-        params = getParams(resourceName);
-    }
-
-    const pk = params.filter(col => {
+    const pk = resourceParams.filter(col => {
         if (col.sql && col.sql.type) {
             return col.sql.type = 'INTEGER PRIMARY KEY'
         }
     })[0];
 
-    const defaultCols = params
-        .filter(p => {
-                    
-            if ('defaultCol' in p) {
-                return p.defaultCol === true
-                    ? true
-                    : false;
-            }
-            
-            return true;
+    const defaultCols = resourceParams
+        .filter(param => {
+            return 'defaultCol' in param
+                ? param.defaultCol
+                : true;
         });
 
-    defaultCols.push('');
-
     const queryStringSchema = {};
-    params
+
+    resourceParams
         //.filter(p => p.name !== 'id')
         .filter(p => p.schema)
         .forEach(p => {
             const schema = clonedeep(p.schema);
-
+            
             // fix the 'sortby' column definition
             if (p.name === 'sortby') {
                 schema.default = schema.default.replace(
@@ -336,21 +271,13 @@ const getQueryStringSchema = function(resourceName, params) {
                 );
             }
             else if (p.name === 'cols') {
-                const enumvals = params.map(p => {
-                    // if (p.alias) {
-                    //     return p.alias;
-                    // }
-                    // else {
-                    //     return p.name;
-                    // }
-                    return p.name;
-                });
+                const enumvals = resourceParams.map(p => p.name);
 
                 // allow empty col as in "cols=''"
                 enumvals.push('');
                 
                 schema.items.enum = enumvals;
-                schema.default = defaultCols;
+                schema.default = defaultCols.map(c => c.name);
             }
 
             // fix the description
@@ -362,70 +289,13 @@ const getQueryStringSchema = function(resourceName, params) {
         });
 
     return queryStringSchema;
-    //const cacheKey = `res_${resourceName}`;
-
-    // check the cache for resource or initialize it
-    // if (!(cacheKey in D)) D[cacheKey] = {};
-    // if (!D[cacheKey].queryStringSchema) {
-
-    //     // we will create the queryStringSchema and cache it
-    //     //const resourceId = getResourceId(resourceName);
-    //     //const pk = getPk(resourceName);
-    //     // const defaultCols = getDefaultCols(resourceName).map(c => c.name);
-    //     // defaultCols.push('');
-    //     const queryStringSchema = {};
-    //     const params = getParams(resourceName);
-    //     params
-    //         //.filter(p => p.name !== 'id')
-    //         .filter(p => p.schema)
-    //         .forEach(p => {
-    //             const schema = clonedeep(p.schema);
-
-    //             // fix the 'sortby' column definition
-    //             if (p.name === 'sortby') {
-    //                 schema.default = schema.default.replace(
-    //                     /resourceId/, 
-    //                     pk.selname
-    //                 );
-    //             }
-    //             else if (p.name === 'cols') {
-    //                 const enumvals = params.map(p => {
-    //                     // if (p.alias) {
-    //                     //     return p.alias;
-    //                     // }
-    //                     // else {
-    //                     //     return p.name;
-    //                     // }
-    //                     return p.name;
-    //                 });
-
-    //                 // allow empty col as in "cols=''"
-    //                 enumvals.push('');
-                    
-    //                 schema.items.enum = enumvals;
-    //                 schema.default = defaultCols;
-    //             }
-
-    //             // fix the description
-    //             if (p.sql && p.sql.desc) {
-    //                 schema.description = `${p.sql.desc}. ${schema.description}`;
-    //             }
-
-    //             queryStringSchema[p.name] = schema;
-    //         });
-
-    //     D[cacheKey].getQueryStringSchema = queryStringSchema;
-
-    // }
-
-    // return D[cacheKey].getQueryStringSchema;
 }
 
 export { 
+    getParams,
     getResourceProperties,
     getResources,
     getResource,
-    getParams,
     getParam,
     getDefaultCols,
     getDefaultParams,

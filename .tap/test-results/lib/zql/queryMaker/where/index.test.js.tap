@@ -1,24 +1,92 @@
 TAP version 14
-# Subtest: where
+# Subtest: where 0
     ok 1 - should be equivalent
-    ok 2 - should be equivalent
-    ok 3 - should be equivalent
-    ok 4 - should be equivalent
-    ok 5 - should be equivalent
-    ok 6 - should be equivalent
-    ok 7 - should be equivalent
-    ok 8 - should be equivalent
-    ok 9 - should be equivalent
-    ok 10 - should be equivalent
-    ok 11 - should be equivalent
-    ok 12 - should be equivalent
-    ok 13 - should be equivalent
-    ok 14 - should be equivalent
-    ok 15 - should be equivalent
-    ok 16 - should be equivalent
-    ok 17 - should be equivalent
-    ok 18 - should be equivalent
-    1..18
-ok 1 - where # time=12.717ms
+    1..1
+ok 1 - where 0 # time=3.071ms
 
-1..1
+# Subtest: where 1
+    ok 1 - should be equivalent
+    1..1
+ok 2 - where 1 # time=0.47ms
+
+# Subtest: where 2
+    ok 1 - should be equivalent
+    1..1
+ok 3 - where 2 # time=0.209ms
+
+# Subtest: where 3
+    ok 1 - should be equivalent
+    1..1
+ok 4 - where 3 # time=0.35ms
+
+# Subtest: where 4
+    ok 1 - should be equivalent
+    1..1
+ok 5 - where 4 # time=0.241ms
+
+# Subtest: where 5
+    ok 1 - should be equivalent
+    1..1
+ok 6 - where 5 # time=0.185ms
+
+# Subtest: where 6
+    ok 1 - should be equivalent
+    1..1
+ok 7 - where 6 # time=0.206ms
+
+# Subtest: where 7
+    ok 1 - should be equivalent
+    1..1
+ok 8 - where 7 # time=0.426ms
+
+# Subtest: where 8
+    ok 1 - should be equivalent
+    1..1
+ok 9 - where 8 # time=0.277ms
+
+# Subtest: where 9
+    ok 1 - should be equivalent
+    1..1
+ok 10 - where 9 # time=0.191ms
+
+# Subtest: where 10
+    ok 1 - should be equivalent
+    1..1
+ok 11 - where 10 # time=0.22ms
+
+# Subtest: where 11
+    ok 1 - should be equivalent
+    1..1
+ok 12 - where 11 # time=0.175ms
+
+# Subtest: where 12
+    ok 1 - should be equivalent
+    1..1
+ok 13 - where 12 # time=0.167ms
+
+# Subtest: where 13
+    ok 1 - should be equivalent
+    1..1
+ok 14 - where 13 # time=0.233ms
+
+# Subtest: where 14
+    ok 1 - should be equivalent
+    1..1
+ok 15 - where 14 # time=0.174ms
+
+# Subtest: where 15
+    ok 1 - should be equivalent
+    1..1
+ok 16 - where 15 # time=0.171ms
+
+# Subtest: where 16
+    ok 1 - should be equivalent
+    1..1
+ok 17 - where 16 # time=7.919ms
+
+# Subtest: where 17
+    ok 1 - should be equivalent
+    1..1
+ok 18 - where 17 # time=0.385ms
+
+1..18

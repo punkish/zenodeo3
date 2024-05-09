@@ -1,5 +1,6 @@
 import { tables } from '../resources/index.js';
 import { commonparams } from '../resources/commonparams.js';
+import clonedeep from 'lodash.clonedeep';
 import { D } from './index.js';
 
 const getTableProperties = () => Object.keys(tables[0]).join("\n\t- ");
@@ -8,13 +9,14 @@ const getTableSchemas = () => {
     const initialValue = [];
     
     const reducer = (accumulator, obj) => {
+        const cols = getCols(obj.name);
 
         const table = {
             name: obj.name,
             createStmt: createTable(obj.name),
             triggers: getTable(obj.name, 'triggers'),
             insertFuncs: getTable(obj.name, 'inserts'),
-            indexes: createIndexes(obj.name)
+            indexes: createIndexes(obj.name, cols)
         }
 
         //
@@ -94,30 +96,10 @@ const getTables = (property = 'name') => {
 // const getTable = (tableName, property) => getEntity(tableName, 'table', property);
 
 const getTable = (tableName, property) => {
-    if (!tableName) {
-        console.error('Error: required argument "tableName" missing');
-        return;
-    }
-
     const table = tables.filter(t => t.name === tableName)[0];
 
-    if (!table) {
-        throw(new Error(`alleged table "${table}" does not exist`));
-    }
-
-    const cacheKey = `tbl_${tableName}`;
-
-    // check the cache for table or initialize it
-    if (!(cacheKey in D)) D[cacheKey] = {};
-
     if (property) {
-
-        if (!(property in D[cacheKey])) {
-            D[cacheKey][property] = table[property];
-        }
-
-        return D[cacheKey][property];
-
+        return table[property];
     }
     else {
         return table;
@@ -125,59 +107,39 @@ const getTable = (tableName, property) => {
 }
 
 const getCols = (tableName) => {
-    console.log("GETCOLS")
-    if (!tableName) {
-        console.error('required argument "tableName" missing');
-        return;
-    }
 
-    const cacheKey = `tbl_${tableName}`;
-
-    // check the cache for resource or initialize it
-    if (!(cacheKey in D)) D[cacheKey] = {};
-
+    // if there is an attached database, SQLite treats it as a separate
+    // schema accessible via its own namespace. (This schema is not the same
+    // as the 'JSON schema')
     const schema = getTable(tableName, 'attachedDatabase')
         ? getTable(tableName, 'attachedDatabase').name
         : '';
 
-    if (!D[cacheKey].cols) {
-        D[cacheKey].cols = getTable(tableName, 'params')
-            .filter(col => col.sql)
-            .filter(col => !col.external)
-            .map(col => {
+    const colsCopy = clonedeep(getTable(tableName, 'params'));
+    const cols = colsCopy
+        .filter(col => col.sql)
+        .filter(col => !col.external)
+        .map(col => {
 
-                // if selname doesn't already exist, create a fully-qualified 
-                // selname by prefixing with the resourceName
-                if (!col.selname) {
+            // if selname doesn't already exist, create a fully-qualified 
+            // selname by prefixing with the resourceName
+            if (!col.selname) {
+                col.selname = schema
+                    ? `${schema}.${tableName}.${col.name}`
+                    : `${tableName}.${col.name}`
+            }
 
-                    if (schema) {
-                        //col.selname = `${schema}.${tableName}."${col.name}"`;
-                        col.selname = `${schema}.${tableName}.${col.name}`;
-                    }
-                    else {
-                        //col.selname = `${tableName}."${col.name}"`;
-                        col.selname = col.name;
-                    }
-                    
-                }
+            // add a where name
+            if (!col.where) {
+                col.where = schema 
+                    ? `${schema}.${tableName}.${col.name}`
+                    : `${tableName}.${col.name}`;
+            }
 
-                // add a where name
-                if (!col.where) {
-                    
-                    if (schema) {
-                        col.where = `${schema}.${tableName}."${col.name}"`;
-                    }
-                    else {
-                        col.where = `${tableName}."${col.name}"`;
-                    }
-                    
-                }
+            return col;
+        });
 
-                return col;
-            });
-    }
-
-    return D[cacheKey].cols;
+    return cols;
 }
 
 const getCol = (tableName, colname, property) => {
@@ -298,7 +260,7 @@ const _sqlComment = (str, outarr = []) => {
  * @function createTable
  * @returns {string} create table statement
  */
-const createTable = (tableName) => {
+const createTable = (tableName, cols) => {
     if (!tableName) {
         console.error('required argument "tableName" missing');
         return;
@@ -309,7 +271,11 @@ const createTable = (tableName) => {
     const sqliteExtension = table.sqliteExtension;
     const viewSource = table.viewSource;
     const isWithoutRowid = table.isWithoutRowid;
-    const cols = getCols(tableName);
+
+    if (!cols) {
+        cols = getCols(tableName);
+    }
+    
     const tab = '    ';
 
     let stmt = `CREATE ${tableType} IF NOT EXISTS ${tableName}`;
@@ -366,19 +332,15 @@ const createTable = (tableName) => {
     return stmt;
 }
 
-const createIndexes = (tableName) => {
-    if (!tableName) {
-        console.error('required argument "tableName" missing');
-        return;
-    }
-
+const createIndexes = (tableName, cols) => {
     const table = getTable(tableName);
-
     const tableType = table.tableType.toUpperCase();
 
     if (tableType === 'TABLE') {
-        const cols = getCols(tableName);
-
+        if (!cols) {
+            cols = getCols(tableName);
+        }
+        
         const indexes = {};
 
         for (const col of cols) {

@@ -1,7 +1,7 @@
 TAP version 14
-# Subtest: number
+# Subtest: order by
     ok 1 - should be equivalent
     1..1
-ok 1 - number # time=2.699ms
+ok 1 - order by # time=12.395ms
 
 1..1

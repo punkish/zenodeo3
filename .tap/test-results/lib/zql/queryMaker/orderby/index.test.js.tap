@@ -1,9 +1,9 @@
 TAP version 14
-# Subtest: geolocation
+# Subtest: order by
     ok 1 - should be equivalent
     ok 2 - should be equivalent
     ok 3 - should be equivalent
     1..3
-ok 1 - geolocation # time=11.311ms
+ok 1 - order by # time=2.687ms
 
 1..1

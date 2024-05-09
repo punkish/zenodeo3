@@ -7,6 +7,6 @@ TAP version 14
     ok 5 - should be equivalent
     ok 6 - should be equivalent
     1..6
-ok 1 - boolean # time=2.888ms
+ok 1 - boolean # time=3.721ms
 
 1..1
