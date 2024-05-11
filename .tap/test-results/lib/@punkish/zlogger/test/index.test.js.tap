@@ -1,6 +1,0 @@
-[34m2024-05-08 20:35:54.448[39m [31mMY MODULE[39m [32m–  INFO[39m logger level is INFO
-[34m2024-05-08 20:35:54.449[39m [31mMY MODULE[39m [32m–  INFO[39m foo
-[34m2024-05-08 20:35:54.449[39m [31mMY MODULE[39m [32m–  INFO[39m do something and wait… finished something
-no front matter [34m2024-05-08 20:35:54.449[39m [31mMY MODULE[39m [32m–  WARN[39m oops
-[34m2024-05-08 20:35:54.449[39m [31mMY MODULE[39m [32m– ERROR[39m uh oh!
-[34m2024-05-08 20:35:54.449[39m [31mMY MODULE[39m [32m– FATAL[39m died

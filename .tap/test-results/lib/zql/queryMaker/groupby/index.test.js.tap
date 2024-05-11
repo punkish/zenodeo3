@@ -1,7 +1,0 @@
-TAP version 14
-# Subtest: order by
-    ok 1 - should be equivalent
-    1..1
-ok 1 - order by # time=2.182ms
-
-1..1
