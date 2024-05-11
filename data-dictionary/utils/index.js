@@ -9,13 +9,13 @@ import {
     getResources,
     getResource,
     getParams,
-    getParam,
-    getDefaultCols,
+    //getParam,
+    //getDefaultCols,
     getDefaultParams,
     getFacetParams,
     getQueryStringSchema,
     getResourceId,
-    getPk
+    //getPk
 } from './resourceUtils.js';
 
 import { 
@@ -34,15 +34,16 @@ import {
 const functions = [
     { getResources          , args: '<property>'                            },
     { getResource           , args: '[resourceName], <property>'            },
+    { getResourceProperties , args: ''                                      },
     { getTableSchemas       , args: ''                                      },
     { getTables             , args: '<property>'                            },
     { getTable              , args: '[tableName], <property>'               },
     { createTable           , args: '[resourceName]'                        },
     { createIndexes         , args: '[resourceName]'                        },
     { getParams             , args: '[resourceName]'                        },
-    { getParam              , args: '[resourceName], <keyname>, <property>' },
+    //{ getParam              , args: '[resourceName], <keyname>, <property>' },
     { getResourceId         , args: '[resourceName]'                        },
-    { getDefaultCols        , args: '[resourceName]'                        },
+    //{ getDefaultCols        , args: '[resourceName]'                        },
     { getCols               , args: '[tableName]'                           },
     { getCol                , args: '[tableName], [colname], <property>'    },
     { getXmlCols            , args: '[tableName]'                           },
@@ -51,7 +52,7 @@ const functions = [
     { getFacetParams        , args: '[resourceName]'                        },
     { getQueryStringSchema  , args: "resourceName"                          },
     { getResourceId         , args: "resourceName"                          },
-    { getPk                 , args: "resourceName"                          },
+    //{ getPk                 , args: "resourceName"                          },
     { getNotCols            , args: ""         },
     //{ createFtsTable, args: '[resourceName]' },
     // { getSourceOfResource   , args: "resource" },

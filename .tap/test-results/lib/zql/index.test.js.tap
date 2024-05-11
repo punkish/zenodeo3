@@ -1,7 +1,7 @@
 TAP version 14
-# Subtest: order by
+# Subtest: images 0
     ok 1 - should be equivalent
     1..1
-ok 1 - order by # time=2.182ms
+ok 1 - images 0 # time=75.707ms
 
 1..1

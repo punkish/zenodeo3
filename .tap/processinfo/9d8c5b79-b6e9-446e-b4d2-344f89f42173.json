@@ -1,8 +1,8 @@
 {
-  "date": "2024-05-09T15:15:27.854Z",
+  "date": "2024-05-11T20:45:30.153Z",
   "argv": [
     "/Users/punkish/.nvm/versions/node/v20.12.2/bin/node",
-    "/Users/punkish/Projects/zenodeo3/lib/zql/queryMaker/where/lib/nonZql.test.js"
+    "/Users/punkish/Projects/zenodeo3/lib/zql/queryMaker/orderby/index.test.js"
   ],
   "execArgv": [
     "--import=file:///Users/punkish/Projects/zenodeo3/node_modules/@isaacs/ts-node-temp-fork-for-pr-2009/import.mjs",
@@ -12,12 +12,12 @@
   ],
   "NODE_OPTIONS": "\"--import=file:///Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/import.mjs\"",
   "cwd": "/Users/punkish/Projects/zenodeo3",
-  "pid": 33292,
-  "ppid": 33277,
+  "pid": 962,
+  "ppid": 954,
   "parent": null,
-  "uuid": "f5e00b79-b11c-4b07-ad2f-05974fa7ba8e",
+  "uuid": "9d8c5b79-b6e9-446e-b4d2-344f89f42173",
   "files": [
-    "/Users/punkish/Projects/zenodeo3/lib/zql/queryMaker/where/lib/nonZql.test.js",
+    "/Users/punkish/Projects/zenodeo3/lib/zql/queryMaker/orderby/index.test.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@isaacs/ts-node-temp-fork-for-pr-2009/import.mjs",
     "/Users/punkish/Projects/zenodeo3/node_modules/@isaacs/ts-node-temp-fork-for-pr-2009/import-loader.mjs",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/mock/dist/esm/import.mjs",
@@ -34,24 +34,24 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/get-all-conditional-values.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/get-all-conditions.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/get-unique-condition-sets.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-all-local-imports.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-all-exports.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-conditional-value.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/is-windows.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-import.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/stack/dist/esm/parse.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-conditional-value.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/is-windows.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-all-local-imports.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/get-conditional-values-list.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/errors.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/get-named-exports-list.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/read-pkg.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-export.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/star-glob.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-export.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/get-named-exports-list.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/to-path.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/find-dep-package.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/errors.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/file-exists.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/to-file-url.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-dependency-export.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-package-import.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/to-file-url.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/find-dep-package.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/read-json.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/find-star-match.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/glob/dist/esm/index.js",
@@ -69,17 +69,17 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/minimatch/dist/esm/brace-expressions.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/path-scurry/node_modules/lru-cache/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/path-scurry/node_modules/minipass/dist/esm/index.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/glob/dist/esm/processor.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/glob/dist/esm/ignore.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/minipass/dist/esm/index.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/glob/dist/esm/ignore.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/glob/dist/esm/processor.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/mock/dist/esm/loader.mjs",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/mock/dist/esm/hooks.mjs",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/mock/dist/esm/mock-service-client.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/tap/dist/esm/index.js",
-    "/Users/punkish/Projects/zenodeo3/lib/zql/queryMaker/where/lib/nonZql.js",
+    "/Users/punkish/Projects/zenodeo3/lib/zql/queryMaker/orderby/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/tap/dist/esm/main.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/test/dist/esm/index.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/tap-file.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/base.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/counts.js",
@@ -90,15 +90,15 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/normalize-message-extra.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/parse-test-args.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/proc.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/spawn.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/stdin.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/test-base.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/tap-dir.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/waiter.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/spawn.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/test-point.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/worker.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/tap.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/test-base.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/waiter.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/test/test-built/dist/esm/index.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/tap.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/worker.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/test/dist/esm/default-plugins.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/throw-to-parser.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/async-hook-domain/dist/mjs/index.js",
@@ -106,11 +106,11 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/diags.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/message-from-error.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/index.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/is-actual-promise/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/esc.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/trivial-deferred/dist/mjs/index.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/is-actual-promise/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/implicit-end-sigil.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/after/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/after-each/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/asserts/dist/esm/index.js",
@@ -123,8 +123,8 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/snapshot/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/spawn/dist/esm/index.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/typescript/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/stdin/dist/esm/index.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/typescript/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/worker/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/jackspeak/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/tap-yaml/dist/esm/index.js",
@@ -134,13 +134,13 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/dist/esm/plan.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/dist/esm/result.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/dist/esm/statics.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/dist/esm/escape.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/clean-yaml-object.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/child_process.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/process-info-node.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/dist/esm/escape.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/json-file.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/function-loop/dist/mjs/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/index.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/json-file.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/asserts/dist/esm/normalize-throws-args.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/fixture/dist/esm/fixture.js",
@@ -154,25 +154,25 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/tap-yaml/dist/esm/stringify.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/dist/esm/final-plan.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/dist/esm/brace-patterns.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/diff/lib/index.mjs",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/spawn-opts.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/format.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/has-strict.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/has.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match-only.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match-strict.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/format.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/diff/lib/index.mjs",
+    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/has-strict.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match-only-strict.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match-strict.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match-only.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/styles.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/same.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/strict.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/styles.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/opt-arg.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/path-arg.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/rimraf-manual.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/rimraf-move-remove.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/rimraf-native.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/rimraf-posix.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/rimraf-native.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/rimraf-windows.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/use-native.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/fixture/node_modules/mkdirp/dist/mjs/index.js",
@@ -182,8 +182,8 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/dist/esm/print-messages.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/dist/esm/stdio.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/dist/esm/test-map.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/snapshot/dist/esm/require.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@isaacs/cliui/build/lib/index.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/snapshot/dist/esm/require.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@isaacs/cliui/node_modules/string-width/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@isaacs/cliui/node_modules/strip-ansi/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/wrap-ansi/index.js",
@@ -192,13 +192,13 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/glob.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/has-magic.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/platform.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/default-tmp.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/ignore-enoent.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/fs.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/readdir-or-error.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/fix-eperm.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/retry-busy.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/platform.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/fixture/node_modules/mkdirp/dist/mjs/mkdirp-manual.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/fixture/node_modules/mkdirp/dist/mjs/mkdirp-native.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/fixture/node_modules/mkdirp/dist/mjs/opts-arg.js",
@@ -223,20 +223,20 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/tap-yaml/dist/esm/types/date.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/tap-yaml/dist/esm/types/timestamp.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/assert-valid-pattern.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/escape.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/ast.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/escape.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/unescape.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/pattern.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/walker.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/pattern.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/fixture/node_modules/mkdirp/dist/mjs/find-made.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/error-serdes/node_modules/minipass/dist/esm/index.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/dist/esm/loc-from-callsite.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/dist/esm/result-to-error.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/wrap-ansi/node_modules/ansi-regex/index.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/brace-expressions.js",
-    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minipass/dist/esm/index.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/error-serdes/node_modules/minipass/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/ignore.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/brace-expressions.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/dist/esm/loc-from-callsite.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/processor.js",
+    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minipass/dist/esm/index.js",
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/dist/esm/pretty-diff.js"
   ],
   "sources": {
@@ -282,17 +282,8 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/get-unique-condition-sets.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/get-unique-condition-sets.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-all-local-imports.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/resolve-all-local-imports.ts"
-    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-all-exports.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/resolve-all-exports.ts"
-    ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-conditional-value.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/resolve-conditional-value.ts"
-    ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/is-windows.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/is-windows.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-import.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/resolve-import.ts"
@@ -300,41 +291,50 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/stack/dist/esm/parse.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/stack/src/parse.ts"
     ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-conditional-value.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/resolve-conditional-value.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/is-windows.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/is-windows.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-all-local-imports.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/resolve-all-local-imports.ts"
+    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/get-conditional-values-list.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/get-conditional-values-list.ts"
-    ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/errors.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/errors.ts"
-    ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/get-named-exports-list.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/get-named-exports-list.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/read-pkg.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/read-pkg.ts"
     ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/star-glob.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/star-glob.ts"
+    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-export.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/resolve-export.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/star-glob.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/star-glob.ts"
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/get-named-exports-list.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/get-named-exports-list.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/to-path.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/to-path.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/find-dep-package.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/find-dep-package.ts"
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/errors.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/errors.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/file-exists.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/file-exists.ts"
-    ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/to-file-url.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/to-file-url.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-dependency-export.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/resolve-dependency-export.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/resolve-package-import.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/resolve-package-import.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/to-file-url.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/to-file-url.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/find-dep-package.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/find-dep-package.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/dist/esm/read-json.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/src/read-json.ts"
@@ -387,14 +387,14 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/path-scurry/node_modules/minipass/dist/esm/index.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/path-scurry/node_modules/minipass/src/index.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/glob/dist/esm/processor.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/glob/src/processor.ts"
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/minipass/dist/esm/index.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/minipass/src/index.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/glob/dist/esm/ignore.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/glob/src/ignore.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/minipass/dist/esm/index.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/minipass/src/index.ts"
+    "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/glob/dist/esm/processor.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/resolve-import/node_modules/glob/src/processor.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/tap/dist/esm/index.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/tap/src/index.ts"
@@ -402,11 +402,11 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/tap/dist/esm/main.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/tap/src/main.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/index.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/index.ts"
-    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/test/dist/esm/index.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/test/src/index.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/index.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/index.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/tap-file.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/tap-file.ts"
@@ -438,32 +438,32 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/proc.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/proc.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/spawn.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/spawn.ts"
-    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/stdin.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/stdin.ts"
-    ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/test-base.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/test-base.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/tap-dir.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/tap-dir.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/waiter.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/waiter.ts"
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/spawn.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/spawn.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/test-point.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/test-point.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/worker.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/worker.ts"
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/test-base.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/test-base.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/waiter.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/waiter.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/test/test-built/dist/esm/index.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/test/test-built/src/index.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/tap.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/tap.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/test/test-built/dist/esm/index.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/test/test-built/src/index.ts"
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/worker.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/worker.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/test/dist/esm/default-plugins.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/test/src/default-plugins.ts"
@@ -486,20 +486,20 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/message-from-error.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/message-from-error.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/index.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/src/index.ts"
-    ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/is-actual-promise/dist/esm/index.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/is-actual-promise/src/index.ts"
-    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/esc.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/esc.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/trivial-deferred/dist/mjs/index.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/trivial-deferred/src/index.ts"
     ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/is-actual-promise/dist/esm/index.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/is-actual-promise/src/index.ts"
+    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/implicit-end-sigil.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/implicit-end-sigil.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/index.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/src/index.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/after/dist/esm/index.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/after/src/index.ts"
@@ -537,11 +537,11 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/spawn/dist/esm/index.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/spawn/src/index.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/typescript/dist/esm/index.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/typescript/src/index.ts"
-    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/stdin/dist/esm/index.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/stdin/src/index.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/typescript/dist/esm/index.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/typescript/src/index.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/worker/dist/esm/index.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/worker/src/index.ts"
@@ -570,9 +570,6 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/dist/esm/statics.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/src/statics.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/dist/esm/escape.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/src/escape.ts"
-    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/dist/esm/clean-yaml-object.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/core/src/clean-yaml-object.ts"
     ],
@@ -582,14 +579,17 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/process-info-node.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/src/process-info-node.ts"
     ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/dist/esm/escape.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/tap-parser/src/escape.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/json-file.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/src/json-file.ts"
+    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/function-loop/dist/mjs/index.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/function-loop/src/index.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/index.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/index.ts"
-    ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/json-file.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/src/json-file.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/asserts/dist/esm/normalize-throws-args.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/asserts/src/normalize-throws-args.ts"
@@ -630,35 +630,35 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/dist/esm/spawn-opts.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/processinfo/src/spawn-opts.ts"
     ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/has.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/has.ts"
+    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/format.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/format.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/has-strict.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/has-strict.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/has.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/has.ts"
-    ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match-only.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/match-only.ts"
-    ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match-strict.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/match-strict.ts"
+    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match-only-strict.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/match-only-strict.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/match.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match-only-strict.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/match-only-strict.ts"
+    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match-strict.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/match-strict.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/match-only.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/match-only.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/styles.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/styles.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/same.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/same.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/strict.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/strict.ts"
-    ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/dist/esm/styles.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/tcompare/src/styles.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/index.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/src/index.ts"
@@ -675,11 +675,11 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/rimraf-move-remove.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/src/rimraf-move-remove.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/rimraf-native.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/src/rimraf-native.ts"
-    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/rimraf-posix.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/src/rimraf-posix.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/rimraf-native.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/src/rimraf-native.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/rimraf-windows.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/src/rimraf-windows.ts"
@@ -726,9 +726,6 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/has-magic.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/src/has-magic.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/platform.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/src/platform.ts"
-    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/default-tmp.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/src/default-tmp.ts"
     ],
@@ -746,6 +743,9 @@
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/retry-busy.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/src/retry-busy.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/dist/esm/platform.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/src/platform.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/fixture/node_modules/mkdirp/dist/mjs/mkdirp-manual.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/fixture/node_modules/mkdirp/src/mkdirp-manual.ts"
@@ -807,52 +807,52 @@
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/assert-valid-pattern.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/src/assert-valid-pattern.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/escape.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/src/escape.ts"
-    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/ast.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/src/ast.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/escape.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/src/escape.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/unescape.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/src/unescape.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/pattern.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/src/pattern.ts"
-    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/walker.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/src/walker.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/pattern.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/src/pattern.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/fixture/node_modules/mkdirp/dist/mjs/find-made.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/fixture/node_modules/mkdirp/src/find-made.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/error-serdes/node_modules/minipass/dist/esm/index.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/error-serdes/node_modules/minipass/src/index.ts"
-    ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/dist/esm/loc-from-callsite.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/src/loc-from-callsite.ts"
-    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/dist/esm/result-to-error.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/src/result-to-error.ts"
     ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/brace-expressions.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/src/brace-expressions.ts"
-    ],
-    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minipass/dist/esm/index.js": [
-      "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minipass/src/index.ts"
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/error-serdes/node_modules/minipass/dist/esm/index.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/error-serdes/node_modules/minipass/src/index.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/ignore.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/src/ignore.ts"
     ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/dist/esm/brace-expressions.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minimatch/src/brace-expressions.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/dist/esm/loc-from-callsite.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/src/loc-from-callsite.ts"
+    ],
     "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/dist/esm/processor.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/glob/src/processor.ts"
+    ],
+    "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minipass/dist/esm/index.js": [
+      "/Users/punkish/Projects/zenodeo3/node_modules/rimraf/node_modules/minipass/src/index.ts"
     ],
     "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/dist/esm/pretty-diff.js": [
       "/Users/punkish/Projects/zenodeo3/node_modules/@tapjs/node-serialize/src/pretty-diff.ts"
     ]
   },
-  "root": "f5e00b79-b11c-4b07-ad2f-05974fa7ba8e",
-  "externalID": "lib/zql/queryMaker/where/lib/nonZql.test.js",
+  "root": "9d8c5b79-b6e9-446e-b4d2-344f89f42173",
+  "externalID": "lib/zql/queryMaker/orderby/index.test.js",
   "code": 0,
   "signal": null,
-  "runtime": 755.319
+  "runtime": 1210.088417
 }

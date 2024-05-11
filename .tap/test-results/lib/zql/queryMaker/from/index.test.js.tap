@@ -5,6 +5,6 @@ TAP version 14
     ok 3 - should be equivalent
     ok 4 - should be equivalent
     1..4
-ok 1 - order by # time=6.513ms
+ok 1 - order by # time=5.498ms
 
 1..1

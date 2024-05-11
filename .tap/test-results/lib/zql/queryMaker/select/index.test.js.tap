@@ -2,21 +2,26 @@ TAP version 14
 # Subtest: select 0
     ok 1 - should be equivalent
     1..1
-ok 1 - select 0 # time=10.903ms
+ok 1 - select 0 # time=3.066ms
 
 # Subtest: select 1
     ok 1 - should be equivalent
     1..1
-ok 2 - select 1 # time=0.677ms
+ok 2 - select 1 # time=0.54ms
 
 # Subtest: select 2
     ok 1 - should be equivalent
     1..1
-ok 3 - select 2 # time=0.374ms
+ok 3 - select 2 # time=0.357ms
 
 # Subtest: select 3
     ok 1 - should be equivalent
     1..1
-ok 4 - select 3 # time=0.195ms
+ok 4 - select 3 # time=0.182ms
 
-1..4
+# Subtest: select 4
+    ok 1 - should be equivalent
+    1..1
+ok 5 - select 4 # time=0.405ms
+
+1..5

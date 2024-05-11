@@ -2,46 +2,51 @@ TAP version 14
 # Subtest: bareQueries 0
     ok 1 - should be equivalent
     1..1
-ok 1 - bareQueries 0 # time=5.657ms
+ok 1 - bareQueries 0 # time=7.026ms
 
 # Subtest: bareQueries 1
     ok 1 - should be equivalent
     1..1
-ok 2 - bareQueries 1 # time=0.844ms
+ok 2 - bareQueries 1 # time=0.749ms
 
 # Subtest: resourceIdQueries 0
     ok 1 - should be equivalent
     1..1
-ok 3 - resourceIdQueries 0 # time=0.36ms
+ok 3 - resourceIdQueries 0 # time=0.352ms
 
 # Subtest: countQueries 0
     ok 1 - should be equivalent
     1..1
-ok 4 - countQueries 0 # time=0.332ms
+ok 4 - countQueries 0 # time=0.78ms
 
 # Subtest: countQueries 1
     ok 1 - should be equivalent
     1..1
-ok 5 - countQueries 1 # time=0.484ms
+ok 5 - countQueries 1 # time=0.56ms
 
 # Subtest: countQueries 2
     ok 1 - should be equivalent
     1..1
-ok 6 - countQueries 2 # time=0.298ms
+ok 6 - countQueries 2 # time=0.32ms
 
 # Subtest: normalQueries 0
     ok 1 - should be equivalent
     1..1
-ok 7 - normalQueries 0 # time=0.4ms
+ok 7 - normalQueries 0 # time=0.418ms
 
 # Subtest: normalQueries 1
     ok 1 - should be equivalent
     1..1
-ok 8 - normalQueries 1 # time=0.25ms
+ok 8 - normalQueries 1 # time=0.349ms
 
 # Subtest: normalQueries 2
     ok 1 - should be equivalent
     1..1
-ok 9 - normalQueries 2 # time=0.291ms
+ok 9 - normalQueries 2 # time=0.369ms
 
-1..9
+# Subtest: normalQueries 3
+    ok 1 - should be equivalent
+    1..1
+ok 10 - normalQueries 3 # time=8.211ms
+
+1..10

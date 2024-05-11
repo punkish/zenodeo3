@@ -11,6 +11,6 @@ TAP version 14
     ok 9 - should be equivalent
     ok 10 - should be equivalent
     1..10
-ok 1 - text # time=3.069ms
+ok 1 - text # time=3.128ms
 
 1..1

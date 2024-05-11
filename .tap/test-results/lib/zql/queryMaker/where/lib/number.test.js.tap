@@ -2,6 +2,6 @@ TAP version 14
 # Subtest: number
     ok 1 - should be equivalent
     1..1
-ok 1 - number # time=2.699ms
+ok 1 - number # time=3.051ms
 
 1..1

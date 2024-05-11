@@ -51,9 +51,11 @@ const getParams = (resourceName) => {
     
 }
 
-const getResourceProperties = () => Object.keys(resources[0]).join("\n\t- ");
+const getResourceProperties = () => `"    - "${Object.keys(resources[0]).join("\n    - ")}`;
 
-const getResources = (property = 'name') => {
+const getResources = (property) => {
+    if (!property) property = 'name';
+
     if (property === 'name') {
         return resources.map(r => r[property]);
     }
@@ -88,83 +90,82 @@ const getResourceId = (resourceName) => {
  * @function getPk  
  * @returns {string} name of Primary Key of the resource table
  */
-const getPk = (resourceName) => {
-    if (!resourceName) {
-        console.error('required argument "resourceName" missing');
-        return;
-    }
+// const getPk = (resourceName) => {
+//     if (!resourceName) {
+//         console.error('required argument "resourceName" missing');
+//         return;
+//     }
 
-    const cacheKey = `res_${resourceName}`;
+//     const cacheKey = `res_${resourceName}`;
 
-    // check the cache for resource or initialize it
-    if (!(cacheKey in D)) D[cacheKey] = {};
-    if (!D[cacheKey].pk) {
-        D[cacheKey].pk = getParams(resourceName)
-            .filter(col => {
-                if (col.sql && col.sql.type) {
-                    return col.sql.type = 'INTEGER PRIMARY KEY'
-                }
-            })[0];
-    }
+//     // check the cache for resource or initialize it
+//     if (!(cacheKey in D)) D[cacheKey] = {};
+//     if (!D[cacheKey].pk) {
+//         D[cacheKey].pk = getParams(resourceName)
+//             .filter(col => {
+//                 if (col.sql && col.sql.type) {
+//                     return col.sql.type = 'INTEGER PRIMARY KEY'
+//                 }
+//             })[0];
+//     }
 
-    return D[cacheKey].pk;
-}
+//     console.log(D[cacheKey].pk)
+//     return D[cacheKey].pk;
+// }
 
 
 /**
  * @function getDefaultCols  
  * @returns {array} columns that are returned if no columns are specified in a REST query via 'cols'
  */
-const getDefaultCols = (resourceName) => {
-    if (!resourceName) {
-        console.error('required argument "resourceName" missing');
-        return;
-    }
+// const getDefaultCols = (resourceName) => {
+//     if (!resourceName) {
+//         console.error('required argument "resourceName" missing');
+//         return;
+//     }
     
-    const cacheKey = `res_${resourceName}`;
+//     const cacheKey = `res_${resourceName}`;
 
-    // check the cache for resource or initialize it
-    if (!(cacheKey in D)) D[cacheKey] = {};
-    if (!D[cacheKey].defaultCols) {
-        D[cacheKey].defaultCols = getParams(resourceName)
-            .filter(p => {
+//     // check the cache for resource or initialize it
+//     if (!(cacheKey in D)) D[cacheKey] = {};
+//     if (!D[cacheKey].defaultCols) {
+//         D[cacheKey].defaultCols = getParams(resourceName)
+//             .filter(p => {
                 
-                if ('defaultCol' in p) {
-                    return p.defaultCol === true
-                        ? true
-                        : false;
-                }
+//                 if ('defaultCol' in p) {
+//                     return p.defaultCol === true
+//                         ? true
+//                         : false;
+//                 }
                 
-                return true;
-            });
-    }
+//                 return true;
+//             });
+//     }
 
-    return D[cacheKey].defaultCols;
-}
+//     return D[cacheKey].defaultCols;
+// }
 
-
-
-const getParam = (resourceName, keyname, property) => {
-    if (!resourceName) {
-        console.error('required argument "resourceName" missing');
-        return;
-    }
+// const getParam = (resourceName, keyname, property) => {
+//     if (!resourceName) {
+//         console.error('required argument "resourceName" missing');
+//         return;
+//     }
  
-    const cacheKey = `res_${resourceName}`;
+//     const cacheKey = `res_${resourceName}`;
 
-    // check the cache for resource or initialize it
-    if (!(cacheKey in D)) D[cacheKey] = {};
+//     // check the cache for resource or initialize it
+//     if (!(cacheKey in D)) D[cacheKey] = {};
 
-    if (!D[cacheKey].key) {
-        D[cacheKey].key = getParams(resourceName)
-            .filter(key => key.name === keyname)[0];
+//     if (!D[cacheKey].key) {
+//         D[cacheKey].key = getParams(resourceName)
+//             .filter(key => key.name === keyname)[0];
 
-    }
+//     }
 
-    return property
-        ? D[cacheKey].key[property]
-        : D[cacheKey].key;
-}
+//     return property
+//         ? D[cacheKey].key[property]
+//         : D[cacheKey].key;
+// }
 
 /**
  * @function getDefaultParams  
@@ -248,6 +249,10 @@ const getQueryStringSchema = function(resourceName, resourceParams) {
         }
     })[0];
 
+    const sortby = pk.selname.indexOf('.id') > -1
+        ? pk.selname.replace(/\.id/, '_id')
+        : pk.selname;
+
     const defaultCols = resourceParams
         .filter(param => {
             return 'defaultCol' in param
@@ -265,10 +270,7 @@ const getQueryStringSchema = function(resourceName, resourceParams) {
             
             // fix the 'sortby' column definition
             if (p.name === 'sortby') {
-                schema.default = schema.default.replace(
-                    /resourceId/, 
-                    pk.selname
-                );
+                schema.default = schema.default.replace(/resourceId/, sortby);
             }
             else if (p.name === 'cols') {
                 const enumvals = resourceParams.map(p => p.name);
@@ -296,11 +298,11 @@ export {
     getResourceProperties,
     getResources,
     getResource,
-    getParam,
-    getDefaultCols,
+    //getParam,
+    //getDefaultCols,
     getDefaultParams,
     getFacetParams,
     getQueryStringSchema,
     getResourceId,
-    getPk
+    //getPk
 }

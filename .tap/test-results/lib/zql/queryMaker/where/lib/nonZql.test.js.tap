@@ -2,26 +2,26 @@ TAP version 14
 # Subtest: non zql 0
     ok 1 - should be equivalent
     1..1
-ok 1 - non zql 0 # time=2.607ms
+ok 1 - non zql 0 # time=2.796ms
 
 # Subtest: non zql 1
     ok 1 - should be equivalent
     1..1
-ok 2 - non zql 1 # time=0.298ms
+ok 2 - non zql 1 # time=0.299ms
 
 # Subtest: non zql 2
     ok 1 - should be equivalent
     1..1
-ok 3 - non zql 2 # time=0.175ms
+ok 3 - non zql 2 # time=0.186ms
 
 # Subtest: non zql 3
     ok 1 - should be equivalent
     1..1
-ok 4 - non zql 3 # time=0.173ms
+ok 4 - non zql 3 # time=0.179ms
 
 # Subtest: non zql 4
     ok 1 - should be equivalent
     1..1
-ok 5 - non zql 4 # time=0.156ms
+ok 5 - non zql 4 # time=0.161ms
 
 1..5

@@ -4,6 +4,6 @@ TAP version 14
     ok 2 - should be equivalent
     ok 3 - should be equivalent
     1..3
-ok 1 - geolocation # time=11.311ms
+ok 1 - geolocation # time=10.745ms
 
 1..1

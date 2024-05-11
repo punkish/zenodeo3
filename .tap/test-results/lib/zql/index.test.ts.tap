@@ -1,0 +1,71 @@
+TAP version 14
+# Subtest: images 0
+    not ok 1 - should be equivalent
+      ---
+      diff: >
+        --- expected
+      
+        +++ actual
+      
+        @@ -1,6 +1,6 @@
+         Object {
+           "queries": Object {
+        -    "createTmp": "CREATE TEMP TABLE tmp AS SELECT images_id, images.httpUri,
+        images.captionText, treatments.treatmentId, treatments.treatmentTitle,
+        treatments.treatmentDOI, treatments.zenodoDep, treatments.articleTitle,
+        treatments.articleAuthor, images.treatments_id FROM images JOIN treatments ON
+        images.treatments_id = treatments.id JOIN classes ON treatments.classes_id =
+        classes.id WHERE classes.class LIKE @class ORDER BY images_id ASC",
+      
+        -    "count": "SELECT Count(DISTINCT images_id) AS num_of_records FROM tmp
+        WHERE classes.class LIKE @class",
+      
+        +    "createTmp": "CREATE TEMP TABLE tmp AS SELECT images.id AS images_id,
+        images.httpUri, images.captionText, treatments.treatmentId,
+        treatments.treatmentTitle, treatments.treatmentDOI, treatments.zenodoDep,
+        treatments.articleTitle, treatments.articleAuthor, images.treatments_id FROM
+        images JOIN treatments ON images.treatments_id = treatments.id JOIN classes ON
+        treatments.classes_id = classes.id WHERE classes.class LIKE @class ORDER BY
+        images.id ASC",
+      
+        +    "count": "SELECT Count(DISTINCT images.id) AS num_of_records FROM tmp
+        WHERE classes.class LIKE @class",
+           },
+         }
+      at:
+        fileName: lib/zql/index.test.ts
+        lineNumber: 38
+        columnNumber: 13
+        typeName: Test
+      stack: |
+        Test.<anonymous> (lib/zql/index.test.ts:38:13)
+        lib/zql/index.test.ts:35:9
+        Array.forEach
+        lib/zql/index.test.ts:33:7
+      source: |2
+                const params = preZql(test.input.searchparams);
+                const found = zql({ resource: test.input.resource, params });
+                tap.same(found, test.wanted);
+        ------------^
+                tap.end();
+            });
+      ...
+    
+    1..1
+not ok 1 - images 0 # time=44.109ms
+  ---
+  at:
+    fileName: lib/zql/index.test.ts
+    lineNumber: 35
+    columnNumber: 9
+    isToplevel: true
+  source: |
+    tests.forEach((test, i) => {
+  
+        tap.test(`${test.input.resource} ${i}`, tap => {
+    --------^
+            const params = preZql(test.input.searchparams);
+            const found = zql({ resource: test.input.resource, params });
+  ...
+
+1..1
