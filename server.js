@@ -11,20 +11,17 @@ const config = new Config().settings;
 import { server } from './app.js';
 import { coerceToArray, getCache, getCacheKey } from './lib/routeUtils.js';
 
-// 
 // Function to initialize and start the server!
 // 
 const start = async () => {
     const opts = {
 
-        // 
         // setting 'exposeHeadRoutes' to false ensures only 'GET' routes are 
         // created without their accompanying 'HEAD' routes
         // 
         exposeHeadRoutes: false,
         logger: config.pino.opts,
 
-        //  
         // ajv options are provided in the key 'customOptions'. This is 
         // different from when ajv is called in a stand-alone script (see 
         // `validate()` in lib/zql/z-utils.js)
@@ -37,7 +34,6 @@ const start = async () => {
     try {
         const fastify = await server(opts);
 
-        //  
         // save the original request query params for use later because the 
         // query will get modified after schema validation
         // 
@@ -45,7 +41,6 @@ const start = async () => {
         //     request.origQuery = JSON.parse(JSON.stringify(request.query));
         // });
 
-        // 
         // the following takes care of cols=col1,col2,col3 as sent by the 
         // swagger interface to be validated correctly by ajv as an array. See 
         // `coerceToArray()` in routeUtils().
@@ -55,13 +50,11 @@ const start = async () => {
             coerceToArray(request, 'communities');
         });
 
-        //
         // if the query results have been cached, we send the cached value back 
         // and stop processing any further
         //
         fastify.addHook('preHandler', async (request, reply) => {
 
-            //
             // all of this makes sense only if refreshCache is not true
             //
             if (!request.query.refreshCache) {
@@ -71,7 +64,6 @@ const start = async () => {
                     ? path.split('?')[0]
                     : '';
 
-                //
                 // The following is applicable *only* if a resourceName is 
                 // present
                 //
@@ -99,7 +91,6 @@ const start = async () => {
 
                         reply.hijack();
 
-                        //
                         // since we are sending back raw response, we need to 
                         // add the appropriate headers so the response is 
                         // recognized as JSON and is CORS-compatible
@@ -145,7 +136,6 @@ const start = async () => {
     }
 };
 
-//
 // Start the server!
 //
 start();
