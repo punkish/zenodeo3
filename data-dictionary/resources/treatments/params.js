@@ -30,7 +30,11 @@ const params = [
         sql: {
             type: 'INTEGER PRIMARY KEY',
             desc: 'PK'
-        }
+        },
+        schema: { 
+            type: 'integer', 
+            description: 'The unique ID of the treatment',
+        },
     },
     {
         name: 'treatmentId',
