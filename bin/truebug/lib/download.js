@@ -37,7 +37,19 @@ const download = async (stats) => {
         ? 'plazi.zenodeo.zip'
         : `plazi.zenodeo.${typeOfArchive}.zip`;
         
-    const pathToArchive = `/${truebug.server.path}/${remoteArchive}`;
+
+    // example
+    //
+    // "server": {
+    //     "hostname": 'https://tb.plazi.org',
+    //     "path": 'GgServer/dumps',
+    //     "port": 443
+    // },
+
+    // https://tb.plazi.org/GgServer/dumps/plazi.zenodeo.daily.zip
+    
+
+    const pathToArchive = `${truebug.server.path}/${remoteArchive}`;
     const url = `${truebug.server.hostname}/${pathToArchive}`;
     log.info(`checking for "${remoteArchive}" on the server…`, 'start');
 
@@ -69,7 +81,7 @@ const download = async (stats) => {
 
     }
     catch (error) {
-
+        
         if (error.response.statusCode) {
             log.info(' there is not\n', 'end');
         }
@@ -104,18 +116,18 @@ const unzip = function(stats) {
         log.info(`unzipping "${archive_name}.zip"…`, 'start');
         const archive = `${truebug.dirs.zips}/${archive_name}.zip`;
     
-        // 
         // -q Perform operations quietly.
         // -n never overwrite existing files
         // -d extract files into exdir
+        //
         let cmd = `unzip -q -n ${archive} -d ${archive_dir}`;
     
         if (truebug.mode !== 'dryRun') {
             execSync(cmd);
             
-            //
             // check if there is an index.xml included in the archive; 
             // if yes, remove it
+            //
             if (fs.existsSync(`${archive_dir}/index.xml`)) {
                 fs.rmSync(`${archive_dir}/index.xml`);
             }

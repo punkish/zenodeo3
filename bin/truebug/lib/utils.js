@@ -36,79 +36,85 @@ const incrementStack = (mod, fn) => {
     incrFn(fn);
 }
 
-const progressBar = (obj) => {
-    const { 
-        startETLTime,           // time when ETL started
-        startTransactionTime,   // time to process ${batch} files
-        startInsertTime,        // time for just db inserts
-        i,                      // batch number
-        strTotalFilesLen,       // length of the number of files processed
-        batch,                  // size of batch
-        rowsInserted            // rows inserted in this batch
-    } = obj;
+const progressBar = ({
+    totalFiles,
+    fileNum, 
+    startBatch,
+    endBatch,
+    batch,
+    startETL,               // time when ETL started
+    rowsInserted            // rows inserted in this batch
+}) => {
 
-    // adjust the number of spaces with which to left pad the 
-    // number of files
-    const numOfDots = Math.floor((i % batch) / (batch / 10));
-
-    let strLen = strTotalFilesLen;
-    if (numOfDots) {
-        const remainingDots = 9 - numOfDots;
-        strLen += remainingDots;
+    if (fileNum === null) {
+        return `Start of ETL: ${new Date()}\nTotal files: ${totalFiles}; processed: ${batch} at a time`;
     }
 
-    const dots = String(i).padStart(strLen + 1, ' ');
+// start of ETL: Thu May 16 2024 12:41:31 GMT+0200 (Central European Summer Time)
+// Total files: 58283; processed: 7500 at a time
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// progress   files processed time (ms)  ms/file files/sec mem (MB) rows       row/sec elapsed
+// ========== =============== ========== ======= ========= ======== ========== ======= =======
+// ..........            7500       1471       0      5099        8      15000      10     54s
 
-    // calculate the num of files in this batch to correctly 
-    // figure out ms/file
-    const filesTillNow = i % batch || batch;
+    const columns = [
+        { name: 'progress',        varname: '',               length: 10 },
+        { name: 'files processed', varname: 'filesProcessed', length: 15 },
+        { name: 'time (ms)',       varname: 'timeInMs',       length: 10 },
+        { name: 'ms/file',         varname: 'msPerFile',      length:  7 },
+        { name: 'files/sec',       varname: 'filesPerSec',    length:  9 },
+        { name: 'mem (MB)',        varname: 'memInMb',        length:  8 },
+        { name: 'rows inserted',   varname: 'rowsInserted',   length: 13 },
+        { name: 'row/sec',         varname: 'rowsPerSec',     length:  7 },
+        { name: 'elapsed',         varname: 'elapsed',        length:  7 }
+    ];
+
+    if (fileNum === 0) {
+        const header = columns.map(col => {
+            return col.name.padEnd(col.length, ' ');
+        }).join(' ');
+
+        let str = '='.repeat(header.length) + '\n';
+        str += header + '\n';
+        str += columns.map(col => '-'.repeat(col.length)).join(' ');
+        str += '\n';
+        return str;
+    }
+
+    // time taken for this batch
+    const timeInMs = (Number(endBatch - startBatch) / 1e6).toFixed(0);
+
+    const timeUntilNow = Number(endBatch - startETL) / 1e6;
+
+    const cols = {
+        filesProcessed: fileNum,
+        timeInMs,
+
+        // ms per file in this batch
+        msPerFile: (timeInMs / batch).toFixed(0),
+
+        // files processed per sec
+        filesPerSec: ((batch / timeInMs) * 1000).toFixed(0),
+
+        // heap memory (in MB) used in this batch
+        memInMb: (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(0),
+        rowsInserted,
+
+        // number of inserts/second
+        rowsPerSec: (rowsInserted / timeInMs).toFixed(0),
+
+        // time elapsed since ETL started
+        elapsed: timeUntilNow > 1000
+            ? `${(timeUntilNow / 1000).toFixed(0)}s`
+            : `${timeUntilNow.toFixed(0)}ms`
+    };
     
-    // calculate various times for the progress bar 
-    const end = process.hrtime.bigint();
+    const row = Object.keys(cols).map(col => {
+        const len = columns.filter(c => c.varname === col)[0].length;
+        return String(cols[col]).padStart(len, ' ');
+    });
 
-    // time taken for this transaction
-    const transTime = String(
-        (Number(end - startTransactionTime) / 1e6).toFixed(0)
-    ).padStart(10, ' ');
-
-    // ms per file
-    const mspf = String(
-        (transTime / batch).toFixed(2)
-    ).padStart(8, ' ');
-
-    // files per s
-    const fps = String(
-        ((batch / transTime) * 1000).toFixed(0)
-    ).padStart(5, ' ');
-
-    // time elapsed since ETL started
-    const timeUntilNow = Number(end - startETLTime) / 1e6;
-
-    // time to insert rows in db in rows/sec
-    const timeToInsert = Number(end - startInsertTime) / 1e9;
-
-    // number of inserts/second
-    const ips = String(
-        (rowsInserted / timeToInsert).toFixed(0)
-    ).padStart(10, ' ');
-
-    let elapsed = timeUntilNow > 1000
-        ? `${(timeUntilNow / 1000).toFixed(0)} s`
-        : `${timeUntilNow.toFixed(0)} ms`;
-    elapsed = elapsed.padStart(5, ' ');
-
-    // calculate the amount of heap memory (in MB) used in this batch
-    const mu = process.memoryUsage();
-    const mem = (mu.heapUsed / 1024 /1024).toFixed(0);
-
-    let str = ` ${dots}`;
-    str += ` [${transTime} ms]`;
-    str += ` = (${mspf} ms/file; ${fps} files/s)`;
-    str += ` mem: ${mem} MB; `;
-    str += ` rows: ${String(rowsInserted).padStart(10, ' ')} (${ips} rows/sec)`;
-    str += ` elapsed: ${elapsed}\n`;
-    
-    return str;
+    return row.join(' ');
 }
 
 const pb = ({ progress, printHeader = false }) => {
