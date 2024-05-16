@@ -63,7 +63,7 @@ const progressBar = ({
         { name: 'time (ms)',       varname: 'timeInMs',       length: 10 },
         { name: 'ms/file',         varname: 'msPerFile',      length:  7 },
         { name: 'files/sec',       varname: 'filesPerSec',    length:  9 },
-        { name: 'mem (MB)',        varname: 'memInMb',        length:  8 },
+        //{ name: 'mem (MB)',        varname: 'memInMb',        length:  8 },
         { name: 'rows inserted',   varname: 'rowsInserted',   length: 13 },
         { name: 'row/sec',         varname: 'rowsPerSec',     length:  7 },
         { name: 'elapsed',         varname: 'elapsed',        length:  7 }
@@ -97,11 +97,11 @@ const progressBar = ({
         filesPerSec: ((batch / timeInMs) * 1000).toFixed(0),
 
         // heap memory (in MB) used in this batch
-        memInMb: (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(0),
+        //memInMb: (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(0),
         rowsInserted,
 
         // number of inserts/second
-        rowsPerSec: (rowsInserted / timeInMs).toFixed(0),
+        rowsPerSec: ((rowsInserted / timeInMs) * 1000).toFixed(0),
 
         // time elapsed since ETL started
         elapsed: timeUntilNow > 1000

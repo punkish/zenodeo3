@@ -48,7 +48,6 @@ const processFiles = (files, stats) => {
         ? files.length
         : 15;
     
-    
     const defaultBatch = 7500;
     const batch = totalFiles < defaultBatch 
         ? Math.floor(totalFiles / 10) 
@@ -72,20 +71,21 @@ const processFiles = (files, stats) => {
 
     const treatments = [];
 
-    for (let fileNum = 0; fileNum < totalFiles; fileNum++) {
-        pbOpts.startBatch = process.hrtime.bigint();
+    pbOpts.startBatch = process.hrtime.bigint();
 
+    for (let fileNum = 0; fileNum < totalFiles; fileNum++) {
         const xml = files[fileNum];
         const treatment = parse.parseOne(xml, stats);
         treatments.push(treatment);
         parse.calcStats(treatment, stats);
         
+        pbOpts.fileNum = fileNum;
+        pbOpts.endBatch = process.hrtime.bigint();
+        pbOpts.rowsInserted = calcRows(stats);
+
         // first file
         if (fileNum === 0) {
-            pbOpts.fileNum = fileNum;
-            pbOpts.endBatch = process.hrtime.bigint();
-            pbOpts.rowsInserted = calcRows(stats);
-
+            
             // print the headers
             const str = tbutils.progressBar(pbOpts);
             log.info(`${str}\n`, 'end');
@@ -95,9 +95,6 @@ const processFiles = (files, stats) => {
             database.insertTreatments(treatments);
 
             // print the progress bar at the end of every batch
-            pbOpts.fileNum = fileNum;
-            pbOpts.endBatch = process.hrtime.bigint();
-            pbOpts.rowsInserted = calcRows(stats);
             const str = tbutils.progressBar(pbOpts);
             log.info(`${str}\n`, 'end');
 
