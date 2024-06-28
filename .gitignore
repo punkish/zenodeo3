@@ -49,6 +49,7 @@ node_modules/
 # query cache #
 ################
 cache/
+zts/
 
 # test coverage #
 ################

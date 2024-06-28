@@ -755,37 +755,58 @@ const externalParams = [
     {
         name: 'kingdom',
         dict: kingdoms,
-        fk: true
+        //fk: true
+        joins: [
+            `JOIN kingdoms ON treatments.kingdoms_id = kingdoms.id`
+        ]
     },
     {
         name: 'phylum',
         dict: phyla,
-        fk: true
+        //fk: true
+        joins: [
+            `JOIN phyla ON treatments.phyla_id = phyla.id`
+        ]
     },
     {
         name: 'class',
         dict: classes,
-        fk: true
+        //fk: true
+        joins: [
+            `JOIN classes ON treatments.classes_id = classes.id`
+        ]
     },
     {
         name: 'order',
         dict: orders,
-        fk: true
+        //fk: true
+        joins: [
+            `JOIN orders ON treatments.orders_id = orders.id`
+        ]
     },
     {
         name: 'family',
         dict: families,
-        fk: true
+        //fk: true
+        joins: [
+            `JOIN families ON treatments.families_id = families.id`
+        ]
     },
     {
         name: 'genus',
         dict: genera,
-        fk: true
+        //fk: true
+        joins: [
+            `JOIN genera ON treatments.genera_id = genera.id`
+        ]
     },
     {
         name: 'species',
         dict: species,
-        fk: true
+        //fk: true
+        joins: [
+            `JOIN species ON treatments.species_id = species.id`
+        ]
     },
     {
         name: 'biome',
