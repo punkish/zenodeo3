@@ -67,3 +67,4 @@ config.js
 .tap
 .templates
 .vscode
+.zed
