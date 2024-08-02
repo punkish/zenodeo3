@@ -31,7 +31,7 @@
     "@punkish/zcache": "^1.0.2",
     "@punkish/zconfig": "^1.0.4",
     "@punkish/zlogger": "^1.0.9",
-    "@turf/turf": "^6.5.0",
+    "@turf/turf": "^7.0.0",
     "better-sqlite3": "^9.6.0",
     "chance": "^1.1.11",
     "cheerio": "^1.0.0-rc.12",

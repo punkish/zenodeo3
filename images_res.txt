@@ -1,0 +1,199 @@
+[
+  {
+    images_id: 24,
+    treatments_id: 16,
+    loc: [ { latitude: 20.613056, longitude: 92.32667 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 25,
+    treatments_id: 16,
+    loc: [ { latitude: 20.613056, longitude: 92.32667 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 26,
+    treatments_id: 16,
+    loc: [ { latitude: 20.613056, longitude: 92.32667 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 27,
+    treatments_id: 16,
+    loc: [ { latitude: 20.613056, longitude: 92.32667 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 28,
+    treatments_id: 16,
+    loc: [ { latitude: 20.613056, longitude: 92.32667 } ],
+    convexHull: undefined
+  },
+  { images_id: 182, treatments_id: 209, convexHull: undefined },
+  { images_id: 183, treatments_id: 209, convexHull: undefined },
+  { images_id: 184, treatments_id: 209, convexHull: undefined },
+  { images_id: 185, treatments_id: 209, convexHull: undefined },
+  { images_id: 186, treatments_id: 210, convexHull: undefined },
+  { images_id: 187, treatments_id: 210, convexHull: undefined },
+  { images_id: 188, treatments_id: 210, convexHull: undefined },
+  {
+    images_id: 466,
+    treatments_id: 674,
+    loc: [
+      { latitude: -26.857224, longitude: -52.74139 },
+      { latitude: -27.196388, longitude: -53.651947 }
+    ],
+    convexHull: undefined
+  },
+  {
+    images_id: 467,
+    treatments_id: 674,
+    loc: [
+      { latitude: -26.857224, longitude: -52.74139 },
+      { latitude: -27.196388, longitude: -53.651947 }
+    ],
+    convexHull: undefined
+  },
+  {
+    images_id: 468,
+    treatments_id: 674,
+    loc: [
+      { latitude: -26.857224, longitude: -52.74139 },
+      { latitude: -27.196388, longitude: -53.651947 }
+    ],
+    convexHull: undefined
+  },
+  {
+    images_id: 469,
+    treatments_id: 674,
+    loc: [
+      { latitude: -26.857224, longitude: -52.74139 },
+      { latitude: -27.196388, longitude: -53.651947 }
+    ],
+    convexHull: undefined
+  },
+  {
+    images_id: 470,
+    treatments_id: 674,
+    loc: [
+      { latitude: -26.857224, longitude: -52.74139 },
+      { latitude: -27.196388, longitude: -53.651947 }
+    ],
+    convexHull: undefined
+  },
+  {
+    images_id: 471,
+    treatments_id: 675,
+    loc: [ { latitude: -26.559721, longitude: -52.328056 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 472,
+    treatments_id: 675,
+    loc: [ { latitude: -26.559721, longitude: -52.328056 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 473,
+    treatments_id: 675,
+    loc: [ { latitude: -26.559721, longitude: -52.328056 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 474,
+    treatments_id: 675,
+    loc: [ { latitude: -26.559721, longitude: -52.328056 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 569,
+    treatments_id: 796,
+    loc: [ { latitude: 37.947334, longitude: 142.15117 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 570,
+    treatments_id: 796,
+    loc: [ { latitude: 37.947334, longitude: 142.15117 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 571,
+    treatments_id: 796,
+    loc: [ { latitude: 37.947334, longitude: 142.15117 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 572,
+    treatments_id: 796,
+    loc: [ { latitude: 37.947334, longitude: 142.15117 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 1023,
+    treatments_id: 2024,
+    loc: [ { latitude: 46.60775, longitude: 151.57692 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 1024,
+    treatments_id: 2024,
+    loc: [ { latitude: 46.60775, longitude: 151.57692 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 1025,
+    treatments_id: 2024,
+    loc: [ { latitude: 46.60775, longitude: 151.57692 } ],
+    convexHull: undefined
+  },
+  {
+    images_id: 1261,
+    treatments_id: 2297,
+    loc: undefined,
+    convexHull: [
+      [
+        [ -65.225, -11.610001 ],
+        [ -74.630554, -8.270833 ],
+        [ -66.41334, 7.6233335 ],
+        [ -66.15528, 7.513889 ],
+        [ -52.495, -0.7158333 ],
+        [ -60.916668, -12.583333 ],
+        [ -65.225, -11.610001 ]
+      ]
+    ]
+  },
+  {
+    images_id: 1262,
+    treatments_id: 2297,
+    loc: undefined,
+    convexHull: [
+      [
+        [ -65.225, -11.610001 ],
+        [ -74.630554, -8.270833 ],
+        [ -66.41334, 7.6233335 ],
+        [ -66.15528, 7.513889 ],
+        [ -52.495, -0.7158333 ],
+        [ -60.916668, -12.583333 ],
+        [ -65.225, -11.610001 ]
+      ]
+    ]
+  },
+  {
+    images_id: 1263,
+    treatments_id: 2297,
+    loc: undefined,
+    convexHull: [
+      [
+        [ -65.225, -11.610001 ],
+        [ -74.630554, -8.270833 ],
+        [ -66.41334, 7.6233335 ],
+        [ -66.15528, 7.513889 ],
+        [ -52.495, -0.7158333 ],
+        [ -60.916668, -12.583333 ],
+        [ -65.225, -11.610001 ]
+      ]
+    ]
+  }
+]
+31 records found in 0s 4.10ms

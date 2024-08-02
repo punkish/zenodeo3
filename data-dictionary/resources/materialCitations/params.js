@@ -489,8 +489,8 @@ const params = [
             type: 'string',
             pattern: utils.getPattern('geolocation'),
             description: `The geolocation of the treatment. Can use the following syntax:
-- \`geolocation=within(radius:10, units: 'kilometers', lat:40.00, lng: -120)\`
-- \`geolocation=contained_in(lower_left:{lat: -40.00, lng: -120},upper_right: {lat:23,lng:6.564})\`
+- \`geolocation=within(radius:30,units:'kilometers',lat:20.1,lng:-120.32)\`
+- \`geolocation=within(min_lat:20.1,min_lng:-120.32,max_lat:20.1,max_lng:-120.32)\`
 `,
         },
         joins: [
