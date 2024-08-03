@@ -83,10 +83,20 @@ FROM (
     WHERE 
         validGeo = 1
 )
-    `)
+    `).run();
 }
 
-createIndexOnLonLat(db);
-dropRtreeTable(db);
-createRtreeTable(db);
+function countMcRtree(db) {
+	const r = db.prepare('SELECT Count(*) AS count FROM materialCitations WHERE validGeo - 1').all();
+	console.log(`got ${r[0].count} rows with validGeo from materialCitations`);
+	const res = db.prepare('SELECT Count(*) AS count FROM materialCitationsRtree').all();
+	console.log(`got ${res[0].count} rows in materialCitationsRtree`);
+}
+
+//createIndexOnLonLat(db);
+//dropRtreeTable(db);
+//createRtreeTable(db);
+countMcRtree(db);
 initialLoadRtreeTable(db);
+countMcRtree(db);
+
