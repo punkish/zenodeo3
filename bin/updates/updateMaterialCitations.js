@@ -9,7 +9,7 @@ function createIndexOnLonLat(db) {
 function dropRtreeTable(db) {
     console.log('dropping tables materialCitationsRtree');
     db.prepare('DROP TABLE IF EXISTS materialCitationsRtree').run();
-    db.prepare('DROP TABLE IF EXISTS materialCitationsRtree2').run();
+    //db.prepare('DROP TABLE IF EXISTS materialCitationsRtree2').run();
 }
 
 function createRtreeTable(db) {
@@ -23,11 +23,11 @@ CREATE VIRTUAL TABLE IF NOT EXISTS materialCitationsRtree USING rtree (
     -- lower left longitude of the Rtree box
     minX,
 
-    -- lower left latitude of the Rtree box
-    minY,
-
     -- upper right longitude of the Rtree box
     maxX,
+
+    -- lower left latitude of the Rtree box
+    minY,
 
     -- upper right latitude of the Rtree box
     maxY,
@@ -47,13 +47,13 @@ function initialLoadRtreeTable(db) {
     console.log('initial data load into materialCitationsRtree');
     db.prepare(`
 INSERT INTO materialCitationsRtree (
-    id, minX, minY, maxX, maxY, longitude, latitude, treatments_id 
+    id, minX, maxX, minY, maxY, longitude, latitude, treatments_id 
 )
 SELECT 
     id, 
     json_extract(g, '$[0][0]') AS minX, 
-    json_extract(g, '$[0][1]') AS minY,
     json_extract(g, '$[2][0]') AS maxX,
+    json_extract(g, '$[0][1]') AS minY,
     json_extract(g, '$[2][1]') AS maxY,
     longitude,
     latitude,
@@ -94,9 +94,8 @@ function countMcRtree(db) {
 }
 
 //createIndexOnLonLat(db);
-//dropRtreeTable(db);
-//createRtreeTable(db);
+dropRtreeTable(db);
+createRtreeTable(db);
 countMcRtree(db);
 initialLoadRtreeTable(db);
 countMcRtree(db);
-
