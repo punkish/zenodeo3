@@ -441,7 +441,10 @@ const getCounts = () => {
         name NOT IN (
             'materialCitationsGeopoly_node',
             'materialCitationsGeopoly_parent',
-            'materialCitationsGeopoly_rowid'
+            'materialCitationsGeopoly_rowid',
+            'treatmentsFtvcol',
+            'treatmentsFtvins',
+            'treatmentsFtvrow'
         )
     ORDER BY name;`).all();
 

@@ -43,6 +43,84 @@ CREATE VIRTUAL TABLE IF NOT EXISTS materialCitationsRtree USING rtree (
 )`).run();
 }
 
+function reCreateTrigger(db) {
+    db.prepare('DROP TRIGGER IF EXISTS mc_loc_afterInsert').run();
+    db.prepare(`
+CREATE TRIGGER IF NOT EXISTS mc_loc_afterInsert 
+AFTER INSERT ON materialCitations 
+WHEN new.validGeo = 1
+BEGIN
+
+    -- insert new entry in geopoly table
+    INSERT INTO materialCitationsGeopoly (
+        _shape,
+        materialCitations_id,
+        treatments_id
+    ) 
+    VALUES (
+
+        -- shape
+        geopoly_bbox(
+            geopoly_regular(
+                new.longitude, 
+                new.latitude, 
+
+                -- 5 meters in degrees at given latitude
+                abs(5/(40075017*cos(new.latitude)/360)),
+
+                -- num of sides of poly
+                4
+            )
+        ),
+        new.id,
+        new.treatments_id
+    );
+
+    -- insert new entry in the rtree table
+    INSERT INTO materialCitationsRtree (
+        id,
+        minX,
+        maxX,
+        minY,
+        maxY,
+        longitude, 
+        latitude,
+        treatments_id
+    )
+    SELECT 
+        id,
+        json_extract(g, '$[0][0]') AS minX, 
+        json_extract(g, '$[2][0]') AS maxX,
+        json_extract(g, '$[0][1]') AS minY,
+        json_extract(g, '$[2][1]') AS maxY,
+        longitude,
+        latitude,
+        treatments_id
+    FROM (
+        SELECT
+            new.id,
+            geopoly_json(
+                geopoly_bbox(
+                    geopoly_regular(
+                        new.longitude, 
+                        new.latitude, 
+
+                        -- 5 meters in degrees at given latitude
+                        abs(5/(40075017*cos(new.latitude)/360)),
+
+                        -- num of sides of poly
+                        4
+                    )
+                )
+            ) AS g,
+            new.longitude, 
+            new.latitude,
+            new.treatments_id
+    );
+END;
+    `).run();
+}
+
 function initialLoadRtreeTable(db) {
     console.log('initial data load into materialCitationsRtree');
     db.prepare(`
@@ -94,8 +172,9 @@ function countMcRtree(db) {
 }
 
 //createIndexOnLonLat(db);
-dropRtreeTable(db);
-createRtreeTable(db);
-countMcRtree(db);
-initialLoadRtreeTable(db);
-countMcRtree(db);
+// dropRtreeTable(db);
+// createRtreeTable(db);
+// countMcRtree(db);
+// initialLoadRtreeTable(db);
+// countMcRtree(db);
+reCreateTrigger(db);

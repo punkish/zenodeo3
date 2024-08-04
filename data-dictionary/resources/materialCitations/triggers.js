@@ -78,22 +78,27 @@ BEGIN
 
     -- insert new entry in the rtree table
     INSERT INTO materialCitationsRtree (
+        id,
         minX,
         maxX,
         minY,
         maxY,
-        materialCitations_id,
+        longitude, 
+        latitude,
         treatments_id
     )
     SELECT 
+        id,
         json_extract(g, '$[0][0]') AS minX, 
         json_extract(g, '$[2][0]') AS maxX,
         json_extract(g, '$[0][1]') AS minY,
         json_extract(g, '$[2][1]') AS maxY,
-        id,
+        longitude,
+        latitude,
         treatments_id
     FROM (
         SELECT
+            id,
             geopoly_json(
                 geopoly_bbox(
                     geopoly_regular(
@@ -108,7 +113,8 @@ BEGIN
                     )
                 )
             ) AS g,
-            new.id,
+            new.longitude, 
+            new.latitude,
             new.treatments_id
     );
 END;`,

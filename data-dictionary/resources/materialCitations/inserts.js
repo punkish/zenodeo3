@@ -94,50 +94,5 @@ export const inserts = {
         SELECT 
             id,
             fullText
-        FROM materialCitations`),
-
-    // createTempTableCoords: (db) => db.prepare(`
-    //     CREATE TEMP TABLE coords AS
-    //     SELECT
-    //         materialCitations_id, 
-    //         treatments_id, 
-    //         shape,
-    //         json_extract(geopolyJson, '$[0][0]') AS minX,
-    //         json_extract(geopolyJson, '$[0][1]') AS minY,
-    //         json_extract(geopolyJson, '$[2][0]') AS maxX,
-    //         json_extract(geopolyJson, '$[2][1]') AS maxY
-    //     FROM (
-    //         SELECT 
-    //             materialCitations_id, 
-    //             treatments_id, 
-    //             shape, 
-    //             geopoly_json(shape) AS geopolyJson 
-    //         FROM (
-    //             SELECT 
-    //                 materialCitations_id, 
-    //                 treatments_id, 
-    //                 geopoly_bbox(geopolyRegular) AS shape
-    //             FROM (
-    //                 SELECT 
-    //                     materialCitations_id, 
-    //                     treatments_id,
-    //                     geopoly_regular(
-    //                         longitude, 
-    //                         latitude, 
-    //                         abs(5/(40075017*cos(latitude)/360)),
-    //                         4
-    //                     ) AS geopolyRegular
-    //                 FROM (
-    //                     SELECT 
-    //                         id AS materialCitations_id, 
-    //                         treatments_id,
-    //                         longitude, 
-    //                         latitude
-    //                     FROM materialCitations
-    //                     WHERE validGeo = 1
-    //                 )
-    //             )
-    //         )
-    //     )
-    // `)
+        FROM materialCitations`)
 }
