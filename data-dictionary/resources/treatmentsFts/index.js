@@ -10,19 +10,9 @@ export const treatmentsFts = {
     // single word name of the table
     name: 'treatmentsFts',
     
-    // name of the database, also used as the name of the 
-    // file on disk with '.sqlite' extension
-    //
-    // name of the schema, if ATTACHED as a separate database
-    // singleDatabase: {
-    //     name: 'zenodeo',
-    //     schema: 'main'
-    // },
-    // attachedDatabase: {
-    //     name: 'treatments',
-    //     schema: 'tr'
-    // },
-
+    // Name of the database, also used as the name of the 
+    // file on disk with '.sqlite' extension.
+    // Name of the schema, if ATTACHED as a separate database
     database: {
         name: 'zenodeo',
         schema: 'main'

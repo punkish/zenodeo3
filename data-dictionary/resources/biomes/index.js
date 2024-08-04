@@ -10,19 +10,9 @@ export const biomes = {
     // single word name of the table
     name: 'biomes',
     
-    // name of the database, also used as the name of the 
-    // file on disk with '.sqlite' extension
-    //
-    // name of the schema, if ATTACHED as a separate database
-    // singleDatabase: {
-    //     name: 'ecoregions',
-    //     schema: 'main'
-    // },
-    // attachedDatabase: {
-    //     name: 'geodata',
-    //     schema: 'ec'
-    // },
-
+    // Name of the database, also used as the name of the 
+    // file on disk with '.sqlite' extension.
+    // Name of the schema, if ATTACHED as a separate database
     database: {
         name: 'geodata',
         schema: 'geodata'

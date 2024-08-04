@@ -10,19 +10,9 @@ export const downloads = {
     // single word name of the table
     name: 'downloads',
     
-    // name of the database, also used as the name of the 
-    // file on disk with '.sqlite' extension
-    //
-    // name of the schema, if ATTACHED as a separate database
-    // singleDatabase: {
-    //     name: 'zenodeo',
-    //     schema: 'main'
-    // },
-    // attachedDatabase: {
-    //     name: 'stats',
-    //     schema: 'st'
-    // },
-
+    // Name of the database, also used as the name of the 
+    // file on disk with '.sqlite' extension.
+    // Name of the schema, if ATTACHED as a separate database
     database: {
         name: 'zenodeo',
         schema: 'main'

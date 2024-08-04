@@ -10,19 +10,14 @@ export const etlStatsView = {
     // single word name of the table
     name: 'etlStatsView',
     
-    // name of the database, also used as the name of the 
-    // file on disk with '.sqlite' extension
-    //
-    // name of the schema, if ATTACHED as a separate database
-    // singleDatabase: {
-    //     name: 'zenodeo',
-    //     schema: 'main'
-    // },
-    // attachedDatabase: {
-    //     name: 'stats',
-    //     schema: 'st'
-    // },
-
+    // Name of the database, also used as the name of the 
+    // file on disk with '.sqlite' extension.
+    // Name of the schema, if ATTACHED as a separate database
+    database: {
+        name: 'zenodeo',
+        schema: 'main'
+    },
+    
     summary: 'Simplified view of ETL processes',
     description: "…",
     
