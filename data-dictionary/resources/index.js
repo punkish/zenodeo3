@@ -90,6 +90,48 @@ const tables = [
     treatments,
     treatmentsFts,
     unzip
-]
+];
+
+// const databases = {
+//     geodata: [
+//         biomes,
+//         //'biome_synonyms',
+//         ecoregions,
+//         //'ecoregionsPolygons',
+//         //'ecoregionsGeopoly',
+//         //'realms'
+//     ],
+//     zenodeo: [
+//         archives,
+//         bibRefCitations,
+//         bibRefCitationsFts,
+//         classes,
+//         collectionCodes,
+//         downloads,
+//         etl,
+//         families,
+//         figureCitations,
+//         genera,
+//         images,
+//         imagesFts,
+//         journals,
+//         journalsByYears,
+//         kingdoms,
+//         materialCitations,
+//         materialCitations_collectionCodes,
+//         materialCitationsFts,
+//         materialCitationsGeopoly,
+//         materialCitationsRtree,
+//         orders,
+//         phyla,
+//         realms,
+//         species,
+//         treatmentAuthors,
+//         treatmentCitations,
+//         treatments,
+//         treatmentsFts,
+//         unzip
+//     ]
+// }
 
 export { resources, tables }

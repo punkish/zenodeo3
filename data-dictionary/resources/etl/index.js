@@ -14,14 +14,19 @@ export const etl = {
     // file on disk with '.sqlite' extension
     //
     // name of the schema, if ATTACHED as a separate database
-    singleDatabase: {
-        name: 'zenodeo',
-        schema: 'main'
-    },
+    // singleDatabase: {
+    //     name: 'zenodeo',
+    //     schema: 'main'
+    // },
     // attachedDatabase: {
     //     name: 'stats',
     //     schema: 'st'
     // },
+
+    database: {
+        name: 'zenodeo',
+        schema: 'main'
+    },
 
     summary: 'Stats for the extract-transform-load process',
     description: "…",

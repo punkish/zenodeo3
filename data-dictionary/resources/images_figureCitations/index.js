@@ -14,15 +14,20 @@ export const images_figureCitations = {
     // file on disk with '.sqlite' extension
     //
     // name of the schema, if ATTACHED as a separate database
-    singleDatabase: {
-        name: 'zenodeo',
-        schema: 'main'
-    },
+    // singleDatabase: {
+    //     name: 'zenodeo',
+    //     schema: 'main'
+    // },
     // attachedDatabase: {
     //     name: 'figureCitations',
     //     schema: 'fc'
     // },
 
+    database: {
+        name: 'zenodeo',
+        schema: 'main'
+    },
+    
     summary: 'A cross-table between images and figureCitations',
     description: "A cross-table for many-to-many relationships between images and figureCitations",
     

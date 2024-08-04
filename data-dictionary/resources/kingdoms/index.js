@@ -14,14 +14,19 @@ export const kingdoms = {
     // file on disk with '.sqlite' extension
     //
     // name of the schema, if ATTACHED as a separate database
-    singleDatabase: {
-        name: 'zenodeo',
-        schema: 'main'
-    },
+    // singleDatabase: {
+    //     name: 'zenodeo',
+    //     schema: 'main'
+    // },
     // attachedDatabase: {
     //     name: 'treatments',
     //     schema: 'tr'
     // },
+
+    database: {
+        name: 'zenodeo',
+        schema: 'main'
+    },
 
     summary: 'Kingdoms of treatments',
     description: "…",

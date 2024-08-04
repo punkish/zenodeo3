@@ -14,14 +14,19 @@ export const materialCitationsGeopoly = {
     // file on disk with '.sqlite' extension
     //
     // name of the schema, if ATTACHED as a separate database
-    singleDatabase: {
-        name: 'zenodeo',
-        schema: 'main'
-    },
+    // singleDatabase: {
+    //     name: 'zenodeo',
+    //     schema: 'main'
+    // },
     // attachedDatabase: {
     //     name: 'materialCitations',
     //     schema: 'mc'
     // },
+
+    database: {
+        name: 'zenodeo',
+        schema: 'main'
+    },
 
     summary: 'Location information stored using geopoly',
     description: 'Location information for material citations',

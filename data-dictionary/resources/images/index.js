@@ -15,14 +15,19 @@ export const images = {
     // file on disk with '.sqlite' extension
     //
     // name of the schema, if ATTACHED as a separate database
-    singleDatabase: {
-        name: 'zenodeo',
-        schema: 'main'
-    },
+    // singleDatabase: {
+    //     name: 'zenodeo',
+    //     schema: 'main'
+    // },
     // attachedDatabase: {
     //     name: 'figureCitations',
     //     schema: 'fc'
     // },
+
+    database: {
+        name: 'zenodeo',
+        schema: 'main'
+    },
 
     summary: 'Fetches treatment-related images',
     description: "Treatments are well-defined parts of articles that describe the particular usage of a scientific name by an author at the time of the publication. Treatments have images.",

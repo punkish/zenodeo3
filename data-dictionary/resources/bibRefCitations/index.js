@@ -14,14 +14,19 @@ export const bibRefCitations = {
     // file on disk with '.sqlite' extension
     //
     // name of the schema, if ATTACHED as a separate database
-    singleDatabase: {
-        name: 'zenodeo',
-        schema: 'main'
-    },
+    // singleDatabase: {
+    //     name: 'zenodeo',
+    //     schema: 'main'
+    // },
     // attachedDatabase: {
     //     name: 'bibRefCitations',
     //     schema: 'bc'
     // },
+
+    database: {
+        name: 'zenodeo',
+        schema: 'main'
+    },
 
     summary: 'Fetches bibliographic reference citations of the treatments',
     description: '…',

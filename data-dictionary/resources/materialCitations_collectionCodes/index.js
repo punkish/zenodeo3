@@ -14,14 +14,19 @@ export const materialCitations_collectionCodes = {
     // file on disk with '.sqlite' extension
     //
     // name of the schema, if ATTACHED as a separate database
-    singleDatabase: {
-        name: 'zenodeo',
-        schema: 'main'
-    },
+    // singleDatabase: {
+    //     name: 'zenodeo',
+    //     schema: 'main'
+    // },
     // attachedDatabase: {
     //     name: 'materialCitations',
     //     schema: 'mc'
     // },
+
+    database: {
+        name: 'zenodeo',
+        schema: 'main'
+    },
 
     summary: 'A cross-table between materialCitations and collectionCodes',
     description: "A cross-table for many-to-many relationships between materialCitations and collectionCodes",

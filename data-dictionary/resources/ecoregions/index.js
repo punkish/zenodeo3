@@ -14,13 +14,18 @@ export const ecoregions = {
     // file on disk with '.sqlite' extension
     //
     // name of the schema, if ATTACHED as a separate database
-    singleDatabase: {
-        name: 'ecoregions',
-        schema: 'main'
-    },
-    attachedDatabase: {
+    // singleDatabase: {
+    //     name: 'ecoregions',
+    //     schema: 'main'
+    // },
+    // attachedDatabase: {
+    //     name: 'geodata',
+    //     schema: 'ec'
+    // },
+
+    database: {
         name: 'geodata',
-        schema: 'ec'
+        schema: 'main'
     },
 
     summary: 'Ecoregions of the world',

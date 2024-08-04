@@ -6,9 +6,7 @@ import { D } from './index.js';
 const getTableProperties = () => Object.keys(tables[0]).join("\n\t- ");
 
 const getTableSchemas = () => {
-    const initialValue = [];
-    
-    const reducer = (accumulator, obj) => {
+    const reducer = (acc, obj) => {
         const cols = getCols(obj.name);
 
         const table = {
@@ -19,39 +17,31 @@ const getTableSchemas = () => {
             indexes: createIndexes(obj.name, cols)
         }
 
-        //
-        // the first time the reducer runs, the accumulator is empty
-        if (accumulator.length == 0) {
-            accumulator.push({
-                database: obj.database,
-                tables: [ table ]
-            });
-        }
-
-        //
-        // second time onward
-        else {
-
-            //
-            // find the index of an element with given database key
-            // https://stackoverflow.com/a/8668283/183692
-            const i = accumulator.findIndex(e => e.database === obj.database);
-
-            if (i > -1) {
-                accumulator[i].tables.push(table)
+        const i = acc.findIndex(e => {
+            if (obj.database) {
+                return e.database.name === obj.database.name
+                    ? true
+                    : false;
             }
             else {
-                accumulator.push({
-                    database: obj.database,
-                    tables: [ table ]
-                });
+                return false;
             }
+        });
+
+        if (i > -1) {
+            acc[i].tables.push(table);
+        }
+        else {
+            acc.push({
+                database: obj.database,
+                tables: [ table ]
+            })
         }
 
-        return accumulator;
+        return acc;
     }
 
-    return tables.reduce(reducer, initialValue)
+    return tables.reduce(reducer, [])
 }
 
 const getTables = (property = 'name') => {

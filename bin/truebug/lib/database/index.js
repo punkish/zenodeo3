@@ -433,59 +433,45 @@ const getCounts = () => {
     if (!ts[fn]) return;
     //utils.incrementStack(logOpts.name, fn);
 
-    const tables = db.conn.prepare(`SELECT name AS table_name 
-    FROM pragma_table_list 
-    WHERE 
-        type != 'shadow' AND 
-        name NOT LIKE 'sqlite%' AND 
-        name NOT IN (
-            'materialCitationsGeopoly_node',
-            'materialCitationsGeopoly_parent',
-            'materialCitationsGeopoly_rowid',
-            'treatmentsFtvcol',
-            'treatmentsFtvins',
-            'treatmentsFtvrow'
-        )
-    ORDER BY name;`).all();
+    const tables = db.conn.prepare(`SELECT name  
+FROM sqlite_master 
+WHERE 
+    type = 'table' 
+    AND name NOT LIKE 'sqlite%' 
+    AND Instr(name, 'Ft') = 0 
+    AND name NOT IN (
+        'materialCitationsGeopoly_node',
+        'materialCitationsGeopoly_parent',
+        'materialCitationsGeopoly_rowid',
+        'materialCitationsRtree_node',
+        'materialCitationsRtree_parent',
+        'materialCitationsRtree_rowid'
+    )
+ORDER BY name`).all();
 
     let total = 0;
-    const FtsTables = [];
 
     tables.forEach(t => {
         try {
-            if (t.table_name.indexOf('Fts') > -1) {
-                FtsTables.push(t.table_name);
-            }
-            else {
-                const start = process.hrtime.bigint();
-                t.rows = db.conn
-                    .prepare(`SELECT Count(*) AS c FROM ${t.table_name}`)
-                    .get()
-                    .c;
-                const end = process.hrtime.bigint();
-    
-                //
-                // convert nanoseconds to ms
-                //
-                const took = Number(end - start) / 1e6;
-                t.took = took;
-                total += t.rows;
-            }
-        }
+            const start = process.hrtime.bigint();
+            t.rows = db.conn
+                .prepare(`SELECT Count(*) AS c FROM ${t.name}`)
+                .get()
+                .c;
+            const end = process.hrtime.bigint();
+
+            // convert nanoseconds to ms
+            //
+            const took = Number(end - start) / 1e6;
+            t.took = took;
+            total += t.rows;
+    }
         catch (error) {
             console.log(error);
         }
     });
 
-    FtsTables.forEach(t => {
-        const table = t.split('Fts')[0];
-        const rows = tables.filter(t => t.table_name === table)[0].rows;
-        tables.filter(t => t.table_name === `${table}Fts`)[0].rows = rows;
-        total += rows;
-    });
-
-    tables.push({ table_name: 'Total rows', rows: total, took: '' });
-
+    tables.push({ name: 'Total rows', rows: total });
     log.info('getting counts');
     console.table(tables);
 }

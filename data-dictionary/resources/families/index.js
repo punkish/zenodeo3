@@ -14,13 +14,18 @@ export const families = {
     // file on disk with '.sqlite' extension
     //
     // name of the schema, if ATTACHED as a separate database
-    singleDatabase: {
+    // singleDatabase: {
+    //     name: 'zenodeo',
+    //     schema: 'main'
+    // },
+    // attachedDatabase: {
+    //     name: 'treatments',
+    //     schema: 'tr'
+    // },
+
+    database: {
         name: 'zenodeo',
         schema: 'main'
-    },
-    attachedDatabase: {
-        name: 'treatments',
-        schema: 'tr'
     },
 
     summary: 'Families of treatments',
