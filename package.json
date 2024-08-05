@@ -32,7 +32,7 @@
     "@punkish/zconfig": "^1.0.4",
     "@punkish/zlogger": "^1.0.9",
     "@turf/turf": "^7.0.0",
-    "better-sqlite3": "^9.6.0",
+    "better-sqlite3": "^11.1.2",
     "chance": "^1.1.11",
     "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.3.1",
