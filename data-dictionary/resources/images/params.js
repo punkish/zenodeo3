@@ -279,7 +279,8 @@ const params = [
         name: 'geolocation',
         dict: materialCitations,
         joins: [
-            'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id'
+            'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id',
+            'JOIN materialCitationsRtree ON materialCitations.id = materialCitationsRtree.id'
         ]
     },
     {
