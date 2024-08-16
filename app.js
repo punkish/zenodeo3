@@ -16,7 +16,7 @@ import fastifySwaggerUi from '@fastify/swagger-ui'
 import { swaggerOpts } from './plugins/swagger.js';
 
 import fastifyCron from 'fastify-cron';
-import { cronOpts } from './plugins/cron.js';
+import { cronJobs } from './plugins/cron.js';
 
 //import fastifyQueries from './plugins/queries.js';
 
@@ -24,7 +24,6 @@ import { tos } from './routes/tos/index.js';
 import { docs } from './routes/docs/index.js';
 import { treatmentsArchive } from './routes/treatments-archive/index.js';
 
-//
 // we rename routes to resources because we have already imported a map of the 
 // routes above
 //
@@ -36,7 +35,6 @@ import { viewOpts } from './plugins/view.js';
 export async function server(opts={}) {
     const fastify = Fastify(opts);
 
-    //
     // register the plugins
     //
     fastify.register(favicon, {});
@@ -47,9 +45,22 @@ export async function server(opts={}) {
     fastify.register(fastifyStatic, staticPublic);
     //fastify.register(fastifyStatic, staticTreatmentsArchives);
     fastify.register(view, viewOpts);
-    fastify.register(fastifyCron, cronOpts);
-    
-    //
+    const jobs = cronJobs.map(({cronTime, qs}) => {
+        return {
+            cronTime,
+            onTick: async (server) => {
+                try {
+                    await server.inject(qs);
+                }
+                catch(error) {
+                    console.error(error);
+                }
+            },
+            start: true
+        }
+    });
+    fastify.register(fastifyCron, { jobs });
+
     // we initialize the db connection once, and store it in a fastify
     // plugin so it can be used everywhere
     //
@@ -61,7 +72,6 @@ export async function server(opts={}) {
 
     fastify.register(fastifyBetterSqlite3, fastifyBetterSqlite3Opts);
 
-    //
     // register the routes to resources
     //
     fastify.register(tos);

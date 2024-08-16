@@ -1,4 +1,3 @@
-//  
 // default the NODE_ENV to 'development'.
 // To start in 'production' mode using `pm2`, start like so
 // $ NODE_ENV=production pm2 start server.js --name=z3
@@ -10,6 +9,8 @@ const config = new Config().settings;
 
 import { server } from './app.js';
 import { coerceToArray, getCache, getCacheKey } from './lib/routeUtils.js';
+
+import { cronJobs } from './plugins/cron.js';
 
 // Function to initialize and start the server!
 // 
@@ -110,23 +111,14 @@ const start = async () => {
 
         fastify.log.info(`… in ${env.toUpperCase()} mode`);
 
-        const cronQueries = config.cronQueries;
-        const queryParams = cronQueries.queryParams;
-        const queries = cronQueries.queries;
-
-        for (const [resource, queryStrings] of Object.entries(queries)) {
-            for (let i = 0, j = queryStrings.length; i < j; i++) {
-                const qry = queryStrings[i];
-                const qs = i
-                    ? `/v3/${resource}?${qry}&${queryParams}`
-                    : `/v3/${resource}?cols=&cacheDuration=1`;
-
-                try {
-                    await fastify.inject(qs);
-                } 
-                catch (err) { 
-                    console.error(err);
-                }
+        // We run the cronJobs onetime on initializing the server so the 
+        // queries are cached
+        for (const {qs} of cronJobs) {
+            try {
+                await fastify.inject(qs);
+            }
+            catch(error) {
+                console.error(error);
             }
         }
     }
