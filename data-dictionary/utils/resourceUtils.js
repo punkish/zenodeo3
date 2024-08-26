@@ -1,19 +1,29 @@
 import { resources } from '../resources/index.js';
 import { commonparams } from '../resources/commonparams.js';
-import clonedeep from 'lodash.clonedeep';
-
+import { checkCache, fillCache } from './index.js';
 
 /**
- * @function getParams  
- * @returns {array} all paramaters for a given resource
+ * @function getParams - Return params of a resource
+ * @returns {array} params - An array of params of the resource
+ * @param {string} resourceName - Name of the resource
  */
-const getParams = (resourceName) => {
+function getParams(resourceName) {
+    const segment = resourceName;
+    const key = 'params';
+    const res = checkCache({ segment, key });
 
-    // We are going to modify the parameter values, so to not change the 
-    // original definitions, we first deep clone the params
+    if (res) {
+        return res;
+    }
+
     const resource = resources.filter(r => r.name === resourceName)[0];
-    const paramsCopy = clonedeep(resource.params);
 
+    // We are going to modify the parameter values, so we first deep clone the 
+    // params so the original definitions are left alone
+    const paramsCopy = JSON.parse(JSON.stringify(resource.params));
+
+    
+    //const resourceId = paramsCopy.filter(col => col.isResourceId)[0];
     const params = paramsCopy
 
         // param names should not start with '_' such as _uniq and _pk
@@ -30,8 +40,7 @@ const getParams = (resourceName) => {
                 p.selname = `${resourceName}.${p.name}`;
             }
 
-            // add a fully-qualified WHERE name if it doesn't already
-            // exist
+            // add a fully-qualified WHERE name if it doesn't already exist
             if (!p.where) {
                 p.where = `${resourceName}.${p.name}`;
             }
@@ -44,14 +53,16 @@ const getParams = (resourceName) => {
             return p;
         });
 
-    // add commonparams
+    // Finally, we add the commonparams
     params.push(...commonparams);
-
+    fillCache({ segment, key, val: params });
     return params;
-    
+
 }
 
-const getResourceProperties = () => `"    - "${Object.keys(resources[0]).join("\n    - ")}`;
+const getResourceProperties = () => {
+    return `"    - "${Object.keys(resources[0]).join("\n    - ")}`;
+}
 
 const getResources = (property) => {
     if (!property) property = 'name';
@@ -69,12 +80,9 @@ const getResources = (property) => {
 const getResource = (resourceName, property) => {
     const resource = resources.filter(r => r.name === resourceName)[0];
     
-    if (property) {
-        return resource[property];
-    }
-    else {
-        return resource;
-    }
+    return property
+        ? resource[property]
+        : resource;
 }
 
 /**
@@ -82,36 +90,43 @@ const getResource = (resourceName, property) => {
  * @returns {string} name of resourceId of a resource
  */
 const getResourceId = (resourceName) => {
-    return getParams(resourceName)
-            .filter(col => col.isResourceId)[0];
+    const segment = resourceName;
+    const key = 'resourceId';
+    const res = checkCache({ segment, key });
+
+    if (res) {
+        return res;
+    }
+
+    const resourceId = getParams(resourceName)
+        .filter(col => col.isResourceId)[0];
+    fillCache({ segment, key, val: resourceId });
+    return resourceId;
 }
 
 /**
  * @function getPk  
  * @returns {string} name of Primary Key of the resource table
  */
-// const getPk = (resourceName) => {
-//     if (!resourceName) {
-//         console.error('required argument "resourceName" missing');
-//         return;
-//     }
+const getPk = (resourceName) => {
+    const segment = resourceName;
+    const key = 'pk';
+    const res = checkCache({ segment, key });
 
-//     const cacheKey = `res_${resourceName}`;
+    if (res) {
+        return res;
+    }
 
-//     // check the cache for resource or initialize it
-//     if (!(cacheKey in D)) D[cacheKey] = {};
-//     if (!D[cacheKey].pk) {
-//         D[cacheKey].pk = getParams(resourceName)
-//             .filter(col => {
-//                 if (col.sql && col.sql.type) {
-//                     return col.sql.type = 'INTEGER PRIMARY KEY'
-//                 }
-//             })[0];
-//     }
+    const pk = getParams(resourceName)
+        .filter(col => {
+            if (col.sql && col.sql.type) {
+                return col.sql.type = 'INTEGER PRIMARY KEY'
+            }
+        })[0];
 
-//     console.log(D[cacheKey].pk)
-//     return D[cacheKey].pk;
-// }
+    fillCache({ segment, key, val: pk });
+    return pk;
+}
 
 
 /**
@@ -174,22 +189,18 @@ const getResourceId = (resourceName) => {
  * REST query via 'cols'
  */
 const getDefaultParams = (resourceName) => {
-    if (!resourceName) {
-        console.error('required argument "resourceName" missing');
-        return;
-    }
-    
-    const cacheKey = `res_${resourceName}`;
+    const segment = resourceName;
+    const key = 'defaultParams';
+    const res = checkCache({ segment, key });
 
-    // check the cache for resource or initialize it
-    if (!(cacheKey in D)) D[cacheKey] = {};
-    if (!D[cacheKey].defaultParams) {
-        D[cacheKey].defaultParams = getParams(resourceName)
-            .filter(p => p.defaultCol);
-
+    if (res) {
+        return res;
     }
 
-    return D[cacheKey].defaultParams;
+    const defaultParams = getParams(resourceName)
+        .filter(p => p.defaultCol);
+    fillCache({ segment, key, val: defaultParams });
+    return defaultParams;
 }
 
 /**
@@ -197,22 +208,18 @@ const getDefaultParams = (resourceName) => {
  * @returns {array} all params that can be used in facet queries
  */
 const getFacetParams = (resourceName) => {
-    if (!resourceName) {
-        console.error('required argument "resourceName" missing');
-        return;
+    const segment = resourceName;
+    const key = 'facetParams';
+    const res = checkCache({ segment, key });
+
+    if (res) {
+        return res;
     }
 
-    const cacheKey = `res_${resourceName}`;
-
-    // check the cache for resource or initialize it
-    if (!(cacheKey in D)) D[cacheKey] = {};
-    if (!D[cacheKey].facetParams) {
-        D[cacheKey].facetParams = getParams(resourceName)
-            .filter(p => p.facet);
-
-    }
-
-    return D[cacheKey].facetParams;
+    const facetParams = getParams(resourceName)
+        .filter(p => p.facet);
+    fillCache({ segment, key, val: facetParams });
+    return facetParams;
 }
 
 /**
@@ -237,17 +244,22 @@ const getFacetParams = (resourceName) => {
 //     return D[cacheKey].table;
 // }
 
-// schema: we use the schema to validate the query params
-const getQueryStringSchema = function(resourceName, resourceParams) {
-    if (!resourceParams) {
-        resourceParams = getParams(resourceName);
+/**
+ * @function getQueryStringSchema - schema for the queryString
+ * @returns {Object} - queryStringSchema
+ * @param {string} - resourceName
+ */
+function getQueryStringSchema(resourceName) {
+    const segment = resourceName;
+    const key = 'queryStringSchema';
+    const res = checkCache({ segment, key });
+
+    if (res) {
+        return res;
     }
 
-    const pk = resourceParams.filter(col => {
-        if (col.sql && col.sql.type) {
-            return col.sql.type = 'INTEGER PRIMARY KEY'
-        }
-    })[0];
+    const resourceParams = getParams(resourceName);
+    const pk = getPk(resourceName);
 
     const sortby = pk.selname.indexOf('.id') > -1
         ? pk.selname.replace(/\.id/, '_id')
@@ -266,7 +278,7 @@ const getQueryStringSchema = function(resourceName, resourceParams) {
         //.filter(p => p.name !== 'id')
         .filter(p => p.schema)
         .forEach(p => {
-            const schema = clonedeep(p.schema);
+            const schema = JSON.parse(JSON.stringify(p.schema));
             
             // fix the 'sortby' column definition
             if (p.name === 'sortby') {
@@ -290,6 +302,7 @@ const getQueryStringSchema = function(resourceName, resourceParams) {
             queryStringSchema[p.name] = schema;
         });
 
+    fillCache({ segment, key, val: queryStringSchema });
     return queryStringSchema;
 }
 
@@ -304,5 +317,5 @@ export {
     getFacetParams,
     getQueryStringSchema,
     getResourceId,
-    //getPk
+    getPk
 }

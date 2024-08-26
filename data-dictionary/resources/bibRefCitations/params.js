@@ -140,21 +140,35 @@ const params = [
 ];
 
 const externalParams = [
+
+    // treatments
     {
-        name: 'treatmentId',
-        dict: treatments
+        dict: treatments,
+        cols: [
+            {
+                name: 'treatmentId',
+                joins: [
+                    'JOIN treatments ON bibRefCitations.treatments_id = treatments.id'
+                ]
+            }
+        ]
     },
+
+    // bibRefCitationsFts
     {
-        name: 'q',
-        dict: bibRefCitationsFts
+        dict: bibRefCitationsFts,
+        cols: [
+            {
+                name: 'q',
+                joins: [
+                    'JOIN bibRefCitationsFts ON bibRefCitations.id = bibRefCitationsFts.rowid'
+                ]
+            }
+        ]
     }
 ];
 
-externalParams.forEach(externalParam => utils.addExternalDef(
-    externalParam, 
-    'bibRefCitations', 
-    'bibRefCitationId', 
-    params
-));
+const allNewParams = utils.addExternalParams(externalParams);
+params.push(...allNewParams);
 
 export { params }

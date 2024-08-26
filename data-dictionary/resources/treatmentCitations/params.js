@@ -1,6 +1,3 @@
-import { Config } from '@punkish/zconfig';
-const config = new Config().settings;
-
 export const params = [
     {
         name: 'treatmentCitationId',

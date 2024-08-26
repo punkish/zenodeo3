@@ -32,4 +32,4 @@ export const params = [
             type: 'PRIMARY KEY ("journals_id", "journalYear")'
         }
     }
-];
+]

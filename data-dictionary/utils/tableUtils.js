@@ -2,6 +2,7 @@ import { tables } from '../resources/index.js';
 import { commonparams } from '../resources/commonparams.js';
 import clonedeep from 'lodash.clonedeep';
 import { D } from './index.js';
+import { checkCache, fillCache } from './index.js';
 
 const getTableProperties = () => Object.keys(tables[0]).join("\n\t- ");
 
@@ -133,29 +134,19 @@ const getCols = (tableName) => {
 }
 
 const getCol = (tableName, colname, property) => {
-    if (!tableName) {
-        console.error('required argument "tableName" missing');
-        return;
+    const segment = tableName;
+    const key = 'col';
+    const res = checkCache({ segment, key });
+
+    if (res) {
+        return res;
     }
 
-    const cacheKey = `tbl_${tableName}`;
+    const col = getCols(tableName)
+        .filter(col => col.name === colname)[0];
 
-    // check the cache for resource or initialize it
-    if (!(cacheKey in D)) D[cacheKey] = {};
-
-    if (!D[cacheKey].col) {
-        D[cacheKey].col = getCols(tableName)
-            .filter(col => col.name === colname)[0];
-
-    }
-
-    // const col = getCols(tableName).filter(col => col.name === colname)[0];
-    // return property
-    //     ? col[property]
-    //     : col;
-    return property
-        ? D[cacheKey].col[property]
-        : D[cacheKey].col;
+    fillCache({ segment, key, val: col });
+    return col;
 }
 
 const getXmlCols = (tableName) => {

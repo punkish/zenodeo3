@@ -1,4 +1,4 @@
-const params = [
+export const params = [
     {
         name: 'id',
         sql: {
@@ -23,6 +23,4 @@ const params = [
         },
         cheerio: '$("subSubSection[type=nomenclature] taxonomicName").attr("class")'
     },
-];
-
-export { params }
+]

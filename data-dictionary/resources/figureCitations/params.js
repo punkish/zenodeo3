@@ -1,4 +1,4 @@
-const params = [
+export const params = [
     {
         name: 'id',
         sql: {
@@ -52,6 +52,4 @@ const params = [
             type: 'UNIQUE ("figureCitationId", "figureNum")'
         }
     }
-];
-
-export { params }
+]

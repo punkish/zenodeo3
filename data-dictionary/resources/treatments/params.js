@@ -411,9 +411,12 @@ const params = [
     },
     {
         name: 'kingdoms_id',
-        schema: {},
+        schema: { 
+            type: 'integer', 
+            description: '',
+        },
         sql: {
-            desc: 'ID of the kingdom',
+            desc: 'The unique ID of the kingdom',
             type: 'INTEGER DEFAULT NULL REFERENCES kingdoms(id)'
         },
         defaultCol: false,
@@ -688,141 +691,214 @@ const params = [
 // We also add params that are in other tables but can be queried 
 // via this REST endpoint. We call them 'external'
 const externalParams = [
+
+    // treatmentsFts
     {
-        name: 'q',
         dict: treatmentsFts,
-        joins: [
-            'JOIN treatmentsFts ON treatments.id = treatmentsFts.rowid'
-        ],
+        cols: [
+            {
+                name: 'q',
+                joins: [
+                    'JOIN treatmentsFts ON treatments.id = treatmentsFts.rowid'
+                ]
+            }
+        ]
     },
+
+    // collectionCodes
     {
-        name: 'collectionCode',
         dict: collectionCodes,
-        joins: [
-            `LEFT JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
-            `JOIN materialCitations_collectionCodes ON materialCitations.id = materialCitations_collectionCodes.materialCitations_id`,
-            `JOIN collectionCodes ON materialCitations_collectionCodes.collectionCodes_id = collectionCodes.id`,
-            // `LEFT JOIN gb.institutions ON collectionCodes.collectionCode = gb.institutions.institution_code`
+        cols: [
+            {
+                name: 'collectionCode',
+                joins: [
+                    `LEFT JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
+                    `JOIN materialCitations_collectionCodes ON materialCitations.id = materialCitations_collectionCodes.materialCitations_id`,
+                    `JOIN collectionCodes ON materialCitations_collectionCodes.collectionCodes_id = collectionCodes.id`
+                ]
+            },
         ]
     },
+
+    // materialCitations
     {
-        name: 'latitude',
-        dict: materialCitations
-    },
-    {
-        name: 'longitude',
-        dict: materialCitations
-    },
-    {
-        name: 'geolocation',
         dict: materialCitations,
-        joins: [
-            'JOIN materialCitationsRtree ON materialCitations.id = materialCitationsRtree.materialCitations_id'
-        ],
+        cols: [
+            {
+                name: 'latitude',
+                joins: [
+                    'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+                ]
+            },
+            {
+                name: 'longitude',
+                joins: [
+                    'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+                ]
+            },
+            {
+                name: 'geolocation',
+                joins: [
+                    'JOIN materialCitationsRtree ON materialCitations.id = materialCitationsRtree.materialCitations_id'
+                ]
+            },
+            {
+                name: 'isOnLand',
+                joins: [
+                    'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+                ]
+            },
+            {
+                name: 'validGeo',
+                joins: [
+                    'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
+                ]
+            }
+        ]
     },
+
+    // ecoregions
     {
-        name: 'eco_name',
         dict: ecoregions,
-        joins: [
-            `JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
-            `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
-        ],
+        cols: [
+            {
+                name: 'eco_name',
+                joins: [
+                    `JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
+                    `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+                ]
+            },
+            {
+                name: 'biome_name',
+                joins: [
+                    `JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
+                    `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+                ]
+            },
+        ]
     },
+
+    // journals
     {
-        name: 'biome_name',
-        dict: ecoregions,
-        joins: [
-            `JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
-            `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
-        ],
-    },
-    {
-        name: 'isOnLand',
-        dict: materialCitations
-    },
-    // {
-    //     name: 'validGeo',
-    //     dict: materialCitations
-    // },
-    {
-        name: 'journalTitle',
         dict: journals,
-        //fk: true
-        joins: [
-            `JOIN journals ON treatments.journals_id = journals.id`
+        cols: [
+            {
+                name: 'journalTitle',
+                joins: [
+                    `JOIN journals ON treatments.journals_id = journals.id`
+                ]
+            }
         ]
     },
+
+    // kingdoms
     {
-        name: 'kingdom',
         dict: kingdoms,
-        //fk: true
-        joins: [
-            `JOIN kingdoms ON treatments.kingdoms_id = kingdoms.id`
+        cols: [
+            {
+                name: 'kingdom',
+                joins: [
+                    `JOIN kingdoms ON treatments.kingdoms_id = kingdoms.id`
+                ]
+            }
         ]
     },
+
+    // phyla
     {
-        name: 'phylum',
         dict: phyla,
-        //fk: true
-        joins: [
-            `JOIN phyla ON treatments.phyla_id = phyla.id`
+        cols: [
+            {
+                name: 'phylum',
+                joins: [
+                    `JOIN phyla ON treatments.phyla_id = phyla.id`
+                ]
+            },
         ]
     },
+
+    // classes
     {
-        name: 'class',
         dict: classes,
-        //fk: true
-        joins: [
-            `JOIN classes ON treatments.classes_id = classes.id`
+        cols: [
+            {
+                name: 'class',
+                joins: [
+                    `JOIN classes ON treatments.classes_id = classes.id`
+                ]
+            },
         ]
     },
+
+    // orders
     {
-        name: 'order',
         dict: orders,
-        //fk: true
-        joins: [
-            `JOIN orders ON treatments.orders_id = orders.id`
+        cols: [
+            {
+                name: 'order',
+                joins: [
+                    `JOIN orders ON treatments.orders_id = orders.id`
+                ]
+            },
         ]
     },
+
+    // families
     {
-        name: 'family',
         dict: families,
-        //fk: true
-        joins: [
-            `JOIN families ON treatments.families_id = families.id`
+        cols: [
+            {
+                name: 'family',
+                joins: [
+                    `JOIN families ON treatments.families_id = families.id`
+                ]
+            },
         ]
     },
+
+    // genera
     {
-        name: 'genus',
         dict: genera,
-        //fk: true
-        joins: [
-            `JOIN genera ON treatments.genera_id = genera.id`
+        cols: [
+            {
+                name: 'genus',
+                joins: [
+                    `JOIN genera ON treatments.genera_id = genera.id`
+                ]
+            },
         ]
     },
+
+    // species
     {
-        name: 'species',
         dict: species,
-        //fk: true
-        joins: [
-            `JOIN species ON treatments.species_id = species.id`
+        cols: [
+            {
+                name: 'species',
+                joins: [
+                    `JOIN species ON treatments.species_id = species.id`
+                ]
+            },
         ]
     },
+
+    // biomes
     {
-        name: 'biome',
         dict: biomes,
-        joins: [
-            'JOIN materialCitations ON treatments.id = materialCitations.treatments_id',
-            'JOIN geodata.biome_synonyms ON materialCitations.biomes_id = geodata.biome_synonyms.biomes_id'
+        cols: [
+            {
+                name: 'biome',
+                joins: [
+                    'JOIN materialCitations ON treatments.id = materialCitations.treatments_id',
+                    'JOIN geodata.biome_synonyms ON materialCitations.biomes_id = geodata.biome_synonyms.biomes_id'
+                ]
+            }
         ]
     }
+
 ];
 
-externalParams.forEach(externalParam => utils.addExternalDef(
-    externalParam, 
-    'treatments', 
-    'treatmentId', 
-    params
-));
+const allNewParams = utils.addExternalParams(externalParams);
+params.push(...allNewParams);
 
 export { params }

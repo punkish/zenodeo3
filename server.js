@@ -113,14 +113,14 @@ const start = async () => {
 
         // We run the cronJobs onetime on initializing the server so the 
         // queries are cached
-        for (const {qs} of cronJobs) {
-            try {
-                await fastify.inject(qs);
-            }
-            catch(error) {
-                console.error(error);
-            }
-        }
+        // for (const {qs} of cronJobs) {
+        //     try {
+        //         await fastify.inject(qs);
+        //     }
+        //     catch(error) {
+        //         console.error(error);
+        //     }
+        // }
     }
     catch (err) {
         console.log(err);

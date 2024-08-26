@@ -20,4 +20,4 @@ export const params = [
             type: 'PRIMARY KEY ("materialCitations_id", "collectionCodes_id")'
         }
     }
-];
+]

@@ -1,13 +1,8 @@
 import * as utils from '../../../lib/utils.js';
-
 import { collectionCodes } from '../collectionCodes/index.js';
 import { materialCitationsFts } from '../materialCitationsFts/index.js';
 import { ecoregions } from '../ecoregions/index.js';
 
-/** 
- * first we define all the params corresponding to the columns in the 
- * materialsCitation table
- */
 const params = [
     {
         name: 'id',
@@ -502,37 +497,62 @@ const params = [
     }
 ];
 
-/** 
- * then we add params that are in other tables but can be queried 
- * via this REST endpoint
- */
  const externalParams = [
+
+    // collectionCodes
     {
-        name: 'collectionCode',
         dict: collectionCodes,
-        joins: [
-            `JOIN materialCitations_collectionCodes ON materialCitations.id = materialCitations_collectionCodes.materialCitations_id`,
-            `JOIN collectionCodes ON materialCitations_collectionCodes.collectionCodes_id = collectionCodes.id`
+        cols: [
+            {
+                name: 'collectionCode',
+                joins: [
+                    `JOIN materialCitations_collectionCodes ON materialCitations.id = materialCitations_collectionCodes.materialCitations_id`,
+                    `JOIN collectionCodes ON materialCitations_collectionCodes.collectionCodes_id = collectionCodes.id`
+                ]
+            },
+            {
+                name: 'name',
+                selname: 'collectionName',
+                joins: [
+                    `JOIN materialCitations_collectionCodes ON materialCitations.id = materialCitations_collectionCodes.materialCitations_id`,
+                    `JOIN collectionCodes ON materialCitations_collectionCodes.collectionCodes_id = collectionCodes.id`
+                ]
+            }
         ]
     },
+
+    // materialCitationsFts
     {
-        name: 'q',
-        dict: materialCitationsFts
+        dict: materialCitationsFts,
+        cols: [
+            {
+                name: 'q',
+                joins: [
+                    `JOIN materialCitationsFts ON materialCitations.id = materialCitationsFts.rowid`
+                ]
+            }
+        ]
     },
+
+    // ecoregions
     {
-        name: 'eco_name',
         dict: ecoregions,
-        joins: [
-            `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+        cols: [
+            {
+                name: 'eco_name',
+                joins: [
+                    `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+                ]
+            },
+            {
+                name: 'biome_name',
+                joins: [
+                    `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+                ]
+            }
         ]
     },
-    {
-        name: 'biome_name',
-        dict: ecoregions,
-        joins: [
-            `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
-        ]
-    }
+
     // {
     //     name: 'institution_name',
     //     dict: collectionCodes,
@@ -546,11 +566,7 @@ const params = [
     // }
 ];
 
-externalParams.forEach(externalParam => utils.addExternalDef(
-    externalParam, 
-    'materialCitations', 
-    'materialCitationId', 
-    params
-));
+const allNewParams = utils.addExternalParams(externalParams);
+params.push(...allNewParams);
 
 export { params }

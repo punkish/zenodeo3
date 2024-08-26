@@ -37,24 +37,28 @@ const params = [
 ];
 
 const externalParams = [
+
+    // journalsByYears
     {
-        name: 'journalYear',
         dict: journalsByYears,
-        joins: [
-            'JOIN journalsByYears ON journals.id = journalsByYears.journals_id'
-        ]
-    },
-    {
-        name: 'num',
-        dict: journalsByYears,
-        joins: [
-            'JOIN journalsByYears ON journals.id = journalsByYears.journals_id'
+        cols: [
+            {
+                name: 'journalYear',
+                joins: [
+                    'JOIN journalsByYears ON journals.id = journalsByYears.journals_id'
+                ]
+            },
+            {
+                name: 'num',
+                joins: [
+                    'JOIN journalsByYears ON journals.id = journalsByYears.journals_id'
+                ]
+            }
         ]
     }
 ];
 
-externalParams.forEach(externalParam => utils.addExternalDef(
-    externalParam, 'treatments', 'treatmentId', params
-));
+const allNewParams = utils.addExternalParams(externalParams);
+params.push(...allNewParams);
 
 export { params }

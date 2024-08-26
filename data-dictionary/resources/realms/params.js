@@ -19,4 +19,4 @@ export const params = [
         },
         defaultOp: 'starts_with'
     }
-];
+]

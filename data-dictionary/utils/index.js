@@ -1,5 +1,12 @@
 'use strict';
 
+import Zlogger from '@punkish/zlogger';
+const log = new Zlogger({
+    "level"     : "error",
+    "transports": [ "console" ],
+    "name"      : "DDUTILS"
+});
+
 import process from 'node:process';
 import util from 'util';
 import path from 'path';
@@ -15,7 +22,7 @@ import {
     getFacetParams,
     getQueryStringSchema,
     getResourceId,
-    //getPk
+    getPk
 } from './resourceUtils.js';
 
 import { 
@@ -52,7 +59,7 @@ const functions = [
     { getFacetParams        , args: '[resourceName]'                        },
     { getQueryStringSchema  , args: "resourceName"                          },
     { getResourceId         , args: "resourceName"                          },
-    //{ getPk                 , args: "resourceName"                          },
+    { getPk                 , args: "resourceName"                          },
     { getNotCols            , args: ""         },
     //{ createFtsTable, args: '[resourceName]' },
     // { getSourceOfResource   , args: "resource" },
@@ -69,9 +76,79 @@ const functions = [
     // { getJoin               , args: "resource, column, type" }
 ]
 
+function checkCache({ segment, key }) {
+
+    if (DD.has(segment)) {
+        const _segment = DD.get(segment);
+
+        if (_segment.has(key)) {
+            log.info(`cache hit  -- segment: ${segment}, key: ${key}`);
+            return _segment.get(key);
+        }
+        else {
+            log.info(`cache miss -- segment: ${segment}, key: ${key}`);
+            return false;
+        }
+    }
+    else {
+        return false;
+    }
+
+}
+
+function fillCache({ segment, key, val }) {
+
+    if (DD.has(segment)) {
+        const _segment = DD.get(segment);
+
+        if (!_segment.has(key)) {
+            _segment.set(key, val);
+        }
+
+    }
+    else {
+        const _segment = new Map();
+        _segment.set(key, val);
+        DD.set(segment, _segment);
+    }
+
+    log.info(`cache set  -- segment: ${segment}, key: ${key}`);
+
+}
+
+// function checkCache2({ segment, key, val }) {
+//     if (DD.has(segment)) {
+//         const _segment = DD.get(segment);
+
+//         if (_segment.has(key)) {
+//             log.info(`cache hit  -- segment: ${segment}, key: ${key}`);
+//             return _segment.get(key);
+//         }
+//         else {
+//             log.info(`cache miss -- segment: ${segment}, key: ${key}`);
+            
+//             if (val) {
+//                 log.info(`cache set  -- segment: ${segment}, key: ${key}`);
+//                 _segment.set(key, val);
+//             }
+//         }
+//     }
+//     else {
+        
+//         if (val) {
+//             log.info(`cache set  -- segment: ${segment}, key: ${key}`);
+//             const _segment = new Map();
+//             _segment.set(key, val);
+//             DD.set(segment, _segment);
+//         }
+        
+//     }
+// }
+
 //
 // a simple cache to speed up lookups
 const D = { stack: ['index'] };
+const DD = new Map();
 const ddutils = {};
 functions.forEach(f => ddutils[Object.keys(f)[0]] = Object.values(f)[0]);
 
@@ -139,4 +216,4 @@ ${'-'.repeat(50)}
     }
 }
 
-export { ddutils, D }
+export { ddutils, D, DD, checkCache, fillCache }
