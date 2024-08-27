@@ -747,12 +747,6 @@ const externalParams = [
                 joins: [
                     'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
                 ]
-            },
-            {
-                name: 'validGeo',
-                joins: [
-                    'JOIN materialCitations ON treatments.id = materialCitations.treatments_id'
-                ]
             }
         ]
     },
