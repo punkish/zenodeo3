@@ -2,7 +2,7 @@ import { tables } from '../resources/index.js';
 import { commonparams } from '../resources/commonparams.js';
 import clonedeep from 'lodash.clonedeep';
 import { D } from './index.js';
-import { checkCache, fillCache } from './index.js';
+//import { checkCache, fillCache } from './index.js';
 
 const getTableProperties = () => Object.keys(tables[0]).join("\n\t- ");
 
@@ -45,7 +45,7 @@ const getTableSchemas = () => {
     return tables.reduce(reducer, [])
 }
 
-const getTables = (property = 'name') => {
+function getTables(property = 'name') {
 
     if (property === 'name') {
         return tables.map(r => r[property]);
@@ -55,46 +55,17 @@ const getTables = (property = 'name') => {
         tables.forEach(r => obj[r.name] = r[property]);
         return obj;
     }
-    // if (!property) {
-    //     return tables;
-    // }
-
-    // if (property === 'properties') {
-    //     return getTableProperties();
-    // }
-    // else {
-    //     if (!rest.length) {
-    //         return tables.map(t => t[property]);
-    //     }
-    //     else {
-    //         const props = [];
-    //         tables.map(t => {
-    //             const prop = {};
-    //             prop[property] = t[property];
     
-    //             if (rest) {
-    //                 rest.forEach(r => prop[r] = t[r]);
-    //             }
-    
-    //             props.push(prop);
-    //         })
-    
-    //         return props;
-    //     }
-    // }
 }
 
 // const getTable = (tableName, property) => getEntity(tableName, 'table', property);
 
-const getTable = (tableName, property) => {
+function getTable(tableName, property) {
     const table = tables.filter(t => t.name === tableName)[0];
 
-    if (property) {
-        return table[property];
-    }
-    else {
-        return table;
-    }
+    return property
+        ? table[property]
+        : table;
 }
 
 const getCols = (tableName) => {
@@ -134,18 +105,18 @@ const getCols = (tableName) => {
 }
 
 const getCol = (tableName, colname, property) => {
-    const segment = tableName;
-    const key = 'col';
-    const res = checkCache({ segment, key });
+    // const segment = tableName;
+    // const key = 'col';
+    // const res = checkCache({ segment, key });
 
-    if (res) {
-        return res;
-    }
+    // if (res) {
+    //     return res;
+    // }
 
     const col = getCols(tableName)
         .filter(col => col.name === colname)[0];
 
-    fillCache({ segment, key, val: col });
+    //fillCache({ segment, key, val: col });
     return col;
 }
 
