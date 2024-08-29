@@ -1,6 +1,7 @@
 import { resources } from '../resources/index.js';
 import { commonparams } from '../resources/commonparams.js';
-import { checkCache, fillCache } from './index.js';
+//import { checkCache, fillCache } from '../../lib/utils.js';
+import { cache } from '../../lib/zimple-cache.js';
 
 /**
  * @function getParams - Return params of a resource
@@ -10,7 +11,7 @@ import { checkCache, fillCache } from './index.js';
 function getParams(resourceName) {
     const segment = resourceName;
     const key = 'params';
-    const res = checkCache({ segment, key });
+    const res = cache({ segment, key });
 
     if (res) {
         return res;
@@ -55,7 +56,7 @@ function getParams(resourceName) {
 
     // Finally, we add the commonparams
     params.push(...commonparams);
-    fillCache({ segment, key, val: params });
+    cache({ segment, key, val: params });
     return params;
 
 }
@@ -92,7 +93,7 @@ const getResource = (resourceName, property) => {
 const getResourceId = (resourceName) => {
     const segment = resourceName;
     const key = 'resourceId';
-    const res = checkCache({ segment, key });
+    const res = cache({ segment, key });
 
     if (res) {
         return res;
@@ -100,7 +101,7 @@ const getResourceId = (resourceName) => {
 
     const resourceId = getParams(resourceName)
         .filter(col => col.isResourceId)[0];
-    fillCache({ segment, key, val: resourceId });
+    cache({ segment, key, val: resourceId });
     return resourceId;
 }
 
@@ -111,7 +112,7 @@ const getResourceId = (resourceName) => {
 const getPk = (resourceName) => {
     const segment = resourceName;
     const key = 'pk';
-    const res = checkCache({ segment, key });
+    const res = cache({ segment, key });
 
     if (res) {
         return res;
@@ -124,7 +125,7 @@ const getPk = (resourceName) => {
             }
         })[0];
 
-    fillCache({ segment, key, val: pk });
+    cache({ segment, key, val: pk });
     return pk;
 }
 
@@ -191,7 +192,7 @@ const getPk = (resourceName) => {
 const getDefaultParams = (resourceName) => {
     const segment = resourceName;
     const key = 'defaultParams';
-    const res = checkCache({ segment, key });
+    const res = cache({ segment, key });
 
     if (res) {
         return res;
@@ -199,7 +200,7 @@ const getDefaultParams = (resourceName) => {
 
     const defaultParams = getParams(resourceName)
         .filter(p => p.defaultCol);
-    fillCache({ segment, key, val: defaultParams });
+    cache({ segment, key, val: defaultParams });
     return defaultParams;
 }
 
@@ -210,7 +211,7 @@ const getDefaultParams = (resourceName) => {
 const getFacetParams = (resourceName) => {
     const segment = resourceName;
     const key = 'facetParams';
-    const res = checkCache({ segment, key });
+    const res = cache({ segment, key });
 
     if (res) {
         return res;
@@ -218,7 +219,7 @@ const getFacetParams = (resourceName) => {
 
     const facetParams = getParams(resourceName)
         .filter(p => p.facet);
-    fillCache({ segment, key, val: facetParams });
+    cache({ segment, key, val: facetParams });
     return facetParams;
 }
 
@@ -252,7 +253,7 @@ const getFacetParams = (resourceName) => {
 function getQueryStringSchema(resourceName) {
     const segment = resourceName;
     const key = 'queryStringSchema';
-    const res = checkCache({ segment, key });
+    const res = cache({ segment, key });
 
     if (res) {
         return res;
@@ -302,7 +303,7 @@ function getQueryStringSchema(resourceName) {
             queryStringSchema[p.name] = schema;
         });
 
-    fillCache({ segment, key, val: queryStringSchema });
+    cache({ segment, key, val: queryStringSchema });
     return queryStringSchema;
 }
 
