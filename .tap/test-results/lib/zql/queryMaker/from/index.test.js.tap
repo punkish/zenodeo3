@@ -1,0 +1,10 @@
+TAP version 14
+# Subtest: order by
+    ok 1 - should be equivalent
+    ok 2 - should be equivalent
+    ok 3 - should be equivalent
+    ok 4 - should be equivalent
+    1..4
+ok 1 - order by # time=5.647ms
+
+1..1

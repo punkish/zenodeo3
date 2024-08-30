@@ -1,0 +1,7 @@
+TAP version 14
+# Subtest: number
+    ok 1 - should be equivalent
+    1..1
+ok 1 - number # time=2.382ms
+
+1..1

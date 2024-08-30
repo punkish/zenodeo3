@@ -1,0 +1,52 @@
+TAP version 14
+# Subtest: Testing normalQueries
+    ok 1 - normalQueries 0 ✅
+    1..1
+ok 1 - Testing normalQueries # time=4.999ms
+
+# Subtest: Testing normalQueries
+    ok 1 - normalQueries 1 ✅
+    1..1
+ok 2 - Testing normalQueries # time=1.022ms
+
+# Subtest: Testing normalQueries
+    ok 1 - normalQueries 2 ✅
+    1..1
+ok 3 - Testing normalQueries # time=0.959ms
+
+# Subtest: Testing normalQueries
+    ok 1 - normalQueries 3 ✅
+    1..1
+ok 4 - Testing normalQueries # time=1.355ms
+
+# Subtest: Testing normalQueries
+    ok 1 - normalQueries 4 ✅
+    1..1
+ok 5 - Testing normalQueries # time=1.245ms
+
+# Subtest: Testing resourceIdQueries
+    ok 1 - resourceIdQueries 0 ✅
+    1..1
+ok 6 - Testing resourceIdQueries # time=0.376ms
+
+# Subtest: Testing countQueries
+    ok 1 - countQueries 0 ✅
+    1..1
+ok 7 - Testing countQueries # time=0.3ms
+
+# Subtest: Testing countQueries
+    ok 1 - countQueries 1 ✅
+    1..1
+ok 8 - Testing countQueries # time=0.236ms
+
+# Subtest: Testing countQueries
+    ok 1 - countQueries 2 ✅
+    1..1
+ok 9 - Testing countQueries # time=0.226ms
+
+# Subtest: Testing bareQueries
+    ok 1 - bareQueries 0 ✅
+    1..1
+ok 10 - Testing bareQueries # time=0.268ms
+
+1..10

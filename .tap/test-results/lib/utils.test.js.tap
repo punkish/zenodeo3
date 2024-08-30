@@ -1,0 +1,47 @@
+TAP version 14
+# Subtest: pathToXml 0
+    ok 1 - should be equivalent
+    1..1
+ok 1 - pathToXml 0 # time=1.944ms
+
+# Subtest: timerFormat 0
+    ok 1 - should be equivalent
+    1..1
+ok 2 - timerFormat 0 # time=0.204ms
+
+# Subtest: t2ms 0
+    ok 1 - should be equivalent
+    1..1
+ok 3 - t2ms 0 # time=0.141ms
+
+# Subtest: unixEpochMs 0
+    ok 1 - should be equivalent
+    1..1
+ok 4 - unixEpochMs 0 # time=0.13ms
+
+# Subtest: unixEpochMs 1
+    ok 1 - should be equivalent
+    1..1
+ok 5 - unixEpochMs 1 # time=0.12ms
+
+# Subtest: getPattern 0
+    ok 1 - should be equivalent
+    1..1
+ok 6 - getPattern 0 # time=0.187ms
+
+# Subtest: getPattern 1
+    ok 1 - should be equivalent
+    1..1
+ok 7 - getPattern 1 # time=0.113ms
+
+# Subtest: getPattern 2
+    ok 1 - should be equivalent
+    1..1
+ok 8 - getPattern 2 # time=0.109ms
+
+# Subtest: getPattern 3
+    ok 1 - should be equivalent
+    1..1
+ok 9 - getPattern 3 # time=0.11ms
+
+1..9
