@@ -5,18 +5,16 @@ module.exports = {
         "swagger": "test.zenodeo.org"
     },
 
-    /** 
-     * log only errors
-     */
+    // log only errors
+    // 
     "pino": {
         "opts": {
             "level": "error"
         }
     },
 
-    /** 
-     * don't add debug info to results 
-     */
+    // don't add debug info to results 
+    // 
     "isDebug": false,
 
     "cache": {

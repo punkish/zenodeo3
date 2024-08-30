@@ -1,5 +1,13 @@
 module.exports = {
 
+    // log only errors
+    // 
+    "pino": {
+        "opts": {
+            "level": "error"
+        }
+    },
+    
     // cron jobs output log only to file
     // 
     "truebug": {
