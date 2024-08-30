@@ -1,6 +1,5 @@
 import { resources } from '../resources/index.js';
 import { commonparams } from '../resources/commonparams.js';
-//import { checkCache, fillCache } from '../../lib/utils.js';
 import { cache } from '../../lib/zimple-cache.js';
 
 /**

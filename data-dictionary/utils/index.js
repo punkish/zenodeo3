@@ -1,12 +1,5 @@
 'use strict';
 
-import Zlogger from '@punkish/zlogger';
-const log = new Zlogger({
-    "level"     : "info",
-    "transports": [ "console" ],
-    "name"      : "DDUTILS"
-});
-
 import process from 'node:process';
 import util from 'util';
 import path from 'path';
@@ -218,8 +211,5 @@ ${'-'.repeat(50)}
 
 export { 
     ddutils, 
-    D, 
-    // DD, 
-    // checkCache, 
-    // fillCache 
+    D
 }

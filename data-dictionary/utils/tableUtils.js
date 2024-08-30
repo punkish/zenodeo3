@@ -1,8 +1,6 @@
 import { tables } from '../resources/index.js';
 import { commonparams } from '../resources/commonparams.js';
-import clonedeep from 'lodash.clonedeep';
-import { D } from './index.js';
-//import { checkCache, fillCache } from './index.js';
+import { cache } from '../../lib/zimple-cache.js';
 
 const getTableProperties = () => Object.keys(tables[0]).join("\n\t- ");
 
@@ -77,7 +75,7 @@ const getCols = (tableName) => {
         ? getTable(tableName, 'attachedDatabase').name
         : '';
 
-    const colsCopy = clonedeep(getTable(tableName, 'params'));
+    const colsCopy = JSON.parse(JSON.stringify(getTable(tableName, 'params')));
     const cols = colsCopy
         .filter(col => col.sql)
         .filter(col => !col.external)
@@ -105,80 +103,78 @@ const getCols = (tableName) => {
 }
 
 const getCol = (tableName, colname, property) => {
-    // const segment = tableName;
-    // const key = 'col';
-    // const res = checkCache({ segment, key });
+    const segment = `tbl_${tableName}`;
+    const key = 'col';
+    const res = cache({ segment, key });
 
-    // if (res) {
-    //     return res;
-    // }
+    if (res) {
+        return res;
+    }
 
     const col = getCols(tableName)
         .filter(col => col.name === colname)[0];
 
-    //fillCache({ segment, key, val: col });
+    cache({ segment, key, val: col });
     return col;
 }
 
 const getXmlCols = (tableName) => {
-    if (!tableName) {
-        console.error('required argument "tableName" missing');
-        return;
+    const segment = `tbl_${tableName}`;
+    const key = 'xmlCols';
+    const res = cache({ segment, key });
+
+    if (res) {
+        return res;
     }
 
-    const cacheKey = `tbl_${tableName}`;
+    // first, get all the params from the dictionary
+    const cols = getTable(tableName, 'params');
 
-    // check the cache for resource or initialize it
-    if (!(cacheKey in D)) D[cacheKey] = {};
+    // all columns that have cheerio and that are not external
+    const cheerioCols = cols.filter(col => col.cheerio && !col.external);
 
-    if (!D[cacheKey].xmlCols) {
-        
-        // first, get all the params from the dictionary
-        const cols = getTable(tableName, 'params');
+    // all cols that are FKs
+    const fkCols = cols.filter(col => col.fk);
 
-        // all columns that have cheerio and that are not external
-        const cheerioCols = cols.filter(col => col.cheerio && !col.external);
-
-        // all cols that are FKs
-        const fkCols = cols.filter(col => col.fk);
-
-        // concat the above two and get their name and cheerio expr
-        const xmlCols = [...cheerioCols, ...fkCols]
-            .map(col => {
-                return {
-                    name: col.name,
-                    cheerio: col.cheerio
-                }
-            });
-
-        // finally, cache the cols
-        D[cacheKey].xmlCols = xmlCols;
-    }
-
-    return D[cacheKey].xmlCols;
+    // concat the above two and get their name and cheerio expr
+    const xmlCols = [...cheerioCols, ...fkCols]
+        .map(col => {
+            return {
+                name: col.name,
+                cheerio: col.cheerio
+            }
+        });
+    
+    cache({ segment, key, val: xmlCols });
+    return xmlCols;
 }
 
 const getDOM = (tableName) => {
-    const cacheKey = `tbl_${tableName}`;
-    if (!(cacheKey in D)) D[cacheKey] = {};
-    if (!D[cacheKey].DOM) {
-        D[cacheKey].DOM = {}
+    const segment = `tbl_${tableName}`;
+    const key = 'DOM';
+    const res = cache({ segment, key });
 
-        // first, get all the params from the dictionary
-        const cols = getTable(tableName, 'params');
-
-        // all columns that have cheerio and that are not external
-        const cheerioCols = cols.filter(col => col.cheerio && !col.external);
-
-        // all cols that are FKs
-        const fkCols = cols.filter(col => col.fk);
-
-        // concat the above two and get their name and cheerio expr
-        const xmlCols = [...cheerioCols, ...fkCols]
-            .forEach(col => D[cacheKey].DOM[col.name] = col.cheerio);
+    if (res) {
+        return res;
     }
 
-    return D[cacheKey].DOM;
+    const DOM = {}
+
+    // first, get all the params from the dictionary
+    const cols = getTable(tableName, 'params');
+
+    // all columns that have cheerio and that are not external
+    const cheerioCols = cols.filter(col => col.cheerio && !col.external);
+
+    // all cols that are FKs
+    const fkCols = cols.filter(col => col.fk);
+
+    // concat the above two and get their name and cheerio expr
+    [...cheerioCols, ...fkCols]
+        .forEach(col => DOM[col.name] = col.cheerio);
+
+    cache({ segment, key, val: DOM });
+    return DOM;
 }
 
 const _sqlComment = (str, outarr = []) => {
