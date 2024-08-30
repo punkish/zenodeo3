@@ -395,7 +395,7 @@ const externalParams = [
                 name: 'realm',
                 joins: [
                     'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id',
-                    'JOIN geodata.realms ON materialCitations.realms_id = geodata.realms.realms_id'
+                    'JOIN geodata.realms ON materialCitations.realms_id = geodata.realms.id'
                 ]
             }
         ]
