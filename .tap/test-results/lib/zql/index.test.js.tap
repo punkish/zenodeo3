@@ -1,0 +1,518 @@
+TAP version 14
+[34m2024-08-29 17:08:53.602[39m [31mZCACHE[39m [32m–  INFO[39m cache set 🔨 -- segment: images, key: params
+[34m2024-08-29 17:08:53.602[39m [31mZCACHE[39m [32m–  INFO[39m cache miss ‽ -- segment: images, key: pk
+[34m2024-08-29 17:08:53.602[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.602[39m [31mZCACHE[39m [32m–  INFO[39m cache set 🔨 -- segment: images, key: pk
+[34m2024-08-29 17:08:53.603[39m [31mZCACHE[39m [32m–  INFO[39m cache set 🔨 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.634[39m [31mZCACHE[39m [32m–  INFO[39m cache miss ‽ -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.635[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.635[39m [31mZCACHE[39m [32m–  INFO[39m cache set 🔨 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.635[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.635[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.635[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 0: cols=&cacheDuration=1
+    ok 1 - should be equivalent
+    1..1
+ok 1 - test 0: cols=&cacheDuration=1 # time=36.371ms
+
+[34m2024-08-29 17:08:53.639[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.647[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.647[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.648[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.648[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.648[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.649[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 1: family=Formicidae&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 2 - test 1: family=Formicidae&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=10.538ms
+
+[34m2024-08-29 17:08:53.650[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.659[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.659[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.659[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.659[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.659[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.659[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 2: class=Actinopterygii&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 3 - test 2: class=Actinopterygii&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=10.092ms
+
+[34m2024-08-29 17:08:53.660[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.668[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.668[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.668[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.668[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.668[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.668[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 3: class=Arachnida&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 4 - test 3: class=Arachnida&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=8.438ms
+
+[34m2024-08-29 17:08:53.669[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.681[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.681[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.681[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.681[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.681[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.681[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 4: class=Malacostraca&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 5 - test 4: class=Malacostraca&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=12.252ms
+
+[34m2024-08-29 17:08:53.682[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.688[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.688[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.688[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.688[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.689[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.689[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 5: order=Coleoptera&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 6 - test 5: order=Coleoptera&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=7.204ms
+
+[34m2024-08-29 17:08:53.689[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.695[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.695[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.696[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.696[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.696[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.696[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 6: captionText=phylogeny&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 7 - test 6: captionText=phylogeny&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=6.695ms
+
+[34m2024-08-29 17:08:53.696[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.702[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.703[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.703[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.703[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.703[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.703[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 7: q=phylogeny&termFreq=true&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 8 - test 7: q=phylogeny&termFreq=true&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=6.838ms
+
+[34m2024-08-29 17:08:53.705[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.711[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.711[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.711[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.711[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.711[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.711[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 8: q=phylogeny AND plantae&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 9 - test 8: q=phylogeny AND plantae&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=6.33ms
+
+[34m2024-08-29 17:08:53.712[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.718[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.718[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.718[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.718[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.718[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.718[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 9: journalTitle=eq(European Journal of Taxonomy)&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 10 - test 9: journalTitle=eq(European Journal of Taxonomy)&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=6.44ms
+
+[34m2024-08-29 17:08:53.719[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.726[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.726[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.726[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.726[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.727[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.727[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 10: articleDOI=10.11646/zootaxa.5284.3.7&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 11 - test 10: articleDOI=10.11646/zootaxa.5284.3.7&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=8.007ms
+
+[34m2024-08-29 17:08:53.727[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.735[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.735[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.735[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.735[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.735[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.735[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 11: articleTitle=starts_with(Morphology and taxonomic assessment)&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 12 - test 11: articleTitle=starts_with(Morphology and taxonomic assessment)&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=7.928ms
+
+[34m2024-08-29 17:08:53.736[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.742[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.742[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.742[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.742[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.750[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.750[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 12: geolocation=within(radius:10, units:'kilometers', lat:40.21, lng:-120.33)&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 13 - test 12: geolocation=within(radius:10, units:'kilometers', lat:40.21, lng:-120.33)&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=15.847ms
+
+[34m2024-08-29 17:08:53.752[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.758[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.758[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.758[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.758[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.759[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.759[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 13: class=Actinopterygii&publicationDate=since(2021-12-21)&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 14 - test 13: class=Actinopterygii&publicationDate=since(2021-12-21)&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=7.306ms
+
+[34m2024-08-29 17:08:53.760[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.767[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.768[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.768[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.768[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.768[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.768[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 14: checkinTime=since(yesterday)&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 15 - test 14: checkinTime=since(yesterday)&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=8.499ms
+
+[34m2024-08-29 17:08:53.768[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.774[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.774[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.774[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.774[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.774[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.774[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 15: q=tyrannosaurus&authorityName=Osborn&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 16 - test 15: q=tyrannosaurus&authorityName=Osborn&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=5.865ms
+
+[34m2024-08-29 17:08:53.774[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.780[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.780[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.780[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.780[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.780[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.780[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 16: family=Agamidae&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 17 - test 16: family=Agamidae&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=6.554ms
+
+[34m2024-08-29 17:08:53.782[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.787[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.787[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.787[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.787[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.787[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.787[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 17: q=moloch OR horridus&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 18 - test 17: q=moloch OR horridus&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=5.928ms
+
+[34m2024-08-29 17:08:53.788[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.796[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.796[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.796[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.796[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.796[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.796[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 18: q=decapoda&journalTitle=not_like(zootaxa)&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 19 - test 18: q=decapoda&journalTitle=not_like(zootaxa)&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=8.569ms
+
+[34m2024-08-29 17:08:53.797[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.802[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.803[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.803[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.803[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.803[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.803[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 19: biome=savanna&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 20 - test 19: biome=savanna&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=6.472ms
+
+[34m2024-08-29 17:08:53.804[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.809[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.809[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.809[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.809[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.809[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.809[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 20: biome=veld&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 21 - test 20: biome=veld&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=6.015ms
+
+[34m2024-08-29 17:08:53.810[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.815[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.815[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.815[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.815[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.816[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.816[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 21: biome=pampas&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 22 - test 21: biome=pampas&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=5.995ms
+
+[34m2024-08-29 17:08:53.816[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.824[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.824[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.824[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.824[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.824[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.824[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 22: biome=Tundra&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 23 - test 22: biome=Tundra&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=8.647ms
+
+[34m2024-08-29 17:08:53.825[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.831[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.831[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.831[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.831[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.831[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.831[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 23: biome=Tropical and Subtropical Moist Broadleaf Forests&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 24 - test 23: biome=Tropical and Subtropical Moist Broadleaf Forests&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=6.103ms
+
+[34m2024-08-29 17:08:53.832[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.837[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.837[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.837[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.837[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.837[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.837[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 24: biome=Mediterranean Forests, Woodlands and Scrub&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 25 - test 24: biome=Mediterranean Forests, Woodlands and Scrub&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=5.831ms
+
+[34m2024-08-29 17:08:53.838[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.845[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.845[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.845[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.845[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.845[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.845[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 25: biome=Deserts and Xeric Shrublands&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 26 - test 25: biome=Deserts and Xeric Shrublands&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=8.076ms
+
+[34m2024-08-29 17:08:53.846[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.851[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.851[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.851[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.851[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.851[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.851[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 26: biome=Temperate Grasslands, Savannas and Shrublands&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 27 - test 26: biome=Temperate Grasslands, Savannas and Shrublands&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=5.367ms
+
+[34m2024-08-29 17:08:53.852[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.858[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.858[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.858[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.858[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.858[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.858[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 27: biome=Boreal Forests or Taiga&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 28 - test 27: biome=Boreal Forests or Taiga&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=6.614ms
+
+[34m2024-08-29 17:08:53.859[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.864[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.864[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.864[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.864[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.864[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.864[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 28: biome=Temperate Conifer Forests&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 29 - test 28: biome=Temperate Conifer Forests&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=5.812ms
+
+[34m2024-08-29 17:08:53.865[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.872[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.872[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.872[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.872[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.872[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.872[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 29: biome=Temperate Broadleaf and Mixed Forests&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 30 - test 29: biome=Temperate Broadleaf and Mixed Forests&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=7.437ms
+
+[34m2024-08-29 17:08:53.873[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.878[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.878[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.878[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.878[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.878[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.878[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 30: biome=Montane Grasslands and Shrublands&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 31 - test 30: biome=Montane Grasslands and Shrublands&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=5.762ms
+
+[34m2024-08-29 17:08:53.879[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.884[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.884[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.885[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.885[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.885[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.885[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 31: biome=Mangroves&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 32 - test 31: biome=Mangroves&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=6.063ms
+
+[34m2024-08-29 17:08:53.886[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.893[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.893[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.893[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.893[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.893[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.893[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 32: biome=Flooded Grasslands and Savannas&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 33 - test 32: biome=Flooded Grasslands and Savannas&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=7.965ms
+
+[34m2024-08-29 17:08:53.894[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.899[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.899[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.899[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.899[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.899[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.899[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 33: biome=Tropical and Subtropical Grasslands, Savannas and Shrublands&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 34 - test 33: biome=Tropical and Subtropical Grasslands, Savannas and Shrublands&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=5.572ms
+
+[34m2024-08-29 17:08:53.900[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.905[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.905[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.905[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.905[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.905[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.905[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 34: biome=Tropical and Subtropical Dry Broadleaf Forests&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 35 - test 34: biome=Tropical and Subtropical Dry Broadleaf Forests&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=6.093ms
+
+[34m2024-08-29 17:08:53.906[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.911[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.911[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.911[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.911[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.911[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.911[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 35: biome=Tropical and Subtropical Coniferous Forests&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption
+    ok 1 - should be equivalent
+    1..1
+ok 36 - test 35: biome=Tropical and Subtropical Coniferous Forests&yearlyCounts=true&page=1&size=30&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption # time=5.799ms
+
+[34m2024-08-29 17:08:53.913[39m [31mZCACHE[39m [32m–  INFO[39m cache set 🔨 -- segment: treatments, key: params
+[34m2024-08-29 17:08:53.913[39m [31mZCACHE[39m [32m–  INFO[39m cache miss ‽ -- segment: treatments, key: pk
+[34m2024-08-29 17:08:53.913[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: params
+[34m2024-08-29 17:08:53.913[39m [31mZCACHE[39m [32m–  INFO[39m cache set 🔨 -- segment: treatments, key: pk
+[34m2024-08-29 17:08:53.913[39m [31mZCACHE[39m [32m–  INFO[39m cache set 🔨 -- segment: treatments, key: queryStringSchema
+[34m2024-08-29 17:08:53.922[39m [31mZCACHE[39m [32m–  INFO[39m cache miss ‽ -- segment: treatments, key: resourceId
+[34m2024-08-29 17:08:53.922[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: params
+[34m2024-08-29 17:08:53.922[39m [31mZCACHE[39m [32m–  INFO[39m cache set 🔨 -- segment: treatments, key: resourceId
+[34m2024-08-29 17:08:53.922[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: params
+[34m2024-08-29 17:08:53.922[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: resourceId
+[34m2024-08-29 17:08:53.922[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: params
+# Subtest: test 36: cols=&cacheDuration=1
+    ok 1 - should be equivalent
+    1..1
+ok 37 - test 36: cols=&cacheDuration=1 # time=10.163ms
+
+[34m2024-08-29 17:08:53.923[39m [31mZCACHE[39m [32m–  INFO[39m cache set 🔨 -- segment: species, key: params
+[34m2024-08-29 17:08:53.923[39m [31mZCACHE[39m [32m–  INFO[39m cache miss ‽ -- segment: species, key: pk
+[34m2024-08-29 17:08:53.923[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: species, key: params
+[34m2024-08-29 17:08:53.923[39m [31mZCACHE[39m [32m–  INFO[39m cache set 🔨 -- segment: species, key: pk
+[34m2024-08-29 17:08:53.923[39m [31mZCACHE[39m [32m–  INFO[39m cache set 🔨 -- segment: species, key: queryStringSchema
+[34m2024-08-29 17:08:53.925[39m [31mZCACHE[39m [32m–  INFO[39m cache miss ‽ -- segment: species, key: resourceId
+[34m2024-08-29 17:08:53.925[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: species, key: params
+[34m2024-08-29 17:08:53.925[39m [31mZCACHE[39m [32m–  INFO[39m cache set 🔨 -- segment: species, key: resourceId
+[34m2024-08-29 17:08:53.925[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: species, key: params
+[34m2024-08-29 17:08:53.925[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: species, key: resourceId
+[34m2024-08-29 17:08:53.925[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: species, key: params
+# Subtest: test 37: cols=&cacheDuration=1
+    ok 1 - should be equivalent
+    1..1
+ok 38 - test 37: cols=&cacheDuration=1 # time=2.359ms
+
+[34m2024-08-29 17:08:53.925[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: queryStringSchema
+[34m2024-08-29 17:08:53.931[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: resourceId
+[34m2024-08-29 17:08:53.931[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: params
+[34m2024-08-29 17:08:53.932[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: resourceId
+[34m2024-08-29 17:08:53.932[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: params
+[34m2024-08-29 17:08:53.932[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: resourceId
+[34m2024-08-29 17:08:53.932[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: params
+# Subtest: test 38: page=1&size=30&q=agosti&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=journalTitle&termFreq=true&yearlyCounts=true
+    ok 1 - should be equivalent
+    1..1
+ok 39 - test 38: page=1&size=30&q=agosti&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=journalTitle&termFreq=true&yearlyCounts=true # time=6.491ms
+
+[34m2024-08-29 17:08:53.932[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: queryStringSchema
+[34m2024-08-29 17:08:53.940[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: resourceId
+[34m2024-08-29 17:08:53.940[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: params
+[34m2024-08-29 17:08:53.940[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: resourceId
+[34m2024-08-29 17:08:53.940[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: params
+[34m2024-08-29 17:08:53.940[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: resourceId
+[34m2024-08-29 17:08:53.940[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: treatments, key: params
+# Subtest: test 39: page=1&size=30&class=Actinopterygii&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=journalTitle&yearlyCounts=true
+    ok 1 - should be equivalent
+    1..1
+ok 40 - test 39: page=1&size=30&class=Actinopterygii&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=journalTitle&yearlyCounts=true # time=8.373ms
+
+[34m2024-08-29 17:08:53.941[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.946[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.946[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.946[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.946[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.946[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.946[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 40: page=1&size=30&kingdom=foo&cols=httpUri&cols=treatments_id&cols=caption&yearlyCounts=true
+    ok 1 - should be equivalent
+    1..1
+ok 41 - test 40: page=1&size=30&kingdom=foo&cols=httpUri&cols=treatments_id&cols=caption&yearlyCounts=true # time=5.688ms
+
+[34m2024-08-29 17:08:53.947[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: queryStringSchema
+[34m2024-08-29 17:08:53.954[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.954[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.954[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.954[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+[34m2024-08-29 17:08:53.954[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: resourceId
+[34m2024-08-29 17:08:53.954[39m [31mZCACHE[39m [32m–  INFO[39m cache hit 💥 -- segment: images, key: params
+# Subtest: test 41: collectionCode=foo&cols=httpUri&cols=treatments_id&cols=caption&yearlyCounts=true
+    ok 1 - should be equivalent
+    1..1
+ok 42 - test 41: collectionCode=foo&cols=httpUri&cols=treatments_id&cols=caption&yearlyCounts=true # time=6.905ms
+
+1..42
