@@ -41,6 +41,7 @@
     "fastify-favicon": "^4.3.0",
     "fastify-plugin": "^4.5.1",
     "got": "^14.2.1",
+    "h3-js": "^4.1.0",
     "handlebars": "^4.7.8",
     "is-sea": "^0.3.1",
     "lodash.clonedeep": "^4.5.0",

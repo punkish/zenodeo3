@@ -23,6 +23,7 @@ import { cronJobs } from './plugins/cron.js';
 import { tos } from './routes/tos/index.js';
 import { docs } from './routes/docs/index.js';
 import { treatmentsArchive } from './routes/treatments-archive/index.js';
+import { bins } from './routes/bins/index.js';
 
 // we rename routes to resources because we have already imported a map of the 
 // routes above
@@ -77,6 +78,7 @@ export async function server(opts={}) {
     fastify.register(tos);
     fastify.register(docs);
     fastify.register(treatmentsArchive);
+    fastify.register(bins, { prefix: 'v3' });
     resources.forEach(resource => fastify.register(resource, { prefix: 'v3' }));
     
     return fastify;

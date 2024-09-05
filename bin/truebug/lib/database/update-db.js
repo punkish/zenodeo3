@@ -1,17 +1,20 @@
 'use strict';
 
-const fs = require('fs');
-const turf = require('@turf/turf');
-const isSea = require('is-sea');
-const h3 = require('h3-js');
-const geojson2h3 = require('geojson2h3');
-const Database = require('better-sqlite3');
-const config = require('config');
-const db = {
-    h3: config.get('db.h3'),
-    treatments: new Database(config.get('db.treatments')),
-    stats: new Database(config.get('db.stats')),
-}
+import * as fs from 'fs';
+import * as h3 from 'h3-js';
+// const turf = require('@turf/turf');
+// const isSea = require('is-sea');
+// const h3 = require('h3-js');
+//const geojson2h3 = require('geojson2h3');
+import Database from "better-sqlite3";
+// const config = require('config');
+// const db = {
+//     h3: config.get('db.h3'),
+//     treatments: new Database(config.get('db.treatments')),
+//     stats: new Database(config.get('db.stats')),
+// }
+
+const db = new Database('./data/db/zenodeo.sqlite');
 
 // 510M sq kms
 const EARTH = 510000000;
@@ -41,16 +44,21 @@ const hexarea = (side) => 3 * Math.sqrt(3) * side * side / 2;
 
 const calcDensity = (resolution) => {
     const density = {}
-    const sel = 'SELECT materialsCitationId, longitude, latitude FROM materialsCitations WHERE deleted = 0 AND validGeo = 1';
-    const points = db.treatments.prepare(sel).all();
+    //const sel = 'SELECT materialsCitationId, longitude, latitude FROM materialsCitations WHERE deleted = 0 AND validGeo = 1';
+    const sel = `SELECT latitude, longitude FROM materialCitations WHERE typeof(latitude) = 'real' AND abs(latitude) < 90 AND typeof(longitude) = 'real' AND abs(longitude) < 180`;
+    const points = db.prepare(sel).all();
     const j = points.length;
 
-    const filename = `${db.h3}/treatments-density-h3-${resolution}.json`;
-    
+    const filename = `./data/h3/treatments-density-h3-${resolution}.json`;
     
     for (let i = 0; i < j; i++) {
         const point = points[i];
-        const idx = h3.geoToH3(point.latitude, point.longitude, resolution);
+        const idx = h3.latLngToCell(
+            point.latitude, 
+            point.longitude, 
+            resolution
+        );
+
         if (idx in density) {
             density[idx]++;
         }
@@ -62,7 +70,10 @@ const calcDensity = (resolution) => {
     const done = fs.writeFileSync(filename, JSON.stringify(density));
 }
 
-calcDensity(3);
+// calcDensity(0);
+// calcDensity(1);
+// calcDensity(2);
+// calcDensity(3);
 
 /*
 | lat/lng             | validGeo | isOnLand |
@@ -73,22 +84,22 @@ calcDensity(3);
 | lat/lng are correct | 1        | NULL     |
 */
 
-const isInSea = () => {
-    const recs = db.treatments.prepare('SELECT id, latitude, longitude, isOnLand FROM materialsCitations WHERE deleted = 0 AND validGeo = 1').all();
+// const isInSea = () => {
+//     const recs = db.treatments.prepare('SELECT id, latitude, longitude, isOnLand FROM materialsCitations WHERE deleted = 0 AND validGeo = 1').all();
 
-    const upd = db.treatments.prepare('UPDATE materialsCitations SET isOnLand = @isOnLand WHERE id = @id');
+//     const upd = db.treatments.prepare('UPDATE materialsCitations SET isOnLand = @isOnLand WHERE id = @id');
 
-    let count = 0;
-    for (const rec of recs) {
-        const params = {isOnLand: 1, id: rec.id};
-        if (isSea(rec.latitude, rec.longitude)) {
-            params.isOnLand = 0;
-            count++;
-        }
+//     let count = 0;
+//     for (const rec of recs) {
+//         const params = {isOnLand: 1, id: rec.id};
+//         if (isSea(rec.latitude, rec.longitude)) {
+//             params.isOnLand = 0;
+//             count++;
+//         }
         
-        upd.run(params);
-    }
-    console.log(`${count} were in sea`);
-}
+//         upd.run(params);
+//     }
+//     console.log(`${count} were in sea`);
+// }
 
 //isInSea();
