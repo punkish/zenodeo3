@@ -752,7 +752,7 @@ const externalParams = [
             {
                 name: 'geolocation',
                 joins: [
-                    'JOIN materialCitationsRtree ON materialCitations.id = materialCitationsRtree.materialCitations_id'
+                    'JOIN materialCitationsRtree ON materialCitations.id = materialCitationsRtree.id'
                 ]
             },
             {

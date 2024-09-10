@@ -489,7 +489,7 @@ const params = [
 `,
         },
         joins: [
-            'JOIN materialCitationsRtree ON materialCitations.id = materialCitationsRtree.materialCitations_id'
+            'JOIN materialCitationsRtree ON materialCitations.id = materialCitationsRtree.id'
         ],
         zqltype: 'geolocation',
         defaultCol: false,
