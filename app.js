@@ -20,8 +20,13 @@ import { cronJobs } from './plugins/cron.js';
 
 //import fastifyQueries from './plugins/queries.js';
 
-import { tos } from './routes/tos/index.js';
 import { docs } from './routes/docs/index.js';
+import { tos } from './routes/tos/index.js';
+import { install } from './routes/install/index.js';
+import { queryHelp } from './routes/query-help/index.js';
+import { roadmap } from './routes/roadmap/index.js';
+import { about } from './routes/about/index.js';
+
 import { treatmentsArchive } from './routes/treatments-archive/index.js';
 import { bins } from './routes/bins/index.js';
 
@@ -75,8 +80,13 @@ export async function server(opts={}) {
 
     // register the routes to resources
     //
-    fastify.register(tos);
     fastify.register(docs);
+    fastify.register(tos);
+    fastify.register(install);
+    fastify.register(queryHelp);
+    fastify.register(roadmap);
+    fastify.register(about);
+    
     fastify.register(treatmentsArchive);
     fastify.register(bins, { prefix: 'v3' });
     resources.forEach(resource => fastify.register(resource, { prefix: 'v3' }));
