@@ -41,39 +41,41 @@ const hexarea = (side) => 3 * Math.sqrt(3) * side * side / 2;
 // console.log(`hexBoundary: ${JSON.stringify(hexBoundary, null, 4)}`);
 // // -> [ [37.341099093235684, -122.04156135164334 ], ...]
 
-
-const calcDensity = (resolution) => {
-    const density = {}
+function calcDensity() {
+    
     //const sel = 'SELECT materialsCitationId, longitude, latitude FROM materialsCitations WHERE deleted = 0 AND validGeo = 1';
-    const sel = `SELECT latitude, longitude FROM materialCitations WHERE typeof(latitude) = 'real' AND abs(latitude) < 90 AND typeof(longitude) = 'real' AND abs(longitude) < 180`;
+    //const sel = `SELECT latitude, longitude FROM materialCitations WHERE typeof(latitude) = 'real' AND abs(latitude) < 90 AND typeof(longitude) = 'real' AND abs(longitude) < 180`;
+    const sel = 'SELECT DISTINCT latitude, longitude FROM images JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id WHERE materialCitations.validGeo = 1';
     const points = db.prepare(sel).all();
     const j = points.length;
-
-    const filename = `./data/h3/treatments-density-h3-${resolution}.json`;
+    console.log(`found ${j} points`);
     
-    for (let i = 0; i < j; i++) {
-        const point = points[i];
-        const idx = h3.latLngToCell(
-            point.latitude, 
-            point.longitude, 
-            resolution
-        );
+    for (let resolution = 0; resolution < 4; resolution++) {
+        console.log(`- writing resolution ${resolution}`);
+        const density = {};
 
-        if (idx in density) {
-            density[idx]++;
+        for (let i = 0; i < j; i++) {
+            const point = points[i];
+            const h3id = h3.latLngToCell(
+                point.latitude, 
+                point.longitude, 
+                resolution
+            );
+    
+            if (h3id in density) {
+                density[h3id]++;
+            }
+            else {
+                density[h3id] = 1;
+            }
         }
-        else {
-            density[idx] = 1;
-        }
+
+        const filename = `./data/h3/treatments-density-h3-${resolution}.json`;
+        const done = fs.writeFileSync(filename, JSON.stringify(density));
     }
-
-    const done = fs.writeFileSync(filename, JSON.stringify(density));
 }
 
-// calcDensity(0);
-// calcDensity(1);
-// calcDensity(2);
-// calcDensity(3);
+calcDensity();
 
 /*
 | lat/lng             | validGeo | isOnLand |
