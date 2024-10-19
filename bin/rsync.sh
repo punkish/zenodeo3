@@ -15,5 +15,5 @@
 
 EXCLUDES="./bin/exclude-rsync.txt"
 SRC="./data"
-TGT="lko:/home/punkish/Projects/zenodeo3"
+TGT="vigo:/home/punkish/Projects/zenodeo3"
 rsync -azvv --exclude-from=$EXCLUDES $SRC $TGT

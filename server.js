@@ -107,8 +107,8 @@ const start = async () => {
             }
         });
 
-        await fastify.listen({ port: config.port });
-
+        await fastify.listen({ port: config.port, host: config.address });
+        
         fastify.log.info(`… in ${env.toUpperCase()} mode`);
 
         // We run the cronJobs onetime on initializing the server so the 

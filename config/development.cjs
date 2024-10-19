@@ -8,11 +8,11 @@ module.exports = {
     // is where this service is available from outside
     //
     "port": 3010,
-    "address": "127.0.0.1",
+    "address": "0.0.0.0",
     "schemes": [ "http" ],
     "url": {
-        "zenodeo": "http://127.0.0.1:3010",
-        "swagger": "127.0.0.1:3010",
+        "zenodeo": "http://0.0.0.0:3010",
+        "swagger": "0.0.0.0:3010",
         "zenodo" : "https://zenodo.org/api/records"
     },
 

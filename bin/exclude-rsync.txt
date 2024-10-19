@@ -4,4 +4,10 @@ treatments-archive
 z3-bak
 zips
 logs
-*.sqlite
+data/db
+data/xmls
+data/zips
+data/treatments-dumps
+data/treatments-archive
+data/ecoregions-2017
+bak/
