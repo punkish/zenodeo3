@@ -21,7 +21,7 @@ module.exports = {
     "mode"  : "real", 
     "server": {
         "hostname": 'https://tb.plazi.org',
-        "path"    : 'GgServer/dumps',
+        "path"    : 'dumps',
         "port"    : 443
     },
     "source": "archive"

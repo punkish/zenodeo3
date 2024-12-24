@@ -94,8 +94,8 @@ module.exports = {
         "params": {
             "images": [ 
                 "treatmentId", "treatmentTitle", "zenodoDep", "treatmentDOI", 
-                "articleTitle", "articleAuthor", "httpUri", "caption", "latitude",
-                "longitude"
+                "articleTitle", "articleAuthor", "httpUri", "caption", 
+                "latitude", "longitude"
             ],
             "treatments": [ 
                 "treatmentId", "treatmentTitle", "zenodoDep", "treatmentDOI", 
@@ -180,7 +180,7 @@ module.exports = {
         // },
         "server": {
             "hostname": 'https://tb.plazi.org',
-            "path"    : 'GgServer/dumps',
+            "path"    : 'dumps',
             "port"    : 443
         },
 
