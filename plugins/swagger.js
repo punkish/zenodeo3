@@ -21,7 +21,7 @@ export const swaggerOpts = {
             info: {
                 title: 'Zenodeo API documentation',
                 description: 'A `nodejs` interface to treatments from [TreatmentBank](http://treatmentbank.org) and resources on [Zenodo](https://zenodo.org)',
-                version: '3.4.0',
+                version: '3.6.0',
                 termsOfService: '/tos',
                 contact: {
                     name: 'API Support',
