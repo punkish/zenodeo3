@@ -15,8 +15,8 @@ import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import { swaggerOpts } from './plugins/swagger.js';
 
-import fastifyCron from 'fastify-cron';
-import { cronJobs } from './plugins/cron.js';
+// import fastifyCron from 'fastify-cron';
+// import { cronJobs } from './plugins/cron.js';
 
 //import fastifyQueries from './plugins/queries.js';
 
@@ -51,21 +51,21 @@ export async function server(opts={}) {
     fastify.register(fastifyStatic, staticPublic);
     //fastify.register(fastifyStatic, staticTreatmentsArchives);
     fastify.register(view, viewOpts);
-    const jobs = cronJobs.map(({cronTime, qs}) => {
-        return {
-            cronTime,
-            onTick: async (server) => {
-                try {
-                    await server.inject(qs);
-                }
-                catch(error) {
-                    console.error(error);
-                }
-            },
-            start: true
-        }
-    });
-    fastify.register(fastifyCron, { jobs });
+    // const jobs = cronJobs.map(({cronTime, qs}) => {
+    //     return {
+    //         cronTime,
+    //         onTick: async (server) => {
+    //             try {
+    //                 await server.inject(qs);
+    //             }
+    //             catch(error) {
+    //                 console.error(error);
+    //             }
+    //         },
+    //         start: true
+    //     }
+    // });
+    //fastify.register(fastifyCron, { jobs });
 
     // we initialize the db connection once, and store it in a fastify
     // plugin so it can be used everywhere
