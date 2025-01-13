@@ -62,4 +62,5 @@ function initJobs(cronQueries) {
 }
 
 const cronJobs = initJobs(cronQueries);
+
 export { cronJobs }

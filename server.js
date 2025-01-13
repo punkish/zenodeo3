@@ -10,11 +10,12 @@ const config = new Config().settings;
 import { server } from './app.js';
 import { coerceToArray, getCache, getCacheKey } from './lib/routeUtils.js';
 
+import cron from 'node-cron';
 import { cronJobs } from './plugins/cron.js';
 
 // Function to initialize and start the server!
 // 
-const start = async () => {
+const start = async (server) => {
     const opts = {
 
         // setting 'exposeHeadRoutes' to false ensures only 'GET' routes are 
@@ -66,42 +67,44 @@ const start = async () => {
                     : '';
 
                 // The following is applicable *only* if a resourceName is 
-                // present
+                // present, which will happen *only* if the url contains 'v3'
                 //
-                if (resourceName) {
-                    const cacheKey = getCacheKey(request);
+                if (request.url.indexOf('v3') === 1) {
+                    if (resourceName) {
+                        const cacheKey = getCacheKey(request);
 
-                    const cache = getCache({ 
-                        dir: config.cache.base, 
-                        namespace: resourceName, 
-                        duration: request.query.cacheDuration
-                            ? request.query.cacheDuration * 24 * 60 * 60 * 1000
-                            : config.cache.ttl
-                    });
-
-                    let res = await cache.get(cacheKey);
-
-                    if (res) {
-                        const response = {
-                            item: res.item,
-                            stored: res.stored,
-                            ttl: res.ttl,
-                            //pre: true,
-                            cacheHit: true,
-                        };
-
-                        reply.hijack();
-
-                        // since we are sending back raw response, we need to 
-                        // add the appropriate headers so the response is 
-                        // recognized as JSON and is CORS-compatible
-                        //
-                        reply.raw.writeHead(200, { 
-                            'Content-Type': 'application/json; charset=utf-8',
-                            'Access-Control-Allow-Origin': '*'
+                        const cache = getCache({ 
+                            dir: config.cache.base, 
+                            namespace: resourceName, 
+                            duration: request.query.cacheDuration
+                                ? request.query.cacheDuration * 24 * 60 * 60 * 1000
+                                : config.cache.ttl
                         });
-                        reply.raw.end(JSON.stringify(response));
-                        return Promise.resolve('done');
+
+                        let res = await cache.get(cacheKey);
+
+                        if (res) {
+                            const response = {
+                                item: res.item,
+                                stored: res.stored,
+                                ttl: res.ttl,
+                                //pre: true,
+                                cacheHit: true,
+                            };
+
+                            reply.hijack();
+
+                            // since we are sending back raw response, we need to 
+                            // add the appropriate headers so the response is 
+                            // recognized as JSON and is CORS-compatible
+                            //
+                            reply.raw.writeHead(200, { 
+                                'Content-Type': 'application/json; charset=utf-8',
+                                'Access-Control-Allow-Origin': '*'
+                            });
+                            reply.raw.end(JSON.stringify(response));
+                            return Promise.resolve('done');
+                        }
                     }
                 }
             }
@@ -113,14 +116,27 @@ const start = async () => {
 
         // We run the cronJobs onetime on initializing the server so the 
         // queries are cached
-        // for (const {qs} of cronJobs) {
-        //     try {
-        //         await fastify.inject(qs);
-        //     }
-        //     catch(error) {
-        //         console.error(error);
-        //     }
-        // }
+        fastify.log.info('Running cronJobs on startup');
+        for (const {qs} of cronJobs) {
+            try {
+                await fastify.inject(qs);
+            }
+            catch(error) {
+                console.error(error);
+            }
+        }
+
+        // We also run the cronJobs at the specified times
+        cronJobs.map(({cronTime, qs}) => {
+            cron.schedule(cronTime, async () => {
+                try {
+                    await fastify.inject(qs);
+                }
+                catch(error) {
+                    console.error(error);
+                }
+            });
+        });
     }
     catch (err) {
         console.log(err);
@@ -130,4 +146,4 @@ const start = async () => {
 
 // Start the server!
 //
-start();
+start(server);

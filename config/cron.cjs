@@ -16,6 +16,13 @@ module.exports = {
         }
     },
 
+    // zlogger options
+    //
+    "zlogger": {
+        "level"     : "error",
+        "transports": [ 'file' ],
+    },
+
     // this overrides any test or development mode settings
     // 
     "mode"  : "real", 

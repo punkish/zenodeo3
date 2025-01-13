@@ -22,15 +22,19 @@ module.exports = {
         "opts": {
             "transport"  : {
                 "target" : "pino-pretty",
+                //target: 'pino/file',
                 "options": {
+                    destination: 1, // this writes to STDOUT
+                    colorize: true,
                     "translateTime": "HH:MM:ss Z",
                     "ignore"       : "pid,hostname"
                 }
             },
             "level": "info",
             serializers: {
+
+                // The default value response
                 // res (reply) {
-                //   // The default
                 //   return {
                 //     statusCode: reply.statusCode
                 //   }

@@ -13,6 +13,13 @@ module.exports = {
         }
     },
 
+    // zlogger options
+    //
+    "zlogger": {
+        "level"     : "error",
+        "transports": [ 'file' ],
+    },
+    
     // don't add debug info to results 
     // 
     "isDebug": false,
