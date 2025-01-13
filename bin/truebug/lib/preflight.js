@@ -14,7 +14,7 @@ const log = new Zlogger(logOpts);
 
 import fs from 'fs';
 import path from 'path';
-import tar from 'tar';
+import { create } from 'tar';
 
 const copyXmlToDump = (typeOfArchive, xml) => {
     const fn = 'copyXmlToDump';
@@ -72,14 +72,11 @@ const backupOldDB = () => {
     }
     
     try {
-        tar.create(tarOpts, [ dbDir ]);
+        create(tarOpts, [ dbDir ]).then(_ => log.info('done\n', 'end'));
     }
     catch(error) {
         log.error(error);
     }
-    
-
-    log.info('done\n', 'end');
 }
 
 const filesExistInDump = (typeOfArchive) => {
