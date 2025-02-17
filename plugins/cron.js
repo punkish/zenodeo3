@@ -1,5 +1,5 @@
 // This plugin enables the use of cron in a Fastify application.
-// @see https://www.npmjs.com/package/fastify-cron
+// @see https://www.npmjs.com/package/node-cron
 // 
 
 import { Config } from '@punkish/zconfig';
@@ -33,10 +33,7 @@ function initJobs(cronQueries) {
         if (resource === 'species') {
             qs = `/v3/${resource}?cols=`;
             const {m, h} = getMinsHours(i);
-            jobs.push({
-                cronTime: `${m} ${h} * * *`,
-                qs
-            });
+            jobs.push({ cronTime: `${m} ${h} * * *`, qs });
             i++;
         }
         else {
@@ -49,10 +46,17 @@ function initJobs(cronQueries) {
                     : `/v3/${resource}?cols=&yearlyCounts=true`;
 
                 const {m, h} = getMinsHours(i);
-                jobs.push({
-                    cronTime: `${m} ${h} * * *`,
-                    qs
-                });
+
+                //                   ┌──────────────────── second (optional)
+                //                   │   ┌──────────────── minute
+                //                   │   │    ┌─────────── hour
+                //                   │   │    │  ┌──────── day of month
+                //                   │   │    │  │ ┌────── month
+                //                   │   │    │  │ │ ┌──── day of week
+                //                   │   │    │  │ │ │
+                //                   │   │    │  │ │ │
+                //                   *   *    *  * * *
+                jobs.push({ cronTime: `${m} ${h} * * *`, qs });
                 i++;
             })
         }
