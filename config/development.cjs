@@ -112,6 +112,7 @@ module.exports = {
         },
 
         "queries" : [
+            '',
             `family=Formicidae`,
             `class=Actinopterygii`,
             `class=Arachnida`,
