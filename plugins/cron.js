@@ -1,24 +1,18 @@
 // This plugin enables the use of cron in a Fastify application.
 // @see https://www.npmjs.com/package/node-cron
 // 
-
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 const cronQueries = config.cronQueries;
 
 function getMinsHours(i) {
+    return i > 59 
 
-    // starting at midnight, every min until 59 mins past midnight.
-    let m = i;
-    let h = 0;
+        // starting at midnight, every min until 59 mins past midnight…
+        ? { m:i - 60, h:1 } 
 
-    // Then every minute starting at 1 AM
-    if (i > 59) {
-        m = i - 60;
-        h = 1;
-    }
-
-    return { m, h };
+        // then every minute starting at 1 AM
+        : { m:i, h:0 };
 }
 
 function initJobs(cronQueries) {
@@ -60,7 +54,7 @@ function initJobs(cronQueries) {
                 jobs.push({ cronTime: `${m} ${h} * * *`, qs });
                 i++;
 
-                console.log(`${i} [${0 + h}:${m}AM]: ${qs.substring(0, 150)}`);
+                //console.log(`${i} [${0 + h}:${m}AM]: ${qs.substring(0, 150)}`);
             });
         });
     }
@@ -73,5 +67,4 @@ function initJobs(cronQueries) {
 }
 
 const cronJobs = initJobs(cronQueries);
-
 export { cronJobs }
