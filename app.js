@@ -37,6 +37,7 @@ import { routes as resources } from './routes/api/index.js';
 
 import view from '@fastify/view';
 import { viewOpts } from './plugins/view.js';
+import fastifyCache from './plugins/cache/index.js';
 
 export async function server(opts={}) {
     const fastify = Fastify(opts);
@@ -77,6 +78,8 @@ export async function server(opts={}) {
     };
 
     fastify.register(fastifyBetterSqlite3, fastifyBetterSqlite3Opts);
+    fastify.register(fastifyCache, 'treatments');
+    
 
     // register the routes to resources
     //

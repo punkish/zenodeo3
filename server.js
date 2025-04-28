@@ -59,30 +59,20 @@ const start = async (server) => {
             // or is set to false (the same thing)
             //
             if (!request.query.refreshCache) {
-                const url = new URL(request.url);
+                const url = new URL(`${config.url.zenodeo}/${request.url}`);
                 const resourceName = url.pathname.split('/')[2];
 
                 // The following is applicable *only* if a resourceName exists 
                 //
                 if (resourceName) {
                     const cacheKey = getCacheKey(request);
-
-                    const cache = getCache({ 
-                        dir: config.cache.base, 
-                        namespace: resourceName, 
-                        duration: request.query.cacheDuration
-                            ? request.query.cacheDuration * 24 * 60 * 60 * 1000
-                            : config.cache.ttl
-                    });
-
-                    let res = await cache.get(cacheKey);
+                    let res = await fastify.cache.get(cacheKey);
 
                     if (res) {
                         const response = {
                             item: res.item,
                             stored: res.stored,
                             ttl: res.ttl,
-                            //pre: true,
                             cacheHit: true,
                         };
 
