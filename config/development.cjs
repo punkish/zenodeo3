@@ -95,6 +95,8 @@ module.exports = {
 
     // page=1&size=30&class=Arachnida&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption&cols=latitude&cols=longitude&yearlyCounts=true
     "cronQueries": {
+        "runCronJobsOnStart": false,
+        "installCronJobs": false,
         "params": {
             "images": [ 
                 "treatmentId", "treatmentTitle", "zenodoDep", "treatmentDOI", 

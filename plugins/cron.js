@@ -22,47 +22,54 @@ function getMinsHours(i) {
 }
 
 function initJobs(cronQueries) {
-    const queries = cronQueries.queries;
-    let i = 0;
-    const jobs = [];
+    let jobs = [];
 
-    const resources = ['images', 'treatments', 'species'];
-    resources.forEach(resource => {
-        let qs;
+    if (cronQueries.runCronJobsOnStart || cronQueries.installCronJobs)  {
+        const queries = cronQueries.queries;
+        let i = 0;
 
-        if (resource === 'species') {
-            qs = `/v3/${resource}?cols=`;
-            const {m, h} = getMinsHours(i);
-            jobs.push({ cronTime: `${m} ${h} * * *`, qs });
-            i++;
-        }
-        else {
-            const params = cronQueries.params[resource];
-            const cols = params.map(param => `cols=${param}`).join('&');
-            
-            queries.forEach((query, idx) => {
-                qs = idx
-                    ? `/v3/${resource}?page=1&size=30&${query}&${cols}&yearlyCounts=true`
-                    : `/v3/${resource}?cols=&yearlyCounts=true`;
+        const resources = ['images', 'treatments', 'species'];
+        resources.forEach(resource => {
+            let qs;
 
+            if (resource === 'species') {
+                qs = `/v3/${resource}?cols=`;
                 const {m, h} = getMinsHours(i);
-
-                //                   ┌──────────────────── second (optional)
-                //                   │   ┌──────────────── minute
-                //                   │   │    ┌─────────── hour
-                //                   │   │    │  ┌──────── day of month
-                //                   │   │    │  │ ┌────── month
-                //                   │   │    │  │ │ ┌──── day of week
-                //                   │   │    │  │ │ │
-                //                   │   │    │  │ │ │
-                //                   *   *    *  * * *
                 jobs.push({ cronTime: `${m} ${h} * * *`, qs });
                 i++;
-            })
-        }
-    });
+            }
+            else {
+                const params = cronQueries.params[resource];
+                const cols = params.map(param => `cols=${param}`).join('&');
+                
+                queries.forEach((query, idx) => {
+                    qs = idx
+                        ? `/v3/${resource}?page=1&size=30&${query}&${cols}&yearlyCounts=true`
+                        : `/v3/${resource}?cols=&yearlyCounts=true`;
 
-    return jobs;
+                    const {m, h} = getMinsHours(i);
+
+                    //                   ┌──────────────────── second (optional)
+                    //                   │   ┌──────────────── minute
+                    //                   │   │    ┌─────────── hour
+                    //                   │   │    │  ┌──────── day of month
+                    //                   │   │    │  │ ┌────── month
+                    //                   │   │    │  │ │ ┌──── day of week
+                    //                   │   │    │  │ │ │
+                    //                   │   │    │  │ │ │
+                    //                   *   *    *  * * *
+                    jobs.push({ cronTime: `${m} ${h} * * *`, qs });
+                    i++;
+                })
+            }
+        });
+    }
+
+    return { 
+        runCronJobsOnStart: cronQueries.runCronJobsOnStart, 
+        installCronJobs: cronQueries.installCronJobs, 
+        jobs 
+    }
 }
 
 const cronJobs = initJobs(cronQueries);

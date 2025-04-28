@@ -113,30 +113,36 @@ const start = async (server) => {
         
         fastify.log.info(`… in ${env.toUpperCase()} mode`);
 
-        // We run the cronJobs onetime on initializing the server so the 
-        // queries are cached
-        fastify.log.info('Running cronJobs on startup');
+        if (cronJobs.runCronJobsOnStart) {
 
-        for (const {qs} of cronJobs) {
-            try {
-                await fastify.inject(qs);
-            }
-            catch(error) {
-                console.error(error);
-            }
-        }
+            // We run the cronJobs onetime on initializing the server so the 
+            // queries are cached
+            fastify.log.info('Running cronJobs on startup');
 
-        // We also run the cronJobs at the specified times
-        cronJobs.map(({cronTime, qs}) => {
-            cron.schedule(cronTime, async () => {
+            for (const {qs} of cronJobs.jobs) {
                 try {
                     await fastify.inject(qs);
                 }
                 catch(error) {
                     console.error(error);
                 }
+            }
+        }
+        
+        if (cronJobs.installCronJobs) {
+
+            // We also run the cronJobs at the specified times
+            cronJobs.jobs.map(({cronTime, qs}) => {
+                cron.schedule(cronTime, async () => {
+                    try {
+                        await fastify.inject(qs);
+                    }
+                    catch(error) {
+                        console.error(error);
+                    }
+                });
             });
-        });
+        }
     }
     catch (err) {
         console.log(err);
