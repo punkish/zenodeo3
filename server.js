@@ -57,66 +57,66 @@ const start = async (server) => {
         //
         fastify.addHook('preHandler', async (request, reply) => {
 
-            // all of this makes sense only if refreshCache is not true
+            // all of this makes sense only if refreshCache does not exist
+            // or is set to false (the same thing)
             //
             if (!request.query.refreshCache) {
-                
-                const path = request.url.split('/')[2];
-                const resourceName = path 
-                    ? path.split('?')[0]
-                    : '';
+                const url = new URL(request.url);
+                const resourceName = url.pathname.split('/')[2];
 
-                // The following is applicable *only* if a resourceName is 
-                // present, which will happen *only* if the url contains 'v3'
+                // The following is applicable *only* if a resourceName exists 
                 //
-                if (request.url.indexOf('v3') === 1) {
-                    if (resourceName) {
-                        const cacheKey = getCacheKey(request);
+                if (resourceName) {
+                    const cacheKey = getCacheKey(request);
 
-                        const cache = getCache({ 
-                            dir: config.cache.base, 
-                            namespace: resourceName, 
-                            duration: request.query.cacheDuration
-                                ? request.query.cacheDuration * 24 * 60 * 60 * 1000
-                                : config.cache.ttl
+                    const cache = getCache({ 
+                        dir: config.cache.base, 
+                        namespace: resourceName, 
+                        duration: request.query.cacheDuration
+                            ? request.query.cacheDuration * 24 * 60 * 60 * 1000
+                            : config.cache.ttl
+                    });
+
+                    let res = await cache.get(cacheKey);
+
+                    if (res) {
+                        const response = {
+                            item: res.item,
+                            stored: res.stored,
+                            ttl: res.ttl,
+                            //pre: true,
+                            cacheHit: true,
+                        };
+
+                        reply.hijack();
+
+                        // since we are sending back raw response, we need 
+                        // to add the appropriate headers so the response 
+                        // is recognized as JSON and is CORS-compatible
+                        //
+                        reply.raw.writeHead(200, { 
+                            'Content-Type': 'application/json; charset=utf-8',
+                            'Access-Control-Allow-Origin': '*'
                         });
-
-                        let res = await cache.get(cacheKey);
-
-                        if (res) {
-                            const response = {
-                                item: res.item,
-                                stored: res.stored,
-                                ttl: res.ttl,
-                                //pre: true,
-                                cacheHit: true,
-                            };
-
-                            reply.hijack();
-
-                            // since we are sending back raw response, we need to 
-                            // add the appropriate headers so the response is 
-                            // recognized as JSON and is CORS-compatible
-                            //
-                            reply.raw.writeHead(200, { 
-                                'Content-Type': 'application/json; charset=utf-8',
-                                'Access-Control-Allow-Origin': '*'
-                            });
-                            reply.raw.end(JSON.stringify(response));
-                            return Promise.resolve('done');
-                        }
+                        reply.raw.end(JSON.stringify(response));
+                        return Promise.resolve('done');
                     }
                 }
+                
             }
         });
 
-        await fastify.listen({ port: config.port, host: config.address });
+        await fastify.listen({ 
+            port: config.port, 
+            host: config.address 
+        });
         
         fastify.log.info(`… in ${env.toUpperCase()} mode`);
 
         // We run the cronJobs onetime on initializing the server so the 
         // queries are cached
         fastify.log.info('Running cronJobs on startup');
+
         for (const {qs} of cronJobs) {
             try {
                 await fastify.inject(qs);
