@@ -13,8 +13,6 @@ import { coerceToArray, getCache, getCacheKey } from './lib/routeUtils.js';
 import cron from 'node-cron';
 import { cronJobs } from './plugins/cron.js';
 
-// Function to initialize and start the server!
-// 
 const start = async (server) => {
     const opts = {
 
@@ -150,6 +148,4 @@ const start = async (server) => {
     }
 };
 
-// Start the server!
-//
 start(server);
