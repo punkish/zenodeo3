@@ -1,8 +1,8 @@
 module.exports = {
     "schemes": [ "https" ],
     "url": {
-        "zenodeo": "test.zenodeo.org",
-        "swagger": "test.zenodeo.org"
+        "zenodeo": "https://test.zenodeo.org",
+        "swagger": "https://test.zenodeo.org"
     },
 
     // log only errors
