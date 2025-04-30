@@ -37,7 +37,7 @@ import { routes as resources } from './routes/api/index.js';
 
 import view from '@fastify/view';
 import { viewOpts } from './plugins/view.js';
-import fastifyCache from './plugins/cache/index.js';
+import fastifyCache from './plugins/fastifyCache/index.js';
 
 export async function server(opts={}) {
     const fastify = Fastify(opts);
