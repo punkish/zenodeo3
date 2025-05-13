@@ -8,7 +8,7 @@ import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 
 import { server } from './app.js';
-import { coerceToArray, getCache, getCacheKey } from './lib/routeUtils.js';
+import { coerceToArray, getQueryForCache } from './lib/routeUtils.js';
 
 import cron from 'node-cron';
 import { cronJobs } from './plugins/cron.js';
@@ -65,17 +65,13 @@ const start = async (server) => {
                 // The following is applicable *only* if a resourceName exists 
                 //
                 if (resourceName) {
-                    const cacheKey = getCacheKey(request);
-                    let res = await fastify.cache.get(cacheKey);
+                    const { query, isSemantic } = getQueryForCache(request);
+                    const cachedData = await fastify.cache.get(
+                        query, isSemantic
+                    );
 
-                    if (res) {
-                        const response = {
-                            item: res.item,
-                            stored: res.stored,
-                            ttl: res.ttl,
-                            cacheHit: true,
-                        };
-
+                    if (cachedData) {
+                        cachedData.cacheHit = true;
                         reply.hijack();
 
                         // since we are sending back raw response, we need 
@@ -86,7 +82,7 @@ const start = async (server) => {
                             'Content-Type': 'application/json; charset=utf-8',
                             'Access-Control-Allow-Origin': '*'
                         });
-                        reply.raw.end(JSON.stringify(response));
+                        reply.raw.end(JSON.stringify(cachedData));
                         return Promise.resolve('done');
                     }
                 }

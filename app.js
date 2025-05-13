@@ -1,5 +1,5 @@
-import * as path from 'path';
-import { cwd } from 'node:process';
+// import * as path from 'path';
+// import { cwd } from 'node:process';
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import { staticPublic } from './plugins/static-public.js';
@@ -37,7 +37,8 @@ import { routes as resources } from './routes/api/index.js';
 
 import view from '@fastify/view';
 import { viewOpts } from './plugins/view.js';
-import fastifyCache from './plugins/fastifyCache/index.js';
+//import fastifyCache from './plugins/fastifyCache/index.js';
+import fastifyCache from './plugins/zcache/index.js';
 
 export async function server(opts={}) {
     const fastify = Fastify(opts);
