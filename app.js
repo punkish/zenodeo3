@@ -1,5 +1,3 @@
-// import * as path from 'path';
-// import { cwd } from 'node:process';
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import { staticPublic } from './plugins/static-public.js';
@@ -14,11 +12,6 @@ import cors from '@fastify/cors';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import { swaggerOpts } from './plugins/swagger.js';
-
-// import fastifyCron from 'fastify-cron';
-// import { cronJobs } from './plugins/cron.js';
-
-//import fastifyQueries from './plugins/queries.js';
 
 import { docs } from './routes/docs/index.js';
 import { tos } from './routes/tos/index.js';
@@ -37,8 +30,7 @@ import { routes as resources } from './routes/api/index.js';
 
 import view from '@fastify/view';
 import { viewOpts } from './plugins/view.js';
-//import fastifyCache from './plugins/fastifyCache/index.js';
-import fastifyCache from './plugins/zcache/index.js';
+import zcache from './plugins/zcache/index.js';
 
 export async function server(opts={}) {
     const fastify = Fastify(opts);
@@ -79,7 +71,7 @@ export async function server(opts={}) {
     };
 
     fastify.register(fastifyBetterSqlite3, fastifyBetterSqlite3Opts);
-    fastify.register(fastifyCache, 'treatments');
+    fastify.register(zcache, 'treatments');
     
 
     // register the routes to resources

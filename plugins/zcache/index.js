@@ -1,17 +1,17 @@
 import fp from 'fastify-plugin';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
-import { Cache } from '../../../semcache/index.js';
+import { Cache } from '@punkish/zcache';
 import path from 'path';
 const cwd = process.cwd();
 
 
-function fastifyCache(fastify, resourceName, next) {
+function zcache(fastify, resourceName, next) {
 
     // Create a new semantic cache
     const cache = new Cache({
         //dir: './',
-        name: 'zcache',
+        name: 'cache',
         space: resourceName,
         ttl: config.cache.ttl
     });
@@ -24,7 +24,7 @@ function fastifyCache(fastify, resourceName, next) {
     next();
 }
 
-export default fp(fastifyCache, {
+export default fp(zcache, {
     fastify: '5.x',
-    name: 'fastify-cache'
+    name: 'zcache'
 })
