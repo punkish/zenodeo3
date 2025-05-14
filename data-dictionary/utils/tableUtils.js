@@ -298,6 +298,12 @@ const createIndexes = (tableName, cols) => {
             const c4 = col.indexed !== false;
 
             if (c1 && c2 && c3 && c4) {
+
+                // Adjust the name of the 'caption' column to 'captionText'
+                if (tableName === 'images' && col.name === 'caption') {
+                    col.name = 'captionText';
+                }
+
                 const idx = `ix_${tableName}_${col.name}`;
                 indexes[idx] = `CREATE INDEX IF NOT EXISTS ${idx} ON ${tableName} ("${col.name}")`
             }
