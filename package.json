@@ -30,7 +30,7 @@
     "@langchain/core": "^0.3.55",
     "@langchain/ollama": "^0.2.0",
     "@punkish/fastify-better-sqlite3": "^2.0.0",
-    "@punkish/zcache": "^2.0.1",
+    "@punkish/zcache": "^2.0.2",
     "@punkish/zconfig": "^1.0.4",
     "@punkish/zlogger": "^1.0.9",
     "@turf/turf": "^7.2.0",
