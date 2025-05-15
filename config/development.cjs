@@ -60,7 +60,7 @@ module.exports = {
     // zlogger options
     //
     "zlogger": {
-        "level"     : "info",
+        "level"     : "error",
         "transports": [ 'console', 'file' ],
         "dir"       : path.join(cwd, 'logs')
     },
