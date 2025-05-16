@@ -678,6 +678,15 @@ const params = [
             description: '',
         },
         defaultCol: false
+    },
+
+    {
+        name: 'model',
+        schema: {
+            type: 'string',
+            description: '',
+        },
+        defaultCol: false
     }
 ];
 
