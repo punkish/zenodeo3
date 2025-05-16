@@ -59,6 +59,7 @@ coverage/
 #################
 local.js
 config.js
+.secrets
 
 # hidden files #
 ################

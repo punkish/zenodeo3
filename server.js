@@ -12,6 +12,7 @@ import { coerceToArray, getQueryForCache } from './lib/routeUtils.js';
 
 import cron from 'node-cron';
 import { cronJobs } from './plugins/cron.js';
+//import zcache from './plugins/zcache/index.js';
 
 const start = async (server) => {
     const opts = {
@@ -59,6 +60,7 @@ const start = async (server) => {
             // or is set to false (the same thing)
             //
             if (!request.query.refreshCache) {
+                
                 const url = new URL(`${config.url.zenodeo}/${request.url}`);
                 const resourceName = url.pathname.split('/')[2];
 

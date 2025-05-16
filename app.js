@@ -71,7 +71,7 @@ export async function server(opts={}) {
     };
 
     fastify.register(fastifyBetterSqlite3, fastifyBetterSqlite3Opts);
-    fastify.register(zcache, 'treatments');
+    fastify.register(zcache);
     
 
     // register the routes to resources

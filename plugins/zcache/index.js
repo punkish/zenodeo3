@@ -2,26 +2,25 @@ import fp from 'fastify-plugin';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 import { Cache } from '@punkish/zcache';
-import path from 'path';
-const cwd = process.cwd();
+//import { Cache } from '../../../zcache/index.js';
 
-
-function zcache(fastify, resourceName, next) {
+async function zcache(fastify, options) {
 
     // Create a new semantic cache
     const cache = new Cache({
         //dir: './',
         name: 'cache',
-        space: resourceName,
+        space: options.resourceName || 'default',
         ttl: config.cache.ttl
     });
-    
+
+    await cache.init();
+
     if (fastify.cache) {
-        next(new Error('plugin already registered'));
+        new Error('plugin already registered');
     }
     
     fastify.decorate('cache', cache);
-    next();
 }
 
 export default fp(zcache, {
