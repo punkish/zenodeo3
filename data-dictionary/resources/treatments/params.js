@@ -672,7 +672,7 @@ const params = [
     },
 
     {
-        name: 'askzai',
+        name: 'heyzai',
         schema: {
             type: 'string',
             description: '',
