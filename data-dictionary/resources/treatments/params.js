@@ -24,6 +24,7 @@ const params = [
             type: 'integer', 
             description: 'The unique ID of the treatment',
         },
+        defaultOp: 'eq'
     },
     {
         name: 'treatmentId',
