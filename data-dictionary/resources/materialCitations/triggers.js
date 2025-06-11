@@ -42,7 +42,7 @@ BEGIN
     WHERE materialCitations_id = old.id;
 
     DELETE FROM materialCitationsRtree 
-    WHERE materialCitations_id = old.id;
+    WHERE id = old.id;
 END;`,
 
     mc_loc_afterInsert: `

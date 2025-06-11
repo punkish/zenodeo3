@@ -22,6 +22,7 @@ import { dictImages } from './resources/zenodo/images.js';
 import { dictPublications } from './resources/zenodo/publications.js';
 import { dictEcoregions } from './resources/zenodeo/ecoregions.js';
 import { dictBiomes } from './resources/zenodeo/biomes.js';
+import { dictBinomens } from './resources/zenodeo/binomens.js';
 
 export const resources = [
     {

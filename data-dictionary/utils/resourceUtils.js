@@ -12,6 +12,19 @@ function getParams(resourceName) {
     const key = 'params';
     const res = cache({ segment, key });
 
+    // if (resourceName === 'binomens') {
+    //     console.log(`segment: ${segment}`);
+    //     console.log(`key: ${key}`);
+
+    //     if (res) {
+    //         console.log(res.filter(p => p.name === 'genera_id')[0].sql)
+    //     }
+    //     else {
+    //         console.log('res is undefined')
+    //     }
+        
+    // }
+
     if (res) {
         return res;
     }
@@ -21,7 +34,6 @@ function getParams(resourceName) {
     // We are going to modify the parameter values, so we first deep clone the 
     // params so the original definitions are left alone
     const paramsCopy = JSON.parse(JSON.stringify(resource.params));
-
     
     //const resourceId = paramsCopy.filter(col => col.isResourceId)[0];
     const params = paramsCopy
@@ -56,6 +68,11 @@ function getParams(resourceName) {
     // Finally, we add the commonparams
     params.push(...commonparams);
     cache({ segment, key, val: params });
+
+    // if (resourceName === 'binomens') {
+    //     console.log(params.filter(p => p.name === 'genera_id')[0].sql)
+    // }
+
     return params;
 
 }
@@ -120,12 +137,53 @@ const getPk = (resourceName) => {
     const pk = getParams(resourceName)
         .filter(col => {
             if (col.sql && col.sql.type) {
-                return col.sql.type = 'INTEGER PRIMARY KEY'
+                return col.sql.type === 'INTEGER PRIMARY KEY'
             }
         })[0];
 
     cache({ segment, key, val: pk });
     return pk;
+}
+
+const getDefaultSort = (resourceName) => {
+    const segment = resourceName;
+    const key = 'defaultSort';
+    const res = cache({ segment, key });
+
+    if (res) {
+        return res;
+    }
+
+    let defaultSort = `rowid:ASC`;
+    const resourceParams = getParams(resourceName);
+
+    // If a param is defined as 'defaultSort', use that
+    const arr = resourceParams.filter(p => p.defaultSort);
+    
+    let sortName;
+    let sortDir = 'ASC';
+
+    if (arr.length) {
+        sortName = arr[0].name;
+        sortDir =  arr[0].defaultSort;
+    }
+
+    // else, use the 'resourceId' as the defaultSort
+    else {
+        const pk = getPk(resourceName);
+
+        if (pk) {
+            sortName = pk.selname.indexOf('.id') > -1
+                ? pk.selname.replace(/\.id/, '_id')
+                : pk.selname;
+        }
+        
+    }
+
+    defaultSort = `${sortName}:${sortDir}`;
+
+    cache({ segment, key, val: defaultSort });
+    return defaultSort;
 }
 
 
@@ -259,11 +317,14 @@ function getQueryStringSchema(resourceName) {
     }
 
     const resourceParams = getParams(resourceName);
-    const pk = getPk(resourceName);
+    //const pk = getPk(resourceName);
+    // if (resourceName === 'binomens') {
+    //     console.log(pk)
+    // }
 
-    const sortby = pk.selname.indexOf('.id') > -1
-        ? pk.selname.replace(/\.id/, '_id')
-        : pk.selname;
+    // const sortby = pk.selname.indexOf('.id') > -1
+    //     ? pk.selname.replace(/\.id/, '_id')
+    //     : pk.selname;
 
     const defaultCols = resourceParams
         .filter(param => {
@@ -276,13 +337,19 @@ function getQueryStringSchema(resourceName) {
 
     resourceParams
         //.filter(p => p.name !== 'id')
+
+        // filter only those params that have a schema
         .filter(p => p.schema)
         .forEach(p => {
             const schema = JSON.parse(JSON.stringify(p.schema));
             
             // fix the 'sortby' column definition
             if (p.name === 'sortby') {
-                schema.default = schema.default.replace(/resourceId/, sortby);
+                //schema.default = schema.default.replace(/resourceId/, sortby);
+                schema.default = getDefaultSort(resourceName);
+                // if (resourceName === 'binomens') {
+                //     console.log(schema.default)
+                // }
             }
             else if (p.name === 'cols') {
                 const enumvals = resourceParams.map(p => p.name);

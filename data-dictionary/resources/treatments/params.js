@@ -660,6 +660,18 @@ const params = [
         defaultCol: false,
     },
     {
+        name: 'summary',
+        schema: {
+            type: 'string',
+            description: 'Summary of species'
+        },
+        sql: {
+            desc: 'true if treatment has geolocation',
+            type: 'TEXT'
+        },
+        defaultCol: true,
+    },
+    {
         name: 'httpUri',
         schema: {
             type: 'string',

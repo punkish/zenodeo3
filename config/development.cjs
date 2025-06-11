@@ -152,7 +152,7 @@ module.exports = {
     },
 
     "cache": {
-        "on"  : true,
+        "on"  : false,
         "base": path.join(cwd, 'cache'),
 
         //  

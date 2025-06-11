@@ -1,14 +1,26 @@
 export const triggers = {
-    tr_afterInsertFts: `CREATE TRIGGER IF NOT EXISTS tr_afterInsertFts 
+    tr_afterInsertFts: `
+CREATE TRIGGER IF NOT EXISTS tr_afterInsertFts 
     AFTER INSERT ON treatments 
     BEGIN
 
         -- insert new entry in fulltext index
         INSERT INTO treatmentsFts( fulltext ) 
         VALUES ( new.fulltext );
+
+        INSERT INTO binomen (binomen)
+        SELECT genera.genus || ' ' || species.species AS binomen 
+        FROM 
+            treatments
+            JOIN genera ON treatments.genera_id = genera.id 
+            JOIN species ON treatments.species_id = species.id 
+        WHERE 
+            genera.id = new.genera_id 
+            AND species.id = new.species_id;
     END;`,
 
-    tr_afterUpdate: `CREATE TRIGGER IF NOT EXISTS tr_afterUpdate 
+    tr_afterUpdate: `
+CREATE TRIGGER IF NOT EXISTS tr_afterUpdate 
     AFTER UPDATE ON treatments 
     BEGIN
 
@@ -21,7 +33,8 @@ export const triggers = {
         VALUES ( new.id, new.fulltext );
     END;`,
 
-    tr_afterInsertJournal: `CREATE TRIGGER IF NOT EXISTS tr_afterInsertJournal 
+    tr_afterInsertJournal: `
+CREATE TRIGGER IF NOT EXISTS tr_afterInsertJournal 
     AFTER INSERT ON treatments 
     WHEN new.journals_id IS NOT NULL 
     BEGIN
@@ -41,7 +54,8 @@ export const triggers = {
         DO UPDATE SET num = num + 1;
     END;`,
 
-    tr_afterDelete: `CREATE TRIGGER IF NOT EXISTS tr_afterDelete 
+    tr_afterDelete: `
+CREATE TRIGGER IF NOT EXISTS tr_afterDelete 
     AFTER DELETE ON treatments 
     BEGIN
 

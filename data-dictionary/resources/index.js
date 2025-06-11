@@ -29,9 +29,11 @@ import { treatmentCitations } from "./treatmentCitations/index.js";
 import { treatments } from "./treatments/index.js";
 import { treatmentsFts } from "./treatmentsFts/index.js";
 import { unzip } from "./unzip/index.js";
+import { binomens } from "./binomens/index.js";
 
 const resources = [
     biomes,
+    binomens,
     bibRefCitations,
     classes,
     collectionCodes,
@@ -57,6 +59,7 @@ const tables = [
     bibRefCitations,
     bibRefCitationsFts,
     biomes,
+    binomens,
     classes,
     collectionCodes,
     downloads,

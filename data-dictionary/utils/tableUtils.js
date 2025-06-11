@@ -228,53 +228,53 @@ const createTable = (tableName, cols) => {
 
     let stmt = `CREATE ${tableType} IF NOT EXISTS ${tableName}`;
 
-    if (tableType === 'TABLE') {
-        stmt += ' (\n';
+    if (tableType === 'VIEW') {
+        stmt += ` AS${viewSource}\n`;
     }
-    else if (tableType === 'VIEW') {
-        stmt += ' AS\nSELECT\n';
-    }
-    else if (tableType === 'VIRTUAL TABLE') {
-        stmt += ` USING ${sqliteExtension} (\n`;
-    }
-
-    stmt += cols.map(c => {
-        let stmt = '';
-        let comment = '';
-
-        if (c.sql.desc) {
-            comment = _sqlComment(c.sql.desc);
-            stmt += `\n${comment}\n`;
+    else {
+        if (tableType === 'TABLE') {
+            stmt += ' (\n';
+        }
+        else if (tableType === 'VIRTUAL TABLE') {
+            stmt += ` USING ${sqliteExtension} (\n`;
         }
 
-        if (c.name.substring(0, 1) === '_') {
+        stmt += cols.map(c => {
+            let stmt = '';
+            let comment = '';
 
-            // if col.name starts with '_' then it is not really 
-            // a column but a column qualifier such as 'PRIMARY KEY' 
-            // or 'UNIQUE'. See materialCitations_x_collectionCodes.params 
-            // for example
-            stmt += `${tab}${c.sql.type}`;
-        }
-        else {
-
-            stmt += (tableType === 'TABLE')
-                ? `${tab}"${c.name}"`
-                : `${tab}${c.name}`;
-
-            if (c.sql.type) {
-                stmt += ` ${c.sql.type}`;
+            if (c.sql.desc) {
+                comment = _sqlComment(c.sql.desc);
+                stmt += `\n${comment}\n`;
             }
+
+            if (c.name.substring(0, 1) === '_') {
+
+                // if col.name starts with '_' then it is not really 
+                // a column but a column qualifier such as 'PRIMARY KEY' 
+                // or 'UNIQUE'. See materialCitations_x_collectionCodes.params 
+                // for example
+                stmt += `${tab}${c.sql.type}`;
+            }
+            else {
+
+                stmt += (tableType === 'TABLE')
+                    ? `${tab}"${c.name}"`
+                    : `${tab}${c.name}`;
+
+                if (c.sql.type) {
+                    stmt += ` ${c.sql.type}`;
+                }
+            }
+            
+            return stmt;
+        }).join(",\n");
+
+        stmt += '\n)';
+
+        if (isWithoutRowid) {
+            stmt += ` WITHOUT rowid`;
         }
-        
-        return stmt;
-    }).join(",\n");
-
-    stmt += tableType === 'VIEW'
-            ? ` FROM ${viewSource}`
-            : '\n)';
-
-    if (isWithoutRowid) {
-        stmt += ` WITHOUT rowid`;
     }
     
     return stmt;
