@@ -12,19 +12,6 @@ function getParams(resourceName) {
     const key = 'params';
     const res = cache({ segment, key });
 
-    // if (resourceName === 'binomens') {
-    //     console.log(`segment: ${segment}`);
-    //     console.log(`key: ${key}`);
-
-    //     if (res) {
-    //         console.log(res.filter(p => p.name === 'genera_id')[0].sql)
-    //     }
-    //     else {
-    //         console.log('res is undefined')
-    //     }
-        
-    // }
-
     if (res) {
         return res;
     }
@@ -68,10 +55,6 @@ function getParams(resourceName) {
     // Finally, we add the commonparams
     params.push(...commonparams);
     cache({ segment, key, val: params });
-
-    // if (resourceName === 'binomens') {
-    //     console.log(params.filter(p => p.name === 'genera_id')[0].sql)
-    // }
 
     return params;
 
@@ -317,10 +300,6 @@ function getQueryStringSchema(resourceName) {
     }
 
     const resourceParams = getParams(resourceName);
-    //const pk = getPk(resourceName);
-    // if (resourceName === 'binomens') {
-    //     console.log(pk)
-    // }
 
     // const sortby = pk.selname.indexOf('.id') > -1
     //     ? pk.selname.replace(/\.id/, '_id')
@@ -345,11 +324,7 @@ function getQueryStringSchema(resourceName) {
             
             // fix the 'sortby' column definition
             if (p.name === 'sortby') {
-                //schema.default = schema.default.replace(/resourceId/, sortby);
                 schema.default = getDefaultSort(resourceName);
-                // if (resourceName === 'binomens') {
-                //     console.log(schema.default)
-                // }
             }
             else if (p.name === 'cols') {
                 const enumvals = resourceParams.map(p => p.name);

@@ -38,14 +38,13 @@ const start = async (server) => {
         // save the original request query params for use later because the 
         // query will get modified after schema validation
         // 
-        // fastify.addHook('preValidation', async (request) => {
-        //     request.origQuery = JSON.parse(JSON.stringify(request.query));
-        // });
+        //fastify.addHook('preValidation', async (request) => {
+        //    request.origQuery = JSON.parse(JSON.stringify(request.query));
+        //});
 
         // the following takes care of cols=col1,col2,col3 as sent by the 
         // swagger interface to be validated correctly by ajv as an array. See 
         // `coerceToArray()` in routeUtils().
-        // 
         fastify.addHook('preValidation', async (request) => {
             coerceToArray(request, 'cols');
             coerceToArray(request, 'communities');
@@ -53,24 +52,23 @@ const start = async (server) => {
 
         // if the query results have been cached, we send the cached value back 
         // and stop processing any further
-        //
         fastify.addHook('preHandler', async (request, reply) => {
 
             // all of this makes sense only if refreshCache does not exist
             // or is set to false (the same thing)
-            //
             if (!request.query.refreshCache) {
                 
                 const url = new URL(`${config.url.zenodeo}/${request.url}`);
                 const resourceName = url.pathname.split('/')[2];
 
                 // The following is applicable *only* if a resourceName exists 
-                //
                 if (resourceName) {
                     const { query, isSemantic } = getQueryForCache(request);
-                    const cachedData = await fastify.cache.get(
-                        query, isSemantic
-                    );
+                    const cachedData = await fastify.cache.get({
+                        segment: resourceName,
+                        query, 
+                        isSemantic
+                    });
 
                     if (cachedData) {
                         cachedData.cacheHit = true;
@@ -79,7 +77,6 @@ const start = async (server) => {
                         // since we are sending back raw response, we need 
                         // to add the appropriate headers so the response 
                         // is recognized as JSON and is CORS-compatible
-                        //
                         reply.raw.writeHead(200, { 
                             'Content-Type': 'application/json; charset=utf-8',
                             'Access-Control-Allow-Origin': '*'

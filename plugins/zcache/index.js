@@ -8,9 +8,7 @@ async function zcache(fastify, options) {
 
     // Create a new semantic cache
     const cache = new Cache({
-        //dir: './',
-        name: 'cache',
-        space: options.resourceName || 'default',
+        //dir: './cache',
         ttl: 7 * 24 * 60 * 60 * 1000
     });
 

@@ -8,24 +8,20 @@ import { initDb } from './lib/dbconn.js';
 import routes from '@fastify/routes';
 import favicon from 'fastify-favicon';
 import cors from '@fastify/cors';
-
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import { swaggerOpts } from './plugins/swagger.js';
-
 import { docs } from './routes/docs/index.js';
 import { tos } from './routes/tos/index.js';
 import { install } from './routes/install/index.js';
 import { queryHelp } from './routes/query-help/index.js';
 import { roadmap } from './routes/roadmap/index.js';
 import { about } from './routes/about/index.js';
-
 import { treatmentsArchive } from './routes/treatments-archive/index.js';
 import { bins } from './routes/bins/index.js';
 
-// we rename routes to resources because we have already imported a map of the 
-// routes above
-//
+// we rename routes to resources because we have already 
+// imported a map of the routes above
 import { routes as resources } from './routes/api/index.js';
 
 import view from '@fastify/view';
@@ -36,7 +32,6 @@ export async function server(opts={}) {
     const fastify = Fastify(opts);
 
     // register the plugins
-    //
     fastify.register(favicon, {});
     fastify.register(cors, {});
     fastify.register(routes, {});
@@ -73,9 +68,7 @@ export async function server(opts={}) {
     fastify.register(fastifyBetterSqlite3, fastifyBetterSqlite3Opts);
     fastify.register(zcache);
     
-
     // register the routes to resources
-    //
     fastify.register(docs);
     fastify.register(tos);
     fastify.register(install);

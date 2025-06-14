@@ -700,6 +700,15 @@ const params = [
             description: '',
         },
         defaultCol: false
+    },
+
+    {
+        name: 'cachedQueries',
+        schema: {
+            type: 'boolean',
+            description: '',
+        },
+        defaultCol: false
     }
 ];
 
