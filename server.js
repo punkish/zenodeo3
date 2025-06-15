@@ -58,7 +58,11 @@ const start = async (server) => {
             // or is set to false (the same thing)
             if (!request.query.refreshCache) {
                 
-                const url = new URL(`${config.url.zenodeo}/${request.url}`);
+                const rurl = request.url.substring(0, 1) === '/'
+                    ? request.url.slice(1)
+                    : request.url;
+
+                const url = new URL(`${config.url.zenodeo}/${rurl}`);
                 const resourceName = url.pathname.split('/')[2];
 
                 // The following is applicable *only* if a resourceName exists 
