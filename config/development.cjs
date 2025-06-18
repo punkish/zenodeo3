@@ -90,7 +90,7 @@ module.exports = {
 
     // This is where the db is stored
     //
-    "dataDir": "../../zenodeo3/data/db",
+    "dataDir": "data/db",
 
 
     // page=1&size=30&class=Arachnida&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption&cols=latitude&cols=longitude&yearlyCounts=true
