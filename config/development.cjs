@@ -60,7 +60,7 @@ module.exports = {
     // zlogger options
     "zlogger": {
         "level"     : "info",
-        "transports": [ 'console', 'file' ],
+        "transports": [ 'console' ],
         "dir"       : path.join(cwd, 'logs'),
 
         // Use timestamp only, no dates

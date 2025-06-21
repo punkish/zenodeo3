@@ -8,11 +8,11 @@ import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 
 import { server } from './app.js';
-import { coerceToArray, getQueryForCache } from './lib/routeUtils.js';
-
+import { coerceToArray } from './lib/routeUtils.js';
 import cron from 'node-cron';
 import { cronJobs } from './plugins/cron.js';
-//import zcache from './plugins/zcache/index.js';
+import { getQueryForCache } from './lib/utils.js';
+import { getQueryType } from './lib/zql/z-utils/index.js';
 
 const start = async (server) => {
     const opts = {
@@ -37,10 +37,9 @@ const start = async (server) => {
 
         // save the original request query params for use later because the 
         // query will get modified after schema validation
-        // 
-        //fastify.addHook('preValidation', async (request) => {
-        //    request.origQuery = JSON.parse(JSON.stringify(request.query));
-        //});
+        fastify.addHook('preValidation', async (request) => {
+            request.queryForCache = getQueryForCache(request);
+        });
 
         // the following takes care of cols=col1,col2,col3 as sent by the 
         // swagger interface to be validated correctly by ajv as an array. See 
@@ -58,6 +57,7 @@ const start = async (server) => {
             // or is set to false (the same thing)
             if (!request.query.refreshCache) {
                 
+                // Remove leading '/' if it exists
                 const rurl = request.url.substring(0, 1) === '/'
                     ? request.url.slice(1)
                     : request.url;
@@ -67,14 +67,22 @@ const start = async (server) => {
 
                 // The following is applicable *only* if a resourceName exists 
                 if (resourceName) {
-                    const { query, isSemantic } = getQueryForCache(request);
+                    const queryType = getQueryType({ 
+                        request, 
+                        resource: resourceName, 
+                        params: request.query, 
+                        fastify 
+                    });
+
                     const cachedData = await fastify.cache.get({
                         segment: resourceName,
-                        query, 
-                        isSemantic
+                        query: request.queryForCache, 
+                        isSemantic: queryType.isSemantic
                     });
 
                     if (cachedData) {
+                        fastify.zlog.info(fastify.zlog.prefix(), request.queryForCache);
+                        fastify.zlog.info(fastify.zlog.prefix(), '💥 cacheHit')
                         cachedData.cacheHit = true;
                         reply.hijack();
 
@@ -98,13 +106,13 @@ const start = async (server) => {
             host: config.address 
         });
         
-        fastify.log.info(`… in ${env.toUpperCase()} mode`);
+        fastify.zlog.info(fastify.zlog.prefix(), `… in ${env.toUpperCase()} mode`);
 
         if (cronJobs.runCronJobsOnStart) {
 
             // We run the cronJobs onetime on initializing the server so the 
             // queries are cached
-            fastify.log.info('Running cronJobs on startup');
+            fastify.zlog.info(fastify.zlog.prefix(), 'Running cronJobs on startup');
 
             for (const {qs} of cronJobs.jobs) {
                 try {

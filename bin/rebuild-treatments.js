@@ -1,5 +1,5 @@
 import { pull } from "langchain/hub";
-// import { ChatOllama } from '@langchain/ollama';
+import { ChatOllama } from '@langchain/ollama';
 // import { initDb } from '../lib/dbconn.js';
 // const db = initDb().conn;
 import Database from "better-sqlite3";
@@ -237,24 +237,39 @@ WHERE treatments.id = t2.id`);
 }
 
 
-async function answerFromZai({ question, context, promptTemplate, llm }) {
+async function answerFromZai({ 
+    question, 
+    context, 
+    promptTemplate, 
+    llm, 
+    treatments_id 
+}) {
     const messages = await promptTemplate.invoke({
         question,
         context
     });
 
-    const answer = await llm.invoke(messages);
-    return answer.content;
-}
-
-function writeSummary({ db, summary, id }) {
-    
-    if (id % 1000 === 0) {
-        process.stdout.write(`${id % 5000 ? '.' : '*'}`);
+    try {
+        const answer = await llm.invoke(messages);
+        return answer.content;
+    }
+    catch (error) {
+        console.error('-'.repeat(50));
+        console.error(`treatments_id: ${treatments_id}`);
+        console.error('-'.repeat(50));
+        console.error(question);
+        console.error('-'.repeat(50));
+        console.error(context);
+        console.log(error);
+        console.error('='.repeat(50));
+        return false;
     }
 
+}
+
+function writeSummary({ db, summary, id, counter }) {
     db.prepare(`
-        UPDATE treatments_new 
+        UPDATE treatments 
         SET summary = @summary
         WHERE id = @id
     `).run({ summary, id })
@@ -265,20 +280,43 @@ function getCountOfTreatments(db) {
     return db.prepare(`SELECT COUNT(*) AS c FROM treatments`).get().c;
 }
 
-// Now, find id of the last summarized treatments
-function getLastSummarizedId(db) {
+function getCountOfUnsummarized(db) {
     return db.prepare(`
-        SELECT Max(id) AS lastSummarizedId 
-        FROM treatments_new
-        WHERE summary != ''
-    `).get().lastSummarizedId;
+SELECT Count(*) AS c
+FROM treatments 
+WHERE 
+    rank = 'species' 
+    AND summary IS NULL
+    AND genera_id IS NOT NULL
+    AND genera_id != 18 
+    AND species_id IS NOT NULL
+    AND species_id != 2
+    `).get().c;
+}
+
+// Now, find id of the last summarized treatments
+function getLeastSummarizedId(db) {
+    return db.prepare(`
+        SELECT Min(id) AS c 
+        FROM treatments
+        WHERE 
+            id NOT IN (70343, 818632, 844345)
+            AND rank = 'species' 
+            AND summary IS NULL
+            AND genera_id IS NOT NULL
+            AND genera_id != 18 
+            AND species_id IS NOT NULL
+            AND species_id != 2
+    `).get().c;
 }
     
 async function summarizeTreatments(db) {
     const count = getCountOfTreatments(db);
-    const lastSummarizedId = getLastSummarizedId(db) ||0;
+    const countUnsummarized = getCountOfUnsummarized(db);
+    const leastSummarizedId = getLeastSummarizedId(db) || 0;
 
-    console.log(`Generating summaries starting from ${lastSummarizedId}`);
+    console.log(`Generating summaries starting from ${leastSummarizedId}`);
+    console.log(`There are ${countUnsummarized} treatments without summary`);
 
     const sel = db.prepare(`
         SELECT 
@@ -291,6 +329,11 @@ async function summarizeTreatments(db) {
             JOIN species ON species_id = species.id
         WHERE
             rank = 'species' 
+            AND summary IS NULL 
+            AND genera_id IS NOT NULL
+            AND genera_id != 18 
+            AND species_id IS NOT NULL
+            AND species_id != 2
             AND treatments.id = @id
     `);
 
@@ -300,7 +343,15 @@ async function summarizeTreatments(db) {
         temperature: 0
     });
 
-    for (let id = lastSummarizedId; id < count; id++) {
+    let counter = 0;
+
+    for (let id = leastSummarizedId; id < count; id++) {
+        counter++;
+
+        if (counter % 100 === 0) {
+            process.stdout.write(`${counter % 5000 ? '.' : '*'}`);
+        }
+
         const res = sel.get({ id });
 
         if (res) {
@@ -309,10 +360,19 @@ async function summarizeTreatments(db) {
                 question: `Describe ${binomen}`,
                 context,
                 promptTemplate,
-                llm
+                llm,
+                treatments_id
             });
             
-            writeSummary({ db, summary, id: treatments_id });
+            if (summary) {
+                writeSummary({ 
+                    db, 
+                    summary, 
+                    id: treatments_id, 
+                    counter 
+                });
+            }
+            
         }
         
     }
@@ -325,7 +385,7 @@ async function summarizeTreatments(db) {
 //renameTables(db.conn);
 
 
-//await summarizeTreatments(db);
+
 
 function turnOffFKs(db) {
     const label = 'Turning off FKs';
@@ -828,6 +888,7 @@ COMMIT;
 // createTriggers(db);
 // createIndexes(db);
 // updateTreatmentsFts(db);
-createView(db);
-checkFKs(db);
+// createView(db);
+// checkFKs(db);
 //rebuild(db);
+await summarizeTreatments(db);

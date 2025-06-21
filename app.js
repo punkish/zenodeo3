@@ -27,6 +27,7 @@ import { routes as resources } from './routes/api/index.js';
 import view from '@fastify/view';
 import { viewOpts } from './plugins/view.js';
 import zcache from './plugins/zcache/index.js';
+import zlog from './plugins/zlogger/index.js';
 
 export async function server(opts={}) {
     const fastify = Fastify(opts);
@@ -58,7 +59,6 @@ export async function server(opts={}) {
 
     // we initialize the db connection once, and store it in a fastify
     // plugin so it can be used everywhere
-    //
     const db = initDb();
     const fastifyBetterSqlite3Opts = {
         "class": db.class,
@@ -67,6 +67,7 @@ export async function server(opts={}) {
 
     fastify.register(fastifyBetterSqlite3, fastifyBetterSqlite3Opts);
     fastify.register(zcache);
+    fastify.register(zlog);
     
     // register the routes to resources
     fastify.register(docs);

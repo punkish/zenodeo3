@@ -19,6 +19,7 @@ import { collectionCodes } from '../collectionCodes/index.js';
 const params = [
     {
         name: 'id',
+        alias: 'images_id',
         sql: {
             type: 'INTEGER PRIMARY KEY',
             desc: 'PK'

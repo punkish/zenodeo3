@@ -39,6 +39,10 @@ function getParams(resourceName) {
                 p.selname = `${resourceName}.${p.name}`;
             }
 
+            // if (p.alias) {
+            //     p.selname = `${p.selname} AS ${p.alias}`;
+            // }
+
             // add a fully-qualified WHERE name if it doesn't already exist
             if (!p.where) {
                 p.where = `${resourceName}.${p.name}`;
@@ -151,13 +155,13 @@ const getDefaultSort = (resourceName) => {
         sortDir =  arr[0].defaultSort;
     }
 
-    // else, use the 'resourceId' as the defaultSort
+    // else, use the 'PK' as the defaultSort
     else {
         const pk = getPk(resourceName);
 
         if (pk) {
-            sortName = pk.selname.indexOf('.id') > -1
-                ? pk.selname.replace(/\.id/, '_id')
+            sortName = pk.alias
+                ? pk.alias
                 : pk.selname;
         }
         
