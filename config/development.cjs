@@ -30,7 +30,7 @@ module.exports = {
                     "ignore"       : "pid,hostname"
                 }
             },
-            "level": "info",
+            "level": "error",
             serializers: {
 
                 // The default value response
@@ -58,11 +58,13 @@ module.exports = {
     },
 
     // zlogger options
-    //
     "zlogger": {
-        "level"     : "error",
+        "level"     : "info",
         "transports": [ 'console', 'file' ],
-        "dir"       : path.join(cwd, 'logs')
+        "dir"       : path.join(cwd, 'logs'),
+
+        // Use timestamp only, no dates
+        "tsType"    : "timeonly"
     },
 
     "ajv": {
@@ -152,7 +154,7 @@ module.exports = {
     },
 
     "cache": {
-        "on"  : false,
+        "on"  : true,
         "base": path.join(cwd, 'cache'),
 
         //  
