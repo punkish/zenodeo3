@@ -1,8 +1,8 @@
 import fp from 'fastify-plugin';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
-//import { Cache } from '@punkish/zcache';
-import { Cache } from '../../../zcache/index.js';
+import { Cache } from '@punkish/zcache';
+//import { Cache } from '../../../zcache/index.js';
 
 async function zcache(fastify, options) {
 
