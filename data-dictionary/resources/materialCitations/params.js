@@ -6,10 +6,16 @@ import { ecoregions } from '../ecoregions/index.js';
 const params = [
     {
         name: 'id',
+        alias: 'materialCitations_id',
         sql: {
             type: 'INTEGER PRIMARY KEY',
             desc: 'PK'
-        }
+        },
+        schema: { 
+            type: 'integer', 
+            description: 'The unique ID of the materialCitation',
+        },
+        defaultOp: 'eq'
     },
     {
         name: 'materialCitationId',

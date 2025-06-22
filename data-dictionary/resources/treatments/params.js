@@ -16,6 +16,7 @@ const datePattern = utils.getPattern('date');
 const params = [
     {
         name: 'id',
+        alias: 'treatments_id',
         sql: {
             type: 'INTEGER PRIMARY KEY',
             desc: 'PK'

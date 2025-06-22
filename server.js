@@ -68,10 +68,9 @@ const start = async (server) => {
                 // The following is applicable *only* if a resourceName exists 
                 if (resourceName) {
                     const queryType = getQueryType({ 
-                        request, 
                         resource: resourceName, 
                         params: request.query, 
-                        fastify 
+                        zlog: fastify.zlog
                     });
 
                     const cachedData = await fastify.cache.get({
@@ -81,8 +80,8 @@ const start = async (server) => {
                     });
 
                     if (cachedData) {
-                        fastify.zlog.info(fastify.zlog.prefix(), request.queryForCache);
-                        fastify.zlog.info(fastify.zlog.prefix(), '💥 cacheHit')
+                        fastify.zlog.info(`queryForCache: ${request.queryForCache}`);
+                        fastify.zlog.info('💥 cacheHit')
                         cachedData.cacheHit = true;
                         reply.hijack();
 
@@ -106,13 +105,13 @@ const start = async (server) => {
             host: config.address 
         });
         
-        fastify.zlog.info(fastify.zlog.prefix(), `… in ${env.toUpperCase()} mode`);
+        fastify.zlog.info(`… in ${env.toUpperCase()} mode`);
 
         if (cronJobs.runCronJobsOnStart) {
 
             // We run the cronJobs onetime on initializing the server so the 
             // queries are cached
-            fastify.zlog.info(fastify.zlog.prefix(), 'Running cronJobs on startup');
+            fastify.zlog.info('Running cronJobs on startup');
 
             for (const {qs} of cronJobs.jobs) {
                 try {

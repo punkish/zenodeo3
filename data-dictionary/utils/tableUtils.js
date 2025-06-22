@@ -89,6 +89,10 @@ const getCols = (tableName) => {
                     : `${tableName}.${col.name}`
             }
 
+            if (col.alias) {
+                col.fqname = `${col.selname} AS ${col.alias}`;
+            }
+
             // add a where name
             if (!col.where) {
                 col.where = schema 

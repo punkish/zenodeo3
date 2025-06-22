@@ -39,9 +39,9 @@ function getParams(resourceName) {
                 p.selname = `${resourceName}.${p.name}`;
             }
 
-            // if (p.alias) {
-            //     p.selname = `${p.selname} AS ${p.alias}`;
-            // }
+            if (p.alias) {
+                p.fqalias = `${p.selname} AS ${p.alias}`;
+            }
 
             // add a fully-qualified WHERE name if it doesn't already exist
             if (!p.where) {

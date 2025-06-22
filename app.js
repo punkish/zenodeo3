@@ -33,6 +33,7 @@ export async function server(opts={}) {
     const fastify = Fastify(opts);
 
     // register the plugins
+    fastify.register(zlog);
     fastify.register(favicon, {});
     fastify.register(cors, {});
     fastify.register(routes, {});
@@ -59,7 +60,7 @@ export async function server(opts={}) {
 
     // we initialize the db connection once, and store it in a fastify
     // plugin so it can be used everywhere
-    const db = initDb();
+    const db = initDb({ zlog: fastify.zlog });
     const fastifyBetterSqlite3Opts = {
         "class": db.class,
         "connection": db.conn
@@ -67,7 +68,6 @@ export async function server(opts={}) {
 
     fastify.register(fastifyBetterSqlite3, fastifyBetterSqlite3Opts);
     fastify.register(zcache);
-    fastify.register(zlog);
     
     // register the routes to resources
     fastify.register(docs);
