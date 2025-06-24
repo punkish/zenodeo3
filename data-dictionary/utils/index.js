@@ -1,5 +1,3 @@
-'use strict';
-
 import process from 'node:process';
 import util from 'util';
 import path from 'path';

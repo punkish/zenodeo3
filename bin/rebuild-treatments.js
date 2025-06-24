@@ -300,7 +300,17 @@ function getLeastSummarizedId(db) {
         SELECT Min(id) AS c 
         FROM treatments
         WHERE 
-            id NOT IN (70343, 818632, 844345)
+            id NOT IN (
+                70343, 
+                818632, 
+                844345, 
+                1025676, 
+                1025684, 
+                1025687, 
+                1025761, 
+                1025763,
+                1026349
+            )
             AND rank = 'species' 
             AND summary IS NULL
             AND genera_id IS NOT NULL

@@ -1,8 +1,5 @@
 import * as utils from '../../../lib/utils.js';
 import { externalParams } from './external-params.js';
-//import { images } from '../images/index.js';
-
-const datePattern = utils.getPattern('date');
 
 /** 
  * first we define all the params corresponding to the columns in the 
@@ -254,7 +251,7 @@ const params = [
         alias: 'publicationDateOrig',
         schema: {
             type: 'string',
-            pattern: datePattern,
+            pattern: utils.getPattern('baredate'),
             description: `Can use the following syntax: 
 - \`publicationDate=eq(2018-1-12)\`
 - \`publicationDate=since(2018-12-03)\`
@@ -313,7 +310,6 @@ const params = [
         name: 'journalYear',
         schema: {
             type: 'integer',
-            //pattern: utils.re.year,
             description: ''
         },
         sql: {
@@ -389,7 +385,8 @@ const params = [
         name: 'authorityYear',
         schema: {
             type: 'string',
-            pattern: utils.re.year,
+            //pattern: utils.re.year,
+            pattern: utils.getPattern('bareyear'),
             description: ''
         },
         sql: {
@@ -525,7 +522,7 @@ const params = [
         name: 'updateTime',
         schema: {
             type: 'string',
-            pattern: datePattern,
+            pattern: utils.getPattern('baredate'),
             description: `Can use the following syntax: 
 - \`updateTime=eq(2018-1-12)\`
 - \`updateTime=since(2018-12-03)\`
@@ -550,7 +547,7 @@ const params = [
         name: 'checkinTime',
         schema: {
             type: 'string',
-            pattern: datePattern,
+            pattern: utils.getPattern('baredate'),
             description: `Can use the following syntax: 
 - \`checkinTime=eq(2018-1-12)\`
 - \`checkinTime=since(2018-12-03)\`

@@ -104,7 +104,8 @@ const params = [
         name: 'year',
         schema: {
             type: 'string',
-            pattern: utils.re.year,
+            //pattern: utils.re.year,
+            pattern: utils.getPattern('bareyear'),
             description: ''
         },
         sql: {

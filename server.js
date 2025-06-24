@@ -11,8 +11,7 @@ import { server } from './app.js';
 import { coerceToArray } from './lib/routeUtils.js';
 import cron from 'node-cron';
 import { cronJobs } from './plugins/cron.js';
-import { getQueryForCache } from './lib/utils.js';
-import { getQueryType } from './lib/zql/z-utils/index.js';
+import { getQueryForCache, getQueryType } from './lib/utils.js';
 
 const start = async (server) => {
     const opts = {
@@ -25,7 +24,7 @@ const start = async (server) => {
 
         // ajv options are provided in the key 'customOptions'. This is 
         // different from when ajv is called in a stand-alone script (see 
-        // `validate()` in lib/zql/z-utils.js)
+        // `validate()` in ./lib/utils.js)
         // 
         ajv: {
             customOptions: config.ajv.opts

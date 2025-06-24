@@ -48,7 +48,8 @@ const params = [
         name: 'collectingDate',
         schema: {
             type: 'string',
-            pattern: utils.re.date,
+            //pattern: utils.re.date,
+            pattern: utils.getPattern('baredate'),
             description: '',
         },
         sql: {
@@ -572,6 +573,7 @@ const params = [
     // }
 ];
 
+//const allNewParams = utils.addExternalParams(externalParams);
 const allNewParams = utils.addExternalParams(externalParams);
 params.push(...allNewParams);
 
