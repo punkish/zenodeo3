@@ -309,7 +309,8 @@ function getLeastSummarizedId(db) {
                 1025687, 
                 1025761, 
                 1025763,
-                1026349
+                1026349,
+                1042180
             )
             AND rank = 'species' 
             AND summary IS NULL
