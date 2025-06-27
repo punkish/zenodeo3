@@ -46,9 +46,16 @@ Thumbs.db
 ################
 node_modules/
 
-# query cache #
-################
-cache/
+# query cache 
+# but, include semantic cache 
+# see https://stackoverflow.com/a/5534865/183692 #
+#################################################
+!cache/
+cache/*
+!cache/treatments/
+cache/treatments/*
+!cache/treatments/+
+
 zts/
 
 # test coverage #
