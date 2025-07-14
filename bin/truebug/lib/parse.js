@@ -1,5 +1,3 @@
-// @ts-check
-
 'use strict';
 
 import * as utils from '../../../lib/utils.js';
@@ -531,13 +529,14 @@ const parseOne = (xml, stats) => {
     if (!ts[fn]) return true;
     tbutils.incrementStack(logOpts.name, fn);
 
-    const typeOfArchive = stats.archive.typeOfArchive;
-    const timeOfArchive = stats.archive.timeOfArchive;
-    const archive_name = `${typeOfArchive}.${timeOfArchive}`;
+    // const typeOfArchive = stats.archive.typeOfArchive;
+    // const timeOfArchive = stats.archive.timeOfArchive;
+    // const archive_name = `${typeOfArchive}.${timeOfArchive}`;
+    const archive_name = 'xmls';
     const treatmentId = path.basename(xml, '.xml');
     const xmlfile = `${truebug.dirs.data}/treatments-dumps/${archive_name}/${xml}`;
     
-    if (utils.re.treatmentId.test(treatmentId)) {
+    if (utils.getPattern('treatmentId').test(treatmentId)) {
         const xmlContent = fs.readFileSync(xmlfile, 'utf8');
         //const startParseTime = process.hrtime.bigint();
         //const treatment = _cheerioparse(xmlContent);
@@ -554,14 +553,14 @@ const parseOne = (xml, stats) => {
             const fn = 'cleanText';
             if (!ts[fn]) return;
             tbutils.incrementStack(logOpts.name, fn);
-        
+            const re = utils.getPattern('all');
             let str = this.text();
-            str = str.replace(utils.re.double_spc, ' ');
-            str = str.replace(utils.re.space_comma, ',');
-            str = str.replace(utils.re.space_colon, ':');
-            str = str.replace(utils.re.space_period, '.');
-            str = str.replace(utils.re.space_openparens, '(');
-            str = str.replace(utils.re.space_closeparens, ')');
+            str = str.replace(re.double_spc, ' ');
+            str = str.replace(re.space_comma, ',');
+            str = str.replace(re.space_colon, ':');
+            str = str.replace(re.space_period, '.');
+            str = str.replace(re.space_openparens, '(');
+            str = str.replace(re.space_closeparens, ')');
             str = str.trim();
             return str;
         }

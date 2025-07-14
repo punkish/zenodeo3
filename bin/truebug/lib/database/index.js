@@ -18,7 +18,7 @@ import isSea from 'is-sea';
  * connect to the database
  */
 import { initDb } from '../../../../lib/dbconn.js';
-const db = initDb();
+const db = initDb({ zlog: log });
 
 const cache = { 
     hits        : 0, 

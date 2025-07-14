@@ -289,7 +289,7 @@ const init = async (truebugStats) => {
         log.info(`STARTING TRUEBUG (mode: ${mode})`);
 
         if (source === 'xml') {
-            processXml();
+            processXml(argv);
         }
         else {
             utils.checkDir({
@@ -346,12 +346,14 @@ const processXml = (argv) => {
 
     utils.checkDir({
         dir: `${truebug.dirs.data}/treatments-dumps/${typeOfArchive}`, 
-        removeFiles: false
+        removeFiles: false,
+        zlog: log
     });
 
     //preflight.copyXmlToDump(typeOfArchive, xml);
 
-    const treatment = parse.parseOne(typeOfArchive, xml);
+    const treatment = parse.parseOne(xml, typeOfArchive);
+
 
     // deep print object to the console
     //

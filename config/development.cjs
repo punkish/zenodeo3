@@ -232,11 +232,11 @@ module.exports = {
 
             // several collectionCodes, hence materialCitations
             //
-            // "xml": "0004878BCE1AD075FF58FEB0F351FD28",
-            // "xml": "0006D73C47719603931CCE694A14DA4A",
+            //"xml": "0004878BCE1AD075FF58FEB0F351FD28",
+            //"xml": "0006D73C47719603931CCE694A14DA4A",
             // "xml": "0006D73C47719603931CCE694A14DA4A",
             // "xml": "00102209FFDBFFC5FF40432DFA78FE38",
-            // "xml": "001E1309FFA0FFF8FF1EFC6F228DF968",
+            //"xml": "001E1309FFA0FFF8FF1EFC6F228DF968",
             // "xml": "001E1309FFA0FFF8FF1FFE1621D0FCF4",
             // "xml": "001E1309FFA0FFF8FF1FFE1621D0FCF4",   
             // "xml": "001E1309FFA0FFFBFF1FF8D627AEFEE7",
@@ -245,7 +245,7 @@ module.exports = {
 
             // bad collection codes
             //
-            // "xml": "877687BAFF89DD03AB23E36C6568FAF3",
+            "xml": "877687BAFF89DD03AB23E36C6568FAF3",
 
             // several treatmentCitations
             //
@@ -256,14 +256,14 @@ module.exports = {
 
             // problematic figureCitation
             //
-            // "xml": "038287ACFFFEFFAEFF7639DB6A45F97A"
+            //"xml": "038287ACFFFEFFAEFF7639DB6A45F97A"
             // "xml": "038187AEFFABFFE9E8CE23C2FDCBFE6C",
             // "xml": "000087F6E320FF99FDC9FA73FA90FABE",
             // "xml": "000087F6E320FF99FDC9FA73FA90FABE"
 
             // takes a long time
             //
-            // "xml": "7EF1B844B6845777A5D50518D27AC513"
+            //"xml": "7EF1B844B6845777A5D50518D27AC513"
 
             // problematic journalTitle (EJT)
             //
@@ -271,7 +271,7 @@ module.exports = {
 
             // problematic figures and plates
             //
-            "xml": "039C87AE7D51FFEEFF4707CF75ABFBF1"
+            //"xml": "039C87AE7D51FFEEFF4707CF75ABFBF1"
             
         },
 
