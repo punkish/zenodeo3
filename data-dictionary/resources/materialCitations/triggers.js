@@ -131,23 +131,17 @@ BEGIN
         ecoregions_id = (
             SELECT ecoregions_id 
             FROM geodata.ecoregionsGeopoly
-            WHERE geopoly_contains_point(
-                _shape, new.longitude, new.latitude
-            )
+            WHERE geopoly_contains_point(_shape, new.longitude, new.latitude)
         ),
         biomes_id = (
             SELECT biomes_id 
             FROM geodata.ecoregionsGeopoly
-            WHERE geopoly_contains_point(
-                _shape, new.longitude, new.latitude
-            )
+            WHERE geopoly_contains_point(_shape, new.longitude, new.latitude)
         ),
         realms_id = (
             SELECT realms_id 
             FROM geodata.ecoregionsGeopoly
-            WHERE geopoly_contains_point(
-                _shape, new.longitude, new.latitude
-            )
+            WHERE geopoly_contains_point(_shape, new.longitude, new.latitude)
         )
     WHERE id = new.id;
 END;`,

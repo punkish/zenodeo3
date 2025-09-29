@@ -1,5 +1,3 @@
-'use strict';
-
 import * as tbutils from './utils.js';
 
 import { Config } from '@punkish/zconfig';

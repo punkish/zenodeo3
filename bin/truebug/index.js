@@ -1,5 +1,3 @@
-'use strict';
-
 import process from 'node:process';
 import util from 'util';
 import minimist from 'minimist';
@@ -18,12 +16,12 @@ const truebug = config.truebug;
 import * as tbutils from './lib/utils.js';
 import * as utils from '../../lib/utils.js';
 
-const logOpts = JSON.parse(JSON.stringify(truebug.log));
-logOpts.name = 'TB           ';
+// const logOpts = JSON.parse(JSON.stringify(truebug.log));
+// logOpts.name = 'TB           ';
 import Zlogger from '@punkish/zlogger';
 const log = new Zlogger(logOpts);
 
-const truebugStats = [];
+//const truebugStats = [];
 
 const calcRows = (stats) => {
     const rowsInserted = Object.keys(stats.etl)
@@ -255,12 +253,10 @@ const allTypesOfArchives = [
 ];
 
 // `truebug` starts here
-// 
-const init = async (truebugStats) => {
+async function init(truebugStats = []) {
     const argv = minimist(process.argv.slice(2));
     
     // print usage/help message
-    //
     if (argv.help || typeof(argv.do) === 'undefined') {
         const prompt = fs.readFileSync('./bin/truebug/lib/prompt.txt', 'utf8');
         console.log(prompt);
@@ -268,19 +264,16 @@ const init = async (truebugStats) => {
     }
     
     // query the tables and return current counts
-    //
     if (argv.do === 'getCounts') {
         database.getCounts();
     }
 
     // query the tables and return the details of each kind of archive update
-    //
     else if (argv.do === 'archiveUpdates') {
         database.getArchiveUpdates();
     }
     
     // run etl
-    //
     else if (argv.do === 'etl') {
         const mode = argv.mode || truebug.mode;
         const source = argv.source || truebug.source;
@@ -310,7 +303,6 @@ const init = async (truebugStats) => {
             );
 
             // Let's see if there are any treatments already in the db
-            //
             const numOfTreatments = database.selCountOfTreatments();
 
             if (numOfTreatments) {
@@ -318,7 +310,6 @@ const init = async (truebugStats) => {
                 // There are treatments in the db already. So we need to 
                 // determine the type of archive and timestamp of archive that 
                 // should be processed
-                //
                 const lastUpdates = database.getLastUpdate();
 
                 for (const last of lastUpdates) {
@@ -330,7 +321,6 @@ const init = async (truebugStats) => {
 
             // By now our archives[] have been pruned to just those entries 
             // that need to be ETLed
-            //
             if (typesOfArchives.length) {
                 update(typesOfArchives, truebugStats);
             }
@@ -358,7 +348,6 @@ const processXml = (argv) => {
     // deep print object to the console
     //
     // https://stackoverflow.com/a/10729284/183692
-    //
     const utilOpts = { 
         showHidden: false, 
         depth: null, 
@@ -381,4 +370,4 @@ const processXml = (argv) => {
     console.log(`time Taken To Parse: ${treatment.timeToParseXML}`);
 }
 
-init(truebugStats);
+init();

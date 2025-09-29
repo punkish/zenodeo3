@@ -2,35 +2,34 @@ import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 const truebug = config.truebug;
 import * as database from './database/index.js';
-
-const logOpts = JSON.parse(JSON.stringify(truebug.log));
-logOpts.name = 'TB:UTILS      ';
 import Zlogger from '@punkish/zlogger';
-const log = new Zlogger(logOpts);
+const log = new Zlogger();
 
-const pathToXml = (xml) => {
+/**
+ * Given an XML, construct a dir path from its basename
+ */
+function pathToXml(xml) {
     const one = xml.substr(0, 1);
     const two = xml.substr(0, 2);
     const thr = xml.substr(0, 3);
-    const dir = `${truebug.dirs.archive}/${one}/${two}/${thr}`;
-
-    return dir;
+    return `${truebug.dirs.archive}/${one}/${two}/${thr}`
 }
 
-const stack = {};
-
-const incrementStack = (mod, fn) => {
+/**
+ * Keep track of how many times each function is called
+ */
+function incrementStack(module, fn, stack={}) {
     const incrFn = (fn) => {
-        if (fn in stack[mod]) {
-            stack[mod][fn]++;
+        if (fn in stack[module]) {
+            stack[module][fn]++;
         }
         else {
-            stack[mod][fn] = 1;
+            stack[module][fn] = 1;
         }
     }
 
-    if (!(mod in stack)) {
-        stack[mod] = {};
+    if (!(module in stack)) {
+        stack[module] = {};
     }
     
     incrFn(fn);
@@ -424,7 +423,7 @@ const pruneTypesOfArchives = (last, typesOfArchives) => {
 
 export { 
     pathToXml, 
-    stack, 
+    //stack, 
     incrementStack, 
     progressBar, 
     deconstructDate, 

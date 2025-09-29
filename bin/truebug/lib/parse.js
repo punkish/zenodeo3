@@ -1,5 +1,3 @@
-'use strict';
-
 import * as utils from '../../../lib/utils.js';
 import * as tbutils from './utils.js';
 
@@ -23,7 +21,7 @@ const allCols = {
     tr                : ddutils.getDOM('treatments'),
     treatments        : ddutils.getXmlCols('treatments'),
     bibRefCitations   : ddutils.getCols('bibRefCitations'),
-    figureCitations   : ddutils.getCols('figureCitations'),
+    figureCitations    : ddutils.getCols('figureCitations'),
     materialCitations : ddutils.getCols('materialCitations'),
     collectionCodes   : ['country', 'name', 'lsid', 'type'],
     treatmentCitations: ddutils.getCols('treatmentCitations'),
@@ -106,8 +104,8 @@ const parseTreatmentAuthors = ($) => {
         .map(a => {
             return {
                 treatmentAuthorId: $(a).attr('id'),
-                treatmentAuthor  : $('mods\\:namePart', a).cleanText(),
-                email            : $('mods\\:nameIdentifier[type=email]', a).text()
+                treatmentAuthor: $('mods\\:namePart', a).cleanText(),
+                email: $('mods\\:nameIdentifier[type=email]', a).text()
             }
         })
 };
@@ -148,8 +146,9 @@ const parseBibRefCitations = ($) => {
 };
 
 /*
-Some figureCitation tags have multiple citations within them (see xml fragment below). The attributes are 
-suffixed with -0, -1 and so on.
+Some figureCitation tags have multiple citations within them 
+(see xml fragment below). The attributes are suffixed with 
+-0, -1 and so on.
 
 <figureCitation id="10922A65E320FF95FD00FA16FCB8FA1F" 
     captionText-0="Fig. 1. Habitus of Carvalhoma species…" 
@@ -188,14 +187,16 @@ const parseFigureCitations = ($) => {
                         entries.push({
                             figureCitationId,
                             figureNum,
-                            innertext       : $(a).text() || '',
-                            updateVersion   : $(a).attr(`updateVersion-${figureNum}`) || ''
+                            httpUri: $(a).attr(`httpUri-${figureNum}`) || '',
+                            figureDoiOriginal: $(a).attr(`figureDoi-${figureNum}`) || '',
+                            captionText: $(a).attr(`captionText-${figureNum}`) || '',
+                            innertext: $(a).text() || '',
+                            updateVersion: $(a).attr(`updateVersion-${figureNum}`) || ''
                         });
 
                         imagesObj[$(a).attr(`httpUri-${figureNum}`)] = {
-                            httpUri    : $(a).attr(`httpUri-${figureNum}`)     || '',
-                            figureDoiOriginal: $(a).attr(`figureDoi-${figureNum}`)   || '',
-                            //figureDoi  : text2DOI($(a).attr(`figureDoi-${figureNum}`)),
+                            httpUri: $(a).attr(`httpUri-${figureNum}`) || '',
+                            figureDoiOriginal: $(a).attr(`figureDoi-${figureNum}`) || '',
                             captionText: $(a).attr(`captionText-${figureNum}`) || '',
                             figureCitationId
                         };
@@ -206,13 +207,16 @@ const parseFigureCitations = ($) => {
 
                     entries.push({
                         figureCitationId,
-                        figureNum       : 0,
-                        innertext       : $(a).text(),
-                        updateVersion   : $(a).attr('updateVersion')      || ''
+                        figureNum: 0,
+                        httpUri: $(a).attr(`httpUri`) || '',
+                        figureDoiOriginal: $(a).attr(`figureDoi`) || '',
+                        captionText: $(a).attr(`captionText`) || '',
+                        innertext: $(a).text() || '',
+                        updateVersion: $(a).attr(`updateVersion`) || ''
                     });
 
                     imagesObj[$(a).attr('httpUri')] = {
-                        httpUri    : $(a).attr('httpUri')     || '',
+                        httpUri: $(a).attr('httpUri') || '',
                         figureDoiOriginal: $(a).attr('figureDoi'),
                         captionText: $(a).attr('captionText') || '',
                         figureCitationId
@@ -268,9 +272,9 @@ const parseTreatmentCitations = ($) => {
                     if (bib) {
                         return {
                             treatmentCitationId: $(a).attr('id'),
-                            bibRefCitationId   : bib.attr('id'),
-                            treatmentCitation  : `${tcPrefix} sec. ${bib.cleanText()}`,
-                            refString          : bib.attr('refString') || ''
+                            bibRefCitationId: bib.attr('id'),
+                            treatmentCitation: `${tcPrefix} sec. ${bib.cleanText()}`,
+                            refString: bib.attr('refString') || ''
                         };
                     }
                 });

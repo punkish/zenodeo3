@@ -92,7 +92,13 @@ module.exports = {
 
     // This is where the db is stored
     //
-    "dataDir": "data/db",
+    "dataDir": path.join(dataDir, 'db'),
+    "db": {
+        "dir": path.join(dataDir, 'db'),
+        "dbfile": "zenodeo.sqlite",
+        "alias": "archive",
+        "reinitialize": false
+    },
 
 
     // page=1&size=30&class=Arachnida&cols=treatmentId&cols=treatmentTitle&cols=zenodoDep&cols=treatmentDOI&cols=articleTitle&cols=articleAuthor&cols=httpUri&cols=caption&cols=latitude&cols=longitude&yearlyCounts=true
@@ -193,8 +199,8 @@ module.exports = {
             "port"    : 443
         },
 
-        "source": "archive",
-        //"source": "xml",
+        //"source": "archive",
+        "source": "xml",
 
         // by default, download the daily dump, and then go to
         // the larger ones if a smaller one doesn't exist:
@@ -228,13 +234,13 @@ module.exports = {
             //
             // "xml": "000A3347FFAF4419F859F8B6FBF4A3AA"
 
-            // "xml": "000A3347FFAF441BF83EFBDEFEB7A7AB"
+            //"xml": "000A3347FFAF441BF83EFBDEFEB7A7AB"
 
             // several collectionCodes, hence materialCitations
             //
             //"xml": "0004878BCE1AD075FF58FEB0F351FD28",
             //"xml": "0006D73C47719603931CCE694A14DA4A",
-            // "xml": "0006D73C47719603931CCE694A14DA4A",
+            //"xml": "0006D73C47719603931CCE694A14DA4A",
             // "xml": "00102209FFDBFFC5FF40432DFA78FE38",
             //"xml": "001E1309FFA0FFF8FF1EFC6F228DF968",
             // "xml": "001E1309FFA0FFF8FF1FFE1621D0FCF4",
@@ -245,7 +251,7 @@ module.exports = {
 
             // bad collection codes
             //
-            "xml": "877687BAFF89DD03AB23E36C6568FAF3",
+            //"xml": "877687BAFF89DD03AB23E36C6568FAF3",
 
             // several treatmentCitations
             //
@@ -261,6 +267,10 @@ module.exports = {
             // "xml": "000087F6E320FF99FDC9FA73FA90FABE",
             // "xml": "000087F6E320FF99FDC9FA73FA90FABE"
 
+            // lots of figureCitations
+            //"xml": "0D2722579E74E300FF4DFBD8DEA764A3"
+            "xml": "182387A80901FFF651F6FAD90443FE85"
+            
             // takes a long time
             //
             //"xml": "7EF1B844B6845777A5D50518D27AC513"
