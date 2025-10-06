@@ -533,12 +533,13 @@ const parseOne = (xml, stats) => {
     if (!ts[fn]) return true;
     tbutils.incrementStack(logOpts.name, fn);
 
-    // const typeOfArchive = stats.archive.typeOfArchive;
-    // const timeOfArchive = stats.archive.timeOfArchive;
-    // const archive_name = `${typeOfArchive}.${timeOfArchive}`;
-    const archive_name = 'xmls';
+    const typeOfArchive = stats.archive.typeOfArchive;
+    const timeOfArchive = stats.archive.timeOfArchive;
+    const archive_name = `${typeOfArchive}.${timeOfArchive}`;
+    //const archive_name = 'xmls';
     const treatmentId = path.basename(xml, '.xml');
     const xmlfile = `${truebug.dirs.data}/treatments-dumps/${archive_name}/${xml}`;
+    //const xmlfile = `${truebug.dirs.data}/treatments-dumps/monthly.2025-09-07/${xml}`;
     
     if (utils.getPattern('treatmentId').test(treatmentId)) {
         const xmlContent = fs.readFileSync(xmlfile, 'utf8');

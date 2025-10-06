@@ -287,12 +287,14 @@ async function init(truebugStats = []) {
         else {
             utils.checkDir({
                 dir: `${truebug.dirs.data}/treatments-archive`,
-                removeFiles: false
+                removeFiles: false,
+                zlog: log
             });
 
             utils.checkDir({
                 dir: `${truebug.dirs.data}/treatments-dumps`,
-                removeFiles: false
+                removeFiles: false,
+                zlog: log
             });
 
             preflight.backupOldDB();
