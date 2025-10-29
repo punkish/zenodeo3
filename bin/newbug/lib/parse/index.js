@@ -7,8 +7,8 @@ import { parseTreatment } from './lib/treatment.js';
 import * as cheerio from 'cheerio';
 
 export default class NewbugParse extends Newbug {
-    constructor({ loglevel }) {
-        super({ loglevel }); 
+    constructor(conf) {
+        super(conf);
     }
 
     xml(source) {

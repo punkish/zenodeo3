@@ -342,5 +342,178 @@ module.exports = {
                 "rmFile": false
             }
         }
+    },
+    
+    "newbug": {
+        "logger": {
+            "level"     : "info",
+            "transports": [ 'console', 'file' ],
+            "dir"       : path.join(cwd, 'bin/newbug/logs'),
+            "snipPrefix": "bin/newbug"
+        },
+        
+        "db": {
+            "dir": path.join(dataDir, 'db'),
+            "main": "newbug.sqlite",
+            "archive": "newbug-archive.sqlite",
+            "reinitialize": false
+        },
+
+        "action": "parse",
+        // "action": "display",
+        // "action": "etl",
+        // "action": "getCounts",
+        // "action": "getArchiveUpdates",
+
+        //"mode": 'dryRun',  // simulated
+        //"mode": "test",    // real data but only 15 files
+        "mode": "real",      // real data
+
+        // server where the data are stored 
+        // 
+        // "server": {
+        //     "hostname": 'http://127.0.0.1',
+        //     "path"    : 'plazi/data',
+        //     "port"    : 80
+        // },
+        "server": {
+            "hostname": 'https://tb.plazi.org',
+            "path"    : 'dumps',
+            "port"    : 443
+        },
+
+        //"source": "tbArchive",
+        "sourceType": "file",
+        //"sourceType": "dir",
+
+        // by default, download the daily dump, and then go to
+        // the larger ones if a smaller one doesn't exist:
+        //  - if plazi.zenodeo.daily.zip exists => use it
+        //  - else if plazi.zenodeo.weekly.zip exists => use it
+        //  - else if plazi.zenodeo.monthly.zip exists => use it
+        //  - else use plazi.zenodeo.zip
+        // 
+        // The full dump is packed once a year now
+        // The monthly dump is packed on the first Sunday of the month
+        // The weekly dump is packed every Sunday
+        // The daily dump is packed every day
+        // 
+        "sources": {
+            "dir": path.join(dataDir, 'treatments-dumps', 'xmls'),
+            "synthetic": 55,
+
+            // example: 'http://127.0.0.1/plazi/data/plazi.zenodeo.zip'
+            // example: 'https://tb.plazi.org/GgServer/dumps/plazi.zenodeo.zip'
+            "tbArchives": {
+                "yearly" : "plazi.zenodeo",
+                "monthly": "plazi.zenodeo.monthly",
+                "weekly" : "plazi.zenodeo.weekly",
+                "daily"  : "plazi.zenodeo.daily"
+            },
+            
+            // "file"    : "182387A80901FFF651F6FAD90443FE85",
+
+            // lots of bibRefCitations, but no materialCitations
+            // "file": "000A3347FFAF4419F859F8B6FBF4A3AA"
+
+            // "file": "000A3347FFAF441BF83EFBDEFEB7A7AB"
+
+            // several collectionCodes, hence materialCitations
+            // "file": "0004878BCE1AD075FF58FEB0F351FD28",
+            // "file": "0006D73C47719603931CCE694A14DA4A",
+            // "file": "0006D73C47719603931CCE694A14DA4A",
+            // "file": "00102209FFDBFFC5FF40432DFA78FE38",
+            // "file": "001E1309FFA0FFF8FF1EFC6F228DF968",
+            // "file": "001E1309FFA0FFF8FF1FFE1621D0FCF4",
+            // "file": "001E1309FFA0FFF8FF1FFE1621D0FCF4",   
+            // "file": "001E1309FFA0FFFBFF1FF8D627AEFEE7",
+            // "file": "001E1309FFA1FFF8FF1EF90C274FFE2F",
+            // "file": "001E1309FFA1FFF8FF1EF90C274FFE2F",
+
+            // bad collection codes
+            // "file": "877687BAFF89DD03AB23E36C6568FAF3",
+
+            // several treatmentCitations
+            // "file": "000587EFFFADFFC267F7FAC4351CFBC7"
+            // "file": "00102209FF8AFF94FF404169FF3EFC17"
+            // "file": "000040332F2853C295734E7BD4190F05"
+
+            // problematic figureCitation
+            // "file": "038287ACFFFEFFAEFF7639DB6A45F97A"
+            // "file": "038187AEFFABFFE9E8CE23C2FDCBFE6C",
+            // "file": "000087F6E320FF99FDC9FA73FA90FABE",
+            // "file": "000087F6E320FF99FDC9FA73FA90FABE"
+
+            // lots of figureCitations
+            // "file": "0D2722579E74E300FF4DFBD8DEA764A3"
+            "file": "182387A80901FFF651F6FAD90443FE85"
+            
+            // takes a long time
+            // "file": "7EF1B844B6845777A5D50518D27AC513"
+
+            // problematic journalTitle (EJT)
+            // "file": "5C7987C4FFC0FFDCECF6F9FB34B5FD3F"
+
+            // problematic figures and plates
+            // "file": "039C87AE7D51FFEEFF4707CF75ABFBF1"
+        },
+
+        "dirs": {
+            "data"   : dataDir,
+            "dumps"  : path.join(dataDir, 'treatments-dumps'),
+            "old"    : path.join(dataDir, 'treatments-dump-old'),
+            "archive": path.join(dataDir, 'treatments-archive'),
+            "zips"   : path.join(dataDir, 'zips'),
+            "z3"     : path.join(dataDir, 'z3')
+        },
+
+        "steps": {
+            "main": {
+                "printStats": true,
+                "printStack": true
+            },
+            "preflight": {
+                "checkDir"        : true,
+                "backupOldDB"     : false,
+                "copyXmlToDump"   : true,
+                "filesExistInDump": true
+            },
+            "download": {
+                "checkRemote": true,
+                "download"   : true,
+                "unzip"      : true
+            },
+            "database": {
+                "dropIndexes"         : true,
+                "buildIndexes"        : true,
+                "analyzeDb"           : true,
+                "getLastUpdate"       : true,
+                "insertStats"         : true,
+                "insertTreatments"    : true,
+                "insertTreatmentJSONs": false,
+                "getCounts"           : true,
+                "getArchiveUpdates"   : true,
+                "selCountOfTreatments": true
+            },
+            "parse": {
+                "parseOne" : true,
+                "calcStats": true,
+                "cleanText": true,
+                "calcIsOnLand": false,
+                "_parseTreatmentCitations": true,
+                "_parseTreatmentAuthors": true,
+                "_parse": true,
+                "_parseBibRefCitations": true,
+                "_parseFigureCitations": true,
+                "_parseCollectionCodes": true,
+                "_parseMaterialCitations": true,
+                "_parseTreatment": true,
+                "_cheerioparse": true
+            },
+            "postflight": {
+                "cpFile": false,
+                "rmFile": false
+            }
+        }
     }
 }

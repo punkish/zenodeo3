@@ -1,56 +1,51 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
-import * as utils from '../../../../lib/utils.js';
-import { dumpsSchema } from './schema/dumpsSchema.js';
-//import { parseTreatment } from '../parse/lib/treatment.js';
+import { snipDir } from '../utils/index.js';
 
-function dropTables(db, log) {
-    log.info('dropping tables in db…');
+function dropTables(db, logger) {
+    logger.info('dropping tables in newbug db');
     db.exec(`
 BEGIN TRANSACTION;
-    --PRAGMA foreign_keys = OFF;
-    DROP TABLE IF EXISTS materialCitations_collectionCodes;
-    DROP TABLE IF EXISTS materialCitations;
-    DROP TABLE IF EXISTS collectionCodes;
-    --DROP TABLE IF EXISTS images;
-    DROP TABLE IF EXISTS figureCitations;
-    DROP TABLE IF EXISTS treatmentCitations;
-    DROP TABLE IF EXISTS bibRefCitations;
-    DROP TABLE IF EXISTS treatmentAuthors;
-    DROP TABLE IF EXISTS treatments;
-    DROP TABLE IF EXISTS journalsByYears;
-    DROP TABLE IF EXISTS journals;
-    DROP TABLE IF EXISTS kingdoms;
-    DROP TABLE IF EXISTS phyla;
-    DROP TABLE IF EXISTS classes;
-    DROP TABLE IF EXISTS orders;
-    DROP TABLE IF EXISTS genera;
-    DROP TABLE IF EXISTS families;
-    DROP TABLE IF EXISTS species;
-    DROP TABLE IF EXISTS binomensFts;
-    DROP TABLE IF EXISTS materialCitationsRtree;
-    DROP TABLE IF EXISTS treatmentsFts;
-    DROP TABLE IF EXISTS treatmentsFtVrow;
-    DROP TABLE IF EXISTS treatmentsFtVcol;
-    DROP TABLE IF EXISTS treatmentsFtVins;
-    DROP TABLE IF EXISTS treatments;
-    DROP VIEW IF EXISTS treatmentsView;
-    DROP VIEW IF EXISTS binomensView;
-    --DROP VIEW IF EXISTS images;
-    DROP VIEW IF EXISTS treatmentCitationsView;
-    DROP TRIGGER IF EXISTS treatments_ai;
-    DROP TRIGGER IF EXISTS treatments_ad;
-    DROP TRIGGER IF EXISTS treatments_au;
-    DROP TRIGGER IF EXISTS treatmentsView_ii;
-    DROP TRIGGER IF EXISTS materialCitations_loc_ai;
-    DROP TRIGGER IF EXISTS treatmentCitationsView_ii;
+
+DROP TABLE IF EXISTS journals;
+DROP TABLE IF EXISTS journalsByYears;
+DROP TABLE IF EXISTS kingdoms;
+DROP TABLE IF EXISTS phyla;
+DROP TABLE IF EXISTS classes;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS genera;
+DROP TABLE IF EXISTS families;
+DROP TABLE IF EXISTS species;
+DROP TABLE IF EXISTS treatments;
+DROP TABLE IF EXISTS bibRefCitations;
+DROP TABLE IF EXISTS treatmentCitations;
+DROP TABLE IF EXISTS treatmentAuthors;
+DROP TABLE IF EXISTS materialCitations;
+DROP TABLE IF EXISTS collectionCodes;
+DROP TABLE IF EXISTS materialCitations_collectionCodes;
+DROP TABLE IF EXISTS figureCitations;
+DROP TABLE IF EXISTS binomensFts;
+DROP TABLE IF EXISTS materialCitationsRtree;
+DROP TABLE IF EXISTS treatmentsFts;
+DROP TABLE IF EXISTS treatmentsFtVrow;
+DROP TABLE IF EXISTS treatmentsFtVcol;
+DROP TABLE IF EXISTS treatmentsFtVins;
+DROP VIEW IF EXISTS binomensView;
+DROP VIEW IF EXISTS treatmentCitationsView;
+DROP VIEW IF EXISTS images;
+DROP TRIGGER IF EXISTS treatments_ai;
+DROP TRIGGER IF EXISTS treatments_ad;
+DROP TRIGGER IF EXISTS treatments_au;
+DROP TRIGGER IF EXISTS materialCitations_loc_ai;
+DROP TRIGGER IF EXISTS treatmentCitationsView_ii;
+
 COMMIT;
     `);
 }
 
-function createTables(db, log) {
-    log.info('creating tables in db…');
+function createTables(db, logger) {
+    logger.info('creating tables in newbug db');
     
     const schemaFiles = [
         'treatments',
@@ -68,96 +63,193 @@ function createTables(db, log) {
             path.resolve(import.meta.dirname, `./schema/${s}.sql`), 
             'utf8'
         );
-    }).join('\n');
+    });
+    schema.unshift('BEGIN TRANSACTION;');
+    schema.push('COMMIT;')
 
+    db.exec(schema.join('\n'));
+}
+
+function createTempEntities(db, logger) {
+    const schema = fs.readFileSync(
+        path.resolve(import.meta.dirname, `./schema/tempEntities.sql`), 
+        'utf8'
+    );
+
+    db.exec(schema);
+}
+
+function dropTablesDumps(db, logger) {
+    logger.info('dropping tables in newbug-archive db');
     db.exec(`
 BEGIN TRANSACTION;
-${schema}
+
+DROP TABLE IF EXISTS archive.treatmentsDump;
+DROP TABLE IF EXISTS archive.archives;
+DROP TABLE IF EXISTS archive.etl;
+DROP TABLE IF EXISTS archive.downloads;
+DROP TABLE IF EXISTS archive.unzip;
+DROP VIEW IF EXISTS archive.archivesView;
+DROP TRIGGER IF EXISTS archive.archivesView_ii;
+
 COMMIT;
     `);
 }
 
-function dropTablesDumps(db, alias, log) {
-    log.info('dropping tables in orig…');
+function createTablesDumps(db, logger) {
+    logger.info(`creating tables in newbug-archive db`);
+
     db.exec(`
 BEGIN TRANSACTION;
-    DROP TABLE IF EXISTS ${alias}.treatments;
-    DROP TRIGGER IF EXISTS ${alias}.treatments_ai;
+
+CREATE TABLE IF NOT EXISTS archive.treatmentsDump (
+    id INTEGER PRIMARY KEY,
+    xml TEXT NOT NULL,
+    json TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS archive.archives (
+    id INTEGER PRIMARY KEY,
+
+    -- One of yearly, monthly, weekly or daily
+    typeOfArchive TEXT NOT NULL,
+
+    -- Date when the archive was created, stored as yyyy-mm-dd
+    dateOfArchive TEXT NOT NULL,
+
+    -- Size of the archive in kilobytes
+    sizeOfArchive INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS archive.etl (
+    id INTEGER PRIMARY KEY,
+    archives_id INTEGER NOT NULL REFERENCES archives(id),
+
+    -- Time ETL process started and ended, in ms since epoch
+    started INTEGER,
+    ended INTEGER,
+
+    -- Number of treatments and its parts stored in the archive
+    treatments INTEGER,
+    treatmentCitations INTEGER,
+    materialCitations INTEGER,
+    figureCitations INTEGER,
+    bibRefCitations INTEGER,
+    treatmentAuthors INTEGER,
+    collectionCodes INTEGER,
+    journals INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS archive.downloads (
+    id INTEGER PRIMARY KEY,
+    archives_id INTEGER NOT NULL REFERENCES archives(id),
+
+    -- start and end of the process in ms since epoch
+    started INTEGER,
+    ended INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS archive.unzip (
+    id INTEGER PRIMARY KEY,
+    archives_id INTEGER NOT NULL REFERENCES archives(id),
+
+    -- start and end of the process in ms since epoch
+    started INTEGER,
+    ended INTEGER,
+
+    -- number of files in the zip archive
+    numOfFiles INTEGER
+);
+
+CREATE VIEW IF NOT EXISTS archive.archivesView AS
+    SELECT 
+        a.id, a.typeOfArchive, a.dateOfArchive, a.sizeOfArchive,
+        u.started AS unzipStarted, u.ended AS unzipEnded, u.numOfFiles,
+        d.started AS downloadStarted, d.ended AS downloadEnded,
+        e.started AS etlStarted, e.ended AS etlEnded, e.treatments,
+        e.treatmentCitations, e.materialCitations, e.figureCitations,
+        e.bibRefCitations, e.treatmentAuthors, e.collectionCodes,
+        e.journals
+    FROM 
+        archives a
+        JOIN unzip u ON a.id = u.archives_id
+        JOIN downloads d ON a.id = d.archives_id 
+        JOIN etl e ON a.id = e.archives_id;
+
+CREATE TRIGGER IF NOT EXISTS archive.archivesView_ii 
+    INSTEAD OF INSERT ON archivesView
+    BEGIN
+        INSERT INTO archives (typeOfArchive, dateOfArchive, sizeOfArchive)
+        VALUES (new.typeOfArchive, new.dateOfArchive, new.sizeOfArchive);
+
+        INSERT INTO unzip (archives_id, started, ended, numOfFiles)
+        VALUES (
+            last_insert_rowid(),
+            new.unzipStarted, 
+            new.unzipEnded, 
+            new.numOfFiles
+        );
+
+        INSERT INTO downloads (archives_id, started, ended)
+        VALUES (
+            last_insert_rowid(),
+            new.downloadStarted, 
+            new.downloadEnded
+        );
+
+        INSERT INTO etl (
+            archives_id, 
+            started, 
+            ended, 
+            treatments,
+            treatmentCitations,
+            materialCitations,
+            figureCitations,
+            bibRefCitations,
+            treatmentAuthors,
+            collectionCodes,
+            journals
+        )
+        VALUES (
+            last_insert_rowid(),
+            new.etlStarted, 
+            new.etlEnded, 
+            new.treatments,
+            new.treatmentCitations,
+            new.materialCitations,
+            new.figureCitations,
+            new.bibRefCitations,
+            new.treatmentAuthors,
+            new.collectionCodes,
+            new.journals
+        );
+    END;
+
 COMMIT;
     `);
 }
 
-function createTablesDumps(db, alias, log) {
-    log.info(`creating tables in db-${alias}`);
-    // const schemafile = path.resolve(import.meta.dirname, './schema-orig.sql');
-    // const schema = fs.readFileSync(schemafile, 'utf8');
-    const schema = dumpsSchema(alias)
-
-    db.exec(`
-BEGIN TRANSACTION;
-${schema}
-COMMIT;
-    `);
-}
-
-function cleanText() {
-    const re = utils.getPattern('all');
-    let str = this.text();
-    str = str.replace(re.double_spc, ' ');
-    str = str.replace(re.space_comma, ',');
-    str = str.replace(re.space_colon, ':');
-    str = str.replace(re.space_period, '.');
-    str = str.replace(re.space_openparens, '(');
-    str = str.replace(re.space_closeparens, ')');
-    str = str.trim();
-    return str;
-}
-
-// function parse(xml) {
-//     const start = process.hrtime.bigint();
-//     const $ = cheerio.load(
-//         xml, 
-//         { normalizeWhitespace: true, xmlMode: true }, 
-//         false
-//     );
-//     $.prototype.cleanText = cleanText;
-//     const treatment = parseTreatment($);
-//     const end = process.hrtime.bigint();
-//     treatment.timeToParseXML = (Number(end - start) * 1e-6).toFixed(2);
-//     treatment.xml = xml;
-//     treatment.json = JSON.stringify(treatment);
-
-//     return treatment
-// }
-
-export function connect(dbfile, alias, log, reinitialize=false) {
+export function connect({ dir, main, archive, reinitialize, logger }) {
+    const dbfile = `${dir}/${main}`;
+    const prefix = dir;
+    logger.info(`creating db connection with "${snipDir(dbfile, prefix)}"`);
     const db = new Database(dbfile);
-
-    if (reinitialize) {
-        dropTables(db, log);
-        createTables(db, log);
-    }
-
-    // /full/path/to/dbfile.sqlite
-    // |------------|------|
-    // 
-    // /full/path/to/dbfile-<alias>.sqlite
-    // |------------|------| |----|
-    // 
-    //const dbname = path.basename(dbfile, path.extname(dbfile)) + `-${alias}`;
-    const dbname = `${path.basename(dbfile, path.extname(dbfile))}-${alias}`;
-    const dirname = path.dirname(dbfile);
-    const dborig = path.join(dirname, `${dbname}.sqlite`);
+    const archivedb = `${dir}/${archive}`;
+    const alias = 'archive';
+    logger.info(`attaching '${snipDir(archivedb, prefix)}' AS "${alias}"`);
+    db.prepare(`ATTACH DATABASE '${archivedb}' AS ${alias}`).run();
     
-    log.info(`attaching database '${dborig}' AS "${alias}"`);
-    db.prepare(`ATTACH DATABASE '${dborig}' AS ${alias}`).run();
-
     if (reinitialize) {
-        dropTablesDumps(db, alias, log);
-        createTablesDumps(db, alias, log);
+        dropTables(db, logger);
+        createTables(db, logger);
     }
 
-    //db.function('parse', parse);
+    createTempEntities(db, logger);
+
+    if (reinitialize) {
+        dropTablesDumps(db, logger);
+        createTablesDumps(db, logger);
+    }
     
     return db
 }

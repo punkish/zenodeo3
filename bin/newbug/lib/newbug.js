@@ -1,29 +1,46 @@
+import fs from 'fs';
+import path from 'path';
+
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 //import Zlogger from '@punkish/zlogger';
 import Zlogger from '../../../../zlogger/index.js';
+import * as utils from './utils/index.js';
+import { getPattern } from '../../../lib/utils.js';
+import { connect } from './database/dbconn.js';
+import { createInsertTreatments } from './database/createInsertTreatments.js';
+
+// see https://github.com/cheeriojs/cheerio/issues/2786#issuecomment-1288843071
+import * as cheerio from 'cheerio';
+import { parseTreatment } from './parse/lib/treatment.js';
+
+import cliProgress from 'cli-progress';
 
 export default class Newbug {
-    constructor({ loglevel }) {
-        
-        // Include all the truebug config settings into the object instance
-        this.config = JSON.parse(JSON.stringify(config.truebug));
-        
-        // Add settings for the db, and set the provided loglevel
-        this.config.db = config.db;
-        this.config.log.level = loglevel;
-        
-        // Remove the prefix from each log line
-        this.config.log.snipPrefix = 'bin/newbug';
+    constructor(conf) {
+
+        // Import a copy of the newbug config…
+        this.config = JSON.parse(JSON.stringify(config.newbug));
+
+        // and update it with any conf values passed in with initialization
+        if (conf) {            
+            this.config = Object.assign(
+                {},
+                this.config,
+                conf
+            );
+        }
 
         // Initialize the logger
-        this.log = new Zlogger(this.config.log);
+        this.logger = new Zlogger(this.config.logger);
 
         // A stats object to store the number of treatments and 
         // its components extracted from the XMLs
         this.stats = {
+
+            // ETL process related stats
             typeOfArchive: '',
-            timeOfArchive: 0,
+            dateOfArchive: 0,
             sizeOfArchive: 0,
             downloadStarted: 0,
             downloadEnded: 0,
@@ -32,6 +49,8 @@ export default class Newbug {
             numOfFiles: 0,
             etlStarted: 0,
             etlEnded: 0,
+
+            // Counts of treatments and treatment parts ETLed
             treatments: 0,
             treatmentCitations: 0,
             materialCitations: 0,
@@ -41,114 +60,379 @@ export default class Newbug {
             treatmentAuthors: 0,
             journals: 0
         };
+        
+        this.utils = utils;
+        this.utils.isValidXML.bind(this);
 
-        //this.archives = [ 'yearly', 'monthly', 'weekly', 'daily' ];
+        this.db = connect({
+            dir: this.config.db.dir, 
+            main: this.config.db.main, 
+            archive: this.config.db.archive, 
+            reinitialize: this.config.db.reinitialize, 
+            logger: this.logger
+        });
+
+        this.insertTreatments = createInsertTreatments(this.db);
     }
 
-    async download () {
-        this.stats.downloadStarted = new Date().getTime();
-        const typeOfArchive = this.stats.typeOfArchive;
+    updateStats(treatment) {
+        this.stats.treatments++;
+        this.stats.treatmentCitations += treatment.treatmentCitations.length; 
+        this.stats.materialCitations += treatment.materialCitations.length;
+        treatment.materialCitations.forEach(m => {
+            this.stats.collectionCodes += m.collectionCodes.length;
+        });
+        this.stats.figureCitations += treatment.figureCitations.length;
+        this.stats.bibRefCitations += treatment.bibRefCitations.length;
+        this.stats.treatmentAuthors += treatment.treatmentAuthors.length;
+        //this.stats.journals += treatment.journals.length;
+    }
 
-        const remoteArchive = typeOfArchive === 'yearly' 
-            ? 'plazi.zenodeo.zip'
-            : `plazi.zenodeo.${typeOfArchive}.zip`;
-            
+    parseFile(file, force=false) {
 
-        // example
-        //
-        // "server": {
-        //     "hostname": 'https://tb.plazi.org',
-        //     "path": 'GgServer/dumps',
-        //     "port": 443
-        // },
+        // check if the file is a valid treatment xml
+        const treatmentId = this.utils.isValidXML(file);
 
-        // https://tb.plazi.org/GgServer/dumps/plazi.zenodeo.daily.zip
-        const pathToArchive = `${truebug.server.path}/${remoteArchive}`;
-        const url = `${truebug.server.hostname}/${pathToArchive}`;
-        this.log.info(`checking for "${remoteArchive}" on the server…`);
+        if (treatmentId) {
 
-        try {
-            const res = await got(url, { method: 'HEAD' });
-            const headers = res.headers;
-            const d = new Date(headers['last-modified']);
-            const timeOfArchive = d.toISOString().split('T')[0];
-            const archive_name = `${typeOfArchive}.${timeOfArchive}`;
-            const localCopy = `${truebug.dirs.zips}/${archive_name}.zip`;
+            // since we got back a treatmentId, the file is valid and we proceed
+            if (force) {
+                return this.xml2json(file);
+            }
+            else {
 
-            this.stats.timeOfArchive = timeOfArchive;
-            this.stats.sizeOfArchive = Number(headers['content-length']);
+                // check if the treatment already exists in the db
+                const treatmentExists = this.checkTreatmentExists(treatmentId);
 
-            if (!fs.existsSync(localCopy)) {
-                this.log.info(`downloading ${archive_name}…`);
-
-                if (truebug.mode !== 'dryRun') {
-                    await streamPipeline(
-                        got.stream(url),
-                        fs.createWriteStream(localCopy)
-                    );
+                if (treatmentExists) {
+                    //this.logger.info(`skipping ${treatmentId}`);
+                    return false;
                 }
-                
+                else {
+
+                    // process only if the treatment does not exist
+                    return this.xml2json(file);
+                }
             }
-
-        }
-        catch (error) {
-            
-            if (error.response.statusCode) {
-                this.log.info('there is not\n');
-            }
-            
-        }
-        
-        this.stats.downloadEnded = new Date().getTime();
-    }
-
-    unzip () {
-        this.stats.unzipStarted = new Date().getTime();
-
-        const typeOfArchive = this.stats.typeOfArchive;
-        const timeOfArchive = this.stats.timeOfArchive;
-
-        const archive_name = `${typeOfArchive}.${timeOfArchive}`;
-        this.log.info(
-            `checking if "${archive_name}" has already been unzipped…`, 
-        );
-
-        const archive_dir = `${truebug.dirs.data}/treatments-dumps/${archive_name}`;
-        
-        if (fs.existsSync(archive_dir)) {
-            this.log.info('yes, it has been');
         }
         else {
-            this.log.info("no, it hasn't");
-            this.log.info(`unzipping "${archive_name}.zip"…`);
-            const archive = `${truebug.dirs.zips}/${archive_name}.zip`;
+
+            // provided file is not a valid XML
+            return false;
+        }
+    }
+
+    xml2json(file) {
+        const start = process.hrtime.bigint();
+        const xml = fs.readFileSync(file);
+        const cheerioOpts = { normalizeWhitespace: true, xmlMode: true };
+        const $ = cheerio.loadBuffer(xml, cheerioOpts, false);
+        $.prototype.cleanText = function () {
+            let str = this.text();
+            str = str.replace(/\s+/g, ' ');
+            str = str.replace(/\s+,/g, ',');
+            str = str.replace(/\s+:/g, ':');
+            str = str.replace(/\s+\./g, '.');
+            str = str.replace(/\(\s+/g, '(');
+            str = str.replace(/\s+\)/g, ')');
+            str = str.trim();
+            return str;
+        };
+
+        // treatment JSON
+        const treatment = parseTreatment($);
+
+        // Save a copy of the XML and the JSON in the treatment obj
+        // so we can insert it in the archives.treatmentsDump table
+        treatment.json = JSON.stringify(treatment);
+        treatment.xml = xml;
+
+        // Update the statistics
+        this.updateStats(treatment);
         
-            // -q Perform operations quietly.
-            // -n never overwrite existing files
-            // -d extract files into exdir
-            //
-            let cmd = `unzip -q -n ${archive} -d ${archive_dir}`;
+        const end = process.hrtime.bigint();
+
+        treatment.timeToParseXML = (Number(end - start) * 1e-6).toFixed(2);
+        return treatment;
+    }
+
+    getCounts() {
+        this.logger.info(`getting counts`);
         
-            if (truebug.mode !== 'dryRun') {
-                execSync(cmd);
+        const tableOfCounts = this.db.prepare(`
+            SELECT schema, name 
+            FROM pragma_table_list 
+            WHERE type = 'table' AND NOT name glob 'sqlite_*'
+        `).all();
+
+        tableOfCounts.forEach(table => {
+            const t = `${table.schema}.${table.name}`;
+            const sql = `SELECT Count(*) AS count FROM ${t}`;
+            table.count = this.db.prepare(sql).get().count;
+        });
+        
+        
+        const total = tableOfCounts.map(({ name, count }) => count)
+            .reduce((accumulator, initialValue) => accumulator + initialValue);
+        tableOfCounts.push({ 
+            name: '='.repeat(34), 
+            count: '='.repeat(5) 
+        });
+        tableOfCounts.push({ 
+            name: 'total', 
+            count: total 
+        });
+        return tableOfCounts;
+    }
+
+    getArchiveUpdates() {
+        this.logger.info(`getting archive updates`);
+        const typesOfArchives = { 
+            'full': 0,
+            'monthly': 0,
+            'weekly': 0,
+            'daily': 0
+        };
+        
+        // https://stackoverflow.com/a/9763769/183692
+        const msToTime = (s) => {
+        
+            // Pad to 2 or 3 digits, default is 2
+            function pad(n, z) {
+                z = z || 2;
+                return ('00' + n).slice(-z);
+            }
+        
+            const ms = s % 1000;
+            s = (s - ms) / 1000;
+
+            const ss = s % 60;
+            s = (s - ss) / 60;
+
+            const mm = s % 60;
+            const hh = (s - mm) / 60;
+            
+            return `${pad(hh)}h ${pad(mm)}m ${pad(ss)}s ${pad(ms, 3)}ms`;
+        }
+
+        const stm = `
+            SELECT 
+                *, 
+                etlEnded - etlStarted AS duration
+            FROM archive.archivesView
+            WHERE id IN (
+                SELECT max(id) 
+                FROM archive.archives 
+                GROUP BY typeOfArchive
+            )
+    `;
+        const lastUpdate = this.db.prepare(stm).all();
+        return lastUpdate
+    }
+
+    load(treatments) {
+        //this.logger.info(`loading ${treatments.length} treatments`);
+        this.insertTreatments(treatments, this.stats)
+    }
+
+    selCountOfTreatments() {
+        this.logger.info('getting count of treatments already in the db');
+        return this.db.prepare(`
+            SELECT Count(*) AS num 
+            FROM treatments
+        `).get().num
+    }
+
+    checkTreatmentExists(treatmentId) {
+        this.logger.debug('checking if treatment exists');
+        const res = this.db.prepare(`
+            SELECT id 
+            FROM treatments
+            WHERE treatmentId = @treatmentId
+        `).get({ treatmentId });
+
+        if (res) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    storeTreatmentJSON({ treatmentId, xml, json }) {
+        this.logger.debug('storing treatment json in archive');
+        return this.db.prepare(`
+            INSERT INTO archive.treatments (treatmentId, xml, json)
+            VALUES (@treatmentId, @xml, @json)
+        `).run({ treatmentId, xml, json });
+    }
+
+    getLastUpdate = () => {
+        return this.db.prepare(`
+            SELECT 
+                a.typeOfArchive, a.dateOfArchive, 
+                e.started, e.ended, e.ended - e.started AS duration, e.treatments,
+                e.treatmentCitations, e.materialCitations, e.figureCitations,
+                e.bibRefCitations, e.treatmentAuthors, e.collectionCodes, e.journals
+            FROM 
+                archive.archives a
+                JOIN archive.etl e ON a.id = e.archives_id 
+            WHERE a.id IN (
+                SELECT max(id) 
+                FROM archive.archives 
+                GROUP BY typeOfArchive
+            ) 
+            ORDER BY a.id
+        `).all();
+    }
+
+    insertEtl = () => {
+        this.db.prepare(`
+            INSERT INTO archive.etl (
+                archives_id,
+                started, 
+                ended, 
+                treatments,
+                treatmentCitations,
+                materialCitations,
+                figureCitations,
+                bibRefCitations,
+                treatmentAuthors,
+                collectionCodes,
+                journals
+            ) 
+            VALUES (
+                @archives_id,
+                @started, 
+                @ended, 
+                @treatments,
+                @treatmentCitations,
+                @materialCitations,
+                @figureCitations,
+                @bibRefCitations,
+                @treatmentAuthors,
+                @collectionCodes,
+                @journals
+            )
+        `)
+    }
+
+    insertDownloads = () => {
+        this.db.prepare(`
+            INSERT INTO archive.downloads (
+                archives_id, 
+                started, 
+                ended
+            ) 
+            VALUES (
+                @archives_id, 
+                @started, 
+                @ended
+            )
+        `)
+    }
+
+    insertArchives = (stats) => {
+        this.db.prepare(`
+            INSERT INTO archive.archivesView (
+                typeOfArchive,
+                dateOfArchive,
+                sizeOfArchive,
+                unzipStarted,
+                unzipEnded,
+                numOfFiles,
+                downloadStarted,
+                downloadEnded,
+                etlStarted,
+                etlEnded,
+                treatments,
+                treatmentCitations,
+                materialCitations,
+                figureCitations,
+                bibRefCitations,
+                treatmentAuthors,
+                collectionCodes,
+                journals
+            )
+            VALUES (
+                @typeOfArchive,
+                @dateOfArchive,
+                @sizeOfArchive,
+                @unzipStarted,
+                @unzipEnded,
+                @numOfFiles,
+                @downloadStarted,
+                @downloadEnded,
+                @etlStarted,
+                @etlEnded,
+                @treatments,
+                @treatmentCitations,
+                @materialCitations,
+                @figureCitations,
+                @bibRefCitations,
+                @treatmentAuthors,
+                @collectionCodes,
+                @journals
+            )
+        `)
+    }
+
+    insertUnzip = () => {
+        this.db.prepare(`
+            INSERT INTO unzip (
+                archives_id, 
+                started, 
+                ended,
+                numOfFiles
+            ) 
+            VALUES (
+                @archives_id, 
+                @started, 
+                @ended,
+                @numOfFiles
+            )
+        `)
+    }
+
+    processDir(source, force) {
+        this.logger.info('source is a directory');
+        const files = fs.readdirSync(source);
+
+        if (files) {
+            const batch = 5000;
+            let counter = 1;
+            const treatments = [];
+
+            // create a new progress bar instance and use the legacy theme
+            const bar = new cliProgress.SingleBar(
+                {}, cliProgress.Presets.legacy
+            );
+
+            // set the total and start values for the progress bar
+            const total = files.length;
+            const start = 0;
+            bar.start(total, start);
+
+            for (let file of files) {
+                file = `${source}/${file}`;
+                const treatment = this.parseFile(file, force);
                 
-                // check if there is an index.xml included in the archive; 
-                // if yes, remove it
-                //
-                if (fs.existsSync(`${archive_dir}/index.xml`)) {
-                    fs.rmSync(`${archive_dir}/index.xml`);
+                if (treatment) {
+                    bar.increment();
+                    bar.update(counter);
+                    counter++;
+                    treatments.push(treatment);
+                }
+
+                if (!(counter % batch)) {
+                    this.load(treatments);
+                    treatments.length = 0;
                 }
             }
 
+            this.load(treatments);
+            bar.stop();
+            this.logger.info(`loaded ${treatments.length} treatments`);
         }
-
-        const files = fs.readdirSync(archive_dir)
-            .filter(f => path.extname(f) === '.xml');
-
-        this.stats.unzip.numOfFiles = files.length;
-        this.stats.unzip.ended = new Date().getTime();
-        this.log.info(`downloaded archive contains ${files.length} files`);
-
-        return files;
     }
 }
