@@ -292,109 +292,42 @@ function cleanText(str) {
     return str;
 }
 
-
-function isValidFileOrDir(file) {
+function determineSourceType(source) {
     
-    // check if it exists as a file
+    // check if it exists as a file or dir
     try {
-        const stat = fs.statSync(file);
-        
-        if (stat.isFile()) {
-
-            // given '/path/to/treatmentId.xml'
-            const {
-                root, // '/'
-                dir,  // '/path/to'
-                base, // 'treatmentId.xml'
-                ext,  // '.xml'
-                name, // 'treatmentId'
-            } = path.parse(file);
-            
-            // treatmentId regular expression
-            const re = /^[a-zA-Z0-9]{32}$/;
-            
-            if (re.test(name) && ext === '.xml') {
-                return true;
-            }
-        }
+        const stat = fs.statSync(source);
 
         if (stat.isDirectory()) {
-            return true;
+            this.updateStats({
+                sourceType: 'dir',
+                sourceName: source,
+                dateOfArchive: stat.birthtime.toDateString()
+            });
+
+            return 'dir';
         }
-    } 
-    catch (error) {
-        throw error;
-    }
-}
-
-function isValidXML(source) {
-
-    // We have to determine that the source is a valid XML file because 
-    // the 'parseOneFile' action works only with files
-    if (!source) {
-
-        // Since source was not provided via the CLI, we determine the 
-        // value of source based on 'sourceType' and 'sources'
-        const sourceType = this.config.sourceType;
-        const dir = this.config.dirs.dumps;
-        source = `${dir}/xmls/${this.config.sources[sourceType]}.xml`;
-    }
-
-    const file = source;
-    
-    // check if it exists as a file
-    try {
-        const stat = fs.statSync(file);
-        
-        if (stat.isFile()) {
-
-            // given '/path/to/treatmentId.xml'
-            const {
-                root, // '/'
-                dir,  // '/path/to'
-                base, // 'treatmentId.xml'
-                ext,  // '.xml'
-                name, // 'treatmentId'
-            } = path.parse(file);
+        else if (stat.isFile()) {
+            this.updateStats({
+                sourceType: 'file',
+                sourceName: source,
+                dateOfArchive: stat.birthtime.toDateString()
+            });
             
-            // treatmentId regular expression
-            const re = /^[a-zA-Z0-9]{32}$/;
-            
-            if (ext === '.xml') {
-                const m = name.match(re);
-
-                if (m.input) {
-                    if (this.stats) {
-                        this.stats.typeOfArchive = file;
-                        this.stats.dateOfArchive = stat.birthtime.toDateString();
-                        this.stats.sizeOfArchive = stat.size / 1024;
-                        this.stats.numOfFiles = 1;
-                    }
-
-                    return m.input;
-                }
-                else {
-                    console.error('file name is not a valid treatmentId');
-                }
-
-            }
+            return 'file';
         }
-    } 
-    catch (error) {
-        throw error;
+        else if (source === 'tbArchive') {
+            this.stats.sourceType = 'tbArchive';
+            return 'tbArchive';
+        }
+        else if (source === 'synthetic') {
+            this.stats.sourceType = 'synthetic'
+            return 'synthetic';
+        }
+        else {
+            return false;
+        }
     }
-}
-
-function isDir(file) {
-    
-    // check if it exists as a file
-    try {
-        const stat = fs.statSync(file);
-
-        if (stat.isDirectory()) {
-            return true;
-        }
-    } 
     catch (error) {
         throw error;
     }
@@ -415,7 +348,5 @@ export {
     snipDir,
     checkDir,
     cleanText,
-    isValidFileOrDir,
-    isValidXML,
-    isDir
+    determineSourceType
 }

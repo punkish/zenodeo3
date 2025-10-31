@@ -356,7 +356,7 @@ module.exports = {
             "dir": path.join(dataDir, 'db'),
             "main": "newbug.sqlite",
             "archive": "newbug-archive.sqlite",
-            "reinitialize": false
+            "reinitialize": true
         },
 
         "action": "parse",
@@ -382,7 +382,7 @@ module.exports = {
             "port"    : 443
         },
 
-        //"source": "tbArchive",
+        //"sourceType": "tbArchive",
         "sourceType": "file",
         //"sourceType": "dir",
 

@@ -6,7 +6,7 @@ const config = new Config().settings;
 //import Zlogger from '@punkish/zlogger';
 import Zlogger from '../../../../zlogger/index.js';
 import * as utils from './utils/index.js';
-import { getPattern } from '../../../lib/utils.js';
+//import { getPattern } from '../../../lib/utils.js';
 import { connect } from './database/dbconn.js';
 import { createInsertTreatments } from './database/createInsertTreatments.js';
 
@@ -34,36 +34,6 @@ export default class Newbug {
         // Initialize the logger
         this.logger = new Zlogger(this.config.logger);
 
-        // A stats object to store the number of treatments and 
-        // its components extracted from the XMLs
-        this.stats = {
-
-            // ETL process related stats
-            typeOfArchive: '',
-            dateOfArchive: 0,
-            sizeOfArchive: 0,
-            downloadStarted: 0,
-            downloadEnded: 0,
-            unzipStarted: 0,
-            unzipEnded: 0,
-            numOfFiles: 0,
-            etlStarted: 0,
-            etlEnded: 0,
-
-            // Counts of treatments and treatment parts ETLed
-            treatments: 0,
-            treatmentCitations: 0,
-            materialCitations: 0,
-            collectionCodes: 0,
-            figureCitations: 0,
-            bibRefCitations: 0,
-            treatmentAuthors: 0,
-            journals: 0
-        };
-        
-        this.utils = utils;
-        this.utils.isValidXML.bind(this);
-
         this.db = connect({
             dir: this.config.db.dir, 
             main: this.config.db.main, 
@@ -73,47 +43,183 @@ export default class Newbug {
         });
 
         this.insertTreatments = createInsertTreatments(this.db);
+
+        // A stats object to store the number of treatments and 
+        // its components extracted from the XMLs
+        this.stats = {
+
+            // ETL process related stats
+            sourceType: '',
+            sourceName: '',
+            dateOfArchive: 0,
+            sizeOfArchive: 0,
+            downloadStarted: 0,
+            downloadEnded: 0,
+            unzipStarted: 0,
+            unzipEnded: 0,
+            numOfFiles: 0,
+            etlStarted: 0,
+            etlEnded: 0,
+            etlDuration: 0,
+
+            // Counts of treatments and treatment parts ETLed
+            skipped: 0,
+            treatments: 0,
+            treatmentCitations: 0,
+            materialCitations: 0,
+            collectionCodes: 0,
+            figureCitations: 0,
+            bibRefCitations: 0,
+            treatmentAuthors: 0,
+            journals: 0
+        };
+
+        this.utils = { 
+            ...utils, 
+            determineSourceType: utils.determineSourceType.bind(this) 
+        }
     }
 
-    updateStats(treatment) {
-        this.stats.treatments++;
-        this.stats.treatmentCitations += treatment.treatmentCitations.length; 
-        this.stats.materialCitations += treatment.materialCitations.length;
-        treatment.materialCitations.forEach(m => {
-            this.stats.collectionCodes += m.collectionCodes.length;
-        });
-        this.stats.figureCitations += treatment.figureCitations.length;
-        this.stats.bibRefCitations += treatment.bibRefCitations.length;
-        this.stats.treatmentAuthors += treatment.treatmentAuthors.length;
-        //this.stats.journals += treatment.journals.length;
+    report() {
+        let msg = `
+***************************************
+ETL process took ${this.stats.etlDuration} ms
+---------------------------------------
+        `;
+
+        if (this.stats.skipped) {
+            msg += `
+Skipped ${this.stats.skipped} treatments
+            `;
+        }
+        else {
+            msg += `
+Loaded ${this.stats.treatments} treatments with
+  treatmentCitations: ${this.stats.treatmentCitations}
+  materialCitations : ${this.stats.materialCitations}
+  collectionCodes   : ${this.stats.collectionCodes}
+  figureCitations   : ${this.stats.figureCitations}
+  bibRefCitations   : ${this.stats.bibRefCitations}
+  treatmentAuthors  : ${this.stats.treatmentAuthors}
+            `;
+        }
+
+        msg += `
+=======================================
+        `;
+
+        return msg;
+    }
+
+    updateStats({ 
+        numOfFiles, 
+        sourceType, 
+        sourceName, 
+        dateOfArchive,
+        treatment, 
+        etlStarted=false,
+        etlEnded=false,
+        etlDuration=false,
+        skipped=false, 
+        etlId=false 
+    }) {
+
+        if (etlStarted) {
+            this.stats.etlStarted = process.hrtime.bigint();
+        }
+
+        if (etlEnded) {
+            this.stats.etlEnded = process.hrtime.bigint();
+        }
+
+        if (etlDuration) {
+            const etlDuration = Number(
+                this.stats.etlEnded - this.stats.etlStarted
+            );
+
+            this.stats.etlDuration = (etlDuration * 1e-6).toFixed(2);
+        }
+
+        if (skipped) {
+            this.stats.skipped++;
+        }
+
+        if (numOfFiles) {
+            this.stats.numOfFiles = numOfFiles;
+        }
+
+        if (treatment) {
+            this.stats.treatments++;
+            this.stats.treatmentCitations += treatment.treatmentCitations.length; 
+            this.stats.materialCitations += treatment.materialCitations.length;
+            treatment.materialCitations.forEach(m => {
+                this.stats.collectionCodes += m.collectionCodes.length;
+            });
+            this.stats.figureCitations += treatment.figureCitations.length;
+            this.stats.bibRefCitations += treatment.bibRefCitations.length;
+            this.stats.treatmentAuthors += treatment.treatmentAuthors.length;
+            //this.stats.journals += treatment.journals.length;
+        }
+
+        if (sourceType) {
+            this.stats.sourceType = sourceType;
+        }
+
+        if (sourceName) {
+            this.stats.sourceName = sourceName;
+        }
+
+        if (dateOfArchive) {
+            this.stats.dateOfArchive = dateOfArchive;
+        }
+
+        if (etlId) {
+            this.stats.etlId = this.db.prepare(`
+                SELECT Coalesce(Max(id), 0) + 1 AS id FROM archive.etl
+            `).get().id;
+        }
+        
     }
 
     parseFile(file, force=false) {
 
         // check if the file is a valid treatment xml
-        const treatmentId = this.utils.isValidXML(file);
+        // given '/path/to/treatmentId.xml'
+        // treatmentId regular expression
+        const re = /^[a-zA-Z0-9]{32}$/;
+        const extname = '.xml';
 
-        if (treatmentId) {
+        if (path.extname(file) === extname) {
+            const treatmentId = path.basename(file, extname);
 
-            // since we got back a treatmentId, the file is valid and we proceed
-            if (force) {
-                return this.xml2json(file);
-            }
-            else {
-
-                // check if the treatment already exists in the db
-                const treatmentExists = this.checkTreatmentExists(treatmentId);
-
-                if (treatmentExists) {
-                    //this.logger.info(`skipping ${treatmentId}`);
-                    return false;
+            if (re.test(treatmentId)) {
+                
+                // since we got back a treatmentId, the file is valid so
+                // we proceed
+                if (force) {
+                    return this.xml2json(file);
                 }
                 else {
 
+                    // check if the treatment already exists in the db
+                    const treatmentExists = this.checkTreatmentExists(treatmentId);
+
+                    if (treatmentExists) {
+                        this.updateStats({ skipped: true });
+                        return false;
+                    }
+
                     // process only if the treatment does not exist
-                    return this.xml2json(file);
+                    else {
+                        return this.xml2json(file);
+                    }
                 }
+
             }
+            else {
+                console.error('file name is not a valid treatmentId');
+            }
+
         }
         else {
 
@@ -147,12 +253,13 @@ export default class Newbug {
         treatment.json = JSON.stringify(treatment);
         treatment.xml = xml;
 
-        // Update the statistics
-        this.updateStats(treatment);
-        
         const end = process.hrtime.bigint();
 
         treatment.timeToParseXML = (Number(end - start) * 1e-6).toFixed(2);
+
+        // Update the statistics
+        this.updateStats({ treatment });
+
         return treatment;
     }
 
@@ -399,6 +506,7 @@ export default class Newbug {
         const files = fs.readdirSync(source);
 
         if (files) {
+            const numOfFiles = files.length;
             const batch = 5000;
             let counter = 1;
             const treatments = [];
@@ -407,11 +515,11 @@ export default class Newbug {
             const bar = new cliProgress.SingleBar(
                 {}, cliProgress.Presets.legacy
             );
+            
+            // bar.start(total, start);
+            bar.start(numOfFiles, 0);
 
-            // set the total and start values for the progress bar
-            const total = files.length;
-            const start = 0;
-            bar.start(total, start);
+            this.updateStats({ numOfFiles, etlId: true });
 
             for (let file of files) {
                 file = `${source}/${file}`;

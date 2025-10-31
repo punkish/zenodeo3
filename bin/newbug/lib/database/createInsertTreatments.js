@@ -255,48 +255,53 @@ export function createInsertTreatments(db) {
         )
     `);
 
-    const insertArchives = db.prepare(`
-        INSERT OR IGNORE INTO archive.archivesView (
-            typeOfArchive, 
+    const insertEtl = db.prepare(`
+        INSERT INTO archive.etl (
+            id, 
+            sourceType, 
+            sourceName,
             dateOfArchive, 
             sizeOfArchive,
-            unzipStarted, 
-            unzipEnded, 
-            numOfFiles,
-            downloadStarted, 
-            downloadEnded,
             etlStarted, 
             etlEnded, 
             treatments,
-            treatmentCitations, 
-            materialCitations, 
+            treatmentCitations,
+            materialCitations,
             figureCitations,
-            bibRefCitations, 
-            treatmentAuthors, 
+            bibRefCitations,
+            treatmentAuthors,
             collectionCodes,
             journals
         )
         VALUES (
-            @typeOfArchive, 
+            @etlId,
+            @sourceType, 
+            @sourceName,
             @dateOfArchive, 
             @sizeOfArchive,
-            @unzipStarted, 
-            @unzipEnded, 
-            @numOfFiles,
-            @downloadStarted, 
-            @downloadEnded,
             @etlStarted, 
             @etlEnded, 
             @treatments,
-            @treatmentCitations, 
-            @materialCitations, 
+            @treatmentCitations,
+            @materialCitations,
             @figureCitations,
-            @bibRefCitations, 
-            @treatmentAuthors, 
+            @bibRefCitations,
+            @treatmentAuthors,
             @collectionCodes,
             @journals
         )
-    `);
+        ON CONFLICT DO UPDATE 
+        SET 
+            etlEnded = excluded.etlEnded,
+            treatments = etl.treatments + excluded.treatments, 
+            treatmentCitations = etl.treatmentCitations + excluded.treatmentCitations,
+            materialCitations = etl.materialCitations + excluded.materialCitations,
+            figureCitations = etl.figureCitations + excluded.figureCitations,
+            bibRefCitations = etl.bibRefCitations + excluded.bibRefCitations,
+            treatmentAuthors = etl.treatmentAuthors + excluded.treatmentAuthors,
+            collectionCodes = etl.collectionCodes + excluded.collectionCodes,
+            journals = etl.journals + excluded.journals
+    `)
 
     // Create and return a transaction function
     const insertTreatments = db.transaction((treatments, stats) => {
@@ -367,8 +372,7 @@ export function createInsertTreatments(db) {
             }
         }
 
-        insertArchives.run(stats);
-
+        insertEtl.run(stats);
     });
 
     return insertTreatments
