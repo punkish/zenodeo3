@@ -1,32 +1,31 @@
 import minimist from 'minimist';
 import { showPrompt } from './lib/prompt.js';
 import Newbug from './lib/newbug.js';
-//import NewbugDb from './lib/database/index.js';
 
 /*
 --
 --source=/path/to/dir/file.xml
 --source=/path/to/dir
 --source=synthetic(45)
---sourceType=file
---sourceType=dir
---sourceType=archives
+--typeOfArchive=file
+--typeOfArchive=dir
+--typeOfArchive=tb
 
 --action=parseOne --source=/path/to/treatment.xml
---action=parseOne --sourceType=file
+--action=parseOne --typeOfArchive=file
 action: parse/etl
-sourceType: xml
+typeOfArchive: xml
 source: /path/to/treatment.xml
 source: `${dirs.dumps}/xmls/${sources.xml}.xml`
 
-sourceType: archive
+typeOfArchive: tb
 source: /path/to/xmls
 source: `${dirs.archive}/${sources.yearly}`
         `${dirs.archive}/${sources.monthly}`
         `${dirs.archive}/${sources.weekly}`
         `${dirs.archive}/${sources.daily}`
         
-sourceType: syntheticData
+typeOfArchive: synthetic
 source: makeTreatments(num)
 */
 const argv = minimist(process.argv.slice(2));
@@ -66,100 +65,47 @@ else {
         }
         else if (action === 'etl') {
             const force = argv.force ?? false;
-            const sourceType = newbug.utils.determineSourceType(source);
+            const typeOfArchive = await newbug.utils.determineArchiveType(source);
             
-            if (!sourceType) {
+            if (!typeOfArchive) {
                 console.error(`${source} has to be a valid source`);
             }
             else {
-
+                newbug.logger.info(`ETL started at ${new Date().toUTCString()}`);
                 newbug.updateStats({ etlStarted: true });
-
-                if (sourceType === 'file') {
-                    const treatment = newbug.parseFile(source, force);
-
-                    if (treatment) {
-                        newbug.updateStats({ numOfFiles: 1, etlId: true });
-
-                        // if we got a treatment, the source was a valid file
-                        newbug.load([ treatment ]);
-                    }
-                    
+                
+                if (typeOfArchive === 'file') {
+                    newbug.processFile(source, force);
                 }
 
-                // we didn't get a treatment back, so let's check if it is a dir
-                else if (sourceType === 'dir') {
+                // we didn't get a treatment back, 
+                // so let's check if it is a dir
+                else if (typeOfArchive === 'dir') {
                     newbug.processDir(source, force);
                 }
-                else if (sourceType === 'tbArchive') {
+                else if (typeOfArchive === 'tb') {
                     const mode = argv.mode ?? '"dry run"';
                     newbug.logger.info(`running etl in mode ${mode}`);
 
-                    // Let's see if there are any treatments already in the db
-                    const num = newbug.selCountOfTreatments();
-                    let isDbEmpty = false;
+                    // We clean up the working directories
+                    newbug.utils.checkDir({
+                        dir: `${newbug.config.dirs.data}/treatments-archive`
+                    });
 
-                    // There are records in the db already
-                    if (num) {
-                        let msg = num > 1 
-                            ? `there are ${num} treatments already in the db`
-                            : `there is 1 treatment already in the db`
-                        newbug.logger.info(msg);
-                        
-                        // There are treatments in the db already. So we need to 
-                        // determine the type of archive and timestamp of archive 
-                        // that should be processed
-                        //const nbUtils = new NewbugUtils({ loglevel: 'info' });
+                    newbug.utils.checkDir({
+                        dir: `${newbug.config.dirs.data}/treatments-dumps`
+                    });
 
-                        newbug.utils.checkDir({
-                            dir: `${newbug.config.dirs.data}/treatments-archive`,
-                            removeFiles: false,
-                            logger: newbug.logger,
-                            mode: newbug.config.mode
-                        });
-
-                        newbug.utils.checkDir({
-                            dir: `${newbug.config.dirs.data}/treatments-dumps`,
-                            removeFiles: false,
-                            logger: newbug.logger,
-                            mode: newbug.config.mode
-                        });
-
-                        // We start with all the archives
-                        const typesOfArchives = [
-                            'yearly', 'monthly', 'weekly', 'daily'
-                        ];
-
-                        // And we prune them down to only the ones that 
-                        // have to be processed
-                        const lastUpdates = newbug.getLastUpdate();
-
-                        for (const last of lastUpdates) {
-                            newbug.pruneTypesOfArchives(last, typesOfArchives);
-                        }
-
-                        newbug.logger.info(`have to ETL "${typesOfArchives.join('", "')}"`);
-
-                        // By now our archives[] have been pruned to just those
-                        // entries that need to be ETLed
-                        if (typesOfArchives.length) {
-                            update(typesOfArchives);
-                        }
-                    }
-
-                    // The db is empty
-                    else {
-                        newbug.logger.info('the db is empty');
-                        isDbEmpty = true;
-                    }
-
-                    await newbug.etl(isDbEmpty);
+                    // Find the last instance of tbArchive ETL
+                    const lastUpdateTypes = newbug.getLastTbUpdate();
+                    await newbug.processArchives(lastUpdateTypes);
                 }
-                else if (sourceType === 'synthetic') {
+                else if (typeOfArchive === 'synthetic') {
                     
                 }
 
-                newbug.updateStats({ etlEnded: true, etlDuration: true });
+                newbug.updateStats({ etlEnded: true });
+                newbug.logger.info(`ETL ended at ${new Date().toUTCString()}`);
                 console.log(newbug.report());
             }
             

@@ -1,14 +1,10 @@
 import fp from 'fastify-plugin';
-import { Config } from '@punkish/zconfig';
-const config = new Config().settings;
-const logOpts = JSON.parse(JSON.stringify(config.zlogger));
 import Zlogger from '@punkish/zlogger';
 //import Zlogger from '../../../zlogger/index.js';
 
-//import { Cache } from '@punkish/zcache';
-// import { Cache } from '../../../zcache/index.js';
-
 async function zlog(fastify, options) {
+
+    const logOpts = JSON.parse(JSON.stringify(fastify.zconfig.zlogger));
 
     // Create a new logger instance
     const zlog = new Zlogger(logOpts);

@@ -1,6 +1,6 @@
 import tap from 'tap';
 import * as funcsToTest from './resourceUtils.js';
-
+const geoSchema = 'geo';
 const testGroups = {
     getParams: [
         {
@@ -722,7 +722,7 @@ const testGroups = {
                   where: 'ecoregions.eco_name',
                   joins: [
                     'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id',
-                    'JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id'
+                    `JOIN ${geoSchema}.ecoregions ON materialCitations.ecoregions_id = ${geoSchema}.ecoregions.id`
                   ],
                   isResourceId: false,
                   defaultCol: false
@@ -735,7 +735,7 @@ const testGroups = {
                   sql: { type: 'TEXT', desc: 'name of the biome' },
                   joins: [
                     'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id',
-                    'JOIN geodata.biome_synonyms ON materialCitations.biomes_id = geodata.biome_synonyms.biomes_id'
+                    `JOIN ${geoSchema}.biome_synonyms ON materialCitations.biomes_id = ${geoSchema}.biome_synonyms.biomes_id`
                   ],
                   defaultOp: 'starts_with',
                   external: true,
@@ -756,7 +756,7 @@ const testGroups = {
                   where: 'realms.realm',
                   joins: [
                     'JOIN materialCitations ON images.treatments_id = materialCitations.treatments_id',
-                    'JOIN geodata.realms ON materialCitations.realms_id = geodata.realms.realms_id'
+                    `JOIN ${geoSchema}.realms ON materialCitations.realms_id = ${geoSchema}.realms.realms_id`
                   ],
                   isResourceId: false,
                   defaultCol: false

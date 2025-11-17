@@ -4,6 +4,7 @@ import fs from 'fs';
 import { snipDir } from '../utils/index.js';
 
 function dropTables(db, logger) {
+    
     logger.info('dropping tables in newbug db');
     db.exec(`
 BEGIN TRANSACTION;
@@ -37,6 +38,7 @@ DROP VIEW IF EXISTS images;
 
 COMMIT;
     `);
+    
 }
 
 function createTables(db, logger) {
@@ -75,24 +77,24 @@ function createTempEntities(db, logger) {
 }
 
 function dropTablesArchive(db, logger) {
-    logger.info('dropping tables in newbug-archive db');
+    logger.info('dropping tables in newbug-arc db');
     db.exec(`
 BEGIN TRANSACTION;
 
-DROP TABLE IF EXISTS archive.treatmentsDump;
-DROP TABLE IF EXISTS archive.archives;
-DROP TABLE IF EXISTS archive.etl;
-DROP TABLE IF EXISTS archive.downloads;
-DROP TABLE IF EXISTS archive.unzip;
-DROP VIEW IF EXISTS archive.archivesView;
-DROP TRIGGER IF EXISTS archive.archivesView_ii;
+DROP TABLE IF EXISTS arc.treatmentsDump;
+DROP TABLE IF EXISTS arc.archives;
+DROP TABLE IF EXISTS arc.etl;
+DROP TABLE IF EXISTS arc.downloads;
+DROP TABLE IF EXISTS arc.unzip;
+DROP VIEW IF EXISTS arc.archivesView;
+DROP TRIGGER IF EXISTS arc.archivesView_ii;
 
 COMMIT;
     `);
 }
 
 function createTablesArchive(db, logger) {
-    logger.info(`creating tables in newbug-archive db`);
+    logger.info(`creating tables in newbug-arc db`);
     const schema = fs.readFileSync(
         path.resolve(import.meta.dirname, './schema/archiveSchema.sql'), 
         'utf8'
@@ -101,15 +103,45 @@ function createTablesArchive(db, logger) {
     db.exec(schema);
 }
 
-export function connect({ dir, main, archive, reinitialize, logger }) {
-    const dbfile = `${dir}/${main}`;
-    const prefix = dir;
-    logger.info(`creating db connection with "${snipDir(dbfile, prefix)}"`);
-    const db = new Database(dbfile);
-    const archivedb = `${dir}/${archive}`;
-    const alias = 'archive';
-    logger.info(`attaching '${snipDir(archivedb, prefix)}' AS "${alias}"`);
-    db.prepare(`ATTACH DATABASE '${archivedb}' AS ${alias}`).run();
+export function connect({ 
+    dir, 
+    mainDbFile, 
+    mainSchema, 
+    arcDbFile,
+    arcSchema,
+    geoDbFile,
+    geoSchema,
+    zaiDbFile,
+    zaiSchema,
+    reinitialize, 
+    logger 
+}) {
+    //const origLevel = logger.level();
+    logger.setLevel('info');
+
+    // main db
+    const mainDb = `${dir}/${mainDbFile}`;
+    const mainPrefix = snipDir(mainDb, dir);
+    logger.info(`creating db connection with "${mainPrefix}"`);
+    const db = new Database(mainDb);
+
+    // arc (archive) db
+    const arcDb = `${dir}/${arcDbFile}`;
+    const arcPrefix = snipDir(arcDb, dir);
+    logger.info(`attaching '${arcPrefix}' AS "${arcSchema}"`);
+    db.prepare(`ATTACH DATABASE '${arcDb}' AS ${arcSchema}`).run();
+
+    // geo (geodata) db
+    const geoDb = `${dir}/${geoDbFile}`;
+    const geoPrefix = snipDir(geoDb, dir);
+    logger.info(`attaching '${geoPrefix}' AS "${geoSchema}"`);
+    db.prepare(`ATTACH DATABASE '${geoDb}' AS ${geoSchema}`).run();
+
+    // zai db
+    const zaiDb = `${dir}/${zaiDbFile}`;
+    const zaiPrefix = snipDir(zaiDb, dir);
+    logger.info(`attaching '${zaiPrefix}' AS "${zaiSchema}"`);
+    db.prepare(`ATTACH DATABASE '${zaiDb}' AS ${zaiSchema}`).run();
     
     if (reinitialize) {
         dropTables(db, logger);
@@ -123,5 +155,6 @@ export function connect({ dir, main, archive, reinitialize, logger }) {
         createTablesArchive(db, logger);
     }
     
-    return db
+    //logger.setLevel(origLevel);
+    return db;
 }

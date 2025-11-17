@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { promises as fsPromises } from 'fs';
 import path from 'path';
 function pathToXml(xml) {
     const one = xml.substr(0, 1);
@@ -126,53 +127,12 @@ function getLastUpdate(typeOfArchive) {
         .filter(e => e.archive === typeOfArchive)[0]
         .last_update
 }
-    
-function determinePeriodAndTimestamp() {
-    const last_update = database.getLastUpdate();
-    
-    // what the archive should be if it were downloaded today
-    const currentTimeOfArchive = new Date().toISOString().split('T')[0];
-
-    const archives = [];
-
-    if (last_update.typeOfArchive === 'yearly') {
-        if (last_update.timeOfArchive < currentTimeOfArchive) {
-            archives.push('yearly', 'monthly', 'weekly', 'daily');
-        }
-        else {
-            archives.push('monthly', 'weekly', 'daily');
-        }
-    }
-    else if (last_update.typeOfArchive === 'monthly') {
-        if (last_update.timeOfArchive < currentTimeOfArchive) {
-            archives.push('monthly', 'weekly', 'daily');
-        }
-        else {
-            archives.push('weekly', 'daily');
-        }
-    }
-    else if (last_update.typeOfArchive === 'weekly') {
-        if (last_update.timeOfArchive < currentTimeOfArchive) {
-            archives.push('weekly', 'daily');
-        }
-        else {
-            archives.push('daily');
-        }
-    }
-    else if (last_update.typeOfArchive === 'daily') {
-        if (last_update.timeOfArchive < currentTimeOfArchive) {
-            archives.push('daily');
-        }
-    }
-
-    return archives;
-}
 
 function getWeekOfYear(date = new Date()) {
     const first_of_year = new Date(
-        date.getUTCFullYear(), 
-        0, 
-        1
+        date.getUTCFullYear(),  // yyyy
+        0,                      // m
+        1                       // d
     );
 
     const ms_till_date = date - first_of_year;
@@ -254,17 +214,17 @@ function snipDir(dir, prefix) {
     return dir.replace(prefix, '.')
 }
 
-function checkDir ({dir, removeFiles = true, logger, mode}) {
-    logger.info(`checking if "${snipDir(dir, '/Users/punkish/Projects/zenodeo3')}" exists`);
+function checkDir ({ dir, removeFiles=false }) {
+    this.logger.info(`checking if "${snipDir(dir, '/Users/punkish/Projects/zenodeo3')}" exists… `);
     const exists = fs.existsSync(dir);
 
     if (exists) {
-        logger.info('✅ yes, it does');
+        this.logger.info('    ✅ yes, it does');
 
         if (removeFiles) {
-            logger.info(`removing all files from ${dir} directory…`);
+            this.logger.info(`removing all files from ${dir} directory`);
 
-            if (mode !== 'dryRun') {
+            if (this.mode !== 'dryRun') {
                 fs.readdirSync(dir)
                     .forEach(f => fs.rmSync(`${dir}/${f}`));
             }
@@ -272,9 +232,9 @@ function checkDir ({dir, removeFiles = true, logger, mode}) {
         }
     }
     else {
-        logger.info(" ❌ it doesn't exist, so making it");
+        this.logger.info("    ❌ it doesn't exist, so making it");
         
-        if (mode !== 'dryRun') {
+        if (this.mode !== 'dryRun') {
             fs.mkdirSync(dir, { recursive: true });
         }
     }
@@ -292,45 +252,86 @@ function cleanText(str) {
     return str;
 }
 
-function determineSourceType(source) {
+async function determineArchiveType(source) {
     
-    // check if it exists as a file or dir
-    try {
-        const stat = fs.statSync(source);
+    if (source === 'tb') {
+        this.updateStats({ typeOfArchive: source });
+        return 'tb';
+    }
+    else if (source === 'synthetic') {
+        this.updateStats({ typeOfArchive: source });
+        return 'synthetic';
+    }
+    else {
 
-        if (stat.isDirectory()) {
-            this.updateStats({
-                sourceType: 'dir',
-                sourceName: source,
-                dateOfArchive: stat.birthtime.toDateString()
-            });
-
-            return 'dir';
-        }
-        else if (stat.isFile()) {
-            this.updateStats({
-                sourceType: 'file',
-                sourceName: source,
-                dateOfArchive: stat.birthtime.toDateString()
-            });
+        // check if the source exists as a file or dir
+        try {
+            const stat = fs.statSync(source);
+            const [dateOfArchive, timeOfArchive] = d.toISOString().split('T');
             
-            return 'file';
+            if (stat.isDirectory()) {
+                const { dirSize, files } = await getDirSize(source);
+                
+                this.updateStats({
+                    typeOfArchive: 'dir',
+                    nameOfArchive: source,
+                    dateOfArchive,
+                    sizeOfArchive: Number(dirSize),
+                    numOfFiles: files.length,
+                    etlId: true
+                });
+
+                return 'dir';
+            }
+            else if (stat.isFile()) {
+                this.updateStats({
+                    typeOfArchive: 'file',
+                    nameOfArchive: source,
+                    dateOfArchive,
+                    sizeOfArchive: stat.size,
+                    numOfFiles: 1,
+                    etlId: true 
+                });
+                
+                return 'file';
+            }
+            else {
+                console.error(`${source} is neither a file nor a dir`);
+                return false;
+            }
         }
-        else if (source === 'tbArchive') {
-            this.stats.sourceType = 'tbArchive';
-            return 'tbArchive';
-        }
-        else if (source === 'synthetic') {
-            this.stats.sourceType = 'synthetic'
-            return 'synthetic';
-        }
-        else {
-            return false;
+        catch (error) {
+            console.error(error);
         }
     }
-    catch (error) {
-        throw error;
-    }
+    
+}
+
+// How to get directory size in node.js?
+// https://stackoverflow.com/a/69418940/183692
+async function getDirSize(dir) {
+    const files = await fsPromises.readdir(dir, { withFileTypes: true });
+    const filePaths = files.map(async (file) => {
+        const filepath = path.join(dir, file.name);
+
+        if (file.isDirectory()) return await dirSize(filepath);
+
+        if (file.isFile()) {
+            const { size } = await fsPromises.stat(filepath);
+            return size;
+        }
+
+        return 0;
+    });
+
+    const totalSize = (await Promise.all(filePaths))
+        .flat(Infinity)
+        .reduce((i, size) => i + size, 0);
+    
+    return { 
+        dirSize: (totalSize / 1024).toFixed(0), 
+        files 
+    };
 }
 
 export {
@@ -341,12 +342,13 @@ export {
     getArchiveNameAndTimestamp,
     getTypeOfArchive,
     getLastUpdate,
-    determinePeriodAndTimestamp,
+    //determinePeriodAndTimestamp,
     getWeekOfYear,
     getPeriodOfArchive,
     pruneTypesOfArchives,
     snipDir,
     checkDir,
+    getDirSize,
     cleanText,
-    determineSourceType
+    determineArchiveType
 }

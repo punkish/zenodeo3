@@ -2,7 +2,7 @@ import * as utils from '../../../lib/utils.js';
 import { collectionCodes } from '../collectionCodes/index.js';
 import { materialCitationsFts } from '../materialCitationsFts/index.js';
 import { ecoregions } from '../ecoregions/index.js';
-
+const geoSchema = 'geo';
 const params = [
     {
         name: 'id',
@@ -548,13 +548,13 @@ const params = [
             {
                 name: 'eco_name',
                 joins: [
-                    `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+                    `JOIN ${geoSchema}.ecoregions ON materialCitations.ecoregions_id = ${geoSchema}.ecoregions.id`
                 ]
             },
             {
                 name: 'biome_name',
                 joins: [
-                    `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+                    `JOIN ${geoSchema}.ecoregions ON materialCitations.ecoregions_id = ${geoSchema}.ecoregions.id`
                 ]
             }
         ]

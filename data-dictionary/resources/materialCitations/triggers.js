@@ -1,3 +1,4 @@
+const geoSchema = 'geo';
 export const triggers = {
     mc_afterInsert: `
 CREATE TRIGGER IF NOT EXISTS mc_afterInsert 
@@ -130,17 +131,17 @@ BEGIN
     SET 
         ecoregions_id = (
             SELECT ecoregions_id 
-            FROM geodata.ecoregionsGeopoly
+            FROM ${geoSchema}.ecoregionsGeopoly
             WHERE geopoly_contains_point(_shape, new.longitude, new.latitude)
         ),
         biomes_id = (
             SELECT biomes_id 
-            FROM geodata.ecoregionsGeopoly
+            FROM ${geoSchema}.ecoregionsGeopoly
             WHERE geopoly_contains_point(_shape, new.longitude, new.latitude)
         ),
         realms_id = (
             SELECT realms_id 
-            FROM geodata.ecoregionsGeopoly
+            FROM ${geoSchema}.ecoregionsGeopoly
             WHERE geopoly_contains_point(_shape, new.longitude, new.latitude)
         )
     WHERE id = new.id;

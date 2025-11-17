@@ -256,10 +256,10 @@ export function createInsertTreatments(db) {
     `);
 
     const insertEtl = db.prepare(`
-        INSERT INTO archive.etl (
+        INSERT INTO arc.etl (
             id, 
-            sourceType, 
-            sourceName,
+            typeOfArchive, 
+            nameOfArchive,
             dateOfArchive, 
             sizeOfArchive,
             etlStarted, 
@@ -275,8 +275,8 @@ export function createInsertTreatments(db) {
         )
         VALUES (
             @etlId,
-            @sourceType, 
-            @sourceName,
+            @typeOfArchive, 
+            @nameOfArchive,
             @dateOfArchive, 
             @sizeOfArchive,
             @etlStarted, 

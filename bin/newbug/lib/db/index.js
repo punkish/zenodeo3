@@ -32,10 +32,10 @@ export default class NewbugDb extends Newbug {
         if (!source) {
 
             // Since source was not provided via the CLI, we determine the 
-            // value of source based on 'sourceType' and 'sources'
-            const sourceType = this.config.sourceType;
+            // value of source based on 'typeOfArchive' and 'sources'
+            const typeOfArchive = this.config.typeOfArchive;
             const dir = this.config.dirs.dumps;
-            source = `${dir}/xmls/${this.config.sources[sourceType]}.xml`;
+            source = `${dir}/xmls/${this.config.sources[typeOfArchive]}.xml`;
         }
 
         const treatmentId = this.utils.isValidXML(source, this.stats);
@@ -154,10 +154,10 @@ export default class NewbugDb extends Newbug {
             SELECT 
                 *, 
                 etlEnded - etlStarted AS duration
-            FROM archive.archivesView
+            FROM arc.archivesView
             WHERE id IN (
                 SELECT max(id) 
-                FROM archive.archives 
+                FROM arc.archives 
                 GROUP BY typeOfArchive
             )
     `;
@@ -197,7 +197,7 @@ export default class NewbugDb extends Newbug {
     storeTreatmentJSON({ treatmentId, xml, json }) {
         this.logger.debug('storing treatment json in archive');
         return this.db.prepare(`
-            INSERT INTO archive.treatments (treatmentId, xml, json)
+            INSERT INTO arc.treatments (treatmentId, xml, json)
             VALUES (@treatmentId, @xml, @json)
         `).run({ treatmentId, xml, json });
     }
@@ -281,11 +281,11 @@ export default class NewbugDb extends Newbug {
                 e.treatmentCitations, e.materialCitations, e.figureCitations,
                 e.bibRefCitations, e.treatmentAuthors, e.collectionCodes, e.journals
             FROM 
-                archive.archives a
-                JOIN archive.etl e ON a.id = e.archives_id 
+                arc.archives a
+                JOIN arc.etl e ON a.id = e.archives_id 
             WHERE a.id IN (
                 SELECT max(id) 
-                FROM archive.archives 
+                FROM arc.archives 
                 GROUP BY typeOfArchive
             ) 
             ORDER BY a.id
@@ -294,7 +294,7 @@ export default class NewbugDb extends Newbug {
 
     insertEtl = () => {
         this.db.prepare(`
-            INSERT INTO archive.etl (
+            INSERT INTO arc.etl (
                 archives_id,
                 started, 
                 ended, 
@@ -325,7 +325,7 @@ export default class NewbugDb extends Newbug {
 
     insertDownloads = () => {
         this.db.prepare(`
-            INSERT INTO archive.downloads (
+            INSERT INTO arc.downloads (
                 archives_id, 
                 started, 
                 ended
@@ -340,7 +340,7 @@ export default class NewbugDb extends Newbug {
 
     insertArchives = (stats) => {
         this.db.prepare(`
-            INSERT INTO archive.archivesView (
+            INSERT INTO arc.archivesView (
                 typeOfArchive,
                 dateOfArchive,
                 sizeOfArchive,

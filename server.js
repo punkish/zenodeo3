@@ -35,7 +35,9 @@ const start = async (server) => {
         const fastify = await server(opts);
 
         // save the original request query params for use later because the 
-        // query will get modified after schema validation
+        // query will get modified after schema validation. We call this 
+        // original query 'queryForCache' because we use it to make the 
+        // cacheKey for the cache
         fastify.addHook('preValidation', async (request) => {
             request.queryForCache = getQueryForCache(request);
         });
@@ -54,54 +56,58 @@ const start = async (server) => {
 
             // all of this makes sense only if refreshCache does not exist
             // or is set to false (the same thing)
-            if (!request.query.refreshCache) {
-                
-                // Remove leading '/' if it exists
-                const rurl = request.url.substring(0, 1) === '/'
-                    ? request.url.slice(1)
-                    : request.url;
+            if (request.query.refreshCache) {
 
-                const url = new URL(`${config.url.zenodeo}/${rurl}`);
-                const resourceName = url.pathname.split('/')[2];
-
-                // The following is applicable *only* if a resourceName exists 
-                if (resourceName) {
-                    const queryType = getQueryType({ 
-                        resource: resourceName, 
-                        params: request.query, 
-                        zlog: fastify.zlog
-                    });
-
-                    const cachedData = await fastify.cache.get({
-                        segment: resourceName,
-                        query: request.queryForCache, 
-                        isSemantic: queryType.isSemantic
-                    });
-
-                    if (cachedData) {
-                        fastify.zlog.info(`queryForCache: ${request.queryForCache}`);
-                        fastify.zlog.info('💥 cacheHit')
-                        cachedData.cacheHit = true;
-                        reply.hijack();
-
-                        // since we are sending back raw response, we need 
-                        // to add the appropriate headers so the response 
-                        // is recognized as JSON and is CORS-compatible
-                        reply.raw.writeHead(200, { 
-                            'Content-Type': 'application/json; charset=utf-8',
-                            'Access-Control-Allow-Origin': '*'
-                        });
-                        reply.raw.end(JSON.stringify(cachedData));
-                        return Promise.resolve('done');
-                    }
-                }
-                
+                // Exist without doing anything
+                return;
             }
+
+            // We reached here, this means refreshCache is not set
+            // Remove leading '/' if it exists
+            const requestUrl = request.url.substring(0, 1) === '/'
+                ? request.url.slice(1)
+                : request.url;
+
+            const url = new URL(`${fastify.zconfig.url.zenodeo}/${requestUrl}`);
+            const resourceName = url.pathname.split('/')[2];
+
+            // The following is applicable *only* if a resourceName exists 
+            if (resourceName) {
+                const queryType = getQueryType({ 
+                    resource: resourceName, 
+                    params: request.query, 
+                    zlog: fastify.zlog
+                });
+
+                const cachedData = await fastify.cache.get({
+                    segment: resourceName,
+                    query: request.queryForCache, 
+                    isSemantic: queryType.isSemantic
+                });
+
+                if (cachedData) {
+                    fastify.zlog.info(`query for creating cacheKey 💥: ${request.queryForCache}`);
+                    cachedData.cacheHit = true;
+                    reply.hijack();
+
+                    // since we are sending back raw response, we need 
+                    // to add the appropriate headers so the response 
+                    // is recognized as JSON and is CORS-compatible
+                    reply.raw.writeHead(200, { 
+                        'Content-Type': 'application/json; charset=utf-8',
+                        'Access-Control-Allow-Origin': '*'
+                    });
+                    reply.raw.end(JSON.stringify(cachedData));
+                    return Promise.resolve('done');
+                }
+            }
+                
+            
         });
 
         await fastify.listen({ 
-            port: config.port, 
-            host: config.address 
+            port: fastify.zconfig.port, 
+            host: fastify.zconfig.address 
         });
         
         fastify.zlog.info(`… in ${env.toUpperCase()} mode`);

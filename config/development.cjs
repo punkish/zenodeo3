@@ -352,11 +352,25 @@ module.exports = {
             "snipPrefix": "bin/newbug"
         },
         
-        "db": {
+        "database": {
             "dir": path.join(dataDir, 'db'),
-            "main": "newbug.sqlite",
-            "archive": "newbug-archive.sqlite",
-            "reinitialize": true
+            "main": {
+                "dbFile": "newbug.sqlite",
+                "schema": "main"
+            },
+            "arc": {
+                "dbFile": "newbug-arc.sqlite",
+                "schema": "arc"
+            },
+            "geo": {
+                "dbFile": "newbug-geo.sqlite",
+                "schema": "geo"
+            },
+            "zai": {
+                "dbFile": "newbug-zai.sqlite",
+                "schema": "zai"
+            },
+            "reinitialize": false
         },
 
         "action": "parse",
@@ -382,9 +396,9 @@ module.exports = {
             "port"    : 443
         },
 
-        //"sourceType": "tbArchive",
-        "sourceType": "file",
-        //"sourceType": "dir",
+        //"typeOfArchive": "tbArchive",
+        "typeOfArchive": "file",
+        //"typeOfArchive": "dir",
 
         // by default, download the daily dump, and then go to
         // the larger ones if a smaller one doesn't exist:
@@ -397,14 +411,13 @@ module.exports = {
         // The monthly dump is packed on the first Sunday of the month
         // The weekly dump is packed every Sunday
         // The daily dump is packed every day
-        // 
-        "sources": {
+        "archives": {
             "dir": path.join(dataDir, 'treatments-dumps', 'xmls'),
             "synthetic": 55,
 
             // example: 'http://127.0.0.1/plazi/data/plazi.zenodeo.zip'
             // example: 'https://tb.plazi.org/GgServer/dumps/plazi.zenodeo.zip'
-            "tbArchives": {
+            "tb": {
                 "yearly" : "plazi.zenodeo",
                 "monthly": "plazi.zenodeo.monthly",
                 "weekly" : "plazi.zenodeo.weekly",

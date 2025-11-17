@@ -3,7 +3,7 @@
 // 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
-const cronQueries = config.cronQueries;
+//const cronQueries = config.cronQueries;
 
 function getMinsHours(i) {
     return i > 59 
@@ -66,5 +66,5 @@ function initJobs(cronQueries) {
     }
 }
 
-const cronJobs = initJobs(cronQueries);
+const cronJobs = initJobs(config.cronQueries);
 export { cronJobs }

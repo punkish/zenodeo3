@@ -1,7 +1,5 @@
 import { routeFactory } from '../../lib/routeUtils.js';
 import { resources } from '../../data-dictionary/resources/index.js';
-import { Config } from '@punkish/zconfig';
-const config = new Config().settings;
 
 /**
  * create the root route
@@ -37,7 +35,7 @@ const rootRoute = async function (fastify, opts) {
                         // is no slash in the setting below because 
                         // `a.url` already contains a leading slash
                         //
-                        url: `${config.url.zenodeo}${a.url}`
+                        url: `${fastify.zconfig.url.zenodeo}${a.url}`
                     }
                 });
         }

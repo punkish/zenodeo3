@@ -11,7 +11,7 @@ import { genera } from '../genera/index.js';
 import { species } from '../species/index.js';
 import { ecoregions } from '../ecoregions/index.js';
 import { biomes } from '../biomes/index.js';
-
+const geoSchema = 'geo';
 export const externalParams = [
 
     // treatmentsFts
@@ -81,14 +81,14 @@ export const externalParams = [
                 name: 'eco_name',
                 joins: [
                     `JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
-                    `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+                    `JOIN ${geoSchema}.ecoregions ON materialCitations.ecoregions_id = ${geoSchema}.ecoregions.id`
                 ]
             },
             {
                 name: 'biome_name',
                 joins: [
                     `JOIN materialCitations ON treatments.id = materialCitations.treatments_id`,
-                    `JOIN geodata.ecoregions ON materialCitations.ecoregions_id = geodata.ecoregions.id`
+                    `JOIN ${geoSchema}.ecoregions ON materialCitations.ecoregions_id = ${geoSchema}.ecoregions.id`
                 ]
             },
         ]
@@ -206,7 +206,7 @@ export const externalParams = [
                 name: 'biome',
                 joins: [
                     'JOIN materialCitations ON treatments.id = materialCitations.treatments_id',
-                    'JOIN geodata.biome_synonyms ON materialCitations.biomes_id = geodata.biome_synonyms.biomes_id'
+                    `JOIN ${geoSchema}.biome_synonyms ON materialCitations.biomes_id = ${geoSchema}.biome_synonyms.biomes_id`
                 ]
             }
         ]
