@@ -46,12 +46,67 @@ else {
 
     const source = argv.source;
     delete argv.source;
+    const force = argv.force ?? false;
     const newbug = new Newbug(argv);
+
+    // Terminal width for the console messages
+    const tw = 95;
     
-    if (action === 'parseFile') {
-        const force = argv.force ?? false;
-        const treatment = newbug.parseFile(source, force);
-        console.log(treatment);
+    if (action === 'etl') {
+        const typeOfArchive = await newbug.utils.determineArchiveType(source);
+
+        if (typeOfArchive) {
+
+            console.log('-'.repeat(tw));
+            const mode = (argv.mode ?? 'dry run').toUpperCase();
+            let d = new Date().toUTCString();
+            newbug.logger.info(`ETL started at ${d} mode ${mode}`);
+            console.log('-'.repeat(tw));
+
+            newbug.initEtl();
+
+            if (typeOfArchive === 'tb') {
+
+                // We clean up the working directories
+                newbug.utils.checkDir({
+                    dir: `${newbug.config.dirs.data}/treatments-archive`
+                });
+
+                newbug.utils.checkDir({
+                    dir: `${newbug.config.dirs.data}/treatments-dumps`
+                });
+
+                // Find the last instance of tbArchive ETL
+                const lastUpdateTypes = newbug.getLastTbUpdate();
+                await newbug.processArchives(lastUpdateTypes);
+            }
+            else if (typeOfArchive === 'synthetic') {
+
+            }
+            else {
+
+                if (typeOfArchive === 'file') {
+                    newbug.processFile(source);
+                }
+                else if (typeOfArchive === 'dir') {
+                    newbug.processDir(source);
+                }
+
+            }
+
+            newbug.endEtl();
+
+            console.log('-'.repeat(tw));
+            d = new Date().toUTCString();
+            newbug.logger.info(`ETL ended at ${d}`);
+            console.log('-'.repeat(tw));
+
+            console.log(newbug.report('etl'));
+        }
+        else {
+            console.error(`${source} has to be a valid source`);
+        }
+        
     }
     else {
 
@@ -61,54 +116,16 @@ else {
         }
         else if (action === 'getArchiveUpdates') {
             const archiveUpdates = newbug.getArchiveUpdates();
-            console.log(archiveUpdates);
+            console.table(archiveUpdates);
         }
-        else if (action === 'etl') {
-            const force = argv.force ?? false;
-            const typeOfArchive = await newbug.utils.determineArchiveType(source);
-            
-            if (!typeOfArchive) {
-                console.error(`${source} has to be a valid source`);
-            }
-            else {
-                newbug.logger.info(`ETL started at ${new Date().toUTCString()}`);
-                newbug.updateStats({ etlStarted: true });
-                
-                if (typeOfArchive === 'file') {
-                    newbug.processFile(source, force);
-                }
-
-                // we didn't get a treatment back, 
-                // so let's check if it is a dir
-                else if (typeOfArchive === 'dir') {
-                    newbug.processDir(source, force);
-                }
-                else if (typeOfArchive === 'tb') {
-                    const mode = argv.mode ?? '"dry run"';
-                    newbug.logger.info(`running etl in mode ${mode}`);
-
-                    // We clean up the working directories
-                    newbug.utils.checkDir({
-                        dir: `${newbug.config.dirs.data}/treatments-archive`
-                    });
-
-                    newbug.utils.checkDir({
-                        dir: `${newbug.config.dirs.data}/treatments-dumps`
-                    });
-
-                    // Find the last instance of tbArchive ETL
-                    const lastUpdateTypes = newbug.getLastTbUpdate();
-                    await newbug.processArchives(lastUpdateTypes);
-                }
-                else if (typeOfArchive === 'synthetic') {
-                    
-                }
-
-                newbug.updateStats({ etlEnded: true });
-                newbug.logger.info(`ETL ended at ${new Date().toUTCString()}`);
-                console.log(newbug.report());
-            }
-            
+        else if (action === 'parseFile') {
+            const treatment = newbug.parseFile(source, force);
+            console.log(treatment);
         }
+        else {
+            console.error('unable to carry out any known action');
+        }
+
     }
+    
 }

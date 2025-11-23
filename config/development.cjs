@@ -353,7 +353,7 @@ module.exports = {
         },
         
         "database": {
-            "dir": path.join(dataDir, 'db'),
+            "dir": path.join(dataDir, 'db', 'newbug'),
             "main": {
                 "dbFile": "newbug.sqlite",
                 "schema": "main"

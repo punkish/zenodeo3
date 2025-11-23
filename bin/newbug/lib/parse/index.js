@@ -1,10 +1,18 @@
 import fs from 'fs';
 import Newbug from '../newbug.js';
-import * as utils from '../../../../lib/utils.js';
 import { parseTreatment } from './lib/treatment.js';
 
 // see https://github.com/cheeriojs/cheerio/issues/2786#issuecomment-1288843071
 import * as cheerio from 'cheerio';
+
+// --- Precompiled regexes & constants ---
+const RE_DOUBLE_SPC = /\s+/g;
+const RE_SPACE_COMMA = /\s+,/g;
+const RE_SPACE_COLON = /\s+:/g;
+const RE_SPACE_PERIOD = /\s+\./g;
+const RE_OPENPAR_SPACE = /\(\s+/g;
+const RE_SPACE_CLOSEPAR = /\s+\)/g;
+const RE_CAPTION_INDEX = /^captionText-(\d+)$/;
 
 export default class NewbugParse extends Newbug {
     constructor(conf) {
@@ -12,27 +20,21 @@ export default class NewbugParse extends Newbug {
     }
 
     xml(source) {
-
-        // if (!source) {
-        //     throw new Error('"source" is required');
-        // }
-        
         const start = process.hrtime.bigint();
         const xmlContent = fs.readFileSync(source);
         const cheerioOpts = { normalizeWhitespace: true, xmlMode: true };
         const $ = cheerio.load(xmlContent, cheerioOpts, false);
+
         $.prototype.cleanText = function () {
-            const re = utils.getPattern('all');
-            let str = this.text();
-            str = str.replace(re.double_spc, ' ');
-            str = str.replace(re.space_comma, ',');
-            str = str.replace(re.space_colon, ':');
-            str = str.replace(re.space_period, '.');
-            str = str.replace(re.space_openparens, '(');
-            str = str.replace(re.space_closeparens, ')');
-            str = str.trim();
-            return str;
-        }
+            return this.text()
+                .replace(RE_DOUBLE_SPC, ' ')
+                .replace(RE_SPACE_COMMA, ',')
+                .replace(RE_SPACE_COLON, ',')
+                .replace(RE_SPACE_PERIOD, ',')
+                .replace(RE_OPENPAR_SPACE, ',')
+                .replace(RE_SPACE_CLOSEPAR, ',')
+                .trim();
+        };
 
         const treatment = parseTreatment($);
         const end = process.hrtime.bigint();

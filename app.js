@@ -27,11 +27,15 @@ import zconfig from './plugins/zconfig/index.js';
 import zcache from './plugins/zcache/index.js';
 import zlog from './plugins/zlogger/index.js';
 import zqlite from './plugins/zqlite/index.js';
+import { cronJobs } from './plugins/cron.js';
 
 export async function server(opts={}) {
     const fastify = Fastify(opts);
 
     // register the plugins
+
+    // zconfig has to be registered first because the other plugins
+    // use config settings via this plugin
     fastify.register(zconfig);
     fastify.register(zlog);
     fastify.register(favicon, {});
@@ -41,35 +45,12 @@ export async function server(opts={}) {
     await fastify.register(fastifySwaggerUi, swaggerOpts.swaggerUi);
     fastify.register(fastifyStatic, staticPublic);
     fastify.register(view, viewOpts);
-    // const jobs = cronJobs.map(({cronTime, qs}) => {
-    //     return {
-    //         cronTime,
-    //         onTick: async (server) => {
-    //             try {
-    //                 await server.inject(qs);
-    //             }
-    //             catch(error) {
-    //                 console.error(error);
-    //             }
-    //         },
-    //         start: true
-    //     }
-    // });
-    //fastify.register(fastifyCron, { jobs });
+    //fastify.register(fastifyCron, { jobs: cronJobs.jobs });
 
     // we initialize the db connection once, and store it in a fastify
     // plugin so it can be used everywhere
     const db = connect({
-        dir: fastify.zconfig.newbug.database.dir, 
-        mainDbFile: fastify.zconfig.newbug.database.main.dbFile, 
-        mainSchema: fastify.zconfig.newbug.database.main.schema, 
-        arcDbFile: fastify.zconfig.newbug.database.arc.dbFile,
-        arcSchema: fastify.zconfig.newbug.database.arc.schema,
-        geoDbFile: fastify.zconfig.newbug.database.geo.dbFile,
-        geoSchema: fastify.zconfig.newbug.database.geo.schema,
-        zaiDbFile: fastify.zconfig.newbug.database.zai.dbFile,
-        zaiSchema: fastify.zconfig.newbug.database.zai.schema,
-        reinitialize: fastify.zconfig.newbug.database.reinitialize, 
+        dbconfig:  fastify.zconfig.newbug.database,
         logger: fastify.zlog
     });
 

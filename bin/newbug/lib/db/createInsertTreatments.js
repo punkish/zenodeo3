@@ -255,66 +255,10 @@ export function createInsertTreatments(db) {
         )
     `);
 
-    const insertEtl = db.prepare(`
-        INSERT INTO arc.etl (
-            id, 
-            typeOfArchive, 
-            nameOfArchive,
-            dateOfArchive, 
-            sizeOfArchive,
-            etlStarted, 
-            etlEnded, 
-            treatments,
-            treatmentCitations,
-            materialCitations,
-            figureCitations,
-            bibRefCitations,
-            treatmentAuthors,
-            collectionCodes,
-            journals
-        )
-        VALUES (
-            @etlId,
-            @typeOfArchive, 
-            @nameOfArchive,
-            @dateOfArchive, 
-            @sizeOfArchive,
-            @etlStarted, 
-            @etlEnded, 
-            @treatments,
-            @treatmentCitations,
-            @materialCitations,
-            @figureCitations,
-            @bibRefCitations,
-            @treatmentAuthors,
-            @collectionCodes,
-            @journals
-        )
-        ON CONFLICT DO UPDATE 
-        SET 
-            etlEnded = excluded.etlEnded,
-            treatments = etl.treatments + excluded.treatments, 
-            treatmentCitations = etl.treatmentCitations + excluded.treatmentCitations,
-            materialCitations = etl.materialCitations + excluded.materialCitations,
-            figureCitations = etl.figureCitations + excluded.figureCitations,
-            bibRefCitations = etl.bibRefCitations + excluded.bibRefCitations,
-            treatmentAuthors = etl.treatmentAuthors + excluded.treatmentAuthors,
-            collectionCodes = etl.collectionCodes + excluded.collectionCodes,
-            journals = etl.journals + excluded.journals
-    `)
-
     // Create and return a transaction function
-    const insertTreatments = db.transaction((treatments, stats) => {
+    const insertTreatments = db.transaction((treatments) => {
 
         for (const treatment of treatments) {
-            
-            // Check if the treatment we are about to add already exists
-            // in the database
-            // const res = getTreatmentId.get(treatment.treatmentId);
-            // const treatments_id = res ? res.id : false;
-            
-            // Proceed only if the treatment does not already exists in the db
-            //if (!treatments_id) {
             insertTreatment.run(treatment);
             const res = getTreatmentId.get(treatment.treatmentId);
             const treatments_id = res ? res.id : false;
@@ -372,7 +316,6 @@ export function createInsertTreatments(db) {
             }
         }
 
-        insertEtl.run(stats);
     });
 
     return insertTreatments

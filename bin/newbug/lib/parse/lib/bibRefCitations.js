@@ -14,21 +14,49 @@
     Liang and Song 2006
 </bibRefCitation>
 */
+// export function parseBibRefCitations($) {
+//     return $('bibRefCitation')
+//         .get()
+//         .filter(a => $(a).attr('id'))
+//         .map(a => {
+//             return {
+//                 bibRefCitationId  : $(a).attr('id'),
+//                 DOI               : $(a).attr('DOI')                || '',
+//                 author            : $(a).attr('author')             || '',
+//                 journalOrPublisher: $(a).attr('journalOrPublisher') || '',
+//                 title             : $(a).attr('title')              || '',
+//                 refString         : $(a).attr('refString')          || '',
+//                 type              : $(a).attr('type')               || '',
+//                 year              : $(a).attr('year')               || '',
+//                 innertext         : $(a).cleanText()
+//             }
+//         })
+// }
+
+import { toArray, attr, attrOr, keysToAttrs } from "./utils.js";
+
+
 export function parseBibRefCitations($) {
-    return $('bibRefCitation')
-        .get()
-        .filter(a => $(a).attr('id'))
-        .map(a => {
+    const keys = [
+        'DOI', 
+        'author', 
+        'journalOrPublisher', 
+        'title', 
+        'refString', 
+        'type', 
+        'year'
+    ];
+
+    return toArray($('bibRefCitation'))
+        .map(el => {
+            const $el = $(el);
+            const id = attr($el, 'id');
+            if (!id) return null;
             return {
-                bibRefCitationId  : $(a).attr('id'),
-                DOI               : $(a).attr('DOI')                || '',
-                author            : $(a).attr('author')             || '',
-                journalOrPublisher: $(a).attr('journalOrPublisher') || '',
-                title             : $(a).attr('title')              || '',
-                refString         : $(a).attr('refString')          || '',
-                type              : $(a).attr('type')               || '',
-                year              : $(a).attr('year')               || '',
-                innertext         : $(a).cleanText()
-            }
+                bibRefCitationId: id,
+                ...keysToAttrs($el, keys),
+                innertext: $el.cleanText()
+            };
         })
-}
+        .filter(Boolean);
+};

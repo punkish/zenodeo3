@@ -13,55 +13,90 @@ Some figureCitation tags have multiple citations within them
     Figs 1–2
 </figureCitation>
 */
+// export function parseFigureCitations($) {
+
+//     const figureCitations = $('figureCitation')
+//         .get()
+//         .map(a => {
+//             const figs = [];
+
+//             if (a.parent.name !== 'updateHistory') {
+
+//                 // Let's find out if this tag has multiple figs within as 
+//                 // described above
+//                 const matched = Object.keys(a.attribs)
+//                     .filter(key => key.match(new RegExp('^captionText-[0-9]+', 'g')));
+
+//                 const num_of_figs = matched.length;
+
+//                 if (num_of_figs) {
+//                     for (let figureNum = 0; figureNum < num_of_figs; figureNum++) {
+//                         const figureCitationId = $(a).attr('id');
+
+//                         figs.push({
+//                             figureCitationId,
+//                             figureNum,
+//                             httpUri: $(a).attr(`httpUri-${figureNum}`) || '',
+//                             figureDoiOriginal: $(a).attr(`figureDoi-${figureNum}`) || '',
+//                             captionText: $(a).attr(`captionText-${figureNum}`) || '',
+//                             innertext: $(a).text() || '',
+//                             updateVersion: $(a).attr(`updateVersion-${figureNum}`) || ''
+//                         });
+//                     }
+//                 }
+//                 else {
+//                     const figureCitationId = $(a).attr('id');
+
+//                     figs.push({
+//                         figureCitationId,
+//                         figureNum: 0,
+//                         httpUri: $(a).attr(`httpUri`) || '',
+//                         figureDoiOriginal: $(a).attr(`figureDoi`) || '',
+//                         captionText: $(a).attr(`captionText`) || '',
+//                         innertext: $(a).text() || '',
+//                         updateVersion: $(a).attr(`updateVersion`) || ''
+//                     });
+//                 }
+//             }
+
+//             return figs;
+//         })
+//         .flat();
+
+//     return figureCitations;
+// }
+
+import { toArray, attr, attrOr, keysToAttrs } from "./utils.js";
+const RE_CAPTION_INDEX = /^captionText-(\d+)$/;
+
 export function parseFigureCitations($) {
+  return toArray($('figureCitation'))
+    .flatMap(el => {
+        if (el.parent && el.parent.name === 'updateHistory') return [];
+        const $el = $(el);
+        const id = attr($el, 'id');
 
-    const figureCitations = $('figureCitation')
-        .get()
-        .map(a => {
-            const figs = [];
+        // detect captionText-N attributes and collect indices
+        const indices = Object.keys(el.attribs || {})
+            .map(k => {
+                const m = k.match(RE_CAPTION_INDEX);
+                return m ? Number(m[1]) : null;
+            })
+            .filter(i => i !== null);
 
-            if (a.parent.name !== 'updateHistory') {
+        const figIndices = indices.length ? indices : [0];
 
-                // Let's find out if this tag has multiple figs within as 
-                // described above
-                const matched = Object.keys(a.attribs)
-                    .filter(key => key.match(new RegExp('^captionText-[0-9]+', 'g')));
-
-                const num_of_figs = matched.length;
-
-                if (num_of_figs) {
-                    for (let figureNum = 0; figureNum < num_of_figs; figureNum++) {
-                        const figureCitationId = $(a).attr('id');
-
-                        figs.push({
-                            figureCitationId,
-                            figureNum,
-                            httpUri: $(a).attr(`httpUri-${figureNum}`) || '',
-                            figureDoiOriginal: $(a).attr(`figureDoi-${figureNum}`) || '',
-                            captionText: $(a).attr(`captionText-${figureNum}`) || '',
-                            innertext: $(a).text() || '',
-                            updateVersion: $(a).attr(`updateVersion-${figureNum}`) || ''
-                        });
-                    }
-                }
-                else {
-                    const figureCitationId = $(a).attr('id');
-
-                    figs.push({
-                        figureCitationId,
-                        figureNum: 0,
-                        httpUri: $(a).attr(`httpUri`) || '',
-                        figureDoiOriginal: $(a).attr(`figureDoi`) || '',
-                        captionText: $(a).attr(`captionText`) || '',
-                        innertext: $(a).text() || '',
-                        updateVersion: $(a).attr(`updateVersion`) || ''
-                    });
-                }
-            }
-
-            return figs;
-        })
-        .flat();
-
-    return figureCitations;
-}
+        return figIndices.map(i => {
+            const suffix = i === 0 ? '' : `-${i}`;
+            return {
+                figureCitationId: id,
+                figureNum: i,
+                httpUri: attrOr($el, `httpUri${suffix}`).replace(/undefined$/, '') || '',
+                figureDoiOriginal: attrOr($el, `figureDoi${suffix}`) || '',
+                captionText: attrOr($el, `captionText${suffix}`) || '',
+                innertext: $el.text() || '',
+                updateVersion: attrOr($el, `updateVersion${suffix}`) || ''
+            };
+        });
+    });
+};

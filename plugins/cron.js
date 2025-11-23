@@ -62,7 +62,20 @@ function initJobs(cronQueries) {
     return { 
         runCronJobsOnStart: cronQueries.runCronJobsOnStart, 
         installCronJobs: cronQueries.installCronJobs, 
-        jobs 
+        jobs: jobs.map(({cronTime, qs}) => {
+            return {
+                cronTime,
+                onTick: async (server) => {
+                    try {
+                        await server.inject(qs);
+                    }
+                    catch(error) {
+                        console.error(error);
+                    }
+                },
+                start: true
+            }
+        })
     }
 }
 

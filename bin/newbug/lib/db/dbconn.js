@@ -103,57 +103,47 @@ function createTablesArchive(db, logger) {
     db.exec(schema);
 }
 
-export function connect({ 
-    dir, 
-    mainDbFile, 
-    mainSchema, 
-    arcDbFile,
-    arcSchema,
-    geoDbFile,
-    geoSchema,
-    zaiDbFile,
-    zaiSchema,
-    reinitialize, 
-    logger 
-}) {
+export function connect({dbconfig, logger}) {
+
     //const origLevel = logger.level();
     logger.setLevel('info');
+    const dir = dbconfig.dir;
 
     // main db
-    const mainDb = `${dir}/${mainDbFile}`;
+    const mainDb = `${dir}/${dbconfig.main.dbFile}`;
     const mainPrefix = snipDir(mainDb, dir);
     logger.info(`creating db connection with "${mainPrefix}"`);
     const db = new Database(mainDb);
 
-    // arc (archive) db
-    const arcDb = `${dir}/${arcDbFile}`;
-    const arcPrefix = snipDir(arcDb, dir);
-    logger.info(`attaching '${arcPrefix}' AS "${arcSchema}"`);
-    db.prepare(`ATTACH DATABASE '${arcDb}' AS ${arcSchema}`).run();
+    const pragmas = [
+        'PRAGMA cache_size = 10240',
+        'PRAGMA foreign_keys = ON',
+        'PRAGMA synchronous = OFF',
+        //'PRAGMA journal_mode = MEMORY',
+        'PRAGMA journal_mode = WAL'
+    ];
 
-    // geo (geodata) db
-    const geoDb = `${dir}/${geoDbFile}`;
-    const geoPrefix = snipDir(geoDb, dir);
-    logger.info(`attaching '${geoPrefix}' AS "${geoSchema}"`);
-    db.prepare(`ATTACH DATABASE '${geoDb}' AS ${geoSchema}`).run();
+    pragmas.forEach(pragma => db.exec(pragma));
 
-    // zai db
-    const zaiDb = `${dir}/${zaiDbFile}`;
-    const zaiPrefix = snipDir(zaiDb, dir);
-    logger.info(`attaching '${zaiPrefix}' AS "${zaiSchema}"`);
-    db.prepare(`ATTACH DATABASE '${zaiDb}' AS ${zaiSchema}`).run();
+    function attachDb(dir, dbFile, logger, schema, db) {
+        const attachedDb = `${dir}/${dbFile}`;
+        const prefix = snipDir(attachedDb, dir);
+        logger.info(`attaching '${prefix}' AS "${schema}"`);
+        db.prepare(`ATTACH DATABASE '${attachedDb}' AS ${schema}`).run();
+    }
+
+    attachDb(dir, dbconfig.arc.dbFile, logger, dbconfig.arc.schema, db);
+    attachDb(dir, dbconfig.geo.dbFile, logger, dbconfig.geo.schema, db);
+    attachDb(dir, dbconfig.zai.dbFile, logger, dbconfig.zai.schema, db);
     
-    if (reinitialize) {
+    if (dbconfig.reinitialize) {
         dropTables(db, logger);
-        createTables(db, logger);
-    }
-
-    createTempEntities(db, logger);
-
-    if (reinitialize) {
         dropTablesArchive(db, logger);
-        createTablesArchive(db, logger);
     }
+
+    createTables(db, logger);
+    createTempEntities(db, logger);
+    createTablesArchive(db, logger);
     
     //logger.setLevel(origLevel);
     return db;
