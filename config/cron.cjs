@@ -16,6 +16,12 @@ module.exports = {
         }
     },
 
+    "newbug": {
+        "logger": {
+            "transports": [ "file" ]
+        }
+    },
+
     // zlogger options
     //
     "zlogger": {
