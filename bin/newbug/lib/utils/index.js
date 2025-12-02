@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { promises as fsPromises } from 'fs';
 import path from 'path';
+
 function pathToXml(xml) {
     const one = xml.substr(0, 1);
     const two = xml.substr(0, 2);
@@ -9,18 +10,13 @@ function pathToXml(xml) {
 }
     
 function getWeek(d = new Date()) {
-    const first_of_month = new Date(
-        d.getFullYear(), 
-        d.getMonth(), 
-        1
-    );
+    const first_of_month = new Date(d.getFullYear(), d.getMonth(), 1);
     const ms = d - first_of_month;
     const days = Math.ceil(ms / 1000 / 60 / 60 / 24);
-
-    let w = days <= 7 ? 1 : Math.floor(days / 7);
-    w += days % 7 ? 1 : 0;
+    let week = days <= 7 ? 1 : Math.floor(days / 7);
+    week += days % 7 ? 1 : 0;
     
-    return String(w).padStart(2, '0');
+    return String(week).padStart(2, '0');
 }
 
 function getMonth(mm) {
@@ -275,7 +271,9 @@ async function determineArchiveType(source) {
                 // as it might have been set earlier as 'tb'
                 if (this.stats.archive.typeOfArchive == 'tb') {
 
+                    // Given the source as follows, we want only the maked part
                     // '/Users/punkish/Projects/zenodeo3/data/treatments-dumps/monthly.2025-11-02'
+                    //                                                         ^^^^^^^
                     const nameOfArchive = source.split('/').pop().split('.')[0];
                     this.stats.archive.nameOfArchive = nameOfArchive;
                 }
@@ -298,12 +296,12 @@ async function determineArchiveType(source) {
                 this.stats.archive.files = [source];
             }
             else {
-                console.error(`${source} is neither a file nor a dir`);
+                this.logger.error(`${source} is neither a file nor a dir`);
                 return false;
             }
         }
         catch (error) {
-            console.error(error);
+            this.logger.error(error);
         }
     }
 

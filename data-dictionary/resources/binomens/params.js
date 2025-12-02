@@ -5,7 +5,7 @@ export const params = [
             type: 'string',
             description: `Binomen of species`
         },
-        //defaultOp: 'match',
+        defaultOp: 'match',
         sql: {},
         defaultSort: 'ASC'
     },

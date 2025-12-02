@@ -18,10 +18,12 @@ export function parseTreatmentAuthors($) {
     .filter(el => $('mods\\:roleTerm', el).text() === 'Author')
     .map(el => {
         const $el = $(el);
+
         return {
             treatmentAuthorId: attr($el, 'id'),
             treatmentAuthor: $('mods\\:namePart', el).cleanText(),
             email: $('mods\\:nameIdentifier[type=email]', el).text() || ''
         };
+        
     });
 };

@@ -12,8 +12,9 @@ import { connect } from './db/dbconn.js';
 import { createInsertTreatments } from './db/createInsertTreatments.js';
 
 // see https://github.com/cheeriojs/cheerio/issues/2786#issuecomment-1288843071
-import * as cheerio from 'cheerio';
-import { parseTreatment } from './parse/lib/treatment.js';
+// import * as cheerio from 'cheerio';
+// import { parseTreatment } from './parse/lib/treatment.js';
+import xml2json from './parse/index.js';
 import cliProgress from 'cli-progress';
 import { execSync } from 'child_process';
 import { pipeline as streamPipeline } from 'node:stream/promises';
@@ -73,6 +74,8 @@ export default class Newbug {
         this.typesOfArchives = [
             'yearly', 'monthly', 'weekly', 'daily'
         ];
+
+        this.xml2json = xml2json;
     }
 
     initEtl() {
@@ -310,8 +313,11 @@ export default class Newbug {
 
         // Processing time per file
         const tpf = numOfFiles > 0
-            ? `(${(duration / numOfFiles).toFixed(2)} ms/file)`
+            ? (duration / numOfFiles).toFixed(2)
             : '';
+
+        // Files/sec
+        const fps = tpf ? (1000 / tpf).toFixed(0) : '';
         
         const skippedMsg = skipped ? 'because they already exist in the db' : '';
 
@@ -319,7 +325,8 @@ export default class Newbug {
     ${'='.repeat(w)}
     Processed ${numOfFiles} files in ${msToHumanReadableStr(duration)}
     Skipped ${skipped} files ${skippedMsg}
-    Time taken per file: ${tpf}
+    Time taken per file: ${tpf} ms/file
+    Number of files/sec: ${fps}
     ${'-'.repeat(w)}
         `;
 
@@ -482,36 +489,6 @@ export default class Newbug {
             this.logger.debug(error);
             return false;
         }
-    }
-
-    xml2json(file) {
-        const start = process.hrtime.bigint();
-        const xml = fs.readFileSync(file);
-        const cheerioOpts = { normalizeWhitespace: true, xmlMode: true };
-        const $ = cheerio.loadBuffer(xml, cheerioOpts, false);
-        $.prototype.cleanText = function () {
-            let str = this.text();
-            str = str.replace(/\s+/g, ' ');
-            str = str.replace(/\s+,/g, ',');
-            str = str.replace(/\s+:/g, ':');
-            str = str.replace(/\s+\./g, '.');
-            str = str.replace(/\(\s+/g, '(');
-            str = str.replace(/\s+\)/g, ')');
-            str = str.trim();
-            return str;
-        };
-
-        // treatment JSON
-        const treatment = parseTreatment($);
-
-        // Save a copy of the XML and the JSON in the treatment obj
-        // so we can insert it in the archives.treatmentsDump table
-        treatment.json = zlib.deflateRawSync(JSON.stringify(treatment));
-        treatment.xml = zlib.deflateRawSync(xml);
-
-        const end = process.hrtime.bigint();
-        treatment.timeToParseXML = (Number(end - start) * 1e-6).toFixed(2);
-        return treatment;
     }
 
     getCounts() {

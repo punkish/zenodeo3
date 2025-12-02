@@ -52,11 +52,13 @@ export function parseBibRefCitations($) {
             const $el = $(el);
             const id = attr($el, 'id');
             if (!id) return null;
+
             return {
                 bibRefCitationId: id,
                 ...keysToAttrs($el, keys),
                 innertext: $el.cleanText()
             };
+            
         })
         .filter(Boolean);
 };

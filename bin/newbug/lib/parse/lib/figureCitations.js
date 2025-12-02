@@ -70,33 +70,35 @@ import { toArray, attr, attrOr, keysToAttrs } from "./utils.js";
 const RE_CAPTION_INDEX = /^captionText-(\d+)$/;
 
 export function parseFigureCitations($) {
-  return toArray($('figureCitation'))
-    .flatMap(el => {
-        if (el.parent && el.parent.name === 'updateHistory') return [];
-        const $el = $(el);
-        const id = attr($el, 'id');
+    return toArray($('figureCitation'))
+        .flatMap(el => {
+            if (el.parent && el.parent.name === 'updateHistory') return [];
+            const $el = $(el);
+            const id = attr($el, 'id');
 
-        // detect captionText-N attributes and collect indices
-        const indices = Object.keys(el.attribs || {})
-            .map(k => {
-                const m = k.match(RE_CAPTION_INDEX);
-                return m ? Number(m[1]) : null;
-            })
-            .filter(i => i !== null);
+            // detect captionText-N attributes and collect indices
+            const indices = Object.keys(el.attribs || {})
+                .map(k => {
+                    const m = k.match(RE_CAPTION_INDEX);
+                    return m ? Number(m[1]) : null;
+                })
+                .filter(i => i !== null);
 
-        const figIndices = indices.length ? indices : [0];
+            const figIndices = indices.length ? indices : [0];
 
-        return figIndices.map(i => {
-            const suffix = i === 0 ? '' : `-${i}`;
-            return {
-                figureCitationId: id,
-                figureNum: i,
-                httpUri: attrOr($el, `httpUri${suffix}`).replace(/undefined$/, '') || '',
-                figureDoiOriginal: attrOr($el, `figureDoi${suffix}`) || '',
-                captionText: attrOr($el, `captionText${suffix}`) || '',
-                innertext: $el.text() || '',
-                updateVersion: attrOr($el, `updateVersion${suffix}`) || ''
-            };
+            return figIndices.map(i => {
+                const suffix = i === 0 ? '' : `-${i}`;
+
+                return {
+                    figureCitationId: id,
+                    figureNum: i,
+                    httpUri: attrOr($el, `httpUri${suffix}`).replace(/undefined$/, '') || '',
+                    figureDoiOriginal: attrOr($el, `figureDoi${suffix}`) || '',
+                    captionText: attrOr($el, `captionText${suffix}`) || '',
+                    innertext: $el.text() || '',
+                    updateVersion: attrOr($el, `updateVersion${suffix}`) || ''
+                };
+
+            });
         });
-    });
 };
