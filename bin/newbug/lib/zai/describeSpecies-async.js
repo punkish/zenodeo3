@@ -151,20 +151,22 @@ async function processAllTreatments(startId=1, count) {
     let counter = 1;
     let start = process.hrtime.bigint();
     let duration = 0;
+    let left = 0;
 
     while (true) {
 
         logger.info(`Fetching batch starting at ID ${nextId}...`);
 
         const batch = getTreatmentBatch(nextId, BATCH_SIZE);
-        if (batch.length === 0) {
+        const bLen = batch.length;
+
+        if (bLen === 0) {
             logger.info("No more rows. Done.");
             break;
         }
 
-        const left = count - (counter * batch.length);
-        counter++;
-
+        left = count - bLen;
+        
         // create a set of LLM tasks (concurrency-limited)
         const tasks = batch.map(row =>
             llmLimit(async () => {
@@ -204,10 +206,10 @@ async function processAllTreatments(startId=1, count) {
         // advance to next batch
         nextId = batch[batch.length - 1].id + 1;
         const end = process.hrtime.bigint();
-        duration = Number(end - start) * 1e-6;
-        logger.info(`${counter}: Processed ${batch.length} rows in ${duration} ms (${(duration/batch.length).toFixed(0)} ms/row)`);
-        
-        logger.info(`${counter}: ${left} remaining`);
+        duration = (Number(end - start) * 1e-6).toFixed(2);
+        logger.info(`${counter}: Processed ${bLen} rows in ${duration} ms (${(duration/bLen).toFixed(0)} ms/row)`);
+        logger.info(`${':'.padStart(String(counter).length, ' ')} ${left} remaining`);
+        counter++;
         start = process.hrtime.bigint();
     }
 }

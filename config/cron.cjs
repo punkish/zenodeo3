@@ -37,5 +37,5 @@ module.exports = {
         "path"    : 'dumps',
         "port"    : 443
     },
-    "source": "archive"
+    "source": "tb"
 }

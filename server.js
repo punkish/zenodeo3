@@ -8,10 +8,9 @@ import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 
 import { server } from './app.js';
-import { coerceToArray } from './lib/routeUtils.js';
 import cron from 'node-cron';
 import { cronJobs } from './plugins/cron.js';
-import { getQueryForCache, getQueryType } from './lib/utils.js';
+import { getQueryForCache, getQueryType, coerceToArray } from './lib/utils.js';
 
 const start = async (server) => {
     const opts = {
@@ -34,18 +33,20 @@ const start = async (server) => {
     try {
         const fastify = await server(opts);
 
-        // save the original request query params for use later because the 
-        // query will get modified after schema validation. We call this 
-        // original query 'queryForCache' because we use it to make the 
-        // cacheKey for the cache
-        fastify.addHook('preValidation', async (request) => {
-            request.queryForCache = getQueryForCache(request);
-        });
+        fastify.addHook('preValidation', async (request, reply) => {
 
-        // the following takes care of cols=col1,col2,col3 as sent by the 
-        // swagger interface to be validated correctly by ajv as an array. See 
-        // `coerceToArray()` in routeUtils().
-        fastify.addHook('preValidation', async (request) => {
+            // Save the original request query params for use later because the 
+            // query will get modified after schema validation. We use it to 
+            // make the cacheKey for the cache
+            request.queryForCache = getQueryForCache(request);
+
+            // Save the original params as some of the params get munged
+            // by validation
+            //request.queryOrig = request.query;
+            
+            // the following takes care of cols=col1,col2,col3 as sent by the 
+            // swagger interface to be validated correctly by ajv as an array. 
+            // See `coerceToArray()` in lib/utils.js.
             coerceToArray(request, 'cols');
             coerceToArray(request, 'communities');
         });
@@ -53,36 +54,41 @@ const start = async (server) => {
         // if the query results have been cached, we send the cached value back 
         // and stop processing any further
         fastify.addHook('preHandler', async (request, reply) => {
+            
+            // Remove leading '/' if it exists
+            // const requestUrl = request.url.substring(0, 1) === '/'
+            //     ? request.url.slice(1)
+            //     : request.url;
 
-            // all of this makes sense only if refreshCache does not exist
-            // or is set to false (the same thing)
-            if (request.query.refreshCache) {
+            //const url = new URL(`${fastify.zconfig.url.zenodeo}/${requestUrl}`);
+            //const resourceName = url.pathname.split('/')[2];
+            const u = request.url.split('?')[0].split('/');
 
-                // Exist without doing anything
+            // Proceed only if it is a Zenodeo query which will have v3 in it
+            if (u[1] !== 'v3') {
                 return;
             }
 
-            // We reached here, this means refreshCache is not set
-            // Remove leading '/' if it exists
-            const requestUrl = request.url.substring(0, 1) === '/'
-                ? request.url.slice(1)
-                : request.url;
-
-            const url = new URL(`${fastify.zconfig.url.zenodeo}/${requestUrl}`);
-            const resourceName = url.pathname.split('/')[2];
+            const resourceName = u[2];
 
             // The following is applicable *only* if a resourceName exists 
             if (resourceName) {
-                const queryType = getQueryType({ 
-                    resource: resourceName, 
-                    params: request.query, 
-                    zlog: fastify.zlog
-                });
 
+                // Store the queryType for subsequent use
+                request.queryType = getQueryType(resourceName, request);
+            }
+
+            // If refreshCache has been requested, return right away
+            if (request.query.refreshCache) {
+                return;
+            }
+            else {
+
+                // Check if there is cached data, and return it
                 const cachedData = await fastify.cache.get({
                     segment: resourceName,
                     query: request.queryForCache, 
-                    isSemantic: queryType.isSemantic
+                    isSemantic: request.queryType.isSemantic
                 });
 
                 if (cachedData) {
@@ -101,7 +107,6 @@ const start = async (server) => {
                     return Promise.resolve('done');
                 }
             }
-                
             
         });
 

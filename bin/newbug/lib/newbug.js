@@ -726,15 +726,23 @@ BEGIN TRANSACTION;
 CREATE INDEX IF NOT EXISTS figureCitations_treatmentsId ON figureCitations(
     treatments_id
 );
-CREATE INDEX IF NOT EXISTS materialCitations_treatmentsId ON materialCitations(
-    treatments_id
-);
 CREATE INDEX IF NOT EXISTS figureCitations_images ON figureCitations(
     id,
     treatments_id,
     httpUri,
     captionText
 );
+
+CREATE INDEX IF NOT EXISTS materialCitations_treatmentsId ON materialCitations(
+    treatments_id
+);
+CREATE INDEX materialCitations_validGeo ON materialCitations(validGeo);
+CREATE INDEX IF NOT EXISTS materialCitations_images ON materialCitations(
+    treatments_id,
+    latitude,
+    longitude
+);
+
 CREATE INDEX IF NOT EXISTS treatments_images ON treatments(
     id,
     treatmentId,
@@ -744,11 +752,7 @@ CREATE INDEX IF NOT EXISTS treatments_images ON treatments(
     articleTitle,
     articleAuthor
 );
-CREATE INDEX IF NOT EXISTS materialCitations_images ON materialCitations(
-    treatments_id,
-    latitude,
-    longitude
-);
+CREATE INDEX treatments_articleDOI ON treatments(articleDOI);
 CREATE INDEX IF NOT EXISTS treatments_orders ON treatments(orders_id);
 CREATE INDEX IF NOT EXISTS treatments_classes ON treatments(classes_id);
 CREATE INDEX IF NOT EXISTS treatments_families ON treatments(families_id);
