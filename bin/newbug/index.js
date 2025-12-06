@@ -50,18 +50,17 @@ else {
     const newbug = new Newbug(argv);
 
     // Terminal width for the console messages
-    const tw = 95;
+    const tw = 55;
     
     if (action === 'etl') {
         const typeOfArchive = await newbug.utils.determineArchiveType(source);
 
         if (typeOfArchive) {
-
-            console.log('-'.repeat(tw));
             const mode = (argv.mode ?? 'dry run').toUpperCase();
             let d = new Date().toUTCString();
+            newbug.logger.info('-'.repeat(tw));
             newbug.logger.info(`ETL started at ${d} mode ${mode}`);
-            console.log('-'.repeat(tw));
+            newbug.logger.info('-'.repeat(tw));
 
             newbug.initEtl();
 
@@ -96,12 +95,11 @@ else {
 
             newbug.endEtl();
 
-            console.log('-'.repeat(tw));
             d = new Date().toUTCString();
+            newbug.logger.info('-'.repeat(tw));
             newbug.logger.info(`ETL ended at ${d}`);
-            console.log('-'.repeat(tw));
-
-            console.log(newbug.report('etl'));
+            newbug.logger.info('-'.repeat(tw));
+            newbug.logger.info(newbug.report('etl'));
         }
         else {
             console.error(`${source} has to be a valid source`);

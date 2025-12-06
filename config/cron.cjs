@@ -1,3 +1,5 @@
+// this overrides any test or development mode settings
+
 module.exports = {
 
     // log only errors
@@ -19,18 +21,18 @@ module.exports = {
     "newbug": {
         "logger": {
             "transports": [ "file" ]
-        }
+        },
+
+        "action": "etl"
     },
 
     // zlogger options
-    //
     "zlogger": {
         "level"     : "error",
         "transports": [ 'file' ],
     },
 
-    // this overrides any test or development mode settings
-    // 
+    
     "mode"  : "real", 
     "server": {
         "hostname": 'https://tb.plazi.org',

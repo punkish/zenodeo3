@@ -1,6 +1,7 @@
 # This crontab entry runs the following shell script every midnight.
 # Create a crontab entry with `crontab -e` and type the lines 
-# between 'begin:' and 'end:' (without the leading #)
+# between 'begin:' and 'end:' (without the leading #).
+# Make sure this file has its x bit turned on `chmod +x cron-newbug.sh`
 #
 # -------- begin: crontab entry ------------------------
 # 0 0 * * * ~/Projects/zenodeo3/bin/cron-newbug.sh
