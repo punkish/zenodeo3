@@ -644,17 +644,21 @@ export default class Newbug {
             let counter = 1;
             const treatments = [];
 
-            // create a new progress bar instance and use a color theme
-            console.log('');  // <--- an empty line before the progress bar
-            const bar = new cliProgress.SingleBar({
-                format: 'ETL Progress |' + colors.cyan('{bar}') + '| {percentage}% || {value}/{total} treatments',
-                barCompleteChar: '\u2588',
-                barIncompleteChar: '\u2591',
-                hideCursor: true
-            });
+            if (process.env.NODE_ENV !== 'cron') {
+
+                // create a new progress bar instance and use a color theme
+                console.log('');  // <--- an empty line before the progress bar
+                const bar = new cliProgress.SingleBar({
+                    format: 'ETL Progress |' + colors.cyan('{bar}') + '| {percentage}% || {value}/{total} treatments',
+                    barCompleteChar: '\u2588',
+                    barIncompleteChar: '\u2591',
+                    hideCursor: true
+                });
+
+                // bar.start(total, start);
+                bar.start(numOfFiles, 0);
+            }
             
-            // bar.start(total, start);
-            bar.start(numOfFiles, 0);
             this.updateStats({ numOfFiles });
             this.initTransaction();
 
@@ -663,7 +667,11 @@ export default class Newbug {
                 const treatment = this.parseFile(file);
                 
                 if (treatment) {
-                    bar.update(counter);
+
+                    if (process.env.NODE_ENV !== 'cron') {
+                        bar.update(counter);
+                    }
+
                     counter++;
                     treatments.push(treatment);
                 }
@@ -676,8 +684,10 @@ export default class Newbug {
                 
             }
 
-            bar.stop();
-            console.log('');  // <--- any empty line after the progress bar
+            if (process.env.NODE_ENV !== 'cron') {
+                bar.stop();
+                console.log('');  // <--- any empty line after the progress bar
+            }
 
             // Load the final batch of treatments, any leftover after the 
             // final transaction above
@@ -692,8 +702,11 @@ export default class Newbug {
 
     async processArchives(lastUpdatedArchives) {
 
+        // Terminal width for the console messages
+        const tw = 55;
+
         for (const archive of lastUpdatedArchives) {
-            console.log('-'.repeat(95));
+            this.logger.info('-'.repeat(tw));
 
             if (archive.dateOfArchive) {
                 this.logger.info(`a "${archive.nameOfArchive}" archive was processed on "${archive.dateOfArchive}"`);
