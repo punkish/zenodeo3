@@ -28,6 +28,7 @@ import zcache from './plugins/zcache/index.js';
 import zlog from './plugins/zlogger/index.js';
 import zqlite from './plugins/zqlite/index.js';
 import { cronJobs } from './plugins/cron.js';
+import { ddutils } from './data-dictionary/utils/index.js';
 
 export async function server(opts={}) {
     const fastify = Fastify(opts);
@@ -68,5 +69,8 @@ export async function server(opts={}) {
     fastify.register(bins, { prefix: 'v3' });
     resources.forEach(resource => fastify.register(resource, { prefix: 'v3' }));
     
+    const resourceNames = ddutils.getResources();
+    fastify.decorate('resourceNames', resourceNames);
+
     return fastify;
 }

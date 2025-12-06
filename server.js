@@ -71,6 +71,10 @@ const start = async (server) => {
 
             const resourceName = u[2];
 
+            if (!fastify.resourceNames.includes(resourceName)) {
+                return;
+            }
+
             // The following is applicable *only* if a resourceName exists 
             if (resourceName) {
 
