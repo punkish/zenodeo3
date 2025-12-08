@@ -636,6 +636,7 @@ export default class Newbug {
     processDir(dir) {
         this.logger.info(`processing "${this.utils.snipDir(dir, '/Users/punkish/Projects/zenodeo3')}"`);
         const files = fs.readdirSync(dir, { withFileTypes: true });
+        let bar;
 
         if (files) {
             this.initArchive();
@@ -648,7 +649,7 @@ export default class Newbug {
 
                 // create a new progress bar instance and use a color theme
                 console.log('');  // <--- an empty line before the progress bar
-                const bar = new cliProgress.SingleBar({
+                bar = new cliProgress.SingleBar({
                     format: 'ETL Progress |' + colors.cyan('{bar}') + '| {percentage}% || {value}/{total} treatments',
                     barCompleteChar: '\u2588',
                     barIncompleteChar: '\u2591',
