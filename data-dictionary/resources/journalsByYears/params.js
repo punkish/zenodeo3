@@ -9,7 +9,7 @@ export const params = [
     {
         name: 'journalYear',
         schema: { 
-            type: 'integer',
+            type: 'string',
             description: '',
         },
         sql: {

@@ -309,14 +309,14 @@ const params = [
     {
         name: 'journalYear',
         schema: {
-            type: 'integer',
+            type: 'string',
             description: ''
         },
         sql: {
             desc: 'The year of the journal',
             type: 'INTEGER'
         },
-        zqltype: 'datetime',
+        zqltype: 'year',
         cheerio: '$("mods\\\\:relatedItem[type=host] mods\\\\:part mods\\\\:date").text()',
         facet: 'count > 1'
     },
