@@ -5,8 +5,8 @@ import zlib from 'zlib';
 
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
-//import Zlogger from '@punkish/zlogger';
-import Zlogger from '../../../../zlogger/index.js';
+import Zlogger from '@punkish/zlogger';
+//import Zlogger from '../../../../zlogger/index.js';
 import * as utils from './utils/index.js';
 import { connect } from './db/dbconn.js';
 import { createInsertTreatments } from './db/createInsertTreatments.js';
