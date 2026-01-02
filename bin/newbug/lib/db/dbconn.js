@@ -104,7 +104,7 @@ function createTablesArchive(db, logger) {
 }
 
 export function connect({dbconfig, logger}) {
-
+    
     //const origLevel = logger.level();
     logger.setLevel('info');
     const dir = dbconfig.dir;
@@ -125,17 +125,17 @@ export function connect({dbconfig, logger}) {
 
     pragmas.forEach(pragma => db.exec(pragma));
 
-    function attachDb(dir, dbFile, logger, schema, db) {
+    dbconfig.attached.forEach(({ dbFile, schema }) => {
+        const dir = schema.indexOf('geodeo_') > -1
+            ? `${dbconfig.dir}/geodeo`
+            : dbconfig.dir;
+
         const attachedDb = `${dir}/${dbFile}`;
         const prefix = snipDir(attachedDb, dir);
         logger.info(`attaching '${prefix}' AS "${schema}"`);
-        db.prepare(`ATTACH DATABASE '${attachedDb}' AS ${schema}`).run();
-    }
+        db.exec(`ATTACH DATABASE '${attachedDb}' AS ${schema}`);
+    });
 
-    attachDb(dir, dbconfig.arc.dbFile, logger, dbconfig.arc.schema, db);
-    attachDb(dir, dbconfig.geo.dbFile, logger, dbconfig.geo.schema, db);
-    attachDb(dir, dbconfig.zai.dbFile, logger, dbconfig.zai.schema, db);
-    
     if (dbconfig.reinitialize) {
         dropTables(db, logger);
         dropTablesArchive(db, logger);

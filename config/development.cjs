@@ -358,18 +358,48 @@ module.exports = {
                 "dbFile": "newbug.sqlite",
                 "schema": "main"
             },
-            "arc": {
-                "dbFile": "newbug-arc.sqlite",
-                "schema": "arc"
-            },
-            "geo": {
-                "dbFile": "newbug-geo.sqlite",
-                "schema": "geo"
-            },
-            "zai": {
-                "dbFile": "newbug-zai.sqlite",
-                "schema": "zai"
-            },
+            "attached": [
+                {
+                    "dbFile": "newbug-arc.sqlite",
+                    "schema": "arc"
+                },
+                {
+                    "dbFile": "newbug-geo.sqlite",
+                    "schema": "geo"
+                },
+                {
+                    "dbFile": "newbug-zai.sqlite",
+                    "schema": "zai"
+                },
+                {
+                    "dbFile": "tiles.sqlite",
+                    "schema": "geodeo_countries"
+                },
+                {
+                    dbFile: 'natural_earth/natural_earth.vector.mbtiles',
+                    schema: 'geodeo_nev'
+                },
+                {
+                    dbFile: 'natural_earth/natural_earth_2_shaded_relief.raster.mbtiles',
+                    schema: 'geodeo_nev7'
+                },
+                {
+                    dbFile: 'natural_earth/output.mbtiles',
+                    schema: 'geodeo_nev7plus'
+                }
+            ],
+            // "arc": {
+            //     "dbFile": "newbug-arc.sqlite",
+            //     "schema": "arc"
+            // },
+            // "geo": {
+            //     "dbFile": "newbug-geo.sqlite",
+            //     "schema": "geo"
+            // },
+            // "zai": {
+            //     "dbFile": "newbug-zai.sqlite",
+            //     "schema": "zai"
+            // },
             "reinitialize": false
         },
 
