@@ -44,4 +44,17 @@ CREATE TRIGGER IF NOT EXISTS figureCitations_ai AFTER INSERT ON figureCitations
     BEGIN
         INSERT INTO imagesFts (captionText)
         VALUES (NEW.captionText);
+
+        INSERT INTO rowcounts (tblname, rows) 
+        VALUES ('figureCitations', 1) 
+        ON CONFLICT(tblname) DO 
+            UPDATE SET rows = rows + 1 
+            WHERE tblname = 'figureCitations';
+    END;
+
+CREATE TRIGGER IF NOT EXISTS figureCitations_ad AFTER DELETE ON figureCitations 
+    BEGIN 
+        UPDATE rowcounts 
+        SET rows = rows - 1 
+        WHERE tblname = 'figureCitations'; 
     END;

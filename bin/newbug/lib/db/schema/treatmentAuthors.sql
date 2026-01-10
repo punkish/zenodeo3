@@ -8,3 +8,18 @@ CREATE TABLE IF NOT EXISTS treatmentAuthors (
     treatmentAuthor TEXT COLLATE NOCASE,
     email TEXT COLLATE NOCASE
 );
+
+CREATE TRIGGER IF NOT EXISTS treatmentAuthors_ai AFTER INSERT ON treatmentAuthors 
+    BEGIN 
+        INSERT INTO rowcounts (tblname, rows) 
+        VALUES ('treatmentAuthors', 1) 
+        ON CONFLICT(tblname) DO 
+            UPDATE SET rows = rows + 1 
+            WHERE tblname = 'treatmentAuthors'; 
+    END;
+CREATE TRIGGER IF NOT EXISTS treatmentAuthors_ad AFTER DELETE ON treatmentAuthors 
+    BEGIN 
+        UPDATE rowcounts 
+        SET rows = rows - 1 
+        WHERE tblname = 'treatmentAuthors'; 
+    END;

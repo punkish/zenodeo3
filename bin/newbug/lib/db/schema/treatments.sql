@@ -130,18 +130,34 @@ CREATE VIRTUAL TABLE IF NOT EXISTS treatmentsFtVins USING fts5vocab(
     'treatmentsFts', 'instance'
 );
 
-/* after-insert trigger to keep treatments and treatmentsFts in sync */
+/* after-insert triggers */
 CREATE TRIGGER IF NOT EXISTS treatments_ai AFTER INSERT ON treatments
     BEGIN
+
+        -- keep treatments and treatmentsFts in sync
         INSERT INTO treatmentsFts (rowid, fulltext) 
         VALUES (new.id, new.fulltext);
+
+        -- update rowcount
+        INSERT INTO rowcounts (tblname, rows) 
+        VALUES ('treatments', 1) 
+        ON CONFLICT(tblname) DO 
+            UPDATE SET rows = rows + 1 
+            WHERE tblname = 'treatments'; 
     END;
 
-/* after-delete trigger to keep treatments and treatmentsFts in sync */
+/* after-delete triggers */
 CREATE TRIGGER IF NOT EXISTS treatments_ad AFTER DELETE ON treatments
     BEGIN
+
+        -- keep treatments and treatmentsFts in sync
         INSERT INTO treatmentsFts (treatmentsFts, rowid, fulltext)
         VALUES ('delete', old.id, old.fulltext);
+
+        -- update rowcount
+        UPDATE rowcounts 
+        SET rows = rows - 1 
+        WHERE tblname = 'treatments';
     END;
 
 /* after-update trigger to keep treatments and treatmentsFts in sync */

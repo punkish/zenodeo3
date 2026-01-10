@@ -32,6 +32,7 @@ DROP TABLE IF EXISTS treatmentsFts;
 DROP TABLE IF EXISTS treatmentsFtVrow;
 DROP TABLE IF EXISTS treatmentsFtVcol;
 DROP TABLE IF EXISTS treatmentsFtVins;
+DROP TABLE IF EXISTS rowcounts;
 DROP VIEW IF EXISTS binomensView;
 DROP VIEW IF EXISTS treatmentCitationsView;
 DROP VIEW IF EXISTS images;
@@ -65,6 +66,17 @@ function createTables(db, logger) {
     schema.push('COMMIT;')
 
     db.exec(schema.join('\n'));
+}
+
+function createCountTable(db, logger) {
+    logger.info('creating table for tracking rowcounts in newbug db');
+    
+    const schema = fs.readFileSync(
+        path.resolve(import.meta.dirname, `./schema/count_table.sql`), 
+        'utf8'
+    );
+
+    db.exec(schema);
 }
 
 function createTempEntities(db, logger) {
@@ -141,6 +153,7 @@ export function connect({dbconfig, logger}) {
         dropTablesArchive(db, logger);
     }
 
+    createCountTable(db, logger);
     createTables(db, logger);
     createTempEntities(db, logger);
     createTablesArchive(db, logger);

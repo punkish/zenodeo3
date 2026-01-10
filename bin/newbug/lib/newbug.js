@@ -496,28 +496,20 @@ export default class Newbug {
         
         try {
             const tableOfCounts = this.db.prepare(`
-                SELECT schema, name 
-                FROM pragma_table_list 
-                WHERE type = 'table' AND NOT name glob 'sqlite_*'
+                SELECT tblname, rows FROM rowcounts 
             `).all();
 
-            tableOfCounts.forEach(table => {
-                const t = `${table.schema}.${table.name}`;
-                const sql = `SELECT Count(*) AS count FROM ${t}`;
-                table.count = this.db.prepare(sql).get().count;
-            });
-            
-            const total = tableOfCounts.map(({ name, count }) => count)
+            const total = tableOfCounts.map(({ tblname, rows }) => rows)
                 .reduce((accumulator, initialValue) => accumulator + initialValue);
 
             tableOfCounts.push({ 
-                name: '='.repeat(34), 
-                count: '='.repeat(5) 
+                tblname: '='.repeat(34), 
+                rows: '='.repeat(5) 
             });
 
             tableOfCounts.push({ 
-                name: 'total', 
-                count: total 
+                tblname: 'total', 
+                rows: total 
             });
 
             return tableOfCounts;

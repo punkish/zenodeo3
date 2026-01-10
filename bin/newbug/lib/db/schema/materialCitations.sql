@@ -171,3 +171,18 @@ CREATE TRIGGER IF NOT EXISTS materialCitations_loc_ai AFTER INSERT ON materialCi
         SET validGeo = 1
         WHERE id = new.treatments_id;
     END;
+
+CREATE TRIGGER IF NOT EXISTS materialCitations_ai AFTER INSERT ON materialCitations 
+    BEGIN 
+        INSERT INTO rowcounts (tblname, rows) 
+        VALUES ('materialCitations', 1) 
+        ON CONFLICT(tblname) DO 
+            UPDATE SET rows = rows + 1 
+            WHERE tblname = 'materialCitations'; 
+    END;
+CREATE TRIGGER IF NOT EXISTS materialCitations_ad AFTER DELETE ON materialCitations 
+    BEGIN 
+        UPDATE rowcounts 
+        SET rows = rows - 1 
+        WHERE tblname = 'materialCitations'; 
+    END;

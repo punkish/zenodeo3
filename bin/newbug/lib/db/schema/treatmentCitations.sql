@@ -47,4 +47,18 @@ CREATE TRIGGER IF NOT EXISTS treatmentCitationsView_ii INSTEAD OF INSERT ON trea
             WHERE bibRefCitationId = new.bibRefCitationId
         )
         WHERE treatmentCitationId = new.treatmentCitationId;
+
+        -- update rowcount
+        INSERT INTO rowcounts (tblname, rows) 
+        VALUES ('treatmentCitations', 1) 
+        ON CONFLICT(tblname) DO 
+            UPDATE SET rows = rows + 1 
+            WHERE tblname = 'treatmentCitations';
+    END;
+
+CREATE TRIGGER IF NOT EXISTS treatmentCitations_ad AFTER DELETE ON treatmentCitations 
+    BEGIN 
+        UPDATE rowcounts 
+        SET rows = rows - 1 
+        WHERE tblname = 'treatmentCitations'; 
     END;

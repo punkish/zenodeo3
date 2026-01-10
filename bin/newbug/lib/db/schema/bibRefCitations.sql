@@ -14,3 +14,18 @@ CREATE TABLE IF NOT EXISTS bibRefCitations (
     refString TEXT COLLATE NOCASE,
     innertext TEXT COLLATE NOCASE
 );
+
+CREATE TRIGGER IF NOT EXISTS bibRefCitations_ai AFTER INSERT ON bibRefCitations 
+    BEGIN 
+        INSERT INTO rowcounts (tblname, rows) 
+        VALUES ('bibRefCitations', 1) 
+        ON CONFLICT(tblname) DO 
+            UPDATE SET rows = rows + 1 
+            WHERE tblname = 'bibRefCitations'; 
+    END;
+CREATE TRIGGER IF NOT EXISTS bibRefCitations_ad AFTER DELETE ON bibRefCitations 
+    BEGIN 
+        UPDATE rowcounts 
+        SET rows = rows - 1 
+        WHERE tblname = 'bibRefCitations'; 
+    END;
