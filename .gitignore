@@ -73,6 +73,7 @@ config.js
 ################
 .nyc_output
 .env
+.idea
 .tap
 .templates
 .vscode
