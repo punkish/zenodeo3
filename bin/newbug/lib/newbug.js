@@ -769,6 +769,9 @@ CREATE INDEX IF NOT EXISTS treatments_binomens ON treatments(
 );
 CREATE INDEX IF NOT EXISTS treatments_journalYear ON treatments(journalYear);
 CREATE INDEX IF NOT EXISTS treatments_journals_id ON treatments(journals_id);
+CREATE INDEX IF NOT EXISTS treatments_genera_species ON treatments(
+    genera_id, species_id
+);
 
 COMMIT;
             `);
