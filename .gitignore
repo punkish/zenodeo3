@@ -24,7 +24,7 @@
 ######################
 logs/
 *.log
-*.sql
+#*.sql
 !bin/newbug/lib/db/schema/*.sql
 *.sqlite
 *.xml
