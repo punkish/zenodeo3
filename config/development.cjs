@@ -353,22 +353,22 @@ module.exports = {
         },
         
         "database": {
-            "dir": path.join(dataDir, 'db', 'newbug'),
+            "dir": path.join(dataDir, 'db'),
             "main": {
-                "dbFile": "newbug.sqlite",
+                "dbFile": "zenodeo.sqlite",
                 "schema": "main"
             },
             "attached": [
                 {
-                    "dbFile": "newbug-arc.sqlite",
+                    "dbFile": "archive.sqlite",
                     "schema": "arc"
                 },
                 {
-                    "dbFile": "newbug-geo.sqlite",
+                    "dbFile": "geo.sqlite",
                     "schema": "geo"
                 },
                 {
-                    "dbFile": "newbug-zai.sqlite",
+                    "dbFile": "zai.sqlite",
                     "schema": "zai"
                 },
                 {
@@ -388,18 +388,6 @@ module.exports = {
                     schema: 'geodeo_nev7plus'
                 }
             ],
-            // "arc": {
-            //     "dbFile": "newbug-arc.sqlite",
-            //     "schema": "arc"
-            // },
-            // "geo": {
-            //     "dbFile": "newbug-geo.sqlite",
-            //     "schema": "geo"
-            // },
-            // "zai": {
-            //     "dbFile": "newbug-zai.sqlite",
-            //     "schema": "zai"
-            // },
             "reinitialize": false
         },
 
