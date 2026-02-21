@@ -10,13 +10,10 @@ function pages($) {
 
     let pages = '';
 
-    if (start && end) {
-        pages = `${start}-${end}`;
+    if (start) {
+        pages = end ? `${start}-${end}` : start;
     }
-    else if (start && !end) {
-        pages = start;
-    }
-    else if (!start && end) {
+    else if (end) {
         pages = end;
     }
 
@@ -24,7 +21,6 @@ function pages($) {
 }
 
 export function parseTreatment($) {
-    
     // cache single selectors used multiple times
     const $document = $('document').first();
     const $treatment = $('treatment').first();
