@@ -1,7 +1,7 @@
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 import Zlogger from '../../../../../zlogger/index.js';
-import { connect } from '../db/dbconn.js';
+import { connectDb } from '../../../../lib/dbconn.js';
 import ollama from 'ollama'
 
 function createTempTableTreatmentsWithoutSummaries(db) {
@@ -116,9 +116,9 @@ function writeSummary(insert, treatmentId, summary) {
     insert.run({ treatmentId, summary })
 }
 
-const db = connect({
-    dbconfig:  config.newbug.database,
-    logger: new Zlogger(config.newbug.logger)
+const db = connectDb({
+    dbconfig:  config.database,
+    logger: new Zlogger(config.logger)
 });
 let minId = createTempTableTreatmentsWithoutSummaries(db);
 console.log(`Starting summaries from treatment ${minId}`);

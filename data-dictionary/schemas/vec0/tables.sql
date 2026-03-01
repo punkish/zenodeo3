@@ -1,0 +1,12 @@
+-- ── sqlite-vec virtual table ──────────────────────────────────────────────────
+-- Created at runtime by the indexer after loading the sqlite-vec extension.
+-- Shown here for reference only — vec0 tables cannot be in a plain .sql file
+-- without the extension loaded.
+--
+-- CREATE VIRTUAL TABLE IF NOT EXISTS vec_treatments USING vec0(
+--     chunk_id     INTEGER PRIMARY KEY,
+--     embedding    float[768]
+-- );
+--
+-- For int8 quantization use:
+--   embedding    int8[768]

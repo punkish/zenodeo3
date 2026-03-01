@@ -26,4 +26,17 @@ function boolStrToInt(v) {
     return (v === 'true' ? 1 : 0);
 }
 
-export { toArray, attr, attrOr, keysToAttrs, toIntIfNumber, boolStrToInt }
+// --- Precompiled regexes & constants ---
+const RE_DOUBLE_SPC = /\s+/g;
+const RE_SPACE_COMMA = /\s+,/g;
+const RE_SPACE_COLON = /\s+:/g;
+const RE_SPACE_PERIOD = /\s+\./g;
+const RE_OPENPAR_SPACE = /\(\s+/g;
+const RE_SPACE_CLOSEPAR = /\s+\)/g;
+const RE_CAPTION_INDEX = /^captionText-(\d+)$/;
+
+export { 
+    toArray, attr, attrOr, keysToAttrs, toIntIfNumber, boolStrToInt,
+    RE_DOUBLE_SPC, RE_SPACE_COMMA, RE_SPACE_COLON, RE_SPACE_PERIOD,
+    RE_OPENPAR_SPACE, RE_SPACE_CLOSEPAR, RE_CAPTION_INDEX
+ }

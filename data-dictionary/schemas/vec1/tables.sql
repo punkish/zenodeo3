@@ -1,0 +1,6 @@
+-- ── sqlite-vector table ───────────────────────────────────────────────────────
+-- Ordinary table; the extension adds HNSW index via vector_init().
+-- CREATE TABLE IF NOT EXISTS svec_treatments (
+--     chunk_id  INTEGER PRIMARY KEY,
+--     embedding BLOB NOT NULL
+-- )

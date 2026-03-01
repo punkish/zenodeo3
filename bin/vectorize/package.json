@@ -1,0 +1,24 @@
+{
+  "name": "treatments-vector-benchmark",
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "index":           "node indexer.js",
+    "index:daily":     "node indexer.js --daily",
+    "index:rebuild":   "node indexer.js --rebuild",
+    "benchmark":       "node scripts/benchmark.js",
+    "search":          "node -e \"import('./src/search/index.js').then(m => new m.Searcher().init().search(process.argv[2], { index: 'usearch' }).then(r => console.log(JSON.stringify(r, null, 2))))\" --",
+    "schema":          "sqlite3 $DB_PATH < schema.sql"
+  },
+  "dependencies": {
+    "better-sqlite3":       "^9.4.3",
+    "langchain":            "^0.1.0",
+    "sqlite-vec":           "^0.1.0",
+    "@sqliteai/sqlite-vector": "^1.0.0",
+    "usearch":              "^2.9.0"
+  },
+  "notes": {
+    "zvec": "No npm package yet (Feb 2026). Monitor https://github.com/alibaba/zvec for release. Set INDEX_ZVEC=true when available and run: npm install zvec",
+    "sqlite-vector-license": "Elastic License 2.0 — verify compliance for your deployment"
+  }
+}

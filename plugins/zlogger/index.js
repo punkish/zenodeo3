@@ -3,11 +3,10 @@ import Zlogger from '@punkish/zlogger';
 //import Zlogger from '../../../zlogger/index.js';
 
 async function zlog(fastify, options) {
-
-    const logOpts = JSON.parse(JSON.stringify(fastify.zconfig.zlogger));
+    //const loggerOpts = JSON.parse(JSON.stringify(fastify.zconfig.logger));
 
     // Create a new logger instance
-    const zlog = new Zlogger(logOpts);
+    const zlog = new Zlogger(fastify.zconfig.logger);
 
     if (fastify.zlog) {
         new Error('zlogger plugin already registered');

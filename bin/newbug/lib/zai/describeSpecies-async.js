@@ -2,12 +2,12 @@ import pLimit from 'p-limit';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 import Zlogger from '../../../../../zlogger/index.js';
-import { connect } from '../db/dbconn.js';
+import { connectDb } from '../../../../lib/dbconn.js';
 import ollama from 'ollama';
-const logger = new Zlogger(config.newbug.logger);
+const logger = new Zlogger(config.logger);
 
-const db = connect({
-    dbconfig:  config.newbug.database,
+const db = connectDb({
+    dbconfig:  config.database,
     logger
 });
 

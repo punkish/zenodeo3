@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+const cwd = process.cwd();
 import got from 'got';
 import zlib from 'zlib';
 
@@ -7,8 +8,10 @@ import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 import Zlogger from '@punkish/zlogger';
 //import Zlogger from '../../../../zlogger/index.js';
-import * as utils from './utils/index.js';
-import { connect } from './db/dbconn.js';
+//import * as utils from './utils/index.js';
+import { determineArchiveType, snipPath } from './utils.js';
+import { getPattern } from '../../../lib/utils.js';
+import { connectDb } from '../../../lib/dbconn.js';
 import { createInsertTreatments } from './db/createInsertTreatments.js';
 
 // see https://github.com/cheeriojs/cheerio/issues/2786#issuecomment-1288843071
@@ -36,12 +39,17 @@ export default class Newbug {
         }
 
         // Initialize the logger
-        this.logger = new Zlogger(this.config.logger);
+        const configLogger = JSON.parse(JSON.stringify(config.logger));
+        configLogger.transports.push('file');
+        configLogger.dir = path.join(cwd, 'bin/newbug/logs');
+        this.logger = new Zlogger(config.logger);
 
-        this.db = connect({
-            dbconfig:  this.config.database,
+        this.db = connectDb({
+            dbconfig:  config.database,
             logger: this.logger
         });
+
+        return;
 
         this.insertTreatments = createInsertTreatments(this.db);
 
@@ -62,14 +70,17 @@ export default class Newbug {
         // Cannot reassign properties on the module namespace (import * as 
         // utils) at it is read-only. Making a shallow copy and replacing 
         // the functions is a safe way to keep other helpers.
-        this.utils = { 
-            ...utils, 
+        // this.utils = { 
+        //     ...utils, 
 
-            // We bind `this` to the following two utils so they can access
-            // `this` as well
-            determineArchiveType: utils.determineArchiveType.bind(this),
-            checkDir: utils.checkDir.bind(this)
-        }
+        //     // We bind `this` to the following two utils so they can access
+        //     // `this` as well
+        //     determineArchiveType: utils.determineArchiveType.bind(this),
+        //     checkDir: utils.checkDir.bind(this)
+        // }
+        this.determineArchiveType = determineArchiveType.bind(this);
+        //this.checkDir = checkDir.bind(this);
+        this.snipPath = snipPath.bind(this);
 
         this.typesOfArchives = [
             'yearly', 'monthly', 'weekly', 'daily'
@@ -626,7 +637,8 @@ export default class Newbug {
     }
 
     processDir(dir) {
-        this.logger.info(`processing "${this.utils.snipDir(dir, '/Users/punkish/Projects/zenodeo3')}"`);
+        //this.logger.info(`processing "${this.utils.snipPath(dir, '/Users/punkish/Projects/zenodeo3')}"`);
+        this.logger.info(`processing "${this.snipPath(dir, '/Users/punkish/Projects/zenodeo3')}"`);
         const files = fs.readdirSync(dir, { withFileTypes: true });
         let bar;
 
@@ -714,7 +726,8 @@ export default class Newbug {
 
             if (downloadedArchive) {
                 const dir = this.unzip(downloadedArchive);
-                const typeOfArchive = await this.utils.determineArchiveType(dir);
+                //const typeOfArchive = await this.utils.determineArchiveType(dir);
+                const typeOfArchive = await this.determineArchiveType(dir);
                 this.processDir(dir);
             }
             

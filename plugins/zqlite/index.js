@@ -1,7 +1,14 @@
 import fp from 'fastify-plugin';
+import { connectDb } from '../../lib/dbconn.js';
 
-function zqlite(fastify, db, next) {
+function zqlite(fastify, options) {
+    //const dbOpts = JSON.parse(JSON.stringify(fastify.zconfig.database));
     
+    const db = connectDb({
+        configDatabase: fastify.zconfig.database,
+        logger: fastify.zlog
+    });
+
     if (fastify.zqlite) {
         next(new Error('plugin already registered'));
     }
@@ -9,7 +16,7 @@ function zqlite(fastify, db, next) {
     fastify.decorate('zqlite', db);
     fastify.addHook('onClose', (fastify, done) => db.close(done));
 
-    next();
+    //next();
 }
 
 export default fp(zqlite, {

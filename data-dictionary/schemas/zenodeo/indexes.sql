@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS rowcounts_tblname ON rowcounts(tblname);

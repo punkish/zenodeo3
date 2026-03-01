@@ -58,7 +58,7 @@
 //         .flat();
 // }
 
-import { toArray, attr, attrOr, keysToAttrs } from "./utils.js";
+import { toArray, attr } from "./utils.js";
 
 export function parseTreatmentCitations($) {
     const t = $('treatmentCitationGroup', 'subSubSection[type=reference_group]');

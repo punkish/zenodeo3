@@ -6,13 +6,15 @@ import { parseTreatment } from './lib/treatment.js';
 import * as cheerio from 'cheerio';
 
 // --- Precompiled regexes & constants ---
-const RE_DOUBLE_SPC = /\s+/g;
-const RE_SPACE_COMMA = /\s+,/g;
-const RE_SPACE_COLON = /\s+:/g;
-const RE_SPACE_PERIOD = /\s+\./g;
-const RE_OPENPAR_SPACE = /\(\s+/g;
-const RE_SPACE_CLOSEPAR = /\s+\)/g;
-const RE_CAPTION_INDEX = /^captionText-(\d+)$/;
+// const RE_DOUBLE_SPC = /\s+/g;
+// const RE_SPACE_COMMA = /\s+,/g;
+// const RE_SPACE_COLON = /\s+:/g;
+// const RE_SPACE_PERIOD = /\s+\./g;
+// const RE_OPENPAR_SPACE = /\(\s+/g;
+// const RE_SPACE_CLOSEPAR = /\s+\)/g;
+//const RE_CAPTION_INDEX = /^captionText-(\d+)$/;
+import { RE_DOUBLE_SPC, RE_SPACE_COMMA, RE_SPACE_COLON, RE_SPACE_PERIOD,
+    RE_OPENPAR_SPACE, RE_SPACE_CLOSEPAR } from './lib/utils.js'
 
 export default function xml2json(file) {
     const start = process.hrtime.bigint();

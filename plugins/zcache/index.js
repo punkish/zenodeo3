@@ -2,13 +2,10 @@ import fp from 'fastify-plugin';
 import { Cache } from '@punkish/zcache';
 
 async function zcache(fastify, options) {
+    //const cacheOpts = JSON.parse(JSON.stringify(fastify.zconfig.cache));
 
     // Create a new semantic cache
-    const cache = new Cache({
-        //dir: './cache',
-        ttl: 7 * 24 * 60 * 60 * 1000
-    });
-
+    const cache = new Cache(fastify.zconfig.cache);
     await cache.init();
 
     if (fastify.cache) {

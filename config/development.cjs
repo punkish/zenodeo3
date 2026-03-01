@@ -57,12 +57,12 @@ module.exports = {
         }
     },
 
-    // zlogger options
-    "zlogger": {
+    // This logger is used by fastify
+    "logger": {
         "level"     : "info",
         "transports": [ 'console' ],
         "dir"       : path.join(cwd, 'logs'),
-
+        "snipPrefix": "",
         // Use timestamp only, no dates
         "tsType"    : "timeonly"
     },
@@ -97,6 +97,56 @@ module.exports = {
         "dir": path.join(dataDir, 'db'),
         "dbfile": "zenodeo.sqlite",
         "alias": "archive",
+        "reinitialize": false
+    },
+    "database": {
+        "dir": path.join(dataDir, 'db'),
+        "main": {
+            "dbFile": "zenodeo.sqlite",
+            "schema": "main"
+        },
+        "attached": [
+            {
+                "dbFile": "archive.sqlite",
+                "schema": "arc"
+            },
+            {
+                "dbFile": "geo.sqlite",
+                "schema": "geo"
+            },
+            {
+                "dbFile": "zai.sqlite",
+                "schema": "zai"
+            },
+            {
+                "dbFile": "vectors/vec0.sqlite",
+                "schema": "vec0"
+            },
+            {
+                "dbFile": "vectors/vectors.sqlite",
+                "schema": "vec1"
+            },
+            {
+                "dbFile": "vectors/chunks.sqlite",
+                "schema": "chunks"
+            },
+            {
+                "dbFile": "tiles.sqlite",
+                "schema": "geodeo_countries"
+            },
+            {
+                "dbFile": "natural_earth/natural_earth.vector.mbtiles",
+                "schema": "geodeo_nev"
+            },
+            {
+                "dbFile": "natural_earth/natural_earth_2_shaded_relief.raster.mbtiles",
+                "schema": "geodeo_nev7"
+            },
+            {
+                "dbFile": "natural_earth/output.mbtiles",
+                "schema": "geodeo_nev7plus"
+            }
+        ],
         "reinitialize": false
     },
 
@@ -164,7 +214,7 @@ module.exports = {
         "base": path.join(cwd, 'cache'),
 
         //  
-        // set default cache duration to 1 days
+        // set default cache duration to 7 days
         //  
         //     +------------------------- days
         //     |    +-------------------- hours
@@ -172,7 +222,7 @@ module.exports = {
         //     |    |    |    +---------- secs
         //     |    |    |    |    +----- ms
         //     |    |    |    |    |
-        "ttl": 1 * 24 * 60 * 60 * 1000 
+        "ttl": 7 * 24 * 60 * 60 * 1000 
     },
 
     "truebug": {
@@ -345,51 +395,55 @@ module.exports = {
     },
     
     "newbug": {
-        "logger": {
-            "level"     : "info",
-            "transports": [ 'console', 'file' ],
-            "dir"       : path.join(cwd, 'bin/newbug/logs'),
-            "snipPrefix": "bin/newbug"
-        },
+        // "logger": {
+        //     "level"     : "info",
+        //     "transports": [ 'console', 'file' ],
+        //     "dir"       : path.join(cwd, 'bin/newbug/logs'),
+        //     "snipPrefix": "bin/newbug"
+        // },
         
-        "database": {
-            "dir": path.join(dataDir, 'db'),
-            "main": {
-                "dbFile": "zenodeo.sqlite",
-                "schema": "main"
-            },
-            "attached": [
-                {
-                    "dbFile": "archive.sqlite",
-                    "schema": "arc"
-                },
-                {
-                    "dbFile": "geo.sqlite",
-                    "schema": "geo"
-                },
-                {
-                    "dbFile": "zai.sqlite",
-                    "schema": "zai"
-                },
-                {
-                    "dbFile": "tiles.sqlite",
-                    "schema": "geodeo_countries"
-                },
-                {
-                    dbFile: 'natural_earth/natural_earth.vector.mbtiles',
-                    schema: 'geodeo_nev'
-                },
-                {
-                    dbFile: 'natural_earth/natural_earth_2_shaded_relief.raster.mbtiles',
-                    schema: 'geodeo_nev7'
-                },
-                {
-                    dbFile: 'natural_earth/output.mbtiles',
-                    schema: 'geodeo_nev7plus'
-                }
-            ],
-            "reinitialize": false
-        },
+        // "database": {
+        //     "dir": path.join(dataDir, 'db'),
+        //     "main": {
+        //         "dbFile": "zenodeo.sqlite",
+        //         "schema": "main"
+        //     },
+        //     "attached": [
+        //         {
+        //             "dbFile": "archive.sqlite",
+        //             "schema": "arc"
+        //         },
+        //         {
+        //             "dbFile": "geo.sqlite",
+        //             "schema": "geo"
+        //         },
+        //         {
+        //             "dbFile": "zai.sqlite",
+        //             "schema": "zai"
+        //         },
+        //         {
+        //             "dbFile": "vectors.sqlite",
+        //             "schema": "vec"
+        //         },
+        //         {
+        //             "dbFile": "tiles.sqlite",
+        //             "schema": "geodeo_countries"
+        //         },
+        //         {
+        //             "dbFile": "natural_earth/natural_earth.vector.mbtiles",
+        //             "schema": "geodeo_nev"
+        //         },
+        //         {
+        //             "dbFile": "natural_earth/natural_earth_2_shaded_relief.raster.mbtiles",
+        //             "schema": "geodeo_nev7"
+        //         },
+        //         {
+        //             "dbFile": "natural_earth/output.mbtiles",
+        //             "schema": "geodeo_nev7plus"
+        //         }
+        //     ],
+        //     "reinitialize": false
+        // },
 
         "action": "parse",
         // "action": "display",

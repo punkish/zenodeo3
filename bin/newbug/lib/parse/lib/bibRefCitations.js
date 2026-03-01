@@ -33,8 +33,7 @@
 //         })
 // }
 
-import { toArray, attr, attrOr, keysToAttrs } from "./utils.js";
-
+import { toArray, attr, keysToAttrs } from "./utils.js";
 
 export function parseBibRefCitations($) {
     const keys = [

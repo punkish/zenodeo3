@@ -206,12 +206,12 @@ function pruneTypesOfArchives(last, typesOfArchives) {
     
 }
 
-function snipDir(dir, prefix) {
+function snipPath(dir, prefix) {
     return dir.replace(prefix, '.')
 }
 
 function checkDir ({ dir, removeFiles=false }) {
-    this.logger.info(`checking if "${snipDir(dir, '/Users/punkish/Projects/zenodeo3')}" exists… `);
+    this.logger.info(`checking if "${snipPath(dir, '/Users/punkish/Projects/zenodeo3')}" exists… `);
     const exists = fs.existsSync(dir);
 
     if (exists) {
@@ -347,7 +347,7 @@ export {
     getWeekOfYear,
     getPeriodOfArchive,
     pruneTypesOfArchives,
-    snipDir,
+    snipPath,
     checkDir,
     getDirSize,
     cleanText,

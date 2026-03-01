@@ -66,8 +66,8 @@ Some figureCitation tags have multiple citations within them
 //     return figureCitations;
 // }
 
-import { toArray, attr, attrOr, keysToAttrs } from "./utils.js";
-const RE_CAPTION_INDEX = /^captionText-(\d+)$/;
+import { toArray, attr, attrOr, RE_CAPTION_INDEX } from "./utils.js";
+//const RE_CAPTION_INDEX = /^captionText-(\d+)$/;
 
 export function parseFigureCitations($) {
     return toArray($('figureCitation'))

@@ -1,8 +1,8 @@
 import { toArray, attr, attrOr, keysToAttrs, boolStrToInt } from "./utils.js";
 
-function deleted(del) {
-    return del && del === 'true' ? 1 : 0;
-}
+// function deleted(del) {
+//     return del && del === 'true' ? 1 : 0;
+// }
 
 /*
 <collectionCode 
@@ -53,7 +53,9 @@ function deleted(del) {
 //     return collectionCodes.flat();
 // }
 
-function parseCollectionCodes($, containerEl, collectionCode, materialCitationId) {
+function parseCollectionCodes(
+    $, containerEl, collectionCode, materialCitationId
+) {
     const $container = $(containerEl);
 
     const collect = (selector) =>
@@ -76,13 +78,13 @@ function parseCollectionCodes($, containerEl, collectionCode, materialCitationId
     return [...collect('collectionCode'), ...collect('specimenCode')];
 };
 
-function isOnLand(latitude, longitude) {
+// function isOnLand(latitude, longitude) {
 
-    if (latitude && longitude) {
-        return isSea(latitude, longitude) ? 0 : 1;
-    }
+//     if (latitude && longitude) {
+//         return isSea(latitude, longitude) ? 0 : 1;
+//     }
 
-}
+// }
 
 /*
 <materialsCitation id="64B83C8FFFC1FFD8EE32FCF23490FC53" 

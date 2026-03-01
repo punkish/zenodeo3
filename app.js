@@ -1,7 +1,7 @@
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import { staticPublic } from './plugins/static-public.js';
-import { connect } from './bin/newbug/lib/db/dbconn.js';
+// import { logger, connectDb } from './lib/dbconn.js';
 import routes from '@fastify/routes';
 import favicon from 'fastify-favicon';
 import cors from '@fastify/cors';
@@ -50,12 +50,12 @@ export async function server(opts={}) {
 
     // we initialize the db connection once, and store it in a fastify
     // plugin so it can be used everywhere
-    const db = connect({
-        dbconfig:  fastify.zconfig.newbug.database,
-        logger: fastify.zlog
-    });
+    // const db = connectDb({
+    //     dbconfig:  fastify.zconfig.newbug.database,
+    //     logger: fastify.zlog
+    // });
 
-    fastify.register(zqlite, db);
+    fastify.register(zqlite);
     fastify.register(zcache);
     
     // register the routes to resources
