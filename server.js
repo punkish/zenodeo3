@@ -11,20 +11,19 @@ import { server } from './app.js';
 import cron from 'node-cron';
 import { cronJobs } from './plugins/cron.js';
 import { getQueryForCache, getQueryType, coerceToArray } from './lib/utils.js';
+import { ddutils } from './data-dictionary/utils/index.js';
 
 const start = async (server) => {
     const opts = {
 
         // setting 'exposeHeadRoutes' to false ensures only 'GET' routes are 
         // created without their accompanying 'HEAD' routes
-        // 
         exposeHeadRoutes: false,
         logger: config.pino.opts,
 
         // ajv options are provided in the key 'customOptions'. This is 
         // different from when ajv is called in a stand-alone script (see 
         // `validate()` in ./lib/utils.js)
-        // 
         ajv: {
             customOptions: config.ajv.opts
         }
@@ -60,27 +59,18 @@ const start = async (server) => {
             //     ? request.url.slice(1)
             //     : request.url;
 
-            //const url = new URL(`${fastify.zconfig.url.zenodeo}/${requestUrl}`);
-            //const resourceName = url.pathname.split('/')[2];
-            const u = request.url.split('?')[0].split('/');
+            const url = request.url.split('?')[0].split('/');
 
             // Proceed only if it is a Zenodeo query which will have v3 in it
-            if (u[1] !== 'v3') {
-                return;
-            }
+            if (url[1] !== 'v3') return;
 
-            const resourceName = u[2];
-
-            if (!fastify.resourceNames.includes(resourceName)) {
-                return;
-            }
+            const resourceNames = ddutils.getResources();
+            const resourceName = url[2];
+            if (!resourceNames.includes(resourceName)) return;
 
             // The following is applicable *only* if a resourceName exists 
-            if (resourceName) {
-
-                // Store the queryType for subsequent use
-                request.queryType = getQueryType(resourceName, request);
-            }
+            // Store the queryType for subsequent use
+            request.queryType = getQueryType(resourceName, request);
 
             // If refreshCache has been requested, return right away
             if (request.query.refreshCache) {

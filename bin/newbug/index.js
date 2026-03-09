@@ -47,7 +47,8 @@ else {
     const source = argv.source;
     delete argv.source;
     const force = argv.force ?? false;
-    const newbug = new Newbug(argv);
+    const newbug = await Newbug.create(argv);
+    //const newbug = new Newbug(argv);
 
     // Terminal width for the console messages
     const tw = 55;

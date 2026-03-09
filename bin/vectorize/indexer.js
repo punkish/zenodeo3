@@ -28,9 +28,8 @@ import cliProgress from 'cli-progress';
 import colors from 'ansi-colors';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
-// import { connect } from '../../data-dictionary/dbconn.js';
-// import { logger } from './lib/logger.js';
-import { logger, connectDb } from '../../lib/dbconn.js';
+import { logger } from '../../lib/logger.js';
+import { connectDb } from '../../lib/dbconn.js';
 
 import {
     USEARCH_INDEX_PATH, ZVEC_INDEX_PATH, INDEXES, REBUILD, 
@@ -43,9 +42,8 @@ import { SqliteVectorIndexer } from './lib/sqlite-vector.js';
 import { UsearchIndexer }      from './lib/usearch.js';
 import { ZvecIndexer }         from './lib/zvec.js';
 
-// ── Database ──────────────────────────────────────────────────────────────────
-function testConn() {
-    const db = connectDb();
+// ── Database ─────────────────────────────────────────────────────────────────
+async function testConn(db) {
     const res = db.prepare('SELECT * FROM rowcounts').all();
     res.forEach(r => logger.info(`${r.tblname}: ${r.rows}`));
 }
@@ -129,7 +127,7 @@ function prepareStatements(db) {
     };
 }
 
-// ── Stage 1: chunk ────────────────────────────────────────────────────────────
+// ── Stage 1: chunk ───────────────────────────────────────────────────────────
 // Returns existing chunk rows if already chunked, otherwise chunks and saves.
 // Returns null on error.
 
@@ -173,7 +171,7 @@ async function ensureChunks(treatment, stmts) {
     }
 }
 
-// ── Stage 2: embed ────────────────────────────────────────────────────────────
+// ── Stage 2: embed ───────────────────────────────────────────────────────────
 // Returns stored vectors from chunk_vectors if all present, otherwise embeds
 // and saves. forceReembed bypasses the cache check.
 // Returns null on error.
@@ -240,7 +238,7 @@ async function ensureVectors(treatment, chunks, stmts) {
     }));
 }
 
-// ── Core: process one treatment through all three stages ──────────────────────
+// ── Core: process one treatment through all three stages ─────────────────────
 
 async function processTreatment(treatment, stmts, activeIndexers) {
 
@@ -274,11 +272,12 @@ async function processTreatment(treatment, stmts, activeIndexers) {
     return { ok: true, chunkCount: chunks.length };
 }
 
-// ── Index-only rebuild from stored vectors ────────────────────────────────────
+// ── Index-only rebuild from stored vectors ───────────────────────────────────
 // Streams all rows from chunk_vectors in batches and inserts into one index.
 
 function rebuildIndexFromVectors(name, indexer, db, bar) {
-    bar.log(`${new Date().toISOString()} [${name}] Rebuilding from stored vectors…\n`);
+    let d = new Date().toISOString();
+    bar.log(`${d} [${name}] Rebuilding from stored vectors…\n`);
 
     const BATCH_SIZE = 500;
     let batch  = [];
@@ -315,7 +314,8 @@ function rebuildIndexFromVectors(name, indexer, db, bar) {
     }
     flush();
 
-    bar.log(`${new Date().toISOString()} [${name}] Rebuilt ${count} vectors.\n`);
+    d = new Date().toISOString();
+    bar.log(`${d} [${name}] Rebuilt ${count} vectors.\n`);
 }
 
 // ── Progress bar ─────────────────────────────────────────────────────────────
@@ -357,14 +357,14 @@ function createBar(total, alreadyDone) {
 }
 
 
-// ── Main ──────────────────────────────────────────────────────────────────────
+// ── Main ─────────────────────────────────────────────────────────────────────
 
 async function run() {
     const args      = process.argv.slice(2);
     const isDaily   = args.includes('--daily');
     const isRebuild = args.includes('--rebuild');
 
-    const db    = connectDb();
+    const db = connectDb({ logger });
     const stmts = prepareStatements(db);
     const SCHEMA = 'chunks';
 

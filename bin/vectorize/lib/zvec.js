@@ -29,7 +29,7 @@ const {
 } = pkg;
 
 import fs from 'fs';
-import { logger } from './logger.js';
+import { logger } from '../../../lib/logger.js';
 import { ZVEC, ZVEC_INDEX_PATH, VECTOR_DIM } from './config.js';
 
 // Schema is fixed for the lifetime of the process — build it once.

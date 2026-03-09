@@ -6,7 +6,7 @@ import zlib from 'zlib';
  * create the root route
  * @param {string} resource - name of the resource.
  */
-const rootRoute = async function (fastify, opts) {
+const rootRoute =  function (fastify, opts) {
     const options = {
         method: 'GET',
         url: '/',
@@ -46,7 +46,7 @@ const rootRoute = async function (fastify, opts) {
 };
 
 // Router to return a single XML of the treatment
-const xmlRoute = async function (fastify, opts) {
+const xmlRoute =  function (fastify, opts) {
     const options = {
         method: 'GET',
         url: '/treatments-archive/',
@@ -128,7 +128,6 @@ function getTileFromCache(fastify, layer, z, x, y) {
     }
 }
 
-
 const geoRoute = function(fastify, opts) {
     
     const options = {
@@ -167,8 +166,10 @@ const geoRoute = function(fastify, opts) {
 };
 
 // Start with an array of all the routes
-const routes = resources
-    .map(resource => routeFactory(resource.name));
+const routes = resources.map(resource => {
+    const route = routeFactory(resource.name);
+    return route;
+});
 
 // Add the xmlRoute to the end of the array
 routes.push(xmlRoute);

@@ -18,7 +18,7 @@ import { Index } from 'usearch';
 import fs from 'fs';
 import path from 'path';
 import { USEARCH, USEARCH_INDEX_PATH, VECTOR_DIM } from './config.js';
-import { logger } from './logger.js';
+import { logger } from '../../../lib/logger.js';
 
 export class UsearchIndexer {
     /**

@@ -15,8 +15,6 @@ function zqlite(fastify, options) {
     
     fastify.decorate('zqlite', db);
     fastify.addHook('onClose', (fastify, done) => db.close(done));
-
-    //next();
 }
 
 export default fp(zqlite, {

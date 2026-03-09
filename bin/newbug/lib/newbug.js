@@ -24,7 +24,7 @@ import { pipeline as streamPipeline } from 'node:stream/promises';
 import colors from 'ansi-colors';
 
 export default class Newbug {
-    constructor(conf) {
+    constructor(conf, db) {
 
         // Import a copy of the newbug config…
         this.config = JSON.parse(JSON.stringify(config.newbug));
@@ -43,13 +43,7 @@ export default class Newbug {
         configLogger.transports.push('file');
         configLogger.dir = path.join(cwd, 'bin/newbug/logs');
         this.logger = new Zlogger(config.logger);
-
-        this.db = connectDb({
-            dbconfig:  config.database,
-            logger: this.logger
-        });
-
-        return;
+        this.db = db;
 
         this.insertTreatments = createInsertTreatments(this.db);
 
@@ -87,6 +81,14 @@ export default class Newbug {
         ];
 
         this.xml2json = xml2json;
+    }
+
+    /**
+     * Use this instead of 'new Newbug(conf)'
+     */
+    static create(conf) {
+        const db = connectDb(); // Handle async work here
+        return new Newbug(conf, db);  // Pass db to constructor once ready
     }
 
     initEtl() {

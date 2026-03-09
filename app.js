@@ -1,7 +1,6 @@
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import { staticPublic } from './plugins/static-public.js';
-// import { logger, connectDb } from './lib/dbconn.js';
 import routes from '@fastify/routes';
 import favicon from 'fastify-favicon';
 import cors from '@fastify/cors';
@@ -27,6 +26,7 @@ import zconfig from './plugins/zconfig/index.js';
 import zcache from './plugins/zcache/index.js';
 import zlog from './plugins/zlogger/index.js';
 import zqlite from './plugins/zqlite/index.js';
+import zsearch from './plugins/zsearch/index.js';
 import { cronJobs } from './plugins/cron.js';
 import { ddutils } from './data-dictionary/utils/index.js';
 
@@ -47,15 +47,8 @@ export async function server(opts={}) {
     fastify.register(fastifyStatic, staticPublic);
     fastify.register(view, viewOpts);
     //fastify.register(fastifyCron, { jobs: cronJobs.jobs });
-
-    // we initialize the db connection once, and store it in a fastify
-    // plugin so it can be used everywhere
-    // const db = connectDb({
-    //     dbconfig:  fastify.zconfig.newbug.database,
-    //     logger: fastify.zlog
-    // });
-
     fastify.register(zqlite);
+    fastify.register(zsearch);
     fastify.register(zcache);
     
     // register the routes to resources
@@ -69,8 +62,8 @@ export async function server(opts={}) {
     fastify.register(bins, { prefix: 'v3' });
     resources.forEach(resource => fastify.register(resource, { prefix: 'v3' }));
     
-    const resourceNames = ddutils.getResources();
-    fastify.decorate('resourceNames', resourceNames);
+    // const resourceNames = ddutils.getResources();
+    // fastify.decorate('resourceNames', resourceNames);
 
     return fastify;
 }

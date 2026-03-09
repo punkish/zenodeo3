@@ -23,8 +23,8 @@ import { SqliteVectorIndexer } from './sqlite-vector.js';
 import { UsearchIndexer }      from './usearch.js';
 import { ZvecIndexer }         from './zvec.js';
 import { INDEXES } from './config.js';
-import { connect } from '../../../data-dictionary/dbconn.js';
-import { logger } from './logger.js';
+import { connectDb } from '../../../lib/dbconn.js';
+import { logger } from '../../../lib/logger.js';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 
@@ -35,20 +35,20 @@ export class Searcher {
      *   Pass an existing open DB connection, or omit to open DB_PATH.
      */
     constructor(db = null) {
-        this.db = connect({
-            dbconfig: config.database,
-            logger
-        });
-        //this.db.pragma('journal_mode = WAL');
-
+        this.db = db;
         this._adapters = {};
         this._getChunk = this.db.prepare(`
-            SELECT tc.treatments_id,
-                   t.treatmentId,
-                   g.genus,
-                   s.species,
-                   tc.chunk_text
-            FROM   chunks.treatment_chunks tc
+            SELECT 
+                tc.treatments_id,
+                t.treatmentId,
+                t.articleTitle,
+                t.publicationDate,
+                g.genus,
+                s.species,
+                tc.chunk_text,
+                t.fulltext
+            FROM   
+                chunks.treatment_chunks tc
                 JOIN treatments t ON t.id = tc.treatments_id 
                 JOIN genera g ON t.genera_id = g.id 
                 JOIN species s ON t.species_id = s.id 
@@ -61,10 +61,10 @@ export class Searcher {
      * Call once before searching.
      */
     init() {
-        if (INDEXES.sqliteVec)    this._adapters.sqliteVec    = new SqliteVecIndexer(this.db);
+        if (INDEXES.sqliteVec) this._adapters.sqliteVec = new SqliteVecIndexer(this.db);
         if (INDEXES.sqliteVector) this._adapters.sqliteVector = new SqliteVectorIndexer(this.db);
-        if (INDEXES.usearch)      this._adapters.usearch      = new UsearchIndexer({ readOnly: true });
-        if (INDEXES.zvec)         this._adapters.zvec         = new ZvecIndexer();
+        if (INDEXES.usearch) this._adapters.usearch = new UsearchIndexer({ readOnly: true });
+        if (INDEXES.zvec) this._adapters.zvec = new ZvecIndexer();
         return this;
     }
 
@@ -78,7 +78,7 @@ export class Searcher {
      * @param {boolean} [opts.dedup=true]   Deduplicate by treatments_id
      * @returns {Promise<SearchResult[]>}
      */
-    async search(queryText, { index, topK = 5, dedup = true } = {}) {
+    async search(queryText, { index, topK=5, dedup=true } = {}) {
         const adapter = this._adapters[index];
         if (!adapter) throw new Error(`Index "${index}" is not enabled or not initialized.`);
 
@@ -97,7 +97,7 @@ export class Searcher {
      * @param {number} [opts.topK=5]
      * @returns {Promise<Record<string, SearchResult[]>>}
      */
-    async searchAll(queryText, { topK = 5 } = {}) {
+    async searchAll(queryText, { topK=5 } = {}) {
         const vector = await embed(queryText);
         const out = {};
 
@@ -105,6 +105,7 @@ export class Searcher {
             const candidates = adapter.search(vector, topK * 4);
             out[name] = this._resolve(candidates, topK, true, name);
         }
+        
         return out;
     }
 
@@ -125,8 +126,8 @@ export class Searcher {
             const row = this._getChunk.get(chunkId);
             if (!row) continue;
 
-            if (dedup && seen.has(row.treatment_id)) continue;
-            seen.add(row.treatment_id);
+            if (dedup && seen.has(row.treatments_id)) continue;
+            seen.add(row.treatments_id);
 
             // Normalise to a [0, 1] similarity score.
             // usearch cosine distance = 1 - similarity, so invert.
@@ -139,11 +140,14 @@ export class Searcher {
                 score,
                 treatmentId:  row.treatmentId,
                 treatments_id: row.treatments_id,
-                genus:     row.genus,
-                species:   row.species,
+                articleTitle: row.articleTitle,
+                publicationDate: row.publicationDate,
+                genus: row.genus,
+                species: row.species,
                 chunkId,
                 chunk_text: row.chunk_text,
-                index:        indexName,
+                fulltext: row.fulltext,
+                index: indexName,
             });
 
             if (results.length >= topK) break;

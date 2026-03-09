@@ -13,21 +13,12 @@
 // import { connect } from '../../data-dictionary/dbconn.js';
 // import { logger } from './lib/logger.js';
 import { VECTOR_DIM } from './lib/config.js';
-import { logger, connectDb } from '../../lib/dbconn.js';
+import { connectDb } from '../../lib/dbconn.js';
 const args   = process.argv.slice(2);
 const limit  = Number(args[args.indexOf('--limit')  + 1] ?? 5);
 const chunkId = args.includes('--chunk') ? Number(args[args.indexOf('--chunk') + 1]) : null;
 const dims   = Number(args[args.indexOf('--dims')   + 1] ?? 8);
 
-// function openDb() {
-//     const db = connect({
-//         dbconfig: config.database,
-//         logger
-//     });
-//     return db;
-// }
-
-//const db = new Database(DB_PATH, { readonly: true });
 const db = connectDb();
 const query = chunkId != null
     ? db.prepare(`
