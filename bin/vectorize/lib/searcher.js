@@ -41,15 +41,24 @@ export class Searcher {
             SELECT 
                 tc.treatments_id,
                 t.treatmentId,
+                t.zenodoDep,
+                t.treatmentTitle,
                 t.articleTitle,
+                t.articleAuthor,
+                t.articleDOI,
+                t.journalYear,
+                j.journalTitle,
                 t.publicationDate,
+                t.status,
                 g.genus,
                 s.species,
                 tc.chunk_text,
-                t.fulltext
+                t.fulltext,
+                '' AS speciesDesc
             FROM   
                 chunks.treatment_chunks tc
                 JOIN treatments t ON t.id = tc.treatments_id 
+                JOIN journals j ON t.journals_id = j.id 
                 JOIN genera g ON t.genera_id = g.id 
                 JOIN species s ON t.species_id = s.id 
             WHERE tc.id = ?
@@ -138,15 +147,23 @@ export class Searcher {
 
             results.push({
                 score,
-                treatmentId:  row.treatmentId,
                 treatments_id: row.treatments_id,
+                treatmentId:  row.treatmentId,
+                zenodoDep: row.zenodoDep,
+                treatmentTitle: row.treatmentTitle,
                 articleTitle: row.articleTitle,
+                articleAuthor: row.articleAuthor,
+                articleDOI: row.articleDOI,
+                journalYear: row.journalYear,
+                journalTitle: row.journalTitle,
                 publicationDate: row.publicationDate,
+                status: row.status,
                 genus: row.genus,
                 species: row.species,
                 chunkId,
                 chunk_text: row.chunk_text,
                 fulltext: row.fulltext,
+                speciesDesc: row.speciesDesc,
                 index: indexName,
             });
 
