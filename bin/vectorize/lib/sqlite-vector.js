@@ -12,7 +12,6 @@
 //   vector_init() builds the HNSW index in-place.
 //   vector_quantize() applies product quantization for faster search.
 //   vector_quantize_scan() performs the ANN query.
-//import { connect } from '../../../lib/dbconn.js';
 import { logger } from '../../../lib/logger.js';
 import { getExtensionPath } from '@sqliteai/sqlite-vector';
 import { SQLITE_VECTOR, VECTOR_DIM } from './config.js';

@@ -23,19 +23,19 @@ CREATE TABLE IF NOT EXISTS embedding_progress (
 -- chunks — and therefore the vector index keys — can be re-linked correctly
 -- by joining on the stable treatmentId rather than the fragile integer id.
 CREATE TABLE IF NOT EXISTS treatment_chunks (
-    id              INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
 
     -- REFERENCES treatments(id), not enforced because 
     -- treatments is in a different schema
-    treatments_id   INTEGER NOT NULL,
+    treatments_id INTEGER NOT NULL,
 
     -- immutable UUID, copied from treatments.treatmentId
-    treatmentId   TEXT    NOT NULL,
+    treatmentId TEXT NOT NULL,
 
     -- 0-based order within treatment
-    chunk_index     INTEGER NOT NULL,
-    chunk_text      TEXT NOT NULL,
-    token_estimate  INTEGER,
+    chunk_index INTEGER NOT NULL,
+    chunk_text TEXT NOT NULL,
+    token_estimate INTEGER,
 
     -- usearch vector index key = this row's id
     UNIQUE(treatments_id, chunk_index)

@@ -93,12 +93,12 @@ module.exports = {
     // This is where the db is stored
     //
     "dataDir": path.join(dataDir, 'db'),
-    "db": {
-        "dir": path.join(dataDir, 'db'),
-        "dbfile": "zenodeo.sqlite",
-        "alias": "archive",
-        "reinitialize": false
-    },
+    // "db": {
+    //     "dir": path.join(dataDir, 'db'),
+    //     "dbfile": "zenodeo.sqlite",
+    //     "alias": "archive",
+    //     "reinitialize": false
+    // },
     "database": {
         "dir": path.join(dataDir, 'db'),
         "main": {

@@ -7,11 +7,8 @@ import zlib from 'zlib';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 import Zlogger from '@punkish/zlogger';
-//import Zlogger from '../../../../zlogger/index.js';
-//import * as utils from './utils/index.js';
 import { determineArchiveType, snipPath } from './utils.js';
-import { getPattern } from '../../../lib/utils.js';
-import { connectDb } from '../../../lib/dbconn.js';
+import { DbConnection } from '../../../lib/dbconn.js';
 import { createInsertTreatments } from './db/createInsertTreatments.js';
 
 // see https://github.com/cheeriojs/cheerio/issues/2786#issuecomment-1288843071
@@ -87,8 +84,16 @@ export default class Newbug {
      * Use this instead of 'new Newbug(conf)'
      */
     static create(conf) {
-        const db = connectDb(); // Handle async work here
-        return new Newbug(conf, db);  // Pass db to constructor once ready
+
+        // Handle async work here
+        const db = new DbConnection({
+            configDatabase: this.config.database,
+            logger: this.logger,
+            readonly: false
+        }).getDb();
+
+        // Pass db to constructor once ready
+        return new Newbug(conf, db);
     }
 
     initEtl() {
@@ -134,8 +139,6 @@ export default class Newbug {
                 WHERE id = @id
                 RETURNING ended
             `).get({ id }).ended;
-
-            //this.logger.info(`ended ETL ${id}`);
         }
         catch(error) {
             this.logger.debug(error)

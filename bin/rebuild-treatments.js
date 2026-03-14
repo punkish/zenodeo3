@@ -1,7 +1,5 @@
 import { pull } from "langchain/hub";
 import { ChatOllama } from '@langchain/ollama';
-// import { initDb } from '../lib/dbconn.js';
-// const db = initDb().conn;
 import Database from "better-sqlite3";
 const db = new Database('./data/db/zenodeo.sqlite');
 

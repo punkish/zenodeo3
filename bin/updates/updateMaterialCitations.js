@@ -1,5 +1,5 @@
-import { initDb } from '../../lib/dbconn.js';
-const db = initDb().conn;
+import { DbConnection } from '../../lib/dbconn.js';
+const db = new DbConnection({}).getDb();
 
 function createIndexOnLonLat(db) {
     console.log('creating index lon_lat on materialCitations');

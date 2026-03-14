@@ -1,5 +1,5 @@
 import { Searcher } from './lib/searcher.js';
-import { connectDb } from '../../lib/dbconn.js';
+import { DbConnection } from '../../lib/dbconn.js';
 
 async function search() {
     const args = process.argv.slice(2);
@@ -13,7 +13,7 @@ async function search() {
         return;
     }
 
-    const db = connectDb();
+    const db = new DbConnection().getDb();
     const s = new Searcher(db);
     await s.init();
 

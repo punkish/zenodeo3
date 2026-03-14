@@ -23,7 +23,7 @@ import { SqliteVectorIndexer } from './sqlite-vector.js';
 import { UsearchIndexer }      from './usearch.js';
 import { ZvecIndexer }         from './zvec.js';
 import { INDEXES } from './config.js';
-import { connectDb } from '../../../lib/dbconn.js';
+import { DbConnection } from '../../../lib/dbconn.js';
 import { logger } from '../../../lib/logger.js';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;

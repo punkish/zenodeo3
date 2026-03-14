@@ -1,13 +1,12 @@
 import fp from 'fastify-plugin';
-import { connectDb } from '../../lib/dbconn.js';
+import { DbConnection } from '../../lib/dbconn.js';
 
-function zqlite(fastify, options) {
-    //const dbOpts = JSON.parse(JSON.stringify(fastify.zconfig.database));
-    
-    const db = connectDb({
+function zqlite(fastify, options) {    
+    const db = new DbConnection({
         configDatabase: fastify.zconfig.database,
-        logger: fastify.zlog
-    });
+        logger: fastify.zlog,
+        readonly: false
+    }).getDb();
 
     if (fastify.zqlite) {
         next(new Error('plugin already registered'));

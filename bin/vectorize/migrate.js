@@ -3,7 +3,7 @@
 // const config = new Config().settings;
 // import { logger } from './lib/logger.js';
 
-import { connectDb } from '../../lib/dbconn.js';
+import { DbConnection } from '../../lib/dbconn.js';
 
 // function openDb() {
 //     const db = connect({
@@ -13,7 +13,7 @@ import { connectDb } from '../../lib/dbconn.js';
 //     return db;
 // }
 
-const db = connectDb();
+const db = new DbConnection().getDb();
 function migrate(db) {
     db.exec(`
         UPDATE chunks.embedding_progress p

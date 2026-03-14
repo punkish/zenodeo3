@@ -29,7 +29,7 @@ import colors from 'ansi-colors';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 import { logger } from '../../lib/logger.js';
-import { connectDb } from '../../lib/dbconn.js';
+import { DbConnection } from '../../lib/dbconn.js';
 
 import {
     USEARCH_INDEX_PATH, ZVEC_INDEX_PATH, INDEXES, REBUILD, 
@@ -364,7 +364,7 @@ async function run() {
     const isDaily   = args.includes('--daily');
     const isRebuild = args.includes('--rebuild');
 
-    const db = connectDb({ logger });
+    const db = new DbConnection({ logger }).getDb();
     const stmts = prepareStatements(db);
     const SCHEMA = 'chunks';
 

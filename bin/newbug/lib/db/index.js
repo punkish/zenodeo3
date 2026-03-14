@@ -1,5 +1,5 @@
 import Newbug from '../newbug.js';
-import { connect } from './dbconn.js';
+import { DbConnection } from './dbconn.js';
 import { createInsertTreatments } from './createInsertTreatments.js';
 import fs from 'fs';
 import path from 'path';
@@ -14,13 +14,11 @@ export default class NewbugDb extends Newbug {
     constructor(conf) {
         super(conf);
         
-        this.db = connect({
-            dir: this.config.db.dir, 
-            main: this.config.db.main, 
-            archive: this.config.db.archive, 
-            reinitialize: this.config.db.reinitialize, 
-            logger: this.logger
-        });
+        this.db = new DbConnection({
+            configDatabase: this.config.database, 
+            logger: this.logger,
+            readonly: false
+        }).getDb();
         this.insertTreatments = createInsertTreatments(this.db);
     }
 

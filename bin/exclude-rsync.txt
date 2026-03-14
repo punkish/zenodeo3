@@ -4,7 +4,9 @@ treatments-archive
 z3-bak
 zips
 logs
-data/db
+data/db/*.sqlite
+data/db/*.sqlite*
+data/db/geodeo
 data/xmls
 data/zips
 data/treatments-dumps
