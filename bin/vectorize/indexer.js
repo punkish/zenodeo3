@@ -40,7 +40,7 @@ import { embedBatch }          from './lib/embedder.js';
 import { SqliteVecIndexer }    from './lib/sqlite-vec.js';
 import { SqliteVectorIndexer } from './lib/sqlite-vector.js';
 import { UsearchIndexer }      from './lib/usearch.js';
-import { ZvecIndexer }         from './lib/zvec.js';
+//import { ZvecIndexer }         from './lib/zvec.js';
 
 // ── Database ─────────────────────────────────────────────────────────────────
 async function testConn(db) {
