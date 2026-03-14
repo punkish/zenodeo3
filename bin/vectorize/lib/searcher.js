@@ -21,7 +21,7 @@ import { embed } from './embedder.js';
 import { SqliteVecIndexer }    from './sqlite-vec.js';
 import { SqliteVectorIndexer } from './sqlite-vector.js';
 import { UsearchIndexer }      from './usearch.js';
-import { ZvecIndexer }         from './zvec.js';
+//import { ZvecIndexer }         from './zvec.js';
 import { INDEXES } from './config.js';
 import { DbConnection } from '../../../lib/dbconn.js';
 import { logger } from '../../../lib/logger.js';
