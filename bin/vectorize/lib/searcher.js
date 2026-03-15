@@ -38,11 +38,12 @@ export class Searcher {
         this.db = db;
         this._adapters = {};
         this._getChunk = this.db.prepare(`
-            SELECT 
+            SELECT DISTINCT 
                 tc.treatments_id,
                 t.treatmentId,
                 t.zenodoDep,
                 t.treatmentTitle,
+                ta.treatmentAuthor,
                 t.articleTitle,
                 t.articleAuthor,
                 t.articleDOI,
@@ -61,6 +62,7 @@ export class Searcher {
                 JOIN journals j ON t.journals_id = j.id 
                 JOIN genera g ON t.genera_id = g.id 
                 JOIN species s ON t.species_id = s.id 
+                JOIN treatmentAuthors ta ON t.id = ta.treatments_id
             WHERE tc.id = ?
         `);
     }
@@ -151,6 +153,7 @@ export class Searcher {
                 treatmentId:  row.treatmentId,
                 zenodoDep: row.zenodoDep,
                 treatmentTitle: row.treatmentTitle,
+                treatmentAuthor: row.treatmentAuthor,
                 articleTitle: row.articleTitle,
                 articleAuthor: row.articleAuthor,
                 articleDOI: row.articleDOI,
