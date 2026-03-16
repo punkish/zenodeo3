@@ -600,5 +600,11 @@ module.exports = {
                 "rmFile": false
             }
         }
+    },
+
+    "llm": {
+        "llm_primary_model": "gpt-oss:20b",
+        "llm_fallback_model": "qwen2.5:7b-instruct", // "mistral:7b-instruct",
+        "llm_force": "local" // none | cloud | local
     }
 }
