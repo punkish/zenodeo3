@@ -17,14 +17,13 @@
 //
 //   s.close();
 
+import { getTreatments } from '../../../lib/dataFromZenodeo.js';
 import { embed } from './embedder.js';
 import { SqliteVecIndexer }    from './sqlite-vec.js';
 import { SqliteVectorIndexer } from './sqlite-vector.js';
 import { UsearchIndexer }      from './usearch.js';
 //import { ZvecIndexer }         from './zvec.js';
 import { INDEXES } from './config.js';
-import { DbConnection } from '../../../lib/dbconn.js';
-import { logger } from '../../../lib/logger.js';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
 
@@ -37,34 +36,8 @@ export class Searcher {
     constructor(db = null) {
         this.db = db;
         this._adapters = {};
-        this._getChunk = this.db.prepare(`
-            SELECT DISTINCT 
-                tc.treatments_id,
-                t.treatmentId,
-                t.zenodoDep,
-                t.treatmentTitle,
-                ta.treatmentAuthor,
-                t.articleTitle,
-                t.articleAuthor,
-                t.articleDOI,
-                t.journalYear,
-                j.journalTitle,
-                t.publicationDate,
-                t.status,
-                g.genus,
-                s.species,
-                tc.chunk_text,
-                t.fulltext,
-                '' AS speciesDesc
-            FROM   
-                chunks.treatment_chunks tc
-                JOIN treatments t ON t.id = tc.treatments_id 
-                JOIN journals j ON t.journals_id = j.id 
-                JOIN genera g ON t.genera_id = g.id 
-                JOIN species s ON t.species_id = s.id 
-                JOIN treatmentAuthors ta ON t.id = ta.treatments_id
-            WHERE tc.id = ?
-        `);
+        const sql = getTreatments({ byChunkIds: true });
+        this._getChunk = this.db.prepare(sql);
     }
 
     /**
