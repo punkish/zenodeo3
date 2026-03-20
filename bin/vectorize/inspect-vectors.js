@@ -44,8 +44,14 @@ function blobToFloat32(blob) {
 
     // better-sqlite3 returns BLOBs as Node.js Buffer (a Uint8Array subclass).
     // We need the underlying ArrayBuffer at the correct offset.
+
+    // Using slice copies the data into a new buffer. Modifying this array 
+    // does not affect the original blob.
     return new Float32Array(
-        blob.buffer.slice(blob.byteOffset, blob.byteOffset + blob.byteLength)
+        blob.buffer.slice(
+            blob.byteOffset, 
+            blob.byteOffset + blob.byteLength
+        )
     );
 }
 
