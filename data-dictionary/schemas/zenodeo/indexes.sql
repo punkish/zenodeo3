@@ -39,3 +39,5 @@ CREATE INDEX IF NOT EXISTS rowcounts_tblname ON rowcounts(tblname);
 CREATE INDEX IF NOT EXISTS idx_genera_genus_lower ON genera(Lower(genus));
 CREATE INDEX IF NOT EXISTS idx_species_species_lower ON species(Lower(species));
 CREATE INDEX IF NOT EXISTS idx_ta_treatments_id ON treatmentAuthors(treatments_id);
+CREATE INDEX IF NOT EXISTS figureCitations_idx_d85d8487 ON figureCitations(treatments_id, httpUri);
+CREATE INDEX IF NOT EXISTS treatments_idx_0074785c ON treatments(status);
