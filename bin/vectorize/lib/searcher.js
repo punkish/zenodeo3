@@ -36,7 +36,7 @@ export class Searcher {
     constructor(db = null) {
         this.db = db;
         this._adapters = {};
-        const sql = getTreatments({ byChunkIds: true });
+        const sql = getTreatments({ forSomething: true, byChunkIds: true });
         this._getChunk = this.db.prepare(sql);
     }
 
