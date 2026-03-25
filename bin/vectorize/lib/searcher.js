@@ -19,10 +19,10 @@
 
 import { getTreatments } from '../../../lib/dataFromZenodeo.js';
 import { embed } from './embedder.js';
-import { SqliteVecIndexer }    from './sqlite-vec.js';
+import { SqliteVecIndexer } from './sqlite-vec.js';
 import { SqliteVectorIndexer } from './sqlite-vector.js';
-import { UsearchIndexer }      from './usearch.js';
-//import { ZvecIndexer }         from './zvec.js';
+import { UsearchIndexer } from './usearch.js';
+//import { ZvecIndexer } from './zvec.js';
 import { INDEXES } from './config.js';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
@@ -45,10 +45,22 @@ export class Searcher {
      * Call once before searching.
      */
     init() {
-        if (INDEXES.sqliteVec) this._adapters.sqliteVec = new SqliteVecIndexer(this.db);
-        if (INDEXES.sqliteVector) this._adapters.sqliteVector = new SqliteVectorIndexer(this.db);
-        if (INDEXES.usearch) this._adapters.usearch = new UsearchIndexer({ readOnly: true });
-        if (INDEXES.zvec) this._adapters.zvec = new ZvecIndexer();
+        if (INDEXES.sqliteVec) {
+            this._adapters.sqliteVec = new SqliteVecIndexer(this.db);
+        }
+
+        if (INDEXES.sqliteVector) {
+            this._adapters.sqliteVector = new SqliteVectorIndexer(this.db);
+        }
+
+        if (INDEXES.usearch) {
+            this._adapters.usearch = new UsearchIndexer({ readOnly: true });
+        }
+
+        if (INDEXES.zvec) {
+            this._adapters.zvec = new ZvecIndexer();
+        }
+        
         return this;
     }
 
