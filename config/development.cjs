@@ -2,6 +2,15 @@ const path = require('path');
 const cwd = process.cwd();
 const dataDir = path.join(cwd, 'data');
 
+// ── Helper ────────────────────────────────────────────────────────────────────
+function envBool(key, defaultVal) {
+    if (key in process.env) {
+        return process.env[key] !== '0' && process.env[key] !== 'false';
+    }
+
+    return defaultVal;
+}
+
 module.exports = {
 
     // the 'port' and the 'address' are where this service runs, and the 'url' 
@@ -91,14 +100,8 @@ module.exports = {
     "useGot": false,
 
     // This is where the db is stored
-    //
     "dataDir": path.join(dataDir, 'db'),
-    // "db": {
-    //     "dir": path.join(dataDir, 'db'),
-    //     "dbfile": "zenodeo.sqlite",
-    //     "alias": "archive",
-    //     "reinitialize": false
-    // },
+    
     "database": {
         "dir": path.join(dataDir, 'db'),
         "main": {
@@ -602,9 +605,114 @@ module.exports = {
         }
     },
 
-    "llm": {
-        "llm_primary_model": "gpt-oss:20b",
-        "llm_fallback_model": "qwen2.5:7b-instruct", // "mistral:7b-instruct",
-        "llm_force": "local" // none | cloud | local
-    }
+    "zai": {
+        "llm_bouncer": "qwen2.5:0.5b",
+        "llm_primary_model": "qwen2.5:7b-instruct",
+        "llm_fallback_model": "qwen2.5:7b-instruct",
+        "num_ctx": 2048,
+        "num_thread": 8,
+
+         // none | cloud | local
+        "llm_force": "local",
+        "ollama_local_url": "http://localhost:11434",
+        "ollama_cloud_url": "https://ollama.com",
+        "embed_model": "nomic-embed-text",
+
+        // nomic-embed-text output dimension
+        "vector_dim": 768,
+
+        // ── Chunking ──
+        // 1k chars or ~256 tokens
+        "chunk_size": 1024,
+
+        // chars
+        "chunk_overlap": 128,
+
+        // ── Throughput (auto-scaled by environment) ─
+        "embed_concurrency": 2,
+        "db_batch_size": 200,
+        "batch_pause_ms": 100,
+
+        // ── Index on/off and rebuild switches ────────────────────────────────────────
+        //
+        // enabled: include this index when running the indexer and searcher
+        // forceRebuild: wipe and rebuild ONLY this index on the next run,
+        //               leaving chunks and stored vectors untouched
+        //
+        // Setting forceRebuild=true does NOT re-chunk or re-embed — it 
+        // only clears the index-specific store (vec0 table, .usearch file,
+        // etc.) and re-populates it from the stored vectors in the 
+        // `chunk_vectors` table. Reset to false after the rebuild completes.
+        //
+        // forceReembed: re-run Ollama on every chunk even if a vector already 
+        // exists in chunk_vectors. Use only when switching embedding models.
+        // Reset to false after the re-embed completes.
+
+        "rebuild": {
+            "forceReembed": envBool('FORCE_REEMBED', false),
+            "sqliteVec": envBool('FORCE_REBUILD_SQLITE_VEC', false),
+            "sqliteVector": envBool('FORCE_REBUILD_SQLITE_VECTOR', false),
+            "usearch": envBool('FORCE_REBUILD_USEARCH', false),
+            "zvec": envBool('FORCE_REBUILD_ZVEC', false),
+        },
+
+        "indexes": {
+            "sqliteVec": envBool('INDEX_SQLITE_VEC', false),
+            "sqliteVector": envBool('INDEX_SQLITE_VECTOR', false),
+            "usearch": envBool('INDEX_USEARCH', true),
+
+            // Node.js SDK not yet stable
+            "zvec": envBool('INDEX_ZVEC', false),
+        },
+
+        // ── sqlite-vec (asg017/sqlite-vec) ───────────────────────────────────────────
+        // Brute-force KNN inside SQLite. Vectors stored in a vec0 virtual 
+        // table. Quantization: 'f32' | 'int8' | 'bit'
+        // int8 cuts storage ~4x with minimal accuracy loss on nomic-embed-text.
+        "sqlite_vec": {
+            "quantization": 'f32',
+            "table": 'vec_treatments',
+            "schema": 'vec0'
+        },
+
+        // ── sqlite-vector (@sqliteai/sqlite-vector) ───────────────────────────────────
+        // HNSW-capable SQLite extension from sqliteai. Vectors stored as BLOBs.
+        // License: Elastic 2.0 — check compliance for your use case.
+        "sqlite_vector": {
+
+            // ordinary SQLite table with BLOB column
+            "table": 'svec_treatments',
+            "type":  'FLOAT32',
+            "schema": 'vec1'
+        },
+
+        // ── usearch (unum-cloud/usearch) ──────────────────────────────────────────────
+        // HNSW in-process index, persisted to a .usearch file.
+        "usearch": {
+            "index_path": './data/db/vectors/treatments.usearch',
+            "metric": 'cos',
+            "connectivity": 32,
+            "expansionAdd": 200,
+            "expansionSearch": 64,
+        },
+
+        // ── zvec (alibaba/zvec) ────────────────────────────────────────────────────────
+        // In-process vector database backed by Alibaba's Proxima engine.
+        // npm install @zvec/zvec
+        // Supported platforms: Linux x86_64, Linux ARM64, macOS ARM64.
+        "zvec": {
+            "index_path": './data/db/vectors/zvec_collection',
+            "collectionName": 'treatments',
+
+            // 'cosine' | 'l2' | 'ip'
+            "metric": 'cosine',
+        
+            // Resource governance — critical on the shared-RAM production VPS.
+            // optimizeThreads: threads used during index build (CPU-intensive).
+            // queryThreads:    threads used during search.
+            // Keep both low in production to avoid starving other processes.
+            "optimizeThreads": 4,
+            "queryThreads": 4,
+        }
+    } 
 }

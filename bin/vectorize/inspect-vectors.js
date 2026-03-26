@@ -8,11 +8,12 @@
 //   node scripts/inspect-vectors.js --chunk 42       # specific chunk_id
 //   node scripts/inspect-vectors.js --dims 16        # show 16 dimensions
 
-// import { Config } from '@punkish/zconfig';
-// const config = new Config().settings;
+import { Config } from '@punkish/zconfig';
+const config = new Config().settings;
+const zai = config.zai;
 // import { connect } from '../../data-dictionary/dbconn.js';
 // import { logger } from './lib/logger.js';
-import { VECTOR_DIM } from './lib/config.js';
+//import { VECTOR_DIM } from './lib/config.js';
 import { DbConnection } from '../../lib/dbconn.js';
 const args   = process.argv.slice(2);
 const limit  = Number(args[args.indexOf('--limit')  + 1] ?? 5);
@@ -77,8 +78,8 @@ for (const row of rows) {
     const vec = blobToFloat32(row.vector);
 
     // Sanity check: warn if the blob doesn't look like a valid float32 vector
-    if (vec.length !== VECTOR_DIM) {
-        console.warn(`  ⚠  chunk_id=${row.chunk_id}: expected ${VECTOR_DIM} dims, got ${vec.length}`);
+    if (vec.length !== zai.vector_dim) {
+        console.warn(`  ⚠  chunk_id=${row.chunk_id}: expected ${zai.vector_dim} dims, got ${vec.length}`);
     }
 
     console.log(`chunk_id=${row.chunk_id}  treatments_id=${row.treatments_id}`);

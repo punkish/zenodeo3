@@ -27,6 +27,7 @@ import zcache from './plugins/zcache/index.js';
 import zlog from './plugins/zlogger/index.js';
 import zqlite from './plugins/zqlite/index.js';
 import zsearch from './plugins/zsearch/index.js';
+import keepLlmWarm from './plugins/keepllmwarm/index.js';
 import { cronJobs } from './plugins/cron.js';
 import { ddutils } from './data-dictionary/utils/index.js';
 
@@ -50,6 +51,7 @@ export async function server(opts={}) {
     fastify.register(zqlite);
     fastify.register(zsearch);
     fastify.register(zcache);
+    fastify.register(keepLlmWarm);
     
     // register the routes to resources
     fastify.register(docs);
