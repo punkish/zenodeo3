@@ -615,7 +615,8 @@ module.exports = {
          // none | cloud | local
         "llm_force": "local",
         "ollama_local_url": "http://localhost:11434",
-        "ollama_cloud_url": "https://ollama.com",
+        //"ollama_cloud_url": "https://ollama.com",
+        "ollama_cloud_url": "https://askzai.punkish.org",
         "embed_model": "nomic-embed-text",
 
         // nomic-embed-text output dimension
