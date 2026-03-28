@@ -30,12 +30,14 @@ async function keepLlmWarm(fastify, opts) {
 
     // Run once when the server is ready
     fastify.addHook('onReady', async () => {
-        await keepModelsWarm();
+        // Do NOT await this; let it run in the background 
+        // so the server can finish booting.
+        keepModelsWarm(); 
         
         // Set the recurring interval
         const timer = setInterval(keepModelsWarm, interval);
 
-        // Clean up the timer if the server closes (important for dev/reloads)
+        // Clean up
         fastify.addHook('onClose', (instance, done) => {
             clearInterval(timer);
             done();
