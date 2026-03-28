@@ -42,5 +42,6 @@ module.exports = {
     "zai": {
         "num_ctx": 1024,
         "num_thread": 4,
+        "llm_force": "cloud",
     }
 }
