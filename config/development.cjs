@@ -609,14 +609,15 @@ module.exports = {
         "llm_bouncer": "qwen2.5:0.5b",
         "llm_primary_model": "qwen2.5:7b-instruct",
         "llm_fallback_model": "qwen2.5:7b-instruct",
+        "llm_cloud_model": "gpt-oss:20b-cloud",
         "num_ctx": 2048,
         "num_thread": 8,
 
-         // none | cloud | local
-        "llm_force": "local",
+         // none | local | cloud_ollama | cloud_macbook
+        "llm_force": "none",
         "ollama_local_url": "http://localhost:11434",
-        //"ollama_cloud_url": "https://ollama.com",
-        "ollama_cloud_url": "https://askzai.punkish.org",
+        "ollama_cloud_url": "https://ollama.com",
+        "ollama_macbook_url": "https://askzai.punkish.org",
         "embed_model": "nomic-embed-text",
 
         // nomic-embed-text output dimension
