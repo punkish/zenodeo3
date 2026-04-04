@@ -614,7 +614,7 @@ module.exports = {
         "num_thread": 8,
 
          // none | local | cloud_ollama | cloud_macbook
-        "llm_force": "none",
+        "llm_force": "local",
         "ollama_local_url": "http://localhost:11434",
         "ollama_cloud_url": "https://ollama.com",
         "ollama_macbook_url": "https://askzai.punkish.org",

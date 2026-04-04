@@ -41,7 +41,15 @@ export async function server(opts={}) {
     fastify.register(zconfig);
     fastify.register(zlog);
     fastify.register(favicon, {});
-    fastify.register(cors, {});
+    fastify.register(cors, {
+
+        // or your specific origin like 'http://localhost:3000'
+        origin: true,
+        methods: ['GET', 'POST'],
+
+        // This allows res.headers.get('Content-Type') to work in the browser
+        exposedHeaders: ['Content-Type'] 
+    });
     fastify.register(routes, {});
     await fastify.register(fastifySwagger, swaggerOpts.swagger);
     await fastify.register(fastifySwaggerUi, swaggerOpts.swaggerUi);
