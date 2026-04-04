@@ -2,7 +2,7 @@ import fp from 'fastify-plugin';
 import ollama from 'ollama';
 
 async function keepLlmWarm(fastify, opts) {
-    const models = opts.models || ['qwen2.5:0.5b', 'qwen2.5:7b-instruct'];
+    const models = opts.models;
 
     // Default 30 mins
     const interval = opts.interval || 30 * 60 * 1000;
@@ -30,6 +30,7 @@ async function keepLlmWarm(fastify, opts) {
 
     // Run once when the server is ready
     fastify.addHook('onReady', async () => {
+
         // Do NOT await this; let it run in the background 
         // so the server can finish booting.
         keepModelsWarm(); 
