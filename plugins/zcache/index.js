@@ -1,5 +1,6 @@
 import fp from 'fastify-plugin';
-import { Cache } from '@punkish/zcache';
+//import { Cache } from '@punkish/zcache';
+import { Cache } from '../../../zcache/index.js';
 
 async function zcache(fastify, options) {
     //const cacheOpts = JSON.parse(JSON.stringify(fastify.zconfig.cache));

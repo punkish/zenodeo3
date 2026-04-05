@@ -73,17 +73,28 @@ const start = async (server) => {
             request.queryType = getQueryType(resourceName, request);
 
             // If refreshCache has been requested, return right away
+            // because we are going to delete the cache and run a new query
+            // and re-cache the result
             if (request.query.refreshCache) {
                 return;
             }
             else {
 
-                // Check if there is cached data, and return it
-                const cachedData = await fastify.cache.get({
-                    segment: resourceName,
+                const queryObj = { 
+                    segment: resourceName, 
                     query: request.queryForCache, 
-                    isSemantic: request.queryType.isSemantic
-                });
+                    isSemantic: request.queryType.isSemantic,
+                    omit: ['embedding']
+                };
+
+                // For semantic queries, make the cache last forever by 
+                // setting the ttl to -1
+                if (request.queryType.isSemantic) {
+                    queryObj.ttl = -1;
+                }
+
+                // Check if there is cached data, and return it
+                const cachedData = await fastify.cache.get(queryObj);
 
                 if (cachedData) {
                     fastify.zlog.info(`query for creating cacheKey 💥: ${request.queryForCache}`);
