@@ -1,6 +1,6 @@
 {
   "name": "zenodeo3",
-  "version": "3.7.0",
+  "version": "3.8.0",
   "description": "zenodeo3 using fastify5",
   "main": "server.js",
   "type": "module",
@@ -32,7 +32,7 @@
     "@langchain/textsplitters": "^1.0.1",
     "@photostructure/sqlite-vec": "^1.1.1",
     "@punkish/fastify-better-sqlite3": "^2.0.0",
-    "@punkish/zcache": "^2.2.0",
+    "@punkish/zcache": "^2.5.0",
     "@punkish/zconfig": "^1.0.4",
     "@punkish/zlogger": "^1.1.1",
     "@sqliteai/sqlite-vector": "^0.9.92",
