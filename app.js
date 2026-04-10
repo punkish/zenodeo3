@@ -60,7 +60,10 @@ export async function server(opts={}) {
     fastify.register(zsearch);
     fastify.register(zcache);
     fastify.register(keepLlmWarm, {
-        models: [ fastify.zconfig.zai.llm_primary_model ]
+        models: [ 
+            fastify.zconfig.zai.llm_primary_model,
+            fastify.zconfig.zai.llm_lang_model,
+        ]
     });
     
     // register the routes to resources
