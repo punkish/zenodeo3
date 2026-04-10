@@ -213,14 +213,31 @@ CREATE TRIGGER IF NOT EXISTS treatmentAuthors_ai AFTER INSERT ON treatmentAuthor
         VALUES ('treatmentAuthors', 1) 
         ON CONFLICT(tblname) DO 
             UPDATE SET rows = rows + 1 
-            WHERE tblname = 'treatmentAuthors'; 
+            WHERE tblname = 'treatmentAuthors';
+
+        INSERT INTO treatmentAuthorsFts (rowid, treatmentAuthor, treatments_id)
+        VALUES NEW.id, NEW.treatmentAuthor, NEW.treatments_id;
     END;
+
+CREATE TRIGGER IF NOT EXISTS treatmentAuthors_au 
+    AFTER UPDATE OF treatmentAuthor, treatments_id ON treatmentAuthors
+    BEGIN
+        -- Remove the old version
+        DELETE FROM treatmentAuthorsFts WHERE rowid = OLD.id;
+        
+        -- Insert the new version
+        INSERT INTO treatmentAuthorsFts (rowid, treatmentAuthor, treatments_id) 
+        VALUES (NEW.id, NEW.treatmentAuthor, NEW.treatments_id);
+    END;
+
     
 CREATE TRIGGER IF NOT EXISTS treatmentAuthors_ad AFTER DELETE ON treatmentAuthors 
     BEGIN 
         UPDATE rowcounts 
         SET rows = rows - 1 
-        WHERE tblname = 'treatmentAuthors'; 
+        WHERE tblname = 'treatmentAuthors';
+
+        DELETE FROM treatmentAuthorsFts WHERE rowid = OLD.id;
     END;
 
 CREATE TRIGGER IF NOT EXISTS materialCitations_loc_ai AFTER INSERT ON materialCitations 

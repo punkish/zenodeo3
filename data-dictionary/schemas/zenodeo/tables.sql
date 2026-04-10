@@ -206,6 +206,13 @@ CREATE TABLE IF NOT EXISTS treatmentAuthors (
     email TEXT COLLATE NOCASE
 );
 
+CREATE VIRTUAL TABLE NOT EXISTS treatmentAuthorsFts USING fts5 (
+    treatmentAuthor, treatments_id UNINDEXED
+);
+
+-- INSERT INTO treatmentAuthorsFts (rowid, treatmentAuthor, treatments_id) 
+-- SELECT id, treatmentAuthor, treatments_id FROM treatmentAuthors;
+
 CREATE TABLE IF NOT EXISTS rowcounts (
     tblname TEXT PRIMARY KEY NOT NULL, 
     rows INTEGER
