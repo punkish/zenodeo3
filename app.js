@@ -59,12 +59,7 @@ export async function server(opts={}) {
     fastify.register(zqlite);
     fastify.register(zsearch);
     fastify.register(zcache);
-    fastify.register(keepLlmWarm, {
-        models: [ 
-            fastify.zconfig.zai.llm_primary_model,
-            fastify.zconfig.zai.llm_lang_model,
-        ]
-    });
+    fastify.register(keepLlmWarm);
     
     // register the routes to resources
     fastify.register(docs);
