@@ -2,12 +2,7 @@ import fp from 'fastify-plugin';
 import ollama from 'ollama';
 
 async function keepLlmWarm(fastify, opts) {
-    const zai = fastify.zconfig.zai;
-    const models =  [ zai.llm_primary_model ];
-
-    if (zai.llm_lang_model !== zai.llm_primary_model) {
-        models.push(zai.llm_lang_model)
-    }
+    const models = opts.models;
 
     // Default 30 mins
     const interval = opts.interval || 30 * 60 * 1000;

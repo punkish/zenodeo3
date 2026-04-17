@@ -611,8 +611,7 @@ module.exports = {
         "llm_primary_model": "qwen2.5:7b-instruct",
         "llm_fallback_model": "qwen2.5:7b-instruct",
         "llm_cloud_model": "gpt-oss:20b-cloud",
-        //"llm_lang_model": "qwen2.5:0.5b",
-        "llm_lang_model": "qwen2.5:7b-instruct",
+        "llm_lang_model": "qwen2.5:0.5b",
         "num_ctx": 2048,
         "num_thread": 8,
 
