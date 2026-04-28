@@ -3,6 +3,7 @@
 // $ NODE_ENV=production pm2 start server.js --name=z3
 // 
 const env = process.env.NODE_ENV || 'development';
+import 'dotenv/config';
 import process from 'node:process';
 import { Config } from '@punkish/zconfig';
 const config = new Config().settings;
